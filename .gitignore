@@ -1,0 +1,17 @@
+# Local run output, such as the Codex review transcripts of `make codex-review`.
+.local/
+
+# Secrets. Only the example file enters the repository.
+.env
+.env.*
+!.env.example
+
+# Python bytecode of the check tools.
+__pycache__/
+*.pyc
+
+# Node packages.
+node_modules/
+
+# macOS.
+.DS_Store

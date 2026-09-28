@@ -1,0 +1,35 @@
+#!/bin/sh
+# Refuse a commit that main must never take, and refuse a staged document
+# that fails the STE rules (D-14, D-83). `make hooks` installs this file.
+set -e
+
+branch=$(git rev-parse --abbrev-ref HEAD)
+if [ "$branch" = "main" ]; then
+  echo "pre-commit: main takes no commit (D-14)."
+  echo "  Start a short branch:  git switch -c <type>/<slug>"
+  exit 1
+fi
+
+# A branch whose pull request is already merged takes no more commits. The
+# commit never reaches main. With no gh, the check fails open.
+if command -v gh >/dev/null 2>&1; then
+  state=$(gh pr list --head "$branch" --state all --json state --jq '.[0].state' 2>/dev/null || echo "")
+  if [ "$state" = "MERGED" ]; then
+    echo "pre-commit: the pull request of $branch is MERGED already."
+    echo "  A commit here never reaches main. Start a branch from main:"
+    echo "  git switch main && git pull --ff-only && git switch -c <type>/<slug>"
+    exit 1
+  fi
+fi
+
+# Every staged document meets the STE rules before it lands (D-83).
+root=$(git rev-parse --show-toplevel)
+checker="$root/docs/tools/ste-check.py"
+if [ -n "$(git diff --cached --name-only --diff-filter=ACM -- '*.md')" ]; then
+  if [ ! -f "$checker" ]; then
+    echo "pre-commit: $checker does not exist, so no STE check ran."
+    exit 0
+  fi
+  cd "$root"
+  git diff --cached --name-only -z --diff-filter=ACM -- '*.md' | xargs -0 python3 "$checker"
+fi

@@ -1,0 +1,94 @@
+# Gym Route - decisions
+
+This file is the append-only register of owner decisions. Each row has a stable id. Do not renumber a row, and do not delete a row. A later row can amend or supersede an earlier row. The id cell of the earlier row then names the later row, for example "D-10 (amended by D-12)".
+
+The Question column names the source of the decision and the question id in `docs/questions.md`. A decision that no owner answer supports does not go in this file. Record a recommendation in `docs/questions.md` or in a research document.
+
+## Register
+
+| # | Date | Question | Decision |
+|---|---|---|---|
+| D-1 (extended by D-3) | 2026-09-27 | (owner decision, Q-63) What can the first session implement? | Documentation, research, conventions, one high-level roadmap, and minimal non-product validation tooling. |
+| D-2 | 2026-09-27 | (owner decision, Q-71) Which Git operations can the first session do? | Create a branch, commit, push, and open the documentation pull request. Do not merge. |
+| D-3 | 2026-09-27 | (owner statement, with Q-64) Which Decktome process items does the first session port? | The first session ports the Codex review, the AGENTS.md and CLAUDE.md link, ASD-STE100, and the other Decktome process items that D-6 lists. Gitar integration stays out until the owner gives explicit approval. |
+| D-4 | 2026-09-27 | (owner statement, with Q-64) When can a documentation pull request use the `review-override` label? | The `review-override` label exists for pull requests of documents alone, as in Decktome. The Codex review still applies to every pull request of documents alone until the high-level roadmap and the focused roadmaps are finished. The owner states when that period ends. |
+| D-5 | 2026-09-27 | (owner decision, Q-64) Which foundation artifacts does the first session create? | The full expected set of the launch prompt. |
+| D-6 | 2026-09-27 | (owner decision, Q-74) Which Decktome process items does the first pull request port? | Core gates (ste-check, ref-check, pr-check with the pull request template, the review-gate workflow, the pre-commit hook, `make where`, `make hooks`, `make verify`, with tests). The ruleset of `main` and ruleset-check. The session hooks (session_bind, context_checkpoint) and context-budget. The skills ste-writing, pr-review, and one-pr-one-session, with the Gitar steps removed. |
+| D-7 | 2026-09-27 | (owner decision, Q-75) What does the CLAUDE.md and AGENTS.md mirror mean? | `AGENTS.md` holds the rules. `CLAUDE.md` only tells Claude Code to read `AGENTS.md`. |
+| D-8 | 2026-09-27 | (owner decision, Q-76) Who starts the Codex review? | The author session runs `make codex-review PR=<n>` automatically after CI is green. It spends the owner's Codex plan, and it needs no approval for each round. |
+| D-9 | 2026-09-27 | (owner decision, Q-72) How does the roadmap show future pull requests? | Broad work areas of pull request size, with no permanent pull request numbers. |
+| D-10 (amended by D-12) | 2026-09-27 | (owner decision, Q-65) How does the rule of two or three concerns work? | The concerns of one pull request form one cohesive milestone with one combined acceptance story. |
+| D-11 | 2026-09-27 | (owner decision, Q-73) Where does the launch prompt live? | Outside the repository. The durable results live in the repository documents. |
+| D-12 | 2026-09-27 | (owner decision, Q-66) Does one clean session per pull request carry over? | Yes. A pull request can hold two, three, or more concerns when the scope needs them, and D-10 still requires one milestone. The owner approves the work of a pull request before it starts. |
+| D-13 | 2026-09-27 | (owner decision, Q-68) Who authorizes a merge? | The owner confirms every merge after the checks and the review are current. |
+| D-14 | 2026-09-27 | (owner decision, Q-69) Which Git and delivery rules carry over? | Short branches, conventional commits, no direct push to `main`, deploy from `main` alone, no AI attribution, truthful checks, and a current hand-off. |
+| D-15 | 2026-09-27 | (owner decision, Q-67) Which cross-provider review rule applies? | A cross-provider review is necessary only for a change of code or of safety behavior. D-4 still applies to documentation pull requests during its period. |
+| D-16 | 2026-09-27 | (owner decision, Q-1, Q-77) What is the name of the app? | Gym Route. The name is permanent. The audience is small, the app earns no money, and the name does not need to be clever. |
+| D-17 | 2026-09-27 | (owner decision, Q-1, Q-3, Q-78) What is the product form? | An installable, phone-first web app on a default Firebase Hosting URL, with the Decktome stack. It never goes to an app store. No native iOS or Android app exists. |
+| D-18 | 2026-09-27 | (owner decision, Q-4) What does "hosted on GCP" mean? | Follow Decktome. Google Cloud hosts the API, the data, the jobs, and the web app. A merge to `main` deploys through Cloud Build. |
+| D-19 (superseded by D-67) | 2026-09-27 | (owner decision, Q-2) Who does the first usable release serve? | The owner and a small invite-only beta. |
+| D-20 | 2026-09-27 | (owner decision, Q-79) What does a desktop browser show? | The one phone layout. No desktop screens or desktop features exist, and nobody tests a desktop layout. |
+| D-21 | 2026-09-27 | (owner decision, Q-80) How does the roadmap treat the limits of a web app on iOS? | Accept the limits and design around them. D-58 and D-61 later removed audio cues and notifications. |
+| D-22 | 2026-09-27 | (owner statement, with Q-80) What is the role of the LLM? | LLM integration through OpenAI Luna at medium effort is key to the project, as in Decktome. Luna plans workouts from the wants of the user and the available equipment. Luna revises the plan after the user reports reps, weight, and other results. |
+| D-23 | 2026-09-27 | (owner decision, Q-15) What makes the final safety-critical workout decision? | Luna proposes. A deterministic, versioned policy checks every set, load, and change before the user sees it. A rules fallback applies when Luna fails. |
+| D-24 | 2026-09-27 | (owner decision, Q-55) Which AI provider policy applies? | `gpt-6-luna` at medium effort for planning, revision, and equipment photos. It sits behind a role layer in the style of Decktome, with a fake provider for tests. |
+| D-25 | 2026-09-27 | (owner decision, Q-56) How are paid AI calls controlled? | The owner approves each paid development run. Production has a monthly cap for each user and a cap for the project. |
+| D-26 | 2026-09-27 | (owner decision, Q-5) Which ages are in scope? | Adults 18 and older only. |
+| D-27 | 2026-09-27 | (owner decision, Q-6) What is the business model? | Free. No ads, and no sale of data. |
+| D-28 | 2026-09-27 | (owner decision, Q-7) Which language, market, and units? | US English and pounds only. |
+| D-29 | 2026-09-27 | (owner decision, Q-8) Which phone platform leads? | Chrome on iPhone. Chrome on iOS uses the WebKit engine, so the iOS limits of D-21 apply unchanged. |
+| D-30 | 2026-09-27 | (owner decision, Q-9) Which training experience is in scope? | Intermediate to advanced lifters. The path is similar for each level, with more weight for advanced lifters. |
+| D-31 | 2026-09-27 | (owner decision, Q-10) Which goals does the first release support? | General fitness and strength. The core user is a 180 lb, 32-year-old man. He used machines such as a chest press before, but he did not train in a gym for several years. |
+| D-32 | 2026-09-27 | (owner decision, Q-81) How does the engine treat the core user? | Intermediate from the first day, with loads from the estimates of the user. |
+| D-33 | 2026-09-27 | (owner decision, Q-82) Are people with no weight training in scope? | No. They are out of scope. |
+| D-34 | 2026-09-27 | (owner decision, Q-11) Which screening inputs does onboarding collect? | Injuries and experience only. No readiness questions. |
+| D-35 | 2026-09-27 | (owner decision, Q-12) Can a screening answer stop plan generation? | No. The app warns and continues with a conservative plan that avoids the injured area. |
+| D-36 | 2026-09-27 | (owner decision, Q-13) Which medical boundary does the product state? | Fitness guidance only. No diagnosis, treatment, rehabilitation prescription, or emergency advice. |
+| D-37 | 2026-09-27 | (owner decision, Q-14) How does proximity to failure work? | Targets use one to three reps in reserve. Failure is rare, and it never occurs in the first sessions after a break. |
+| D-38 | 2026-09-27 | (owner decision, Q-16) Which evidence standard applies? | Current authoritative guidance plus peer-reviewed systematic evidence, with a citation and a date for each item. |
+| D-39 | 2026-09-27 | (owner decision, Q-17) Is qualified human review necessary before broader release? | No. |
+| D-40 | 2026-09-27 | (owner decision, Q-18, Q-83) What happens when a user reports a warning symptom? | The app warns, and the user can continue after a confirmation. This rule applies to every symptom. The owner declined a split rule for cardiac symptoms. |
+| D-41 | 2026-09-27 | (owner decision, Q-19) Which onboarding inputs are necessary? | Experience, goals, injuries and restrictions, current load estimates for each machine after the photo upload, age, height, weight, and cardio preference. |
+| D-42 | 2026-09-27 | (owner decision, Q-20) How does a user say what to train? | Direct muscle selection and goal templates. Free text goes to Luna for interpretation. |
+| D-43 | 2026-09-27 | (owner decision, Q-21) How long does a plan last? | Continuous adaptation with no explicit block. |
+| D-44 | 2026-09-27 | (owner decision, Q-22) What supporting content does the plan hold? | Warm-up, rest, cooldown, optional cardio, and mobility and recovery guidance. D-36 limits this guidance to fitness content. |
+| D-45 | 2026-09-27 | (owner decision, Q-23, Q-84) Which exercise types are in scope? | Fixed-path resistance machines (selectorized or plate-loaded) and cardio machines. No cable stations, free weights, bodyweight exercises, or bands. |
+| D-46 | 2026-09-27 | (owner decision, Q-24) How many equipment inventories does a user have? | One active inventory. |
+| D-47 | 2026-09-27 | (owner decision, Q-25) What happens when a machine is busy or unavailable? | The user skips the exercise. The app offers no substitute. |
+| D-48 | 2026-09-27 | (owner decision, Q-26) Can a user exclude exercises or movements? | Yes, with an optional reason. Luna plans again, and the policy checks the result. |
+| D-49 | 2026-09-27 | (owner decision, Q-27) How does a recognized machine become trusted data? | The user confirms or corrects every machine before a plan uses it. |
+| D-50 | 2026-09-27 | (owner decision, Q-28) Which photographs does the capture flow request? | One general photo. The app asks for more photos only when the result is uncertain. |
+| D-51 | 2026-09-27 | (owner decision, Q-29) Is a complete manual equipment path necessary? | Yes. |
+| D-52 | 2026-09-27 | (owner decision, Q-30) What is the default retention of images? | Delete the source photos after the user confirms the machine, unless the user keeps them. |
+| D-53 | 2026-09-27 | (owner decision, Q-31, Q-85) Can user photos improve a shared recognition system? | No. The app deletes the photos, and no user photo goes into an evaluation set. The first answer to Q-31 was "Yes, no opt in". The owner replaced it with this answer in Q-85. |
+| D-54 | 2026-09-27 | (owner decision, Q-32) Which machine details does the equipment model store? | Identity and available weights only. |
+| D-55 | 2026-09-27 | (owner decision, Q-33) What happens when recognition is not sure? | The app always offers manual selection, text entry, or a photo upload. When a photo fails, the app asks for a new photo or for manual selection or text entry. |
+| D-56 | 2026-09-27 | (owner decision, Q-86) Where do the photos for recognition tests come from? | Public or properly licensed images only. |
+| D-57 | 2026-09-27 | (owner decision, Q-34) What is the minimum set log? | Reps, weight, and reps in reserve. Pain and a note are optional. |
+| D-58 | 2026-09-27 | (owner decision, Q-37) Which hands-free cues exist? | Visual cues only. No audio and no vibration. |
+| D-59 | 2026-09-27 | (owner decision, Q-35) When does the rest timer start? | Automatically when the user logs a set. The user can adjust or dismiss it. |
+| D-60 | 2026-09-27 | (owner decision, Q-36) How does the automatic move to the next machine appear? | A brief completion and next-machine preview, then an automatic advance. |
+| D-61 | 2026-09-28 | (owner decision, Q-50) Which notifications exist? | None. The rest timer shows on the screen only. |
+| D-62 | 2026-09-27 | (owner decision, Q-38) Must workout logs work offline? | Yes. The app stores the logs on the device first and syncs them later. |
+| D-63 | 2026-09-27 | (owner decision, Q-39, Q-87) Which in-workout corrections exist? | Edit a prior set and skip an exercise. A "finish now" action skips all remaining exercises, and the session records as ended early. |
+| D-64 | 2026-09-27 | (owner decision, Q-40) Which signals can change progression? | Reps, load, reps in reserve, pain, skipped work, and gaps in the history. |
+| D-65 | 2026-09-27 | (owner decision, Q-41, Q-88) Do recommendations use the weight steps of each machine? | No. A global rounding rule applies: the nearest 5 lb, up or down. |
+| D-66 | 2026-09-27 | (owner decision, Q-42) Which recovery disruptions does the engine support? | Missed sessions and long breaks only. |
+| D-67 | 2026-09-28 | (owner decision, Q-89, Q-58) Who uses the app? | Only the owner, ever. This decision supersedes D-19. |
+| D-68 | 2026-09-27 | (owner decision, Q-43) Does the app explain an adaptation? | Yes. A concise reason names the logged evidence behind it. |
+| D-69 | 2026-09-27 | (owner decision, Q-44) Can a user override a prescription? | Yes. The app keeps the recommendation, the override, and the reason as separate records. |
+| D-70 | 2026-09-27 | (owner decision, Q-45) Which visual direction leads? | Calm, focused, high-contrast, and minimal. |
+| D-71 | 2026-09-27 | (owner decision, Q-46) Is one-handed gym use a formal requirement? | Yes. Large targets, few taps, little typing, and tolerance of interruptions. |
+| D-72 | 2026-09-28 | (owner decision, Q-47) Which accessibility baseline applies? | Defer accessibility work. |
+| D-73 | 2026-09-28 | (owner decision, Q-48) Which exercise-instruction media are permitted? | Text only. |
+| D-74 | 2026-09-28 | (owner decision, Q-51) How strongly does the Decktome stack bind this project? | The Decktome stack is the default. Each deviation needs evidence and a record. |
+| D-75 | 2026-09-28 | (owner decision, Q-53) Which authentication approach applies? | Firebase email and password with an invite allowlist, as in Decktome. |
+| D-76 | 2026-09-28 | (owner decision, Q-54) How do GCP environments and the region work? | One development project only, in `us-central1`. |
+| D-77 | 2026-09-28 | (owner decision, Q-57) Which data authority model leads? | Offline-first local workout state. Firestore, through the API, is the source of record after a sync. |
+| D-78 | 2026-09-28 | (owner decision, Q-58) Which user data controls are necessary? | None. The project serves the owner alone (D-67). |
+| D-79 | 2026-09-28 | (owner decision, Q-59) Which compliance posture applies? | The minimum general consumer requirements. |
+| D-80 | 2026-09-28 | (owner decision, Q-60) Which telemetry is permitted? | Operational metrics and error reports with ids only. No workout text, photos, prompts, or health details. |
+| D-81 | 2026-09-28 | (owner decision, Q-61) Does the project host public policy or support pages? | No. The app on its default URL is the only public surface. |
+| D-82 | 2026-09-28 | (owner decision, Q-62) How does the web app reach the API? | The default Cloud Run URL, with CORS limited to the origin of the web app. No custom domain. |
+| D-83 | 2026-09-27 | (owner decision, Q-70, through D-3 and D-6) Which documentation style and gates apply? | ASD-STE100 for every document and skill, with the ported Decktome gates of D-6. |
+| D-84 | 2026-09-28 | (owner decision, Q-52, Q-90) Which web client stack does the app use? | The Decktome React stack: React 19.3, Vite 8, vite-plugin-pwa, TanStack Query with connect-query, and Tailwind 4. Phase 1 profiles the startup of a build on a phone. The owner chose it after the comparison of `docs/research/platform-cloud-and-ai.md`. |

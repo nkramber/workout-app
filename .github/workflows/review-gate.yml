@@ -1,0 +1,53 @@
+name: review-gate
+
+# The review gate of every pull request (D-4, D-8). The ruleset of `main`
+# (.github/rulesets/review-gate.json) requires this check, from GitHub
+# Actions alone.
+#
+# The trigger is `pull_request_target`, so the workflow file and the rule
+# come from `main`. The job reads the head of the pull request as data: it
+# runs git on the head ref, and it never runs a file of the head. GitHub
+# starts this trigger from the default branch alone, so the pull request
+# that adds this file can not run it.
+#
+# A label changes the result, so a label event runs the job again. A new
+# base changes the commits under review, so an edit runs it too. The job
+# has no condition: a skipped job reads as a pass of a required check.
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review, labeled, unlabeled, edited]
+
+# The job itself is the check run, so the token reads contents alone.
+permissions:
+  contents: read
+
+concurrency:
+  group: review-gate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review-gate:
+    name: review-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # With `pull_request_target`, this action checks out `main`.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 verified_at 2026-09-28
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # The number enters through env, never through an expression inside
+      # the script. The rule reads the rest of the event from its file.
+      - name: review gate
+        env:
+          NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -uo pipefail
+          git fetch --no-tags origin "+refs/pull/$NUMBER/head:refs/remotes/pr/head"
+          status=0
+          python3 docs/tools/review_gate.py --event "$GITHUB_EVENT_PATH" --head refs/remotes/pr/head \
+            > "$RUNNER_TEMP/review-gate.log" 2>&1 || status=$?
+          cat "$RUNNER_TEMP/review-gate.log"
+          cat "$RUNNER_TEMP/review-gate.log" >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
