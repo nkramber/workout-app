@@ -1,0 +1,23 @@
+{
+  "note": "Synthetic machine catalog of the Luna plan spike. Each machine has an identity and its available weights only (D-54). Loads are in lb. A cardio machine has no weights.",
+  "machines": [
+    {"machine_id": "M01", "name": "Leg press", "kind": "strength", "region": "lower", "weights_lb": {"min": 50, "max": 400, "step": 10}},
+    {"machine_id": "M02", "name": "Seated leg curl", "kind": "strength", "region": "lower", "weights_lb": {"min": 10, "max": 200, "step": 5}},
+    {"machine_id": "M03", "name": "Leg extension", "kind": "strength", "region": "lower", "weights_lb": {"min": 10, "max": 200, "step": 10}},
+    {"machine_id": "M04", "name": "Chest press", "kind": "strength", "region": "upper_push", "weights_lb": {"min": 10, "max": 250, "step": 10}},
+    {"machine_id": "M05", "name": "Shoulder press", "kind": "strength", "region": "upper_push", "weights_lb": {"min": 10, "max": 200, "step": 5}},
+    {"machine_id": "M06", "name": "Lat pulldown", "kind": "strength", "region": "upper_pull", "weights_lb": {"min": 10, "max": 250, "step": 10}},
+    {"machine_id": "M07", "name": "Seated row", "kind": "strength", "region": "upper_pull", "weights_lb": {"min": 10, "max": 250, "step": 10}},
+    {"machine_id": "M08", "name": "Pec fly", "kind": "strength", "region": "upper_push", "weights_lb": {"min": 10, "max": 200, "step": 5}},
+    {"machine_id": "M09", "name": "Biceps curl machine", "kind": "strength", "region": "upper_pull", "weights_lb": {"min": 5, "max": 100, "step": 5}},
+    {"machine_id": "M10", "name": "Triceps extension machine", "kind": "strength", "region": "upper_push", "weights_lb": {"min": 5, "max": 100, "step": 5}},
+    {"machine_id": "M11", "name": "Hip abduction", "kind": "strength", "region": "lower", "weights_lb": {"min": 25, "max": 250, "step": 5}},
+    {"machine_id": "M12", "name": "Back extension machine", "kind": "strength", "region": "core", "weights_lb": {"min": 25, "max": 200, "step": 12.5}},
+    {"machine_id": "M13", "name": "Abdominal crunch machine", "kind": "strength", "region": "core", "weights_lb": {"min": 10, "max": 150, "step": 10}},
+    {"machine_id": "M14", "name": "Treadmill", "kind": "cardio", "region": "cardio", "weights_lb": null},
+    {"machine_id": "M15", "name": "Recumbent bike", "kind": "cardio", "region": "cardio", "weights_lb": null},
+    {"machine_id": "M16", "name": "Rowing machine", "kind": "cardio", "region": "cardio", "weights_lb": null},
+    {"machine_id": "M17", "name": "Calf raise machine", "kind": "strength", "region": "lower", "weights_lb": {"min": 20, "max": 300, "step": 10}},
+    {"machine_id": "M18", "name": "Rear delt machine", "kind": "strength", "region": "upper_pull", "weights_lb": {"min": 10, "max": 150, "step": 10}}
+  ]
+}

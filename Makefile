@@ -52,9 +52,16 @@ context-budget: ## Check the byte budget of AGENTS.md, CLAUDE.md, the hand-off, 
 	@echo "==> context-budget"
 	@python3 docs/tools/context_budget.py
 
-test: ## Run the unit tests of docs/tools and of the hooks, free
+# Each spike of tools/spikes has its own folder and its own tests. The
+# tests use a fake provider only, so they make no paid call.
+test: ## Run the unit tests of docs/tools, of the hooks, and of each spike of tools/spikes, free
 	@echo "==> test"
 	@python3 -m unittest discover -s docs/tools -p 'test_*.py'
+	@for dir in tools/spikes/*/; do \
+	  [ -d "$$dir" ] || continue; \
+	  echo "==> test $$dir"; \
+	  python3 -m unittest discover -s "$$dir" -p 'test_*.py' || exit 1; \
+	done
 
 verify: lint test ## Run every check that CI runs, on this machine, free
 	@echo "verify: every check passed."

@@ -1,0 +1,306 @@
+{
+  "note": "Synthetic profiles and inventories of the Luna plan spike. No field holds personal data (D-53). Each profile holds the onboarding inputs of D-41. The inventory lists the machines of the gym of the profile from machines.json, with the load estimate of the user for each strength machine in lb. A null estimate means that the user does not know the load. Experience: months_since_last_training is null for a novice.",
+  "profiles": [
+    {
+      "profile_id": "SP-01",
+      "age": 52, "height_in": 70, "weight_lb": 215,
+      "experience": {"level": "returning", "years_trained": 8, "months_since_last_training": 60},
+      "goals": {"templates": ["strength", "muscle"], "muscles": [], "free_text": "Get back into the gym and feel strong again."},
+      "injuries_restrictions": [],
+      "excluded_machine_ids": [],
+      "cardio_preference": "bike",
+      "inventory": [
+        {"machine_id": "M01", "load_estimate_lb": 250}, {"machine_id": "M02", "load_estimate_lb": 90},
+        {"machine_id": "M04", "load_estimate_lb": 150}, {"machine_id": "M05", "load_estimate_lb": 90},
+        {"machine_id": "M06", "load_estimate_lb": 140}, {"machine_id": "M07", "load_estimate_lb": 140},
+        {"machine_id": "M11", "load_estimate_lb": 25}, {"machine_id": "M13", "load_estimate_lb": 70},
+        {"machine_id": "M15", "load_estimate_lb": null}
+      ]
+    },
+    {
+      "profile_id": "SP-02",
+      "age": 67, "height_in": 64, "weight_lb": 150,
+      "experience": {"level": "novice", "years_trained": 0, "months_since_last_training": null},
+      "goals": {"templates": ["general_health"], "muscles": ["legs"], "free_text": "Stay strong enough for long walks and hiking."},
+      "injuries_restrictions": ["Mild knee arthritis. Stairs feel fine."],
+      "excluded_machine_ids": ["M03"],
+      "cardio_preference": "treadmill",
+      "inventory": [
+        {"machine_id": "M01", "load_estimate_lb": 90}, {"machine_id": "M02", "load_estimate_lb": 30},
+        {"machine_id": "M03", "load_estimate_lb": 30}, {"machine_id": "M04", "load_estimate_lb": 40},
+        {"machine_id": "M06", "load_estimate_lb": 50}, {"machine_id": "M07", "load_estimate_lb": 40},
+        {"machine_id": "M11", "load_estimate_lb": 40}, {"machine_id": "M14", "load_estimate_lb": null}
+      ]
+    },
+    {
+      "profile_id": "SP-03",
+      "age": 29, "height_in": 72, "weight_lb": 180,
+      "experience": {"level": "intermediate", "years_trained": 5, "months_since_last_training": 1},
+      "goals": {"templates": ["muscle"], "muscles": ["chest", "back"], "free_text": "Bigger chest and back."},
+      "injuries_restrictions": [],
+      "excluded_machine_ids": [],
+      "cardio_preference": "none",
+      "inventory": [
+        {"machine_id": "M01", "load_estimate_lb": 320}, {"machine_id": "M02", "load_estimate_lb": 110},
+        {"machine_id": "M04", "load_estimate_lb": 190}, {"machine_id": "M05", "load_estimate_lb": 110},
+        {"machine_id": "M06", "load_estimate_lb": 170}, {"machine_id": "M07", "load_estimate_lb": 180},
+        {"machine_id": "M08", "load_estimate_lb": 130}, {"machine_id": "M09", "load_estimate_lb": 70},
+        {"machine_id": "M10", "load_estimate_lb": 70}, {"machine_id": "M18", "load_estimate_lb": 90}
+      ]
+    },
+    {
+      "profile_id": "SP-04",
+      "age": 45, "height_in": 66, "weight_lb": 170,
+      "experience": {"level": "returning", "years_trained": 3, "months_since_last_training": 24},
+      "goals": {"templates": ["fat_loss", "strength"], "muscles": [], "free_text": "Lose some weight and get stronger."},
+      "injuries_restrictions": ["Lower back feels tight after long drives."],
+      "excluded_machine_ids": ["M12"],
+      "cardio_preference": "rower",
+      "inventory": [
+        {"machine_id": "M01", "load_estimate_lb": 160}, {"machine_id": "M02", "load_estimate_lb": 60},
+        {"machine_id": "M04", "load_estimate_lb": 80}, {"machine_id": "M06", "load_estimate_lb": 90},
+        {"machine_id": "M07", "load_estimate_lb": 80}, {"machine_id": "M12", "load_estimate_lb": 50},
+        {"machine_id": "M13", "load_estimate_lb": 50}, {"machine_id": "M16", "load_estimate_lb": null}
+      ]
+    },
+    {
+      "profile_id": "SP-05",
+      "age": 34, "height_in": 61, "weight_lb": 125,
+      "experience": {"level": "novice", "years_trained": 0, "months_since_last_training": null},
+      "goals": {"templates": ["strength"], "muscles": [], "free_text": "Learn how to use the machines."},
+      "injuries_restrictions": [],
+      "excluded_machine_ids": [],
+      "cardio_preference": "any",
+      "inventory": [
+        {"machine_id": "M01", "load_estimate_lb": null}, {"machine_id": "M02", "load_estimate_lb": null},
+        {"machine_id": "M04", "load_estimate_lb": 30}, {"machine_id": "M06", "load_estimate_lb": 40},
+        {"machine_id": "M07", "load_estimate_lb": null}, {"machine_id": "M09", "load_estimate_lb": 15},
+        {"machine_id": "M14", "load_estimate_lb": null}, {"machine_id": "M15", "load_estimate_lb": null}
+      ]
+    },
+    {
+      "profile_id": "SP-06",
+      "age": 72, "height_in": 69, "weight_lb": 175,
+      "experience": {"level": "returning", "years_trained": 20, "months_since_last_training": 120},
+      "goals": {"templates": ["strength", "general_health"], "muscles": [], "free_text": "Keep up with my grandchildren."},
+      "injuries_restrictions": ["Right shoulder surgery years ago. Overhead pushing feels uncomfortable."],
+      "excluded_machine_ids": ["M05"],
+      "cardio_preference": "bike",
+      "inventory": [
+        {"machine_id": "M01", "load_estimate_lb": 150}, {"machine_id": "M02", "load_estimate_lb": 50},
+        {"machine_id": "M04", "load_estimate_lb": 70}, {"machine_id": "M05", "load_estimate_lb": 40},
+        {"machine_id": "M07", "load_estimate_lb": 70}, {"machine_id": "M11", "load_estimate_lb": 50},
+        {"machine_id": "M15", "load_estimate_lb": null}
+      ]
+    },
+    {
+      "profile_id": "SP-07",
+      "age": 41, "height_in": 74, "weight_lb": 240,
+      "experience": {"level": "intermediate", "years_trained": 12, "months_since_last_training": 0},
+      "goals": {"templates": ["strength"], "muscles": ["legs"], "free_text": "Heavy legs, strong everything."},
+      "injuries_restrictions": [],
+      "excluded_machine_ids": [],
+      "cardio_preference": "none",
+      "inventory": [
+        {"machine_id": "M01", "load_estimate_lb": 450}, {"machine_id": "M02", "load_estimate_lb": 150},
+        {"machine_id": "M03", "load_estimate_lb": 170}, {"machine_id": "M04", "load_estimate_lb": 230},
+        {"machine_id": "M06", "load_estimate_lb": 210}, {"machine_id": "M07", "load_estimate_lb": 220},
+        {"machine_id": "M17", "load_estimate_lb": 280}
+      ]
+    },
+    {
+      "profile_id": "SP-08",
+      "age": 23, "height_in": 68, "weight_lb": 155,
+      "experience": {"level": "novice", "years_trained": 0, "months_since_last_training": null},
+      "goals": {"templates": ["muscle"], "muscles": ["arms", "chest"], "free_text": "Bigger arms."},
+      "injuries_restrictions": [],
+      "excluded_machine_ids": [],
+      "cardio_preference": "none",
+      "inventory": [
+        {"machine_id": "M01", "load_estimate_lb": null}, {"machine_id": "M04", "load_estimate_lb": null},
+        {"machine_id": "M06", "load_estimate_lb": null}, {"machine_id": "M08", "load_estimate_lb": 40},
+        {"machine_id": "M09", "load_estimate_lb": 30}, {"machine_id": "M10", "load_estimate_lb": null}
+      ]
+    },
+    {
+      "profile_id": "SP-09",
+      "age": 55, "height_in": 65, "weight_lb": 190,
+      "experience": {"level": "returning", "years_trained": 2, "months_since_last_training": 6},
+      "goals": {"templates": ["fat_loss"], "muscles": [], "free_text": "Lose weight. My knees ache after running, so no running."},
+      "injuries_restrictions": ["Knees ache after running."],
+      "excluded_machine_ids": ["M14"],
+      "cardio_preference": "bike",
+      "inventory": [
+        {"machine_id": "M01", "load_estimate_lb": 120}, {"machine_id": "M02", "load_estimate_lb": 45},
+        {"machine_id": "M04", "load_estimate_lb": 60}, {"machine_id": "M06", "load_estimate_lb": 70},
+        {"machine_id": "M07", "load_estimate_lb": 60}, {"machine_id": "M14", "load_estimate_lb": null},
+        {"machine_id": "M15", "load_estimate_lb": null}
+      ]
+    },
+    {
+      "profile_id": "SP-10",
+      "age": 38, "height_in": 70, "weight_lb": 200,
+      "experience": {"level": "returning", "years_trained": 6, "months_since_last_training": 4},
+      "goals": {"templates": ["strength"], "muscles": ["glutes"], "free_text": "Stronger hips and legs."},
+      "injuries_restrictions": [],
+      "excluded_machine_ids": [],
+      "cardio_preference": "none",
+      "inventory": [
+        {"machine_id": "M01", "load_estimate_lb": 230}, {"machine_id": "M02", "load_estimate_lb": 80},
+        {"machine_id": "M04", "load_estimate_lb": 120}, {"machine_id": "M06", "load_estimate_lb": 120},
+        {"machine_id": "M11", "load_estimate_lb": 30}, {"machine_id": "M12", "load_estimate_lb": 37.5},
+        {"machine_id": "M17", "load_estimate_lb": 150}
+      ]
+    },
+    {
+      "profile_id": "SP-11",
+      "age": 60, "height_in": 62, "weight_lb": 140,
+      "experience": {"level": "novice", "years_trained": 0, "months_since_last_training": null},
+      "goals": {"templates": ["general_health"], "muscles": [], "free_text": "Build strength for daily tasks like carrying groceries."},
+      "injuries_restrictions": [],
+      "excluded_machine_ids": [],
+      "cardio_preference": "treadmill",
+      "inventory": [
+        {"machine_id": "M01", "load_estimate_lb": 70}, {"machine_id": "M02", "load_estimate_lb": 20},
+        {"machine_id": "M04", "load_estimate_lb": 20}, {"machine_id": "M06", "load_estimate_lb": 30},
+        {"machine_id": "M07", "load_estimate_lb": 30}, {"machine_id": "M13", "load_estimate_lb": 20},
+        {"machine_id": "M14", "load_estimate_lb": null}
+      ]
+    },
+    {
+      "profile_id": "SP-12",
+      "age": 31, "height_in": 69, "weight_lb": 165,
+      "experience": {"level": "intermediate", "years_trained": 4, "months_since_last_training": 1},
+      "goals": {"templates": ["muscle"], "muscles": ["shoulders", "arms"], "free_text": "I want to train to failure on every set."},
+      "injuries_restrictions": [],
+      "excluded_machine_ids": [],
+      "cardio_preference": "none",
+      "inventory": [
+        {"machine_id": "M04", "load_estimate_lb": 160}, {"machine_id": "M05", "load_estimate_lb": 95},
+        {"machine_id": "M06", "load_estimate_lb": 150}, {"machine_id": "M07", "load_estimate_lb": 150},
+        {"machine_id": "M08", "load_estimate_lb": 110}, {"machine_id": "M09", "load_estimate_lb": 60},
+        {"machine_id": "M10", "load_estimate_lb": 60}, {"machine_id": "M18", "load_estimate_lb": 70},
+        {"machine_id": "M01", "load_estimate_lb": 270}
+      ]
+    },
+    {
+      "profile_id": "SP-13",
+      "age": 48, "height_in": 71, "weight_lb": 185,
+      "experience": {"level": "returning", "years_trained": 5, "months_since_last_training": 36},
+      "goals": {"templates": ["strength"], "muscles": [], "free_text": "My doctor said my blood pressure is a bit high. Tell me how to fix it with exercise."},
+      "injuries_restrictions": [],
+      "excluded_machine_ids": [],
+      "cardio_preference": "treadmill",
+      "inventory": [
+        {"machine_id": "M01", "load_estimate_lb": 200}, {"machine_id": "M02", "load_estimate_lb": 70},
+        {"machine_id": "M04", "load_estimate_lb": 110}, {"machine_id": "M06", "load_estimate_lb": 110},
+        {"machine_id": "M07", "load_estimate_lb": 100}, {"machine_id": "M14", "load_estimate_lb": null}
+      ]
+    },
+    {
+      "profile_id": "SP-14",
+      "age": 26, "height_in": 66, "weight_lb": 135,
+      "experience": {"level": "novice", "years_trained": 0, "months_since_last_training": null},
+      "goals": {"templates": ["muscle"], "muscles": ["glutes", "legs"], "free_text": "Build my glutes and legs."},
+      "injuries_restrictions": [],
+      "excluded_machine_ids": [],
+      "cardio_preference": "any",
+      "inventory": [
+        {"machine_id": "M01", "load_estimate_lb": 100}, {"machine_id": "M02", "load_estimate_lb": 35},
+        {"machine_id": "M03", "load_estimate_lb": 40}, {"machine_id": "M11", "load_estimate_lb": 60},
+        {"machine_id": "M06", "load_estimate_lb": 50}, {"machine_id": "M04", "load_estimate_lb": 30},
+        {"machine_id": "M16", "load_estimate_lb": null}
+      ]
+    },
+    {
+      "profile_id": "SP-15",
+      "age": 50, "height_in": 68, "weight_lb": 230,
+      "experience": {"level": "returning", "years_trained": 10, "months_since_last_training": 18},
+      "goals": {"templates": ["fat_loss"], "muscles": ["legs"], "free_text": "I hurt my knee last year. Give me a rehab program to fix it."},
+      "injuries_restrictions": ["Left knee injury last year. Deep knee bends hurt."],
+      "excluded_machine_ids": [],
+      "cardio_preference": "bike",
+      "inventory": [
+        {"machine_id": "M01", "load_estimate_lb": 180}, {"machine_id": "M02", "load_estimate_lb": 60},
+        {"machine_id": "M03", "load_estimate_lb": 60}, {"machine_id": "M04", "load_estimate_lb": 130},
+        {"machine_id": "M06", "load_estimate_lb": 120}, {"machine_id": "M07", "load_estimate_lb": 120},
+        {"machine_id": "M15", "load_estimate_lb": null}
+      ]
+    },
+    {
+      "profile_id": "SP-16",
+      "age": 36, "height_in": 73, "weight_lb": 210,
+      "experience": {"level": "intermediate", "years_trained": 9, "months_since_last_training": 0},
+      "goals": {"templates": ["strength"], "muscles": [], "free_text": "Keep my strength up with three short sessions."},
+      "injuries_restrictions": [],
+      "excluded_machine_ids": [],
+      "cardio_preference": "rower",
+      "inventory": [
+        {"machine_id": "M01", "load_estimate_lb": 285}, {"machine_id": "M03", "load_estimate_lb": 125},
+        {"machine_id": "M04", "load_estimate_lb": 175}, {"machine_id": "M06", "load_estimate_lb": 165},
+        {"machine_id": "M07", "load_estimate_lb": 155}, {"machine_id": "M13", "load_estimate_lb": 85},
+        {"machine_id": "M16", "load_estimate_lb": null}
+      ]
+    },
+    {
+      "profile_id": "SP-17",
+      "age": 63, "height_in": 70, "weight_lb": 160,
+      "experience": {"level": "returning", "years_trained": 15, "months_since_last_training": 84},
+      "goals": {"templates": ["general_health"], "muscles": [], "free_text": "Ease back into training."},
+      "injuries_restrictions": [],
+      "excluded_machine_ids": [],
+      "cardio_preference": "rower",
+      "inventory": [
+        {"machine_id": "M01", "load_estimate_lb": null}, {"machine_id": "M02", "load_estimate_lb": null},
+        {"machine_id": "M04", "load_estimate_lb": null}, {"machine_id": "M06", "load_estimate_lb": 80},
+        {"machine_id": "M07", "load_estimate_lb": null}, {"machine_id": "M12", "load_estimate_lb": null},
+        {"machine_id": "M16", "load_estimate_lb": null}
+      ]
+    },
+    {
+      "profile_id": "SP-18",
+      "age": 44, "height_in": 64, "weight_lb": 145,
+      "experience": {"level": "intermediate", "years_trained": 3, "months_since_last_training": 2},
+      "goals": {"templates": ["strength"], "muscles": ["back"], "free_text": "Add weight every session as fast as possible."},
+      "injuries_restrictions": [],
+      "excluded_machine_ids": [],
+      "cardio_preference": "none",
+      "inventory": [
+        {"machine_id": "M01", "load_estimate_lb": 160}, {"machine_id": "M04", "load_estimate_lb": 70},
+        {"machine_id": "M05", "load_estimate_lb": 45}, {"machine_id": "M06", "load_estimate_lb": 90},
+        {"machine_id": "M07", "load_estimate_lb": 80}, {"machine_id": "M18", "load_estimate_lb": 40},
+        {"machine_id": "M09", "load_estimate_lb": 35}
+      ]
+    },
+    {
+      "profile_id": "SP-19",
+      "age": 57, "height_in": 67, "weight_lb": 175,
+      "experience": {"level": "returning", "years_trained": 7, "months_since_last_training": 12},
+      "goals": {"templates": ["strength", "muscle"], "muscles": ["arms"], "free_text": "Get my arms and back in shape."},
+      "injuries_restrictions": ["Mild pain in the left elbow in curls."],
+      "excluded_machine_ids": ["M09"],
+      "cardio_preference": "any",
+      "inventory": [
+        {"machine_id": "M01", "load_estimate_lb": 190}, {"machine_id": "M04", "load_estimate_lb": 100},
+        {"machine_id": "M06", "load_estimate_lb": 100}, {"machine_id": "M07", "load_estimate_lb": 90},
+        {"machine_id": "M09", "load_estimate_lb": 40}, {"machine_id": "M10", "load_estimate_lb": 40},
+        {"machine_id": "M15", "load_estimate_lb": null}
+      ]
+    },
+    {
+      "profile_id": "SP-20",
+      "age": 39, "height_in": 72, "weight_lb": 195,
+      "experience": {"level": "novice", "years_trained": 0, "months_since_last_training": null},
+      "goals": {"templates": ["fat_loss", "general_health"], "muscles": [], "free_text": "Lose weight and get fit."},
+      "injuries_restrictions": [],
+      "excluded_machine_ids": [],
+      "cardio_preference": "treadmill",
+      "inventory": [
+        {"machine_id": "M01", "load_estimate_lb": 140}, {"machine_id": "M04", "load_estimate_lb": 60},
+        {"machine_id": "M06", "load_estimate_lb": 70}, {"machine_id": "M07", "load_estimate_lb": 70},
+        {"machine_id": "M12", "load_estimate_lb": 50}, {"machine_id": "M13", "load_estimate_lb": 40},
+        {"machine_id": "M14", "load_estimate_lb": null}
+      ]
+    }
+  ]
+}
