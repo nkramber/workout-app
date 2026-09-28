@@ -147,6 +147,7 @@ None.
 - `git diff --stat 918d8e6..HEAD`: 13 paths, 228 insertions, and 102 deletions.
 - `python3 docs/tools/review_gate.py --effective-head 1`: `7931be813f2262c559bfa89878cdf2e79b14e6a6`.
 - `make verify` at `7931be8`: passed. STE, reference, lifecycle, and context checks passed. All 301 tests passed.
+- `python3 docs/tools/review_gate.py --event /tmp/pr1-event.json --head HEAD` at `229f9f6`: passed. RG 3, RG 4, and RG 5 passed. RG 6 named the review commit.
 - `make ste-check`: 0 findings.
 - `make ref-check`: 0 findings.
 - `git diff --check 918d8e6..HEAD`: passed.
@@ -156,7 +157,7 @@ None.
 - GitHub issue comments, submitted reviews, and review threads: zero.
 - Live ruleset check: not run. Q-94 remains open, and the hand-off says no live ruleset exists.
 - Paid review targets: not run.
-- Push: pending.
+- Push: `229f9f6e5975ddba5daec48d95bcc15d906780ed` was the head of `origin/docs/foundation-roadmap`, verified with `gh pr view` before this final record update.
 
 ## Open questions and accepted risks
 
