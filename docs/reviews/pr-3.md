@@ -69,7 +69,7 @@ None.
 - `make verify` at `365c2045ec80d68fe5f97914e05e74abe99b599e`: passed. STE and reference checks each found 0 issues. All 301 document-tool tests and 40 spike tests passed.
 - Paid retry-cap reproducer: not run. The causal path is the single reservation in `harness.py` and the three-attempt loop in `providers.py`.
 - Paid target: not run. The review skill forbids paid targets.
-- Push: pending.
+- Push: `c1d69c641fba8e1f19f817d48403c968826c9983` was the head of `origin/feat/pr-2-luna-plan-spike` after publication. `gh pr view` verified that head.
 
 ## Open questions and accepted risks
 
