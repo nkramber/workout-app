@@ -6,7 +6,7 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 Date: 2026-09-28. Phase 0 of `docs/roadmaps/high-level-roadmap.md` is in progress.
 
-The first session wrote the foundation documents, the research, the high-level roadmap, and the process tooling on the branch `docs/foundation-roadmap`. The pull request of that branch waits for CI, the Codex review, and the owner's merge confirmation. Every launch question has an answer or a "Not applicable" status. Q-91 to Q-107 in `docs/questions.md` stay open, and each names the phase that needs it.
+The first session wrote the foundation documents, the research, the high-level roadmap, and the process tooling on the branch `docs/foundation-roadmap`. The Codex review of PR #1 found P1-1 at `d0be0f3`: the review gate accepts an author-created approval record. The verdict is Changes required. Every launch question has an answer or a "Not applicable" status. Q-91 to Q-107 in `docs/questions.md` stay open, and each names the phase that needs it.
 
 How to resume:
 
