@@ -50,8 +50,9 @@ None.
 - `make pr-check`: did not run because the detached checkout has no branch PR association. CI `pr-contract` passed at the reviewed head.
 - GitHub CI at `dd6bd403acf9c1c3123e3bf8a61958616f99de50`: `pr-contract`, `verify:lint`, and `verify:test` passed. `review-gate` initially failed only because `docs/reviews/pr-2.md` did not yet exist. The check directs the Codex session to write it. Verify the rerun after publication.
 - `gh pr view 2 --repo nkramber/workout-app --json comments,reviews,reviewRequests`: passed. No comments or review threads exist.
-- `git push origin HEAD:docs/pr-1-phase-1-roadmap`: pending.
-- Push: pending verification with `gh pr view`.
+- `git push origin HEAD:docs/pr-1-phase-1-roadmap`: passed. The remote branch received `868c906a25d20bcdaffecc18b5f604966a55a7e7`.
+- `git fetch origin`, `git status --short --branch`, and `gh pr view 2 --repo nkramber/workout-app --json headRefOid`: passed. GitHub reported `868c906a25d20bcdaffecc18b5f604966a55a7e7` as the PR head. The tree was clean.
+- Push: `868c906a25d20bcdaffecc18b5f604966a55a7e7` was the head of `origin/docs/pr-1-phase-1-roadmap`, verified with `gh pr view`.
 
 ## Open questions and accepted risks
 
