@@ -6,7 +6,7 @@ This file holds the rules for every agent and every session in this repository. 
 
 Gym Route is a personal workout app for one user, the owner (D-67). It is an installable, phone-first web app on Google Cloud, and it never goes to an app store (D-17). OpenAI `gpt-6-luna` proposes plans and revisions. A deterministic, versioned policy checks every set and load before the owner sees it (D-22, D-23).
 
-Stage: Phase 0 of `docs/roadmaps/high-level-roadmap.md`. No app, service, or cloud resource exists yet. `docs/design.md` holds the design.
+Stage: Phase 1 of `docs/roadmaps/high-level-roadmap.md`, with the pull requests of `docs/roadmaps/phase-1-risk-spikes.md`. No app, service, or cloud resource exists yet. `docs/design.md` holds the design.
 
 **The repository is public.** Write no email address, no personal data, no photo, no workout log, and no secret into a file, an issue, or a pull request.
 

@@ -33,7 +33,7 @@ A merge message for the pull request of this session is the one exception to ste
 
 A reviewer and a correction author work under the approval of the milestone of the author. When a correction changes the milestone, the correction author asks the owner again.
 
-Start a short branch with the name `<type>/<slug>`, for example "feat/load-policy" (D-14). The type is a Conventional Commits type.
+Start a short branch with the name `<type>/pr-<n>-<slug>`, for example "feat/pr-7-rest-timer" (D-14, D-86). The type is a Conventional Commits type. The focused roadmap of the phase gives the PR-<n> id. The title of the pull request is `<type>: <summary> (PR-<n>)`, with the same type and id.
 
 When you can not do one step, do not start the work. The hook `.claude/hooks/session_bind.py` binds the session to its first branch. When it blocks a command, end the session. Only the owner removes a binding.
 
@@ -174,7 +174,7 @@ Two cases stop the prompt. Ask the owner, and write no prompt until the answer a
 1. Read the merge commit: `git fetch origin && git log --oneline -1 origin/main`.
 2. Confirm that the commit names this pull request.
 3. Read the next step of `docs/session-handoff.md`.
-4. Name the next work area of `docs/roadmaps/high-level-roadmap.md`.
+4. Name the next work area of `docs/roadmaps/high-level-roadmap.md`, and its PR-<n> id in the focused roadmap.
 5. Read `docs/questions.md`, and name each open question of that work area.
 6. Name each check that needs `main` or the deploy of this merge.
 7. Write the block below in the last message, and stop.
@@ -187,7 +187,8 @@ The prompt is one fenced block, and the owner pastes it into the next clean sess
 Start <work area>: <the proposed milestone>
 
 PR #<x> merged to `main` as <sha>. Read `AGENTS.md` and `docs/session-handoff.md` first.
-Branch: `<type>/<slug>`. Base: `<sha>`. Role: author.
+Branch: `<type>/pr-<n>-<slug>`. Base: `<sha>`. Role: author.
+Title: `<type>: <summary> (PR-<n>)` (D-86).
 Load the `one-pr-one-session` skill and the skills of the task before any change.
 Proposed concerns: <each concern>. Proposed acceptance story: <one story>.
 Ask the owner to approve the milestone before the first edit (D-12).

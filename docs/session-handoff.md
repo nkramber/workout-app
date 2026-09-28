@@ -4,39 +4,50 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-28. Phase 0 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR #1 is open on the branch `docs/foundation-roadmap`. The first session continues until PR #1 merges (D-85).
+Date: 2026-09-28. Phase 0 is complete (D-91, D-92). Phase 1 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR-1 of `docs/roadmaps/phase-1-risk-spikes.md` is open as GitHub #2 on the branch `docs/pr-1-phase-1-roadmap`.
 
-Codex rounds 1 to 3 gave "Changes required" with P1-1 to P1-5. Round 4 reviewed head `7931be8` and updated `docs/reviews/pr-1.md` to "Ready for owner merge". P1-1 and P1-3 remain accepted risks (D-87, D-89). P1-2, P1-4, and P1-5 are fixed. The owner must verify the provider identities and review commit before merge. Q-94 keeps the live ruleset inactive.
+PR-1 holds the Phase 1 focused roadmap, the owner answers D-91 to D-100, and the D-86 branch form in the `one-pr-one-session` skill. `make verify` passed. The Codex review is pending, and the merge is pending the owner.
 
-The context passed 400K tokens during round 3. The session told the owner that it is ready for a context compaction, and it continues (D-85).
+Open work on PR-1:
 
-Codex round 4 gave "Ready for owner merge" at `7931be8` with no open finding.
+1. Wait for a green CI, then run `make codex-review PR=2`.
+2. Answer each finding. After the approval, ask the owner about the merge with the four-part summary (D-13, D-87, D-89).
 
-Open work on PR #1:
-
-1. Ask the owner about the merge with the four-part summary. Name the commit that last changed the review record, the author provider, and the reviewer provider (D-13, D-87, D-89).
-2. After the confirmation, turn on the squash auto-merge. Then write the transitional prompt of the `one-pr-one-session` skill.
-
-Every launch question has an answer or a "Not applicable" status. Q-91 to Q-107 in `docs/questions.md` stay open, and each names the phase that needs it.
+Every Phase 1 question has an answer. Q-91 to Q-93 and Q-98 to Q-107 stay open, and each names the phase that needs it.
 
 ## Facts that expire
 
 | Fact | Date read | Source |
 |---|---|---|
 | The repository is public. | 2026-09-27 | GitHub repository settings |
-| `main` has no live ruleset. The committed ruleset waits for Q-94. | 2026-09-28 | `.github/rulesets/review-gate.json` |
-| The review-gate workflow runs from `main`. It can not run on the first pull request, because `main` does not hold it yet. | 2026-09-28 | `.github/workflows/review-gate.yml` |
-| On the first pull request, `make codex-review` takes the rule files from the pull request head, because `main` does not hold them yet. | 2026-09-28 | `docs/tools/codex_review.py` |
+| `main` has the live ruleset `review-gate` and the merge settings of `.github/rulesets`. `make ruleset-check` passed. | 2026-09-28 | `make ruleset-check` |
+| The review-gate workflow runs from `main`, so it runs on each pull request. | 2026-09-28 | `.github/workflows/review-gate.yml` |
 | `gpt-6-luna` costs 0.10 USD per million input tokens and 0.50 USD per million output tokens. | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
+| The OpenAI usage policies page returns HTTP 403. The owner accepted a copy printed on 2025-11-07 (D-93). | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
 
 ## Next steps, in order
 
-1. Close PR #1: the open work of the resume section, then the owner confirmation and the merge.
-2. Name the first focused roadmap pull request with the form of D-86.
-3. Ask the owner about Q-94, then apply the ruleset and run `make ruleset-check`.
-4. Write the Phase 1 focused roadmap: the Luna plan spike, the recognition spike, and the iPhone web platform spike.
+1. Close PR-1: the Codex review, the owner confirmation, and the merge.
+2. Start PR-2, the Luna plan spike of `docs/roadmaps/phase-1-risk-spikes.md`, in a clean session.
 
 ## Session records
+
+### Session 2 - 2026-09-28
+
+Author provider: Claude Code
+
+Branch: `docs/pr-1-phase-1-roadmap`. Role: author.
+
+Completed:
+
+- Applied the ruleset and the merge settings of `main` after the owner approval, and `make ruleset-check` passed (D-91).
+- Asked Q-94 to Q-97 and Q-113 to Q-118, and recorded D-91 to D-100.
+- Wrote `docs/roadmaps/phase-1-risk-spikes.md` with PR-1 to PR-6, and moved the start of the development project into work area 1.3 (D-99).
+- Changed the branch form of the `one-pr-one-session` skill to D-86.
+
+Open work:
+
+- The Codex review, the owner confirmation, and the merge of PR-1.
 
 ### Session 1 - 2026-09-27 to 2026-09-28
 
@@ -47,7 +58,6 @@ Branch: `docs/foundation-roadmap`. Role: author.
 Completed:
 
 - Answered Codex findings P1-1 to P1-5 (D-87 to D-90). Recorded the session rule D-85 and the naming rule D-86, each with a check.
-
 - Asked the 73 launch questions and 16 follow-up questions. Recorded D-1 to D-84 and Q-1 to Q-107.
 - The owner changed the product form to an installable web app for one user (D-17, D-67), and made Luna central (D-22).
 - Wrote the design, the three research documents, the high-level roadmap, and the roadmap rules.
@@ -55,5 +65,4 @@ Completed:
 
 Open work:
 
-- The owner confirmation and the merge of PR #1.
-- Q-91 to Q-107.
+- None. PR #1 merged.

@@ -63,7 +63,7 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 | 0.1 Foundation documents and process tooling | Registers and design. Research and this roadmap. STE, reference, contract, and review gates with tests. | This pull request merges with a green CI and a Codex approval. |
 | 0.2 Live ruleset | Apply the committed ruleset of `main` after the owner approves (Q-94). | `make ruleset-check` passes against the live ruleset. |
 
-**Decisions and questions.** D-1 to D-15, D-83, Q-93, Q-94.
+**Decisions and questions.** D-1 to D-15, D-83, D-91, D-92, Q-93, Q-94.
 
 ### Phase 1 - Risk spikes
 
@@ -77,9 +77,11 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 |---|---|---|
 | 1.1 Luna plan spike | Structured plan output from a profile and an inventory. The first draft of the policy rules table. Rejection counts. | A report on a fixed set of profiles: schema pass rate, policy rejection rate, cost per plan, and the unsafe proposals that the draft rules catch. |
 | 1.2 Recognition spike | A test set of public or licensed machine images (D-56, Q-97). Luna identification against a catalog shortlist. Cost per photo (Q-96). | A report with correct, wrong, and abstained counts, the wrong answers with high stated confidence, and the cost per photo. |
-| 1.3 iPhone web platform spike | Camera input, IndexedDB durability after an app kill, Screen Wake Lock, install and sign-in in the Home Screen app from Chrome on iPhone (D-29). Startup time of a React build (D-84). | A device checklist with a result for each item on the owner's iPhone, and a startup time. |
+| 1.3 iPhone web platform spike | Camera input, IndexedDB durability after an app kill, Screen Wake Lock, install and sign-in in the Home Screen app from Chrome on iPhone (D-29). Startup time of a React build (D-84). The development project of D-76 with Firebase Hosting and Firebase Authentication only (D-99). | A device checklist with a result for each item on the owner's iPhone, and a startup time. |
 
-**Decisions and questions.** D-22 to D-24, D-29, D-53, D-56, D-84, Q-95, Q-96, Q-97.
+**Decisions and questions.** D-22 to D-24, D-29, D-53, D-56, D-84, D-93 to D-100, Q-95, Q-96, Q-97.
+
+**Focused roadmap.** `docs/roadmaps/phase-1-risk-spikes.md`.
 
 **Gate.** The owner approves each paid spike run (D-25). A no-go result changes this roadmap before Phase 2 starts.
 
@@ -95,9 +97,9 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 |---|---|---|
 | 2.1 Contract and API skeleton | Protobuf contract and generated code. Go API with the Firebase token check and the invite allowlist (D-75). Emulators and fakes for local work. | `make verify` runs contract, Go, and emulator tests for free. |
 | 2.2 Installable web shell | Phone layout only (D-20). Sign-in. Offline store and outbox skeleton (D-62, D-77). | Browser tests pass in the WebKit and Chromium engines. The owner installs and signs in on the iPhone. |
-| 2.3 Development project and deploy | Firestore, Cloud Run, Hosting, Secret Manager, and a budget alert in `us-central1`. Cloud Build deploy from `main`. The backup choice of Q-99. | A merge deploys. The live version endpoint names the merged commit. |
+| 2.3 Development project and deploy | Firestore, Cloud Run, Secret Manager, and a budget alert in `us-central1`, in the project of work area 1.3 (D-99). Cloud Build deploy from `main`. The backup choice of Q-99. | A merge deploys. The live version endpoint names the merged commit. |
 
-**Decisions and questions.** D-17, D-18, D-20, D-62, D-74 to D-77, D-80, D-82, D-84, Q-99.
+**Decisions and questions.** D-17, D-18, D-20, D-62, D-74 to D-77, D-80, D-82, D-84, D-99, Q-99.
 
 ### Phase 3 - Workout domain and safety policy
 
@@ -271,4 +273,4 @@ The launch prompt asked for the evidence to move from personal use to an invite 
 
 ## 8. Completion and focused roadmaps
 
-This high-level roadmap is complete when Phase 0 merges and the owner confirms the phase order. After that, each phase gets one focused roadmap before its first pull request. `docs/roadmaps/README.md` gives the format. A focused roadmap can split or merge work areas. A change of phase order or of scope needs an owner decision and an update of this file.
+This high-level roadmap is complete when Phase 0 merges and the owner confirms the phase order. Both conditions hold on 2026-09-28 (D-91, D-92). After that, each phase gets one focused roadmap before its first pull request. `docs/roadmaps/README.md` gives the format. A focused roadmap can split or merge work areas. A change of phase order or of scope needs an owner decision and an update of this file.
