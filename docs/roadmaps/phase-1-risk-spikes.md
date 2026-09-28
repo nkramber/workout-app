@@ -33,7 +33,7 @@ Every question of Phase 1 has an answer. No open question of this phase stays.
 
 ## 3. Rules for each spike pull request
 
-- Spike code lives in `tools/spikes/<name>/` (recommendation). It never enters the product code.
+- Spike code lives in `tools/spikes/<name>/`. It never enters the product code. `make test` runs the tests of each spike folder.
 - The Luna harnesses use Python (D-100). Each spike pull request adds its unit tests to `make test`.
 - Each paid call has a fake provider. Tests and CI use the fake provider only, so CI makes no paid call.
 - A model id appears in the role configuration of the spike only, and never at a call site (D-24).
@@ -90,6 +90,8 @@ Checks:
 
 - `make verify` with the fake provider, free.
 - **Paid:** one run of 60 plans (estimate 0.35 USD). The cap is 2 USD (D-98). The owner approves the run at run time (D-25).
+
+Result: go under the bar of D-101. The report is `docs/research/luna-plan-spike.md`, and the harness is in `tools/spikes/luna_plan/`. The real cost was 0.0564 USD. The draft rules also touch Q-101 and Q-102, and they mark those rules as drafts with no answer.
 
 ### PR-3 - The recognition test set
 

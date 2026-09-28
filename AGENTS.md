@@ -52,7 +52,7 @@ make help            # list every target
 make doctor          # check the local tools
 make verify          # every check that CI runs, free
 make lint            # ste-check, ref-check, lifecycle-check, context-budget
-make test            # the unit tests of docs/tools
+make test            # the unit tests of docs/tools and of each spike of tools/spikes
 make ste-check       # the STE check alone, free
 make ref-check       # every cited id and path resolves, free
 make pr-check        # the body and the diff of the pull request, free
@@ -79,6 +79,7 @@ Paid targets: `make codex-review` and `make claude-review`. They spend the owner
 - `docs/questions.md` - every question and its answer, and the open questions.
 - `docs/roadmaps/high-level-roadmap.md` - the phases and their exit evidence.
 - `docs/roadmaps/README.md` - the rules for focused roadmaps.
-- `docs/research/` - Decktome patterns, exercise safety, platform, cloud, and AI research.
+- `docs/research/` - Decktome patterns, exercise safety, platform, cloud, and AI research, and the spike reports.
 - `docs/reviews/` - Codex review records.
 - `docs/tools/` - the checks and their tests.
+- `tools/spikes/` - the Phase 1 spike harnesses, outside the product code, with their tests.
