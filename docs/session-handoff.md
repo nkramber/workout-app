@@ -4,25 +4,14 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-28. Phase 1 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR-1 merged as GitHub #2. PR-2 of `docs/roadmaps/phase-1-risk-spikes.md` is open as GitHub #3 on the branch `feat/pr-2-luna-plan-spike`, from the base `ddd0f49`.
+Date: 2026-09-28. Phase 1 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR-3 of `docs/roadmaps/phase-1-risk-spikes.md` is GitHub PR #4, open on `feat/pr-3-recognition-test-set`, from the base `89046b4`.
 
-PR-2 holds the Luna plan spike of work area 1.1:
+The Codex review record is `docs/reviews/pr-4.md`. P2-1 to P2-4 are fixed. The latest review is Ready for owner merge at effective head `d87e7ce`:
 
-- the harness, the 20 synthetic profiles, the plan schema and its validator, and the first draft of the policy rules table, in `tools/spikes/luna_plan/`,
-- the results of the paid run, in `tools/spikes/luna_plan/results/`,
-- the report `docs/research/luna-plan-spike.md`: go under the bar of D-101,
-- the owner answer Q-119 and the decision D-101.
+- P2-3: the manifest check accepts only issued Creative Commons versions and ports.
+- P2-4: the owner answered Q-124 (D-106). The privacy rule permits the author credit that an image license requires and the source publishes.
 
-The owner approved the paid run at run time (D-25). The smoke call and the run of 60 plans cost 0.0564 USD in total, under the cap of 2 USD (D-98). `make verify` passed.
-
-Codex round 1 reviewed effective head `365c2045ec80d68fe5f97914e05e74abe99b599e`. The verdict is `Changes required`, with finding P2-1 in `docs/reviews/pr-3.md`. The author found full merit, and corrected the budget guard. Now the harness reserves the worst-case cost of each attempt, retries included. `docs/reviews/pr-3-response.md` holds the answer and its regression checks. `make verify` passed after the correction.
-
-Open work on PR-2:
-
-1. Read the fresh CI result after the Codex review record reaches the branch. The review record says `Ready for owner merge` for effective head `eb8164b99dd9bb8d82c002ad3d5b7d53abf408d9`.
-2. If every check passes, ask the owner about the merge with the four-part summary (D-13, D-87, D-89).
-
-Q-91 to Q-93 and Q-98 to Q-107 stay open, and each names the phase that needs it. The draft rules use draft values for Q-92, Q-101, Q-102, Q-104, Q-105, and Q-106, and they answer none of them.
+Next action: the owner confirms or declines the merge of PR #4.
 
 ## Facts that expire
 
@@ -34,13 +23,32 @@ Q-91 to Q-93 and Q-98 to Q-107 stay open, and each names the phase that needs it
 | `gpt-6-luna` costs 0.10 USD per million input tokens and 0.50 USD per million output tokens. | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
 | The OpenAI usage policies page returns HTTP 403. The owner accepted a copy printed on 2025-11-07 (D-93). | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
 | `gpt-6-luna` accepts the strict JSON schema of the plan through the Responses API. 60 of 60 plans passed the schema. | 2026-09-28 | `docs/research/luna-plan-spike.md` |
+| Commons answers HTTP 429 to a fast client. One request each 2 seconds passes, and it accepts only standard thumbnail widths. | 2026-09-28 | `tools/spikes/recognition_set/download.py` |
+| The Commons API adds a tracking query to each file URL. The manifest holds the URL with no query. | 2026-09-28 | `tools/spikes/recognition_set/sources.py` |
 
 ## Next steps, in order
 
-1. Close PR-2: CI, the Codex review, the owner confirmation, and the merge.
-2. Start the next Phase 1 pull request of `docs/roadmaps/phase-1-risk-spikes.md` in a clean session.
+1. Close PR-3: CI, the Codex review, the owner confirmation, and the merge.
+2. Start PR-4 of `docs/roadmaps/phase-1-risk-spikes.md` in a clean session. It needs PR-3 on `main`, the download script, and the degrade script.
 
 ## Session records
+
+### Session 4 - 2026-09-28
+
+Author provider: Claude Code
+
+Branch: `feat/pr-3-recognition-test-set`. Role: author.
+
+Completed:
+
+- The owner approved the milestone before the first edit (D-12), and answered Q-120 to Q-123 (D-102 to D-105).
+- Wrote the catalog shortlist, the manifest check, the download script, the degrade script, and the source script, with unit tests in `make test`.
+- Curated 130 licensed images from 72 gyms, and 44 degraded photos. The manifest records 7 known gaps.
+- Answered Codex findings P2-1 to P2-4. The owner answered Q-124 (D-106).
+
+Open work:
+
+- The Codex review, the owner confirmation, and the merge of PR-3.
 
 ### Session 3 - 2026-09-28
 
@@ -58,7 +66,7 @@ Completed:
 
 Open work:
 
-- The Codex review, the owner confirmation, and the merge of PR-2.
+- None. PR #3 merged.
 
 ### Session 2 - 2026-09-28
 
@@ -76,21 +84,3 @@ Completed:
 Open work:
 
 - None. PR #2 merged.
-
-### Session 1 - 2026-09-27 to 2026-09-28
-
-Author provider: Claude Code (Anthropic)
-
-Branch: `docs/foundation-roadmap`. Role: author.
-
-Completed:
-
-- Answered Codex findings P1-1 to P1-5 (D-87 to D-90). Recorded the session rule D-85 and the naming rule D-86, each with a check.
-- Asked the 73 launch questions and 16 follow-up questions. Recorded D-1 to D-84 and Q-1 to Q-107.
-- The owner changed the product form to an installable web app for one user (D-17, D-67), and made Luna central (D-22).
-- Wrote the design, the three research documents, the high-level roadmap, and the roadmap rules.
-- Ported the Decktome process tooling without Gitar (D-3, D-6), with tests.
-
-Open work:
-
-- None. PR #1 merged.

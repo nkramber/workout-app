@@ -145,7 +145,7 @@ The app states that it gives fitness guidance only (Decision, D-36). The FDA gen
 
 Gym Route stores data about one person, the owner (Decision, D-67). The owner chose the minimum compliance posture (Decision, D-79) and no user data controls (Decision, D-78). The project hosts no public policy pages (Decision, D-81). These rules still hold:
 
-- The repository is public. No personal data, email address, photo, or workout log goes into it.
+- The repository is public. No personal data, email address, photo, or workout log goes into it. The author credit that the license of a test image requires is the one exception (Decision, D-106).
 - Telemetry holds ids only (Decision, D-80).
 - The API sends OpenAI requests with the response store turned off (Recommendation, from `docs/research/platform-cloud-and-ai.md`).
 - Photos have their metadata removed before upload, and the server deletes them after the confirmation (Decision, D-52).

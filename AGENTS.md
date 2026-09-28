@@ -8,7 +8,7 @@ Gym Route is a personal workout app for one user, the owner (D-67). It is an ins
 
 Stage: Phase 1 of `docs/roadmaps/high-level-roadmap.md`, with the pull requests of `docs/roadmaps/phase-1-risk-spikes.md`. No app, service, or cloud resource exists yet. `docs/design.md` holds the design.
 
-**The repository is public.** Write no email address, no personal data, no photo, no workout log, and no secret into a file, an issue, or a pull request.
+**The repository is public.** Write no email address, no personal data, no photo, no workout log, and no secret into a file, an issue, or a pull request. The one exception is the author credit that the license of a test image requires (D-106).
 
 ## Hard rules from the owner
 
