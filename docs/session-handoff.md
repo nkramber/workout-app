@@ -4,25 +4,11 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-28. Phase 1 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR-2 merged as GitHub #3. PR-3 of `docs/roadmaps/phase-1-risk-spikes.md` is in progress on the branch `feat/pr-3-recognition-test-set`, from the base `89046b4`, in the worktree `../workout-app-pr3`. No commit and no pull request exist yet.
+Date: 2026-09-28. Phase 1 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR-3 of `docs/roadmaps/phase-1-risk-spikes.md` is GitHub PR #4, open on `feat/pr-3-recognition-test-set`. Its base and merge base are `89046b4219827aa3dbd5b505c228adcea48cf149`. Its reviewed effective head is `81f74d624feebc88bd20f602a707ff45f9735c69`.
 
-The owner approved the milestone of PR-3 before the first edit (D-12). The owner answered Q-120 to Q-122 (D-102 to D-104). D-104 permits a photo with a face when few other photos exist for a catalog type.
+The Codex review record is `docs/reviews/pr-4.md`. Verdict: `Changes required`, with open finding P2-1 on source URL and license URL verification. `make verify`, the manifest check, the source check, and the 130-image download and hash check passed. Two image tests skipped because Pillow is not installed in this environment. GitHub `review-gate` failed because the review record was not on the branch. The other checks passed.
 
-Done in the worktree, not committed:
-
-- `tools/spikes/recognition_set/`: `catalog.json` (26 types), `manifest_check.py`, `download.py`, `degrade.py`, `commons.py`, `test_recognition_set.py`, and `README.md`.
-- Q-120 to Q-122 and D-102 to D-104 in the registers.
-
-Open work:
-
-1. Finish the image curation. The author reviews Commons thumbnails, and keeps each image with no face and a clear machine type. The session scratchpad holds the candidate pool and the picks. On 2026-09-28, the picks held 115 images. Seated row, triceps extension, back extension, and crunch have no image. Six other types have images from one source only.
-2. Decide the catalog. Drop each type with images from fewer than two gyms, or accept the gap (D-103).
-3. Write the selection, run `commons.py build`, and write `manifest.json` with the gyms, the splits, and the degraded photos.
-4. Run `make verify`, the download script, and the degrade script. Then commit, push, and open the pull request.
-
-Commons refuses a fast client with HTTP 429. One request each 2 seconds passes.
-
-Q-91 to Q-93 and Q-98 to Q-107 stay open, and each names the phase that needs it.
+Next action: correct P2-1. Add URL mismatch regression tests. Push the correction and request a repeat review. Keep P2-1 and the earlier verdict in the same record. After the correction, refresh the checks and review-gate result.
 
 ## Facts that expire
 
