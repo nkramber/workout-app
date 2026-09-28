@@ -20,3 +20,28 @@ The trigger reproduces at `81f74d6`. A manifest entry with a wrong `source_url` 
 - `LicenseTest.test_the_license_url_must_be_on_creativecommons_org`: a license URL on another host, or on a host that only starts with `creativecommons.org`, fails.
 - The three tests fail on the code of `81f74d6`: 3 failures. All 43 tests of the folder pass on the correction, and `make verify` passes.
 - `python3 tools/spikes/recognition_set/sources.py check` on the correction: 0 differences with the sources.
+
+## P2-2: License URL paths accept a prefix of the required license
+
+Review round 2 recorded head `a1bf5db`, with the verdict "Changes required".
+
+**Result: full merit.**
+
+The trigger reproduces at `a1bf5db`. `license_url_ok("cc-by-sa-2.0", "https://creativecommons.org/licenses/by-sa/2.0evil/")` gave `True`, because the check used a prefix match. The public domain code also accepted a CC0 path. The committed manifest had no such URL.
+
+**Correction.**
+
+- `tools/spikes/recognition_set/manifest_check.py`: `license_url_ok` matches the full path:
+  - the family, the version, and the jurisdiction port of the code,
+  - then an optional deed page or legal code page, with an optional language.
+- A CC0 image needs `/publicdomain/zero/1.0`. A public domain image needs `/publicdomain/mark/1.0`, or no URL. A URL with a query or a fragment fails.
+
+**Regression checks.**
+
+- `LicenseTest.test_the_license_url_must_be_on_creativecommons_org` adds 6 false cases:
+  - the two URLs of the finding,
+  - a public domain code with a CC0 path,
+  - a port path for a code with no port, and a code with a port with a path with no port,
+  - an extra path part.
+- The same test adds 3 true cases: a port deed page, a legal code page, and a public domain mark page.
+- The test fails on the code of `a1bf5db`. All 43 tests of the folder pass on the correction. The manifest check gives 0 errors, and `make verify` passes.

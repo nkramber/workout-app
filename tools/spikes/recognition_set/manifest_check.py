@@ -70,20 +70,30 @@ def license_ok(code):
     return isinstance(code, str) and bool(LICENSE.match(code))
 
 
+# The last part of a license path: none, the deed, or the legal code, with an
+# optional language, and an optional slash.
+LICENSE_PAGE = r"(/(deed|legalcode)(\.[a-z]{2}(-[a-z]{2,4})?)?)?/?"
+
+
 def license_url_ok(code, url):
-    """True when the license URL is a Creative Commons page of the same license.
+    """True when the license URL is the Creative Commons page of the same
+    license: the family, the version, and the jurisdiction port of the code.
     A public domain image can have no license URL."""
     if url is None:
         return code in ("cc0", "pd")
     parts = urlparse(url)
-    if parts.scheme not in ("http", "https") or parts.netloc != "creativecommons.org":
+    if parts.scheme not in ("http", "https") or parts.netloc != "creativecommons.org" or parts.query or parts.fragment:
         return False
     if code == "cc0":
-        return parts.path.startswith("/publicdomain/zero/")
-    if code == "pd":
-        return parts.path.startswith("/publicdomain/")
-    family = re.match(r"^(cc-by(?:-sa|-nc)?)-(\d\.\d)", code)
-    return bool(family) and parts.path.startswith(LICENSE_PATH[family.group(1)] + family.group(2))
+        path = r"/publicdomain/zero/1\.0"
+    elif code == "pd":
+        path = r"/publicdomain/mark/1\.0"
+    else:
+        m = re.match(r"^(cc-by(?:-sa|-nc)?)-(\d\.\d)(?:-([a-z]{2}))?$", code)
+        if not m:
+            return False
+        path = re.escape(LICENSE_PATH[m.group(1)] + m.group(2)) + (f"/{m.group(3)}" if m.group(3) else "")
+    return bool(re.fullmatch(path + LICENSE_PAGE, parts.path))
 
 
 def check_image(img, catalog_ids, none_label, gyms):

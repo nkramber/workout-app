@@ -103,11 +103,20 @@ class LicenseTest(unittest.TestCase):
         self.assertTrue(ok("cc-by-sa-2.0", "https://creativecommons.org/licenses/by-sa/2.0/"))
         self.assertTrue(ok("cc0", "http://creativecommons.org/publicdomain/zero/1.0/deed.en"))
         self.assertTrue(ok("cc0", None))
+        self.assertTrue(ok("cc-by-sa-2.0-de", "https://creativecommons.org/licenses/by-sa/2.0/de/deed.en"))
+        self.assertTrue(ok("cc-by-4.0", "https://creativecommons.org/licenses/by/4.0/legalcode"))
+        self.assertTrue(ok("pd", "https://creativecommons.org/publicdomain/mark/1.0/"))
         for code, url in (("cc-by-2.0", "https://example.org/licenses/by/2.0"),
                           ("cc-by-2.0", "https://creativecommons.org.example.org/licenses/by/2.0"),
                           ("cc0", "https://example.org/publicdomain/zero/1.0/"),
                           ("pd", "https://example.org/"),
-                          ("cc0", "https://creativecommons.org/licenses/by/2.0/")):
+                          ("cc0", "https://creativecommons.org/licenses/by/2.0/"),
+                          ("cc-by-sa-2.0", "https://creativecommons.org/licenses/by-sa/2.0evil/"),
+                          ("cc0", "https://creativecommons.org/publicdomain/zero/1.0-not-a-license/"),
+                          ("pd", "https://creativecommons.org/publicdomain/zero/1.0/"),
+                          ("cc-by-sa-2.0", "https://creativecommons.org/licenses/by-sa/2.0/de/"),
+                          ("cc-by-sa-2.0-de", "https://creativecommons.org/licenses/by-sa/2.0/"),
+                          ("cc-by-4.0", "https://creativecommons.org/licenses/by/4.0/deed.en/extra")):
             self.assertFalse(ok(code, url), (code, url))
 
 
