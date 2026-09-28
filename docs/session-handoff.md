@@ -4,13 +4,15 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-28. Phase 1 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR-3 of `docs/roadmaps/phase-1-risk-spikes.md` is GitHub PR #4, open on `feat/pr-3-recognition-test-set`. Its base and merge base are `89046b4219827aa3dbd5b505c228adcea48cf149`. Its reviewed effective head is `81f74d624feebc88bd20f602a707ff45f9735c69`.
+Date: 2026-09-28. Phase 1 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR-3 of `docs/roadmaps/phase-1-risk-spikes.md` is GitHub PR #4, open on `feat/pr-3-recognition-test-set`. Its base and merge base are `89046b4219827aa3dbd5b505c228adcea48cf149`. Its reviewed effective head is `a1bf5dbb73b6f22d72601fe40a1c113779c25c41`.
 
-The Codex review record is `docs/reviews/pr-4.md`. Verdict: `Changes required`, with open finding P2-1 on source URL and license URL verification. `make verify`, the manifest check, the source check, and the 130-image download and hash check passed. Two image tests skipped because Pillow is not installed in this environment. At the published metadata head, GitHub `review-gate` failed RG 4 because the verdict is `Changes required`. The other checks passed.
+The Codex review record is `docs/reviews/pr-4.md`. Verdict: `Changes required`, with open finding P2-2 on license URL path validation. P2-1 is fixed. `make verify` and the source check passed. Two image tests skipped because Pillow is not installed in this environment.
+
+GitHub `pr-contract`, `verify:lint`, and `verify:test` passed. `review-gate` awaits a ready verdict.
 
 The author found full merit in P2-1, and corrected it. `sources.py check` now compares the source URL and the license URL too, and the manifest check accepts only a license page on `creativecommons.org`. `docs/reviews/pr-4-response.md` holds the answer and its three regression tests. `make verify` and the source check passed after the correction.
 
-Next action: when CI is green, run the Codex repeat review with `make codex-review PR=4`. On `Ready for owner merge`, ask the owner to confirm the merge (D-13).
+Next action: fix P2-2, run its regression checks and `make verify`, then request another Codex review. Ask the owner to confirm the merge only after a ready review and green CI (D-13).
 
 ## Facts that expire
 
