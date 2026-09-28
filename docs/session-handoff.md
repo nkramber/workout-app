@@ -10,10 +10,12 @@ Codex rounds 1 to 3 gave "Changes required" with P1-1 to P1-5. Round 4 reviewed 
 
 The context passed 400K tokens during round 3. The session told the owner that it is ready for a context compaction, and it continues (D-85).
 
+Codex round 4 gave "Ready for owner merge" at `7931be8` with no open finding.
+
 Open work on PR #1:
 
-1. Read the pushed review record and verify the reviewer and author providers.
-2. After confirmation, ask the owner about the merge with the four-part summary. Name the commit that last changed the review record (D-13, D-87).
+1. Ask the owner about the merge with the four-part summary. Name the commit that last changed the review record, the author provider, and the reviewer provider (D-13, D-87, D-89).
+2. After the confirmation, turn on the squash auto-merge. Then write the transitional prompt of the `one-pr-one-session` skill.
 
 Every launch question has an answer or a "Not applicable" status. Q-91 to Q-107 in `docs/questions.md` stay open, and each names the phase that needs it.
 
@@ -53,5 +55,5 @@ Completed:
 
 Open work:
 
-- Round 2 of the Codex review, and the merge of PR #1.
+- The owner confirmation and the merge of PR #1.
 - Q-91 to Q-107.
