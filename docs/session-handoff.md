@@ -6,9 +6,12 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 Date: 2026-09-28. Phase 1 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR-3 of `docs/roadmaps/phase-1-risk-spikes.md` is GitHub PR #4, open on `feat/pr-3-recognition-test-set`, from the base `89046b4`.
 
-The Codex review record is `docs/reviews/pr-4.md`. P2-1 and P2-2 are fixed. This review found P2-3: the manifest check accepts unpublished Creative Commons version numbers. P2-4 records a conflict between the privacy rule and D-97. The review is Blocked at `c3c5c7a` until the author corrects P2-3 and the owner resolves P2-4. The reviewer asked whether public attribution names are an exception.
+The Codex review record is `docs/reviews/pr-4.md`. P2-1 and P2-2 are fixed. Round 3 was Blocked at `c3c5c7a` with P2-3 and P2-4. The author answered both in `docs/reviews/pr-4-response.md`:
 
-Next action: get the owner decision on P2-4. Then have the author update the decision register if needed, fix P2-3, run the checks, and request another Codex review.
+- P2-3: the manifest check now accepts only the license versions and ports that Creative Commons issued.
+- P2-4: the owner answered Q-124 (D-106). The author credit that an image license requires is not personal data under the privacy rule.
+
+Next action: when CI is green, run the next Codex review round with `make codex-review PR=4`.
 
 ## Facts that expire
 
@@ -41,6 +44,7 @@ Completed:
 - The owner approved the milestone before the first edit (D-12), and answered Q-120 to Q-123 (D-102 to D-105).
 - Wrote the catalog shortlist, the manifest check, the download script, the degrade script, and the source script, with unit tests in `make test`.
 - Curated 130 licensed images from 72 gyms, and 44 degraded photos. The manifest records 7 known gaps.
+- Answered Codex findings P2-1 to P2-4. The owner answered Q-124 (D-106).
 
 Open work:
 

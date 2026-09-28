@@ -45,3 +45,46 @@ The trigger reproduces at `a1bf5db`. `license_url_ok("cc-by-sa-2.0", "https://cr
   - an extra path part.
 - The same test adds 3 true cases: a port deed page, a legal code page, and a public domain mark page.
 - The test fails on the code of `a1bf5db`. All 43 tests of the folder pass on the correction. The manifest check gives 0 errors, and `make verify` passes.
+
+## P2-3: License validation accepts unpublished version numbers
+
+Review round 3 recorded head `c3c5c7a`, with the verdict "Blocked".
+
+**Result: full merit.**
+
+The trigger reproduces at `c3c5c7a`. `license_ok("cc-by-4.5")` and `license_url_ok("cc-by-4.5", "https://creativecommons.org/licenses/by/4.5")` gave `True`. `license_ok("cc-by-sa-2.1-es")` gave `False`. The committed manifest holds no such code.
+
+The primary source is `config/cc-legal-tools.csv` of the repository `creativecommons/cc-legal-tools-data`, at commit `3edadd4`, read 2026-09-28. It lists each legal tool that Creative Commons issued. CC BY, CC BY-SA, and CC BY-NC have 101 versions and ports each, 303 in total. The three families have the same ports. Version 2.1 has ports alone, and version 4.0 has no port. The ports `igo` and `scotland` have more than two letters, and the old check refused them.
+
+**Correction.**
+
+- `tools/spikes/recognition_set/manifest_check.py`: `CC_PORTS` holds each issued version and its ports. `license_ok` accepts a code only when its version and port are in `CC_PORTS` (D-95). `license_url_ok` refuses each code that `license_ok` refuses.
+- `tools/spikes/recognition_set/README.md` states the rule and its source.
+
+**Regression checks.**
+
+- `LicenseTest.test_only_issued_versions_and_ports_pass`: 7 issued codes pass, `cc-by-sa-2.1-es` included. 9 codes that Creative Commons did not issue fail, the three codes of the finding included.
+- `LicenseTest.test_the_url_of_an_unissued_license_fails`: the URL of a 2.1 port passes. The URLs of `cc-by-4.5`, `cc-by-sa-3.5`, and `cc-by-3.0-zz` fail.
+- The two tests fail on the code of `c3c5c7a`: 2 failures. All 45 tests of the folder pass on the correction.
+- A script compared `CC_PORTS` with the 303 rows of the CSV: the two sets are equal. `license_ok` and `license_url_ok` accept each of the 303 codes with its URL.
+- `manifest_check.py` gives 0 errors, and `make verify` passes.
+
+## P2-4: Manifest attribution names conflict with the privacy rule
+
+**Result: full merit.** The finding asked for an owner decision.
+
+The conflict reproduces. `AGENTS.md` said: "Write no email address, no personal data, no photo, no workout log, and no secret into a file." D-97 says: "Git holds a manifest with the source URL, the author, the license, and the SHA-256 of each image." The `author` field of R006 holds the name of a person.
+
+The owner answered Q-124 on 2026-09-28. The author credit that the license of an image requires is not personal data under the privacy rule, when the source publishes it (D-106). The privacy rule still covers the data of the owner and of each other person.
+
+**Correction.**
+
+- `docs/decisions.md` adds D-106, and `docs/questions.md` adds Q-124.
+- `AGENTS.md` and section 6 of `docs/design.md` state the exception, and cite D-106.
+- `tools/spikes/recognition_set/README.md` states that the `author` field holds the credit of the license.
+- The manifest does not change.
+
+**Regression checks.**
+
+- `make ref-check` resolves D-106 and Q-124.
+- `make verify` passes.
