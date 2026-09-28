@@ -6,13 +6,14 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 Date: 2026-09-28. Phase 0 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR #1 is open on the branch `docs/foundation-roadmap`. The first session continues until PR #1 merges (D-85).
 
-Codex review round 1 gave "Changes required" with one finding, P1-1. Round 2 of the author answers it in `docs/reviews/pr-1-response.md`. The owner resolved P1-1 as an accepted risk (D-87). The round also adds the session rule of D-85 and the naming check of D-86.
+Codex review round 1 gave "Changes required" with one finding, P1-1. Round 2 of the author answers it in `docs/reviews/pr-1-response.md`. The owner resolved P1-1 as an accepted risk (D-87). The round also adds the session rule of D-85 and the naming check of D-86. The review at `973703f` found P1-2, a conflict between the cross-provider rule and the Codex-only author loop.
 
 Open work on PR #1:
 
-1. Push round 2, wait for green CI, and run `make codex-review PR=1` again (D-8).
-2. Answer each new finding on the same pull request.
-3. After the approval, ask the owner about the merge with the four-part summary. Name the commit that last changed the review record (D-13, D-87).
+1. Correct P1-2 so the author flow uses the other provider and records the true author provider.
+2. Wait for green CI, then run the required review flow again.
+3. Answer each new finding on the same pull request.
+4. After approval, ask the owner about the merge with the four-part summary. Name the commit that last changed the review record (D-13, D-87).
 
 Every launch question has an answer or a "Not applicable" status. Q-91 to Q-107 in `docs/questions.md` stay open, and each names the phase that needs it.
 
