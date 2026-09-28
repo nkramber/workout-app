@@ -4,6 +4,11 @@ Tests and CI use the fake provider only, so CI makes no paid call. The
 OpenAI provider reads its model id from the role configuration (D-24),
 and the API key from the environment of the owner machine. No key goes
 into a log, an error, or a result.
+
+Each provider asks a gate before each attempt, retries included. The gate
+reserves the worst-case cost of the attempt, and refuses the attempt when
+the cap can not cover it. After the attempt, the provider reports the usage
+to the gate, or it reports an unknown charge. The harness gives the gate.
 """
 import copy
 import json
@@ -15,12 +20,15 @@ from dataclasses import dataclass, field
 import policy
 
 RETRY_STATUS = {429, 500, 502, 503, 504}
+# A server error can come after OpenAI accepted and billed the request. A
+# client error, 429 included, bills nothing.
+UNKNOWN_CHARGE_STATUS = {500, 502, 503, 504}
 CARDIO_BY_PREFERENCE = {"treadmill": "M14", "bike": "M15", "rower": "M16"}
 
 
 @dataclass
 class Result:
-    status: str  # completed, incomplete, refusal, or error
+    status: str  # completed, incomplete, refusal, error, or cap_skip
     text: str = ""
     detail: str = ""
     usage: dict = field(default_factory=dict)
@@ -146,6 +154,16 @@ DEFAULT_FAULTS = {
 }
 
 
+class OpenGate:
+    """A gate with no cap, for a direct call of a provider."""
+
+    def begin(self):
+        return True
+
+    def end(self, usage=None, unknown_charge=False):
+        pass
+
+
 class FakeProvider:
     name = "fake"
 
@@ -153,16 +171,21 @@ class FakeProvider:
         self.machines = machines
         self.faults = DEFAULT_FAULTS if faults is None else faults
 
-    def plan(self, instructions, user_text, schema, profile, attempt):
+    def plan(self, instructions, user_text, schema, profile, attempt, gate=None):
+        gate = gate or OpenGate()
         started = time.monotonic()
+        if not gate.begin():
+            return Result("cap_skip", detail="the cap can not cover the attempt")
         fault = self.faults.get((profile["profile_id"], attempt))
         usage = usage_dict(input_tokens=(len(instructions) + len(user_text)) // 4, reasoning=800)
         if fault == "refusal":
             usage["output_tokens"] = 20
+            gate.end(usage)
             return Result("refusal", detail="fake refusal", usage=usage, seconds=time.monotonic() - started)
         plan = baseline_plan(profile, self.machines)
         text = apply_fault(fault, plan, profile, self.machines) if fault else json.dumps(plan)
         usage["output_tokens"] = len(text) // 4 + usage["reasoning_tokens"]
+        gate.end(usage)
         return Result("completed", text=text, usage=usage, seconds=time.monotonic() - started)
 
 
@@ -217,28 +240,39 @@ class OpenAIProvider:
             "store": False,
         }
 
-    def plan(self, instructions, user_text, schema, profile, attempt):
+    def plan(self, instructions, user_text, schema, profile, attempt, gate=None):
+        gate = gate or OpenGate()
         data = json.dumps(self.request_body(instructions, user_text, schema)).encode("utf-8")
         started = time.monotonic()
-        detail, n = "", 0
+        detail, sent = "", 0
         for n in range(self.attempts):
+            if not gate.begin():
+                if sent == 0:
+                    return Result("cap_skip", detail="the cap can not cover the attempt")
+                detail += "; the cap can not cover a retry"
+                break
+            sent += 1
             request = urllib.request.Request(self.config["endpoint"], data=data, method="POST", headers={
                 "Authorization": f"Bearer {self._key}", "Content-Type": "application/json"})
             try:
                 with self.opener(request, timeout=self.timeout) as response:
                     body = json.loads(response.read().decode("utf-8"))
                 result = parse_response(body)
+                gate.end(result.usage)
                 result.seconds, result.retries = time.monotonic() - started, n
                 return result
             except urllib.error.HTTPError as exc:
+                gate.end(unknown_charge=exc.code in UNKNOWN_CHARGE_STATUS)
                 detail = f"HTTP {exc.code}: {read_error(exc)}"
                 if exc.code not in RETRY_STATUS:
                     break
             except (urllib.error.URLError, TimeoutError, OSError, ValueError) as exc:
+                # The request can reach OpenAI before the failure, so the charge is unknown.
+                gate.end(unknown_charge=True)
                 detail = f"{exc.__class__.__name__}: {str(exc)[:200]}"
             if n + 1 < self.attempts:
                 self.sleep(2 ** (n + 1))
-        return Result("error", detail=detail, seconds=time.monotonic() - started, retries=n)
+        return Result("error", detail=detail, seconds=time.monotonic() - started, retries=max(sent - 1, 0))
 
 
 def read_error(exc):

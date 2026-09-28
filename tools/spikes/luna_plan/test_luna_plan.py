@@ -379,6 +379,59 @@ class HarnessTest(unittest.TestCase):
         self.assertEqual(harness.go_decision(dict(base, rejection_rate=None))["result"], "no-go")
 
 
+class RetryCapTest(unittest.TestCase):
+    """Review finding P2-1 of pull request 3: each retry of a paid call
+    must stay inside the cap, and an unknown charge counts at its worst case."""
+
+    def setUp(self):
+        self.role = ROLES["roles"]["plan"]
+        self.profile = BY_ID["SP-01"]
+        self.worst = harness.worst_case_usd(self.role, prompt.instructions(), prompt.user_input(self.profile, MACHINES))
+        self.calls = []
+
+    def run_with(self, replies, cap):
+        def opener(request, timeout):
+            self.calls.append(request)
+            reply = replies.pop(0) if len(replies) > 1 else replies[0]
+            if isinstance(reply, Exception):
+                raise reply
+            return FakeResponse(json.dumps(reply).encode("utf-8"))
+
+        provider = providers.OpenAIProvider(self.role, ROLES["providers"]["openai"], "k",
+                                            opener=opener, sleep=lambda s: None)
+        budget = harness.Budget(cap)
+        record = harness.run_one(provider, self.role, budget, schema_check.load_schema(), self.profile, MACHINES, 1)
+        return record, budget
+
+    def test_timeouts_stop_at_the_cap(self):
+        record, budget = self.run_with([TimeoutError("read timed out")], cap=1.5 * self.worst)
+        self.assertEqual(len(self.calls), 1)
+        self.assertEqual((record["status"], record["unknown_charges"]), ("error", 1))
+        self.assertIn("the cap can not cover a retry", record["detail"])
+        self.assertLessEqual(budget.spent, budget.cap)
+        self.assertAlmostEqual(budget.spent, self.worst)
+
+    def test_each_unknown_charge_counts_at_the_worst_case(self):
+        record, budget = self.run_with([TimeoutError("t")], cap=10 * self.worst)
+        self.assertEqual(len(self.calls), 3)
+        self.assertEqual(record["unknown_charges"], 3)
+        self.assertAlmostEqual(budget.spent, 3 * self.worst)
+        self.assertAlmostEqual(budget.reserved, 0.0)
+
+    def test_server_error_is_unknown_and_429_is_free(self):
+        error = OpenAIProviderTest.http_error
+        record, budget = self.run_with([error(self, 503), error(self, 429), response_body()], cap=10 * self.worst)
+        self.assertEqual((record["status"], record["retries"], record["unknown_charges"]), ("completed", 2, 1))
+        success = providers.cost_usd(providers.parse_response(response_body()).usage,
+                                     self.role["price_usd_per_million_tokens"])
+        self.assertAlmostEqual(record["cost_usd"], success)
+        self.assertAlmostEqual(budget.spent, self.worst + success)
+
+    def test_no_attempt_when_the_cap_is_spent(self):
+        record, budget = self.run_with([response_body()], cap=0.5 * self.worst)
+        self.assertEqual((record["status"], len(self.calls), budget.spent), ("cap_skip", 0, 0.0))
+
+
 class PaidRunResultsTest(unittest.TestCase):
     """The report cites the committed results of the paid run. The current
     schema and policy must give the same results from the same plans."""

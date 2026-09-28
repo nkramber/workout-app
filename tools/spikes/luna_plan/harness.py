@@ -61,6 +61,30 @@ class Budget:
             self.spent += actual
 
 
+class Gate:
+    """The budget of one plan. Before each attempt of the provider, retries
+    included, the gate reserves the worst-case cost. After the attempt, it
+    settles the real cost. An attempt with an unknown charge settles at the
+    worst-case cost, so the spend of the budget stays an upper bound."""
+
+    def __init__(self, budget, worst, prices):
+        self.budget, self.worst, self.prices = budget, worst, prices
+        self.known_usd = 0.0
+        self.unknown_charges = 0
+
+    def begin(self):
+        return self.budget.reserve(self.worst)
+
+    def end(self, usage=None, unknown_charge=False):
+        if unknown_charge:
+            self.unknown_charges += 1
+            cost = self.worst
+        else:
+            cost = providers.cost_usd(usage or {}, self.prices)
+            self.known_usd += cost
+        self.budget.settle(self.worst, cost)
+
+
 def worst_case_usd(role, instructions, user_text):
     prices = role["price_usd_per_million_tokens"]
     input_tokens = (len(instructions) + len(user_text)) // 2  # a high estimate of the tokens
@@ -71,18 +95,11 @@ def run_one(provider, role, budget, schema, profile, machines, attempt):
     instructions = prompt.instructions()
     user_text = prompt.user_input(profile, machines)
     record = {"profile_id": profile["profile_id"], "attempt": attempt}
-    worst = worst_case_usd(role, instructions, user_text)
-    if not budget.reserve(worst):
-        record.update(status="cap_skip", detail="the next call can pass the cap", cost_usd=0.0)
-        return record
-    result = None
-    try:
-        result = provider.plan(instructions, user_text, schema, profile, attempt)
-    finally:
-        cost = providers.cost_usd(result.usage, role["price_usd_per_million_tokens"]) if result else 0.0
-        budget.settle(worst, cost)
-    record.update(status=result.status, detail=result.detail, usage=result.usage, cost_usd=cost,
-                  seconds=round(result.seconds, 2), retries=result.retries, raw_text=result.text)
+    gate = Gate(budget, worst_case_usd(role, instructions, user_text), role["price_usd_per_million_tokens"])
+    result = provider.plan(instructions, user_text, schema, profile, attempt, gate)
+    record.update(status=result.status, detail=result.detail, usage=result.usage, cost_usd=gate.known_usd,
+                  unknown_charges=gate.unknown_charges, seconds=round(result.seconds, 2),
+                  retries=result.retries, raw_text=result.text)
     if result.status == "completed":
         plan, errors = schema_check.check_text(result.text, schema)
         record["schema_errors"] = errors
@@ -104,6 +121,7 @@ def summarize(records, meta):
     open_rules = {r.rule_id for r in policy.RULES if r.questions}
     rejected_closed = [r for r in valid if any(v["rule_id"] not in open_rules for v in r["violations"])]
     total_cost = sum(r.get("cost_usd", 0.0) for r in records)
+    unknown_charges = sum(r.get("unknown_charges", 0) for r in records)
     per_rule = {}
     for rule in policy.RULES:
         hits = [r for r in valid if any(v["rule_id"] == rule.rule_id for v in r["violations"])]
@@ -130,6 +148,7 @@ def summarize(records, meta):
         "rejection_rate_without_open_question_rules": len(rejected_closed) / len(valid) if valid else None,
         "per_rule": per_rule,
         "total_cost_usd": round(total_cost, 6),
+        "unknown_charges": unknown_charges,
         "cost_per_plan_usd": round(total_cost / len(returned), 6) if returned else None,
         "tokens": tokens,
         "mean_seconds": round(sum(seconds) / len(seconds), 1) if seconds else None,
@@ -162,6 +181,7 @@ def summary_markdown(summary, records):
         f"- Policy rejection rate: {pct(summary['rejection_rate'])} ({summary['rejected']} of {summary['schema_pass']}).",
         f"- Rejection rate without the rules of open questions: {pct(summary['rejection_rate_without_open_question_rules'])}.",
         f"- Total cost: {summary['total_cost_usd']:.4f} USD. Cost per plan: {summary['cost_per_plan_usd']} USD. Cap: {summary['cap_usd']} USD.",
+        f"- Attempts with an unknown charge: {summary['unknown_charges']}. Spend bound with each at its worst case: {summary['spend_bound_usd']:.4f} USD.",
         f"- Tokens: {summary['tokens']}. Mean seconds: {summary['mean_seconds']}. Max seconds: {summary['max_seconds']}.",
         f"- Go bar result: {summary['go']['result']} {summary['go']['reasons']}.",
         "",
@@ -241,6 +261,7 @@ def main(argv=None):
         "cap_usd": cap, "attempts": args.attempts, "profiles": len(profiles),
     }
     summary = summarize(records, meta)
+    summary["spend_bound_usd"] = round(budget.spent, 6)
     with open(os.path.join(out, "plans.jsonl"), "w", encoding="utf-8") as handle:
         for r in records:
             handle.write(json.dumps(r) + "\n")
