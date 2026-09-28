@@ -6,7 +6,7 @@ OpenAI `gpt-6-luna` proposes each plan and each revision. A deterministic, versi
 
 ## Status
 
-**No app, service, or cloud resource exists yet.** The repository holds the foundation documents, the research, the high-level roadmap, and the process tooling. Phase 0 of the roadmap is in progress.
+**No app, service, or cloud resource exists yet.** The repository holds the foundation documents, the research, the roadmaps, and the process tooling. Phase 0 is complete, and Phase 1 (risk spikes) is in progress.
 
 ## Repository map
 

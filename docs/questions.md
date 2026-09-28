@@ -6,7 +6,8 @@ The ids have three ranges:
 
 - Q-1 to Q-73 are the questions of the launch prompt of the first session.
 - Q-74 to Q-89 and Q-108 to Q-112 are follow-up questions of the first session.
-- Q-90 to Q-107 are open questions, and Q-90 has an answer. Each open question names the phase of `docs/roadmaps/high-level-roadmap.md` that needs the answer.
+- Q-113 to Q-118 are questions of the Phase 1 roadmap session.
+- Q-90 to Q-107 are open questions. Q-90 and Q-94 to Q-97 have an answer. Each open question names the phase of `docs/roadmaps/high-level-roadmap.md` that needs the answer.
 
 The owner answered through the answer controls of the session. The first session asked Q-1 to Q-46 and Q-74 to Q-88 on 2026-09-27. It asked the other questions on 2026-09-28. The column "Rec." tells whether the owner chose the option that the launch prompt marked as recommended. A "No" in that column is an owner decision, not a mistake.
 
@@ -164,6 +165,17 @@ The owner answered through the answer controls of the session. The first session
 | Q-112 | Codex finding P1-5: Dependabot pull requests skip the review gate, and the repository has no Dependabot. What happens to the exemption? | Remove it. | Answered | D-90 |
 | Q-109 | Codex finding P1-1: the review gate can not prove that Codex wrote the review record. How is it resolved? | The rule what-you-carry:D-198: an accepted risk, with the commit of the record in the gate output. | Answered | D-87 |
 
+## Questions of the Phase 1 roadmap session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-113 | Section 8 of the high-level roadmap needs an owner confirmation of the phase order. Does the owner confirm the order Phase 0 to Phase 8? | Yes, as written. | Answered | D-92 |
+| Q-114 | D-86 assigns PR-<n> ids "from PR-1". Does each phase start again at PR-1? | No. One sequence runs across all phases. | Answered | D-96 |
+| Q-115 | The repository is public. Where do the images of the recognition test set live? | A manifest in Git, and the images in a local cache outside Git. | Answered | D-97 |
+| Q-116 | Which cap does the paid run of the Luna plan spike get? | 2 USD. | Answered | D-98 |
+| Q-117 | The iPhone web platform spike needs a trusted HTTPS origin and an auth project. How does it serve its probe? | Create the development project early, with Firebase Hosting and Firebase Authentication only. | Answered | D-99 |
+| Q-118 | Which language do the Luna spike harnesses use? | Python. | Answered | D-100 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |
@@ -172,10 +184,10 @@ The owner answered through the answer controls of the session. The first session
 | Q-91 | How does the app handle equipment with kilogram markings under pounds only (D-28)? | A wrong conversion gives a wrong load. | Phase 2 | Open |
 | Q-92 | When nearest-5-lb rounding (D-65) makes a load jump larger than the policy limit, does the policy hold the load or add reps instead? | On a 25 lb stack, one 5 lb step is a 20 percent jump. | Phase 3 | Open |
 | Q-93 | When does the D-4 period end, and which focused roadmaps must exist first? | The `review-override` label stays off until then. | After the first focused roadmaps merge | Open |
-| Q-94 | Does the owner apply the committed ruleset of `main` on GitHub after this PR merges? | The ruleset makes the review gate and the contract check mandatory. It changes live GitHub settings. | Right after this PR merges | Open |
-| Q-95 | What do the current OpenAI usage policies say about fitness and health advice? | The research could not read the policy page. The prompts of Luna must obey it. | Phase 1 | Open |
-| Q-96 | What does one equipment photo cost on `gpt-6-luna`? | OpenAI does not publish the image token rate of this model. A paid probe needs owner approval (D-25). | Phase 1 | Open |
-| Q-97 | Which image licenses are acceptable for the recognition test set (D-56)? | Test images must be lawful to copy and store. | Phase 1 | Open |
+| Q-94 | Does the owner apply the committed ruleset of `main` on GitHub after this PR merges? | The ruleset makes the review gate and the contract check mandatory. It changes live GitHub settings. Answer on 2026-09-28: yes. The session applied both files, and `make ruleset-check` passed (D-91). | Right after this PR merges | Answered |
+| Q-95 | What do the current OpenAI usage policies say about fitness and health advice? | The research could not read the policy page. The prompts of Luna must obey it. Answer on 2026-09-28: use the dated copy of the policy page (D-93). | Phase 1 | Answered |
+| Q-96 | What does one equipment photo cost on `gpt-6-luna`? | OpenAI does not publish the image token rate of this model. A paid probe needs owner approval (D-25). Answer on 2026-09-28: the recognition spike measures it, with a cap of 2 USD (D-94). | Phase 1 | Answered |
+| Q-97 | Which image licenses are acceptable for the recognition test set (D-56)? | Test images must be lawful to copy and store. Answer on 2026-09-28: CC0, public domain, CC BY, CC BY-SA, and CC BY-NC (D-95). | Phase 1 | Answered |
 | Q-98 | What are the monthly AI caps for the one user and for the project (D-25)? | A cap stops a runaway loop from a large bill. | Phase 4 | Open |
 | Q-99 | Does the one development project get Firestore backups and point-in-time recovery? | D-76 leaves one project. It holds the only copy of the workout history. | Phase 4 | Open |
 | Q-100 | Which fields does a cardio machine log hold? | D-57 defines the set log for resistance machines only. D-45 adds cardio machines. | Phase 2 | Open |

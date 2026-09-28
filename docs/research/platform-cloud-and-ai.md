@@ -34,7 +34,7 @@ Chrome on iPhone leads, and it uses the WebKit engine (D-29). The web client use
 - The capability findings hold as of iOS 26.x. The research found no iOS 27 regression.
 - Nobody tested on a physical iPhone. Playwright WebKit differs from branded Safari, and it can not run a Home Screen web app (PC-28).
 - Prices are USD list prices on the access dates. Vendors change them without notice.
-- Pages on openai.com returned HTTP 403. The usage policies and the launch post of Luna stay unresolved (PC-69, PC-70).
+- Pages on openai.com returned HTTP 403. The launch post of Luna stays unresolved (PC-70). A dated copy of the usage policies gives their text (PC-101).
 
 ## 2. Source register
 
@@ -108,7 +108,7 @@ Chrome on iPhone leads, and it uses the WebKit engine (D-29). The web client use
 | PC-66 | [Create a model response](https://developers.openai.com/api/reference/resources/responses/methods/create) and [Using GPT-6](https://developers.openai.com/api/docs/guides/latest-model), OpenAI | The include option can ask for logprobs. With effort other than none, remove top_logprobs and the logprobs include. | None | evidence |
 | PC-67 | [Flex processing](https://developers.openai.com/api/docs/guides/flex-processing) and [Batch API](https://developers.openai.com/api/docs/guides/batch), OpenAI | Flex bills at Batch rates and can return 429. Batch is 50% off within 24 h. | None | evidence |
 | PC-68 | [Safety best practices](https://developers.openai.com/api/docs/guides/safety-best-practices), OpenAI | Free Moderation API, hashed safety_identifier, adversarial tests. | None | recommendation |
-| PC-69 | [Usage policies](https://openai.com/policies/usage-policies/), OpenAI | Nothing verified. HTTP 403. Search snippets mention a 2025-10-29 update on licensed advice. | Not fetched | unresolved |
+| PC-69 | [Usage policies](https://openai.com/policies/usage-policies/), OpenAI | HTTP 403 again on 2026-09-28. PC-101 gives a dated copy of the page. | Not fetched | unresolved, see PC-101 |
 | PC-70 | [Introducing GPT-6 Sol and Luna](https://openai.com/index/introducing-gpt-6-sol-and-luna/), OpenAI | Nothing verified. HTTP 403. | Not fetched | unresolved |
 | PC-71 | [Overview of environments](https://firebase.google.com/docs/projects/dev-workflows/overview-environments), Firebase | Firebase advises a separate project for each environment, and no real user data in development. | General guidance | recommendation |
 | PC-72 | [Cloud Run pricing](https://cloud.google.com/run/pricing), Google Cloud | Request-based and instance-based rates. Free tier per billing account. us-central1 is Tier 1. | Prices change | evidence |
@@ -140,6 +140,7 @@ Chrome on iPhone leads, and it uses the WebKit engine (D-29). The web client use
 | PC-98 | [WCAG2Mobile](https://www.w3.org/TR/wcag2mobile-22/) and [Mobile Accessibility at W3C](https://www.w3.org/WAI/standards-guidelines/mobile/), W3C | Group Draft Note of 2025-05-06. Informative only. Covers mobile web apps. | Draft | recommendation |
 | PC-99 | [HIG Accessibility](https://developer.apple.com/design/human-interface-guidelines/accessibility), Apple | Controls 44 by 44 pt by default, 28 by 28 pt minimum. Contrast 4.5:1. | Native guidance | recommendation |
 | PC-100 | [Make apps more accessible](https://developer.android.com/guide/topics/ui/accessibility/apps), Android Developers | Targets of at least 48 by 48 dp. | Native guidance | recommendation |
+| PC-101 | [Usage policies, print copy](https://docs.databricks.com/aws/ja/assets/files/usage-policies-openai-923e062e72487537e2a8df04bcec7f6d.pdf), a Databricks copy of the OpenAI page | The full text of the policy page, printed 2025-11-07, effective 2025-10-29. Read on 2026-09-28. | A copy, not the live page. Changes after 2025-11-07 stay unverified. | evidence, dated copy |
 
 ## 3. Installable web app on iPhone and Android
 
@@ -444,10 +445,10 @@ A wrong machine identity gives the policy a wrong exercise and a wrong load scal
 | Rate limits | Tier 1: 500 RPM and 500,000 TPM. Tier 5: 30,000 RPM and 180M TPM. | evidence | PC-61 |
 | Flex | Batch rates, slower, can return 429 Resource Unavailable with no charge. | evidence | PC-67 |
 | Safety | Free Moderation API. Hashed safety_identifier for each user. Adversarial and prompt-injection tests. | recommendation | PC-68 |
-| Usage policies | The page returned HTTP 403. Search snippets say a 2025-10-29 update forbids tailored licensed advice, such as medical advice, without a professional. General fitness information stays allowed. | unresolved | PC-69 |
+| Usage policies | The dated copy forbids tailored advice that needs a license, such as medical advice, without a licensed professional. It forbids automated high-stakes medical decisions without human review. General workout plans are not on the list. The owner accepted this copy (D-93). | evidence, dated copy | PC-101 |
 | Launch post | HTTP 403. The release date near 2026-09-22 comes from a changelog title only. | unresolved | PC-70 |
 
-Tier 1 limits exceed the need of one user by far (assumption). The prompts and the policy keep Luna text inside the fitness boundary of D-36 until someone reads the usage policies in a browser.
+Tier 1 limits exceed the need of one user by far (assumption). The prompts and the policy keep Luna text inside the fitness boundary of D-36 (D-93).
 
 ## 8. Google Cloud for this product
 
@@ -559,10 +560,9 @@ D-72 defers accessibility work. D-71 still makes large targets and few taps a fo
 | Safari 27.0 web app fixes | A fix or regression can change the capability table. | Read the notes in a browser. | PC-18 |
 | Chrome on iPhone Home Screen install | The owner uses Chrome (D-29). | Test on the owner's iPhone in Phase 1. | PC-1 |
 | Canvas re-encode removes EXIF | Photo privacy. | Unit test on the output bytes. | PC-19 |
-| Luna image token rate | Recognition cost. | A paid probe with owner approval (D-25). | PC-62 |
+| Luna image token rate | Recognition cost. | PR-4 of `docs/roadmaps/phase-1-risk-spikes.md` measures it, with a cap of 2 USD (D-94). | PC-62 |
 | Luna dated snapshot | A silent model change can shift behavior. | Check the model page again. Rerun the test set. | PC-61 |
 | Image input with strict structured outputs | The recognition schema needs both. | Smoke test through the fake-provider seam. | PC-63 |
-| OpenAI usage policies | Luna text must obey them. | Read the page in a browser. | PC-69 |
 | React startup on a phone | The only weak score of React. | The Phase 1 profile (D-84). | PC-34, PC-35 |
 | Preact compat with React 19 | Only relevant to a later switch. | None now. | PC-41 |
 | Web OCR in WASM | A possible on-device shortlist. | Research only if the catalog outgrows one enum. | none |
