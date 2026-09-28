@@ -6,9 +6,9 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 Date: 2026-09-28. Phase 1 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR-3 of `docs/roadmaps/phase-1-risk-spikes.md` is GitHub PR #4, open on `feat/pr-3-recognition-test-set`, from the base `89046b4`.
 
-The Codex review record is `docs/reviews/pr-4.md`. Round 1 found P2-1, and round 2 found P2-2. The author found full merit in each, and corrected each. `docs/reviews/pr-4-response.md` holds the answers and the regression tests. `make verify`, the manifest check, and the source check passed after the corrections.
+The Codex review record is `docs/reviews/pr-4.md`. P2-1 and P2-2 are fixed. This review found P2-3: the manifest check accepts unpublished Creative Commons version numbers. P2-4 records a conflict between the privacy rule and D-97. The review is Blocked at `c3c5c7a` until the author corrects P2-3 and the owner resolves P2-4. The reviewer asked whether public attribution names are an exception.
 
-Next action: when CI is green, run the Codex repeat review with `make codex-review PR=4`. On `Ready for owner merge`, ask the owner to confirm the merge (D-13).
+Next action: get the owner decision on P2-4. Then have the author update the decision register if needed, fix P2-3, run the checks, and request another Codex review.
 
 ## Facts that expire
 
