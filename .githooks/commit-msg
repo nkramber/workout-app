@@ -1,0 +1,34 @@
+#!/bin/sh
+# Refuse a commit message that breaks D-14: the subject is a Conventional
+# Commits subject, and the message holds no AI attribution. `make hooks`
+# installs this file. The pr-contract check holds the same rules for the
+# title and the body of a pull request.
+msg_file="$1"
+
+# Git removes the comment lines after this hook, so the check skips them.
+body=$(grep -v '^#' "$msg_file" || true)
+subject=$(printf '%s\n' "$body" | sed -n '/[^[:space:]]/{p;q;}')
+
+case "$subject" in
+  # Git writes these subjects itself.
+  "Merge "*|"Revert \""*|"fixup! "*|"squash! "*|"amend! "*) ;;
+  *)
+    if ! printf '%s\n' "$subject" | grep -Eq '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9][a-z0-9._/-]*\))?!?: [^[:space:]]'; then
+      echo "commit-msg: the subject is not a Conventional Commits subject (D-14):"
+      echo "  $subject"
+      echo "  Use <type>(<scope>): <summary>, for example: docs(roadmap): add the first phase"
+      exit 1
+    fi
+    ;;
+esac
+
+ai='(claude|anthropic|codex|openai|chatgpt|gpt)'
+if printf '%s\n' "$body" | grep -Eiq "^[[:space:]]*co-authored-by:.*$ai"; then
+  echo "commit-msg: the message names an AI co-author. D-14 forbids AI attribution."
+  exit 1
+fi
+if printf '%s\n' "$body" | grep -Eiq "^[^[:alnum:]]*generated (with|by)([^[:alnum:]]|\$)|generated (with|by) .*$ai"; then
+  echo "commit-msg: the message holds a 'Generated with' line. D-14 forbids AI attribution."
+  exit 1
+fi
+exit 0

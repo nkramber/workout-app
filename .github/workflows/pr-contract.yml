@@ -1,0 +1,38 @@
+name: pr-contract
+
+# The one-pr-one-session contract (D-10, D-12, D-14). A pull request is the
+# complete unit: the title is a Conventional Commits subject, the body
+# records the session, the milestone, and a documentation matrix, and the
+# diff changes the hand-off. The job reads the body, so it runs on each
+# body edit too, and not only on a push. It never runs code of the pull
+# request with a secret: the token reads contents alone.
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+
+concurrency:
+  group: pr-contract-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    name: "pr-contract"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Same pin as verify.yml.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 verified_at 2026-09-28
+        with:
+          # The base commit of the session block must be an ancestor of the head.
+          fetch-depth: 0
+          persist-credentials: false
+      # The base branch name enters through env, never through an
+      # expression inside the script, so its text cannot run as shell.
+      # The title and the body come from the event file, never from an expression.
+      - name: pull request contract
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: python3 docs/tools/pr_check.py pr --event "$GITHUB_EVENT_PATH" --base "origin/${BASE_REF}"
