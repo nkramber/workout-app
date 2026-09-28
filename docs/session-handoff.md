@@ -19,8 +19,8 @@ Codex round 1 reviewed effective head `365c2045ec80d68fe5f97914e05e74abe99b599e`
 
 Open work on PR-2:
 
-1. Get green CI, then run `make codex-review PR=3` for the repeat review.
-2. Ask the owner about the merge with the four-part summary (D-13, D-87, D-89).
+1. Read the fresh CI result after the Codex review record and hand-off reach the branch. The review record says `Blocked` until `review-gate` passes.
+2. If the gate passes, ask the owner about the merge with the four-part summary (D-13, D-87, D-89).
 
 Q-91 to Q-93 and Q-98 to Q-107 stay open, and each names the phase that needs it. The draft rules use draft values for Q-92, Q-101, Q-102, Q-104, Q-105, and Q-106, and they answer none of them.
 
