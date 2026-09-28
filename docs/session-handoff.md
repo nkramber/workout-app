@@ -6,7 +6,7 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 Date: 2026-09-28. Phase 0 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR #1 is open on the branch `docs/foundation-roadmap`. The first session continues until PR #1 merges (D-85).
 
-Codex review round 1 gave "Changes required" with one finding, P1-1. Round 2 of the author answers it in `docs/reviews/pr-1-response.md`. The owner resolved P1-1 as an accepted risk (D-87). The round also adds the session rule of D-85 and the naming check of D-86. The review at `973703f` found P1-2, a conflict between the cross-provider rule and the Codex-only author loop.
+Codex review round 1 gave "Changes required" with P1-1. The owner resolved it as an accepted risk (D-87). Round 2 gave "Changes required" with P1-2, and the owner approved the `make claude-review` target for Codex authors (D-88). `docs/reviews/pr-1-response.md` answers both findings. The rounds also add the session rule of D-85 and the naming check of D-86. The review at `973703f` found P1-2, a conflict between the cross-provider rule and the Codex-only author loop.
 
 Open work on PR #1:
 
@@ -44,7 +44,7 @@ Branch: `docs/foundation-roadmap`. Role: author.
 
 Completed:
 
-- Answered Codex finding P1-1 (D-87). Recorded the session rule D-85 and the naming rule D-86, each with a check.
+- Answered Codex findings P1-1 (D-87) and P1-2 (D-88). Recorded the session rule D-85 and the naming rule D-86, each with a check.
 
 - Asked the 73 launch questions and 16 follow-up questions. Recorded D-1 to D-84 and Q-1 to Q-107.
 - The owner changed the product form to an installable web app for one user (D-17, D-67), and made Luna central (D-22).

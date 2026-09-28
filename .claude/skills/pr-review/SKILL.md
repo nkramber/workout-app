@@ -7,17 +7,17 @@ description: Review a pull request as the other provider, or answer a review as 
 
 Review the change as the engineer who owns its effect on the whole system. Judge correctness, contracts, recovery from a failure, the tests, and the cost of future maintenance. Apply this standard to code, tools, CI, skills, and documents. A green test suite or a good pull request body does not prove correctness.
 
-The owner decisions are D-4, D-8, D-13, D-14, and D-15. The skill is a port of the Decktome skill.
+The owner decisions are D-4, D-8, D-13, D-14, D-15, D-87, and D-88. The skill is a port of the Decktome skill.
 
 ## The order of the review
 
 1. The author session pushes a round, and waits until each CI check of the tip is green.
-2. The author session runs `make codex-review PR=<number>` with no approval for each round (D-8).
-3. Codex reviews the pull request with this skill, and writes `docs/reviews/pr-<number>.md`.
+2. The author session runs the target of the other provider with no approval for each round. A Claude Code author runs `make codex-review PR=<number>` (D-8). A Codex author runs `make claude-review PR=<number>` (D-88).
+3. The reviewer reviews the pull request with this skill, and writes `docs/reviews/pr-<number>.md`.
 
 The `review-gate` check reads that file, and the ruleset of `main` requires the check. The owner confirms each merge after the review (D-13).
 
-A review that `make codex-review` starts has no owner in the loop. Where this skill says to ask the owner, write the question under `## Open questions and accepted risks`. Then give the verdict `Blocked`. The author session asks the owner.
+A review that `make codex-review` or `make claude-review` starts has no owner in the loop. Where this skill says to ask the owner, write the question under `## Open questions and accepted risks`. Then give the verdict `Blocked`. The author session asks the owner.
 
 The Codex review applies to every pull request, and to a pull request of documents alone too, until the owner ends the roadmap period (D-4). After that period, a review of the other provider is necessary only for a change of code or of safety behavior (D-15). Two cases then need no Codex review:
 

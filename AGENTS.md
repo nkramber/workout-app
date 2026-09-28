@@ -21,7 +21,7 @@ Stage: Phase 0 of `docs/roadmaps/high-level-roadmap.md`. No app, service, or clo
 7. **Every change starts on a branch** (D-14). Never commit to `main`, and never push to it. Run `make where` before each commit and push. Run `make hooks` once in each checkout. Use Conventional Commits for commit titles. Name a pull request `<type>: <summary> (PR-<n>)` on the branch `<type>/pr-<n>-<slug>` (D-86).
 8. **Deploy from `main` alone** (D-14). Check the branch and the commit before every deploy.
 9. **Review before merge.**
-   - After CI is green, the author session runs `make codex-review PR=<n>` without a separate approval (D-8).
+   - After CI is green, the author session runs the review of the other provider without a separate approval. A Claude Code author runs `make codex-review PR=<n>` (D-8). A Codex author runs `make claude-review PR=<n>` (D-88).
    - Codex reviews Claude Code work, and Claude Code reviews Codex work (D-15). A review by the same provider never counts.
    - Codex reviews every pull request of documents alone until the owner ends the D-4 period. The `review-override` label does not pass the gate before then (D-4).
    - Gitar is not part of this repository until the owner approves it (D-3).
@@ -60,7 +60,7 @@ make hooks           # install the Git hooks once in each checkout
 make ruleset-check   # the live ruleset of main against .github/rulesets
 ```
 
-Paid targets: `make codex-review`. It spends the owner's Codex plan, never the API (D-8).
+Paid targets: `make codex-review` and `make claude-review`. They spend the owner's Codex plan and Claude plan, never the API (D-8, D-88).
 
 ## Skills
 
@@ -68,7 +68,7 @@ Paid targets: `make codex-review`. It spends the owner's Codex plan, never the A
 |---|---|
 | `ste-writing` | Before you write or edit any `.md` file. |
 | `one-pr-one-session` | Before any work on a pull request: start, revision, review, merge question, or hand-off. |
-| `pr-review` | For a Codex review, `make codex-review`, and each answer to a review finding. |
+| `pr-review` | For a cross-provider review, `make codex-review`, `make claude-review`, and each answer to a review finding. |
 
 ## File map
 

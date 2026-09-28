@@ -8,7 +8,7 @@
 SHELL := bash
 .SHELLFLAGS := -o pipefail -c
 
-.PHONY: help doctor lint ste-check ref-check lifecycle-check context-budget test verify where hooks pr-check codex-review ruleset-check
+.PHONY: help doctor lint ste-check ref-check lifecycle-check context-budget test verify where hooks pr-check codex-review claude-review ruleset-check
 
 help: ## Show this help
 	@set -o pipefail; grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-16s %s\n", $$1, $$2}'
@@ -82,6 +82,10 @@ pr-check: ## Check the pull request of this branch against the one-pr-one-sessio
 codex-review: ## Start the Codex review of one pull request and read its record: make codex-review PR=<n>. CAUTION: it spends the Codex plan of the owner, never the API (D-8)
 	@[ -n "$(PR)" ] || { echo "codex-review: set PR to the number of the pull request. Usage: make codex-review PR=12"; exit 2; }
 	@python3 docs/tools/codex_review.py --pr "$(PR)"
+
+claude-review: ## Start the Claude Code review of one pull request that Codex writes: make claude-review PR=<n>. CAUTION: it spends the Claude plan of the owner, never the API (D-88)
+	@[ -n "$(PR)" ] || { echo "claude-review: set PR to the number of the pull request. Usage: make claude-review PR=12"; exit 2; }
+	@python3 docs/tools/codex_review.py --pr "$(PR)" --reviewer claude
 
 # The live ruleset does not exist until the owner applies it after the
 # merge, so CI does not run this target.

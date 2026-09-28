@@ -61,6 +61,20 @@ SANDBOX = "danger-full-access"
 STRIKES = 3
 BLOCKING = ("P0", "P1", "P2")
 TRANSCRIPTS = ".local/codex-review"
+# D-88: a pull request that Codex writes gets a Claude Code review through
+# the Claude CLI, as the claude-review command of what-you-carry does.
+CLAUDE_MODEL = "claude-opus-5-5"
+CLAUDE_MIN_VERSION = "2.1.283"
+CLAUDE_PERMISSIONS = "bypassPermissions"
+CLAUDE_TRANSCRIPTS = ".local/claude-review"
+# Each variable gives the Claude CLI a credential or another provider, so
+# the tool removes each one, and a review never uses API pricing (D-88).
+CLAUDE_API_VARIABLES = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "CLAUDE_CODE_OAUTH_TOKEN",
+                        "CLAUDE_CODE_USE_BEDROCK", "CLAUDE_CODE_USE_VERTEX", "CLAUDE_CODE_USE_FOUNDRY")
+# The provider gate (D-15): the provider that wrote the pull request never reviews it.
+AUTHOR_OF_REVIEWER = {"codex": "Claude Code", "claude": "Codex"}
+HANDOFF = "docs/session-handoff.md"
+PROVIDER = re.compile(r"^\s*[-*]?\s*Author provider:\s*(Claude Code|Codex)\b", re.M)
 REVIEW_TIMEOUT = 4 * 3600
 # A Codex call bills the ChatGPT plan alone, and never the API (D-8).
 API_KEYS = ("OPENAI_API_KEY", "CODEX_API_KEY")
@@ -229,6 +243,73 @@ def probe(run, codex):
         raise refuse(f"the probe of model {MODEL} at effort {EFFORT} failed, exit {code}: {last[0][:300]}")
 
 
+def claude_env():
+    """The environment of each Claude call, with no API credential in it (D-88)."""
+    return {k: v for k, v in os.environ.items() if k not in CLAUDE_API_VARIABLES}
+
+
+def claude_cli(run):
+    """Give the path and the version of the Claude CLI, or refuse (D-88)."""
+    claude = shutil.which("claude")
+    if not claude:
+        raise refuse("no `claude` on the command path. Install Claude Code, then run the target again.")
+    installed = must(run, [claude, "--version"], refuse, env=claude_env()).strip().splitlines()[0]
+    have = version(installed)
+    if have is None or have < version(CLAUDE_MIN_VERSION):
+        raise refuse(f"{claude} is `{installed}`, below the minimum {CLAUDE_MIN_VERSION}.")
+    return claude, installed
+
+
+def check_claude_login(run, claude):
+    """Refuse a Claude CLI that bills the API and not the Claude plan (D-88)."""
+    out = must(run, [claude, "auth", "status", "--json"], refuse, env=claude_env())
+    try:
+        status = json.loads(out)
+    except ValueError:
+        raise refuse("`claude auth status --json` gives no JSON. Run `claude auth login` with the Claude account.")
+    fields = (status.get("loggedIn"), status.get("authMethod"), status.get("apiProvider"))
+    if fields != (True, "claude.ai", "firstParty"):
+        # The output also holds the email, so the message names the three fields alone.
+        raise refuse(f"`claude auth status --json` gives loggedIn {fields[0]}, authMethod {fields[1]!r}, "
+                     f"and apiProvider {fields[2]!r}. The review needs True, 'claude.ai', and 'firstParty'.")
+
+
+def claude_probe(run, claude):
+    with tempfile.TemporaryDirectory() as scratch:
+        code, out, err = run([claude, "-p", "Reply with the single word OK.", "--model", CLAUDE_MODEL,
+                              "--output-format", "json"], cwd=scratch, env=claude_env())
+    try:
+        text = str(json.loads(out).get("result", "")).strip()
+    except (ValueError, AttributeError):
+        text = ""
+    if code != 0 or text.rstrip(".").upper() != "OK":
+        last = (err or out).strip().splitlines()[-1:] or ["no output"]
+        raise refuse(f"the probe of model {CLAUDE_MODEL} failed, exit {code}: {last[0][:300]}")
+
+
+def author_providers(handoff, branch):
+    """Give the provider of each author record of the branch in the hand-off (D-15)."""
+    providers = []
+    for record in re.split(r"^### ", handoff or "", flags=re.M)[1:]:
+        if f"`{branch}`" not in record or not re.search(r"Role:\s*author\b", record):
+            continue
+        providers += PROVIDER.findall(record)
+    return providers
+
+
+def check_provider(run, repo, head, branch, reviewer):
+    """Refuse a review by the provider that wrote the pull request (D-15, D-88)."""
+    code, out, _ = run(["git", "show", f"{head}:{HANDOFF}"], cwd=repo)
+    providers = author_providers(out if code == 0 else "", branch)
+    need = AUTHOR_OF_REVIEWER[reviewer]
+    other = "claude-review" if reviewer == "codex" else "codex-review"
+    if not providers:
+        raise refuse(f"{HANDOFF} at the head holds no author record of `{branch}` with an `Author provider:` line (D-15).")
+    if set(providers) != {need}:
+        raise refuse(f"the author records of `{branch}` name {sorted(set(providers))}. This review needs an author of "
+                     f"{need} alone. Use `make {other}` for the other provider, or ask the owner (D-15, D-88).")
+
+
 # Part 2: the review.
 
 # The review rules come from `main`, never from the head under review, so
@@ -312,10 +393,11 @@ def prompt(number, slug, branch, head, rules, base, changed, bootstrap=()):
     return "\n".join(lines)
 
 
-def review(run, repo, codex, number, slug, branch, head, stamp):
-    os.makedirs(os.path.join(repo, TRANSCRIPTS), exist_ok=True)
-    base = os.path.join(repo, TRANSCRIPTS, f"pr-{number}-{stamp}")
-    tree = tempfile.mkdtemp(prefix=f"codex-review-pr{number}-")
+def review(run, repo, cli, number, slug, branch, head, stamp, reviewer="codex"):
+    folder = TRANSCRIPTS if reviewer == "codex" else CLAUDE_TRANSCRIPTS
+    os.makedirs(os.path.join(repo, folder), exist_ok=True)
+    base = os.path.join(repo, folder, f"pr-{number}-{stamp}")
+    tree = tempfile.mkdtemp(prefix=f"{reviewer}-review-pr{number}-")
     must(run, ["git", "worktree", "add", "--quiet", "--detach", tree, head], fault, cwd=repo)
     rules = None
     try:
@@ -329,9 +411,15 @@ def review(run, repo, codex, number, slug, branch, head, stamp):
         raise
     try:
         with open(base + ".jsonl", "w", encoding="utf-8") as events, open(base + ".stderr.log", "w", encoding="utf-8") as log:
-            code, _, _ = run([codex, "exec", *model_args(), "-s", SANDBOX, "-C", tree, "--json",
-                              "-o", base + ".last.md", prompt(number, slug, branch, head, rules, main, changed, bootstrap)],
-                             cwd=tree, timeout=REVIEW_TIMEOUT, stdout=events, stderr=log, env=codex_env())
+            text = prompt(number, slug, branch, head, rules, main, changed, bootstrap)
+            if reviewer == "codex":
+                cmd, env = [cli, "exec", *model_args(), "-s", SANDBOX, "-C", tree, "--json",
+                            "-o", base + ".last.md", text], codex_env()
+            else:
+                # The Claude CLI has no option for the directory, so the run starts in the worktree (D-88).
+                cmd, env = [cli, "-p", text, "--model", CLAUDE_MODEL, "--permission-mode", CLAUDE_PERMISSIONS,
+                            "--output-format", "stream-json", "--verbose"], claude_env()
+            code, _, _ = run(cmd, cwd=tree, timeout=REVIEW_TIMEOUT, stdout=events, stderr=log, env=env)
     finally:
         shutil.rmtree(rules, ignore_errors=True)
     return code, tree, base
@@ -442,11 +530,14 @@ def main(argv=None, run=sh):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--pr", type=int, required=True, help="the number of the pull request")
     parser.add_argument("--repo", default=ROOT)
+    parser.add_argument("--reviewer", choices=sorted(AUTHOR_OF_REVIEWER), default="codex",
+                        help="codex for a pull request that Claude Code writes, claude for one that Codex writes (D-88)")
     try:
         args = parser.parse_args(argv)
     except SystemExit:
         return EXIT_USAGE
     code, lines = EXIT_FAULT, []
+    name = f"{args.reviewer}-review"
     try:
         slug = must(run, ["gh", "repo", "view", "--json", "nameWithOwner", "--jq", ".nameWithOwner"], refuse).strip()
         branch, head = check_pr(run, args.pr)
@@ -456,24 +547,32 @@ def main(argv=None, run=sh):
         if effective is None:
             raise refuse("every commit changes the metadata set alone, so the pull request has no effective head.")
         check_threads(run, slug, args.pr)
-        codex, installed = update_cli(run)
-        check_login(run, codex)
-        probe(run, codex)
-        print(f"codex-review: PR #{args.pr}, head {head[:7]}, effective head {effective[:7]}, {installed}, {MODEL} at {EFFORT}.")
+        check_provider(run, args.repo, head, branch, args.reviewer)
+        if args.reviewer == "codex":
+            cli, installed = update_cli(run)
+            check_login(run, cli)
+            probe(run, cli)
+            model = f"{MODEL} at {EFFORT}"
+        else:
+            cli, installed = claude_cli(run)
+            check_claude_login(run, cli)
+            claude_probe(run, cli)
+            model = CLAUDE_MODEL
+        print(f"{name}: PR #{args.pr}, head {head[:7]}, effective head {effective[:7]}, {installed}, {model}.")
         stamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        status, tree, base = review(run, args.repo, codex, args.pr, slug, branch, head, stamp)
+        status, tree, base = review(run, args.repo, cli, args.pr, slug, branch, head, stamp, args.reviewer)
         kept = remove_tree(run, args.repo, tree, branch)
         lines.append(f"transcript: {os.path.relpath(base, args.repo)}.jsonl")
         if kept:
             lines.append(f"kept worktree: {kept}")
         if status != 0:
-            raise fault(f"codex exited {status}. Read {os.path.relpath(base, args.repo)}.stderr.log.")
+            raise fault(f"{args.reviewer} exited {status}. Read {os.path.relpath(base, args.repo)}.stderr.log.")
         reviewed, name, items = read_result(run, args.repo, args.pr, branch, head)
         code, report = outcome(reviewed, name, items)
         lines = report + lines + [f"the checkout is behind origin/{branch}. Run `git pull --ff-only`."]
     except Stop as stop:
         code = stop.code
-        lines.append(f"codex-review: {stop}")
+        lines.append(f"{name}: {stop}")
     for line in lines:
         print(line)
     print(f"outcome: {OUTCOMES[code]} (exit {code})")

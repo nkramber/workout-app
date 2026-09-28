@@ -174,6 +174,7 @@ class NoGitar(unittest.TestCase):
             unittest.mock.patch.object(cr.rg, "gather", return_value=(None, [], None, None)),
             unittest.mock.patch.object(cr.rg, "effective_head", return_value=R1 * 4),
             unittest.mock.patch.object(cr, "check_threads", side_effect=lambda *_: order.append("threads")),
+            unittest.mock.patch.object(cr, "check_provider"),
             unittest.mock.patch.object(cr, "update_cli", side_effect=stop),
         ]
         with contextlib.ExitStack() as stack:
@@ -183,6 +184,102 @@ class NoGitar(unittest.TestCase):
             code = cr.main(["--pr", str(N)], run=Fake([(["gh", "repo", "view"], (0, "o/r\n", ""))]))
         self.assertEqual(code, cr.EXIT_REFUSAL)
         self.assertEqual(order, ["threads", "update"])
+
+
+HANDOFF_OF = """# hand-off
+
+## Session records
+
+### Session 2 - 2026-09-29
+
+Author provider: {second}
+
+Branch: `feat/pr-3-other`. Role: author.
+
+### Session 1 - 2026-09-28
+
+Author provider: {first}
+
+Branch: `feat/pr-2-timer`. Role: author.
+"""
+
+
+class ProviderGate(unittest.TestCase):
+    """D-15, D-88: the provider that wrote the pull request never reviews it."""
+
+    def gate(self, reviewer, first="Claude Code", second="Codex", branch="feat/pr-2-timer", handoff=None):
+        text = HANDOFF_OF.format(first=first, second=second) if handoff is None else handoff
+        run = Fake([(["git", "show"], (0, text, ""))])
+        return cr.check_provider(run, "/repo", R1 * 4, branch, reviewer)
+
+    def test_codex_reviews_a_claude_code_author(self):
+        self.assertIsNone(self.gate("codex"))
+
+    def test_claude_reviews_a_codex_author(self):
+        self.assertIsNone(self.gate("claude", first="Codex (OpenAI)"))
+
+    def test_codex_refuses_a_codex_author(self):
+        with self.assertRaises(cr.Stop) as stop:
+            self.gate("codex", first="Codex")
+        self.assertEqual(stop.exception.code, cr.EXIT_REFUSAL)
+        self.assertIn("make claude-review", str(stop.exception))
+
+    def test_claude_refuses_a_claude_code_author(self):
+        with self.assertRaises(cr.Stop) as stop:
+            self.gate("claude")
+        self.assertIn("make codex-review", str(stop.exception))
+
+    def test_the_record_of_another_branch_does_not_count(self):
+        # Session 2 names Codex, but for another branch.
+        self.assertIsNone(self.gate("codex", second="Codex"))
+
+    def test_two_authors_of_one_branch_refuse_each_reviewer(self):
+        text = HANDOFF_OF.format(first="Claude Code", second="Codex").replace("feat/pr-3-other", "feat/pr-2-timer")
+        for reviewer in ("codex", "claude"):
+            with self.subTest(reviewer=reviewer), self.assertRaises(cr.Stop):
+                self.gate(reviewer, handoff=text)
+
+    def test_no_author_record_refuses(self):
+        with self.assertRaises(cr.Stop):
+            self.gate("codex", handoff="# hand-off\n")
+
+    def test_a_reviewer_record_is_not_an_author_record(self):
+        text = HANDOFF_OF.format(first="Codex", second="Claude Code").replace("Role: author.\n\n### Session 1", "Role: reviewer.\n\n### Session 1")
+        text = text.replace("`feat/pr-3-other`. Role: reviewer", "`feat/pr-2-timer`. Role: reviewer")
+        # The only author record of the branch names Codex, so Codex can not review.
+        with self.assertRaises(cr.Stop):
+            self.gate("codex", handoff=text)
+
+
+class ClaudeReviewer(unittest.TestCase):
+    """D-88: the Claude CLI path bills the Claude plan alone."""
+
+    def test_the_environment_drops_every_api_credential(self):
+        names = {name: "x" for name in cr.CLAUDE_API_VARIABLES}
+        with unittest.mock.patch.dict(os.environ, {**names, "PATH": "/bin"}, clear=True):
+            env = cr.claude_env()
+        self.assertEqual(env, {"PATH": "/bin"})
+
+    def test_an_account_login_passes(self):
+        out = json.dumps({"loggedIn": True, "authMethod": "claude.ai", "apiProvider": "firstParty", "email": "a@example.com"})
+        self.assertIsNone(cr.check_claude_login(Fake([(["claude", "auth"], (0, out, ""))]), "claude"))
+
+    def test_an_api_login_refuses_and_hides_the_email(self):
+        out = json.dumps({"loggedIn": True, "authMethod": "api_key", "apiProvider": "firstParty", "email": "a@example.com"})
+        with self.assertRaises(cr.Stop) as stop:
+            cr.check_claude_login(Fake([(["claude", "auth"], (0, out, ""))]), "claude")
+        self.assertNotIn("example.com", str(stop.exception))
+
+    def test_the_probe_reads_the_result_field(self):
+        ok = Fake([(["claude", "-p"], (0, json.dumps({"result": "OK."}), ""))])
+        self.assertIsNone(cr.claude_probe(ok, "claude"))
+        bad = Fake([(["claude", "-p"], (0, json.dumps({"result": "No"}), ""))])
+        with self.assertRaises(cr.Stop):
+            cr.claude_probe(bad, "claude")
+
+    def test_an_unknown_reviewer_is_a_usage_error(self):
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(cr.main(["--pr", str(N), "--reviewer", "gemini"], run=Fake([])), cr.EXIT_USAGE)
 
 
 class Fake:

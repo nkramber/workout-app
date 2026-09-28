@@ -30,7 +30,7 @@ gh pr view <number> --json headRefOid --jq .headRefOid
 
 The status line must show no `[ahead N]`. The hash from `gh pr view` must be the same as `git rev-parse HEAD`. Write the push line in the `## Verification` section of the record.
 
-`make codex-review` starts the reviewer in a worktree with a detached HEAD. There, push with `git push origin HEAD:<branch>`. The status line then names no branch, so the hash comparison is the proof. The target also refuses a push that changes a path outside the metadata set.
+`make codex-review` and `make claude-review` start the reviewer in a worktree with a detached HEAD. There, push with `git push origin HEAD:<branch>`. The status line then names no branch, so the hash comparison is the proof. The target also refuses a push that changes a path outside the metadata set.
 
 When the remote refuses the push, the review is not complete. Tell the owner that the record has a commit and no push. A sandbox with no network can refuse the push with no message from git, so read the status line.
 

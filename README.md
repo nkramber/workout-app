@@ -36,7 +36,7 @@ make verify   # run every free check that CI runs
 make where    # print the branch, the tree, and the pull request state
 ```
 
-`make codex-review PR=<n>` starts a Codex review. It spends the owner's Codex plan.
+`make codex-review PR=<n>` starts a Codex review of a pull request that Claude Code writes. `make claude-review PR=<n>` starts a Claude Code review of a pull request that Codex writes. Each spends a plan of the owner.
 
 ## License
 

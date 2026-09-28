@@ -71,14 +71,14 @@ Do these steps for each round of changes (D-8):
 1. Commit the round, and push it one time.
 2. Wait until each CI check of the tip is green. Correct a red check first.
 3. Answer each review thread, and resolve it.
-4. Run `make codex-review PR=<number>` in the background, and wait for the notice of its end.
+4. Run the review of the other provider in the background, and wait for the notice of its end. A Claude Code author runs `make codex-review PR=<number>`. A Codex author runs `make claude-review PR=<number>` (D-15, D-88).
 5. Run `git pull --ff-only`, and read the outcome line.
 6. For `changes`, answer each finding with `references/answer-review.md` of the `pr-review` skill.
 7. After the answer, go to step 1.
 8. For `three-strike stop`, stop the loop, and ask the owner.
 9. For `approve`, go to the completion gate below.
 
-The author session starts each round itself, with no approval of the owner for each round (D-8). The target spends the Codex plan of the owner, and never the API.
+The author session starts each round itself, with no approval of the owner for each round (D-8, D-88). The target spends the Codex plan or the Claude plan of the owner, and never the API. Each target reads the `Author provider` lines of the branch, and it refuses a review by the provider of the author.
 
 The Codex review applies to every pull request, and to a pull request of documents alone too (D-4). The owner states when the roadmap period of D-4 ends. After that period, D-15 needs a review of the other provider only for a change of code or of safety behavior. `OVERRIDE_ENABLED` in `docs/tools/review_gate.py` holds that state, and it stays `False` until the owner ends the period.
 

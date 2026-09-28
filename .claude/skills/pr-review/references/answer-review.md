@@ -2,14 +2,19 @@
 
 Part of the `pr-review` skill. Load this file when you are the author, and you answer a review or apply the `review-override` label.
 
-## Start the Codex review
+## Start the review of the other provider
 
-Start the review yourself after CI is green (D-8). The owner approved each round of the loop, and the target spends the Codex plan of the owner.
+Start the review yourself after CI is green (D-8, D-88). The owner approved each round of the loop. The target spends the Codex plan or the Claude plan of the owner.
 
-1. Write the line `Author provider: Claude Code` in the hand-off record, and push it.
+| Author provider | Target | Reviewer |
+|---|---|---|
+| Claude Code | `make codex-review PR=<number>` | Codex |
+| Codex | `make claude-review PR=<number>` | Claude Code |
+
+1. Write the line `Author provider: <your provider>` in the hand-off record, with the true provider of this session, and push it. The target refuses a record that names the provider of the reviewer.
 2. Wait until each check of the tip completes and passes.
 3. Answer each review thread, and resolve it. The target refuses an open thread.
-4. Run `make codex-review PR=<number>` in the background, and wait for the notice of its end.
+4. Run the target of the table in the background, and wait for the notice of its end.
 5. Read the last line of the output: `outcome: <name> (exit <n>)`.
 6. Run `git pull --ff-only`, because the reviewer pushed the record.
 
@@ -70,7 +75,7 @@ The label event runs `review-gate` again. Read its result. When you push again a
 6. Correct each part with merit. Make the smallest change that restores the contract.
 7. Record each result in `docs/reviews/pr-<number>-response.md`.
 8. Commit the response, the corrections, and the hand-off, then push.
-9. When CI is green, start the repeat review with `make codex-review PR=<number>`.
+9. When CI is green, start the repeat review with the target of the table above.
 
 Refute a finding when the evidence supports it:
 
