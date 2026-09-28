@@ -18,7 +18,7 @@ Stage: Phase 0 of `docs/roadmaps/high-level-roadmap.md`. No app, service, or clo
 4. **Do the research.** Verify facts against primary sources, and record the date of each fact. Mark each claim that you can not verify as unverified.
 5. **Keep the hand-off current.** Update `docs/session-handoff.md` inside each pull request before you call it ready (D-14).
 6. **No AI attribution** in a pull request, branch name, commit message, or comment (D-14). The `commit-msg` hook refuses an attribution trailer. A review record and the `Author provider` line of the hand-off can name a provider.
-7. **Every change starts on a branch** (D-14). Never commit to `main`, and never push to it. Run `make where` before each commit and push. Run `make hooks` once in each checkout. Use Conventional Commits for commit titles.
+7. **Every change starts on a branch** (D-14). Never commit to `main`, and never push to it. Run `make where` before each commit and push. Run `make hooks` once in each checkout. Use Conventional Commits for commit titles. Name a pull request `<type>: <summary> (PR-<n>)` on the branch `<type>/pr-<n>-<slug>` (D-86).
 8. **Deploy from `main` alone** (D-14). Check the branch and the commit before every deploy.
 9. **Review before merge.**
    - After CI is green, the author session runs `make codex-review PR=<n>` without a separate approval (D-8).
@@ -26,9 +26,10 @@ Stage: Phase 0 of `docs/roadmaps/high-level-roadmap.md`. No app, service, or clo
    - Codex reviews every pull request of documents alone until the owner ends the D-4 period. The `review-override` label does not pass the gate before then (D-4).
    - Gitar is not part of this repository until the owner approves it (D-3).
    - The third open round of one finding stops the loop, and the owner decides.
+   - The gate can not prove the provider of a record. Before each merge, the owner reads the commit that last changed it (D-87).
 10. **The owner confirms every merge** (D-13). After the Codex approval, ask the owner with a summary in four sections: What, How, CI, and Codex review. Turn on the auto-merge only after the confirmation.
 11. **Push back.** When two owner statements conflict, quote both and ask. When a request rests on a wrong premise, say so with the evidence.
-12. **One pull request, one clean session** (D-12). The owner approves the work before it starts. A pull request holds one milestone with one acceptance story, and it can hold two, three, or more concerns (D-10). Load `.claude/skills/one-pr-one-session/SKILL.md` for all work on a pull request.
+12. **One pull request, one clean session** (D-12). The owner approves the work before it starts. A pull request holds one milestone with one acceptance story, and it can hold two, three, or more concerns (D-10). The session continues until the pull request merges, and a context checkpoint never ends it (D-85). Load `.claude/skills/one-pr-one-session/SKILL.md` for all work on a pull request.
 13. **Keep command output small.** Count or list the matches first. Then read a bounded range. Show the full output of a failed test, build, or gate.
 14. **Cite what exists.** Cite a D- or Q- id that a register defines, and a path that exists. `make ref-check` fails on either error. Cite a Decktome path or id with the `decktome:` prefix.
 

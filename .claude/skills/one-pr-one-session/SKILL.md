@@ -107,7 +107,7 @@ Write the summary in four sections, with a few sentences in each section:
 - **What:** the milestone, and the problem that it solves.
 - **How:** the method of the change, the evidence, and each risk that stays open.
 - **CI:** green or not. Name each check that is not green.
-- **Codex review:** the verdict of the record, `Ready for owner merge`, `Blocked`, or `Changes required`.
+- **Codex review:** the verdict of the record, `Ready for owner merge`, `Blocked`, or `Changes required`. Name the commit that last changed the record, from rule RG 6 of `review-gate` or from `git log -1 -- docs/reviews/pr-<n>.md`. The owner reads it before the merge (D-87).
 
 Write the summary in the question text of `AskUserQuestion`, and ask the owner for the confirmation of the merge in the same text. The owner can see the question alone, so a summary outside it does not reach the owner. Without the confirmation, do not turn on the auto-merge.
 
@@ -137,27 +137,18 @@ The session stays bound to the pull request while it waits for CI, for the Codex
 
 ### The context checkpoint
 
-A session past 300K tokens of context ends, and a new clean session continues the same pull request. A session can not see the size of its context. So the hook `.claude/hooks/context_checkpoint.py` tells it at 300K, and again at each further 100K. The hook runs in Claude Code alone, and a Codex session does the same steps past 300K.
+The session continues until its pull request merges (D-85). A large context never ends the session, and no new session takes over an open pull request.
+
+A session can not see the size of its context. So the hook `.claude/hooks/context_checkpoint.py` tells it at 300K tokens, and again at each further 100K. The hook runs in Claude Code alone. A Codex session does the same step past 300K.
 
 Do these steps after the message of the hook:
 
 1. Finish the current step. A paid run, a push, and a background job end first.
-2. Write the state to the resume section of `docs/session-handoff.md`.
-3. Include the finished work, the open work, and the next action.
-4. Commit the hand-off, and push it. A commit of the hand-off alone keeps the effective head.
-5. Write the checkpoint prompt below in the last message, and end the session.
+2. Update the resume section of `docs/session-handoff.md` with the finished work, the open work, and the next action.
+3. Tell the owner that the session is ready for a context compaction.
+4. Continue the work of the same pull request. After a compaction, read the resume section again.
 
-The new session does the start gate of section 1, and it keeps the role and the pull request. The approval of the owner stays valid for the same milestone. The binding hook binds each session apart, so the new session can bind the same branch.
-
-```
-Continue PR #<n>: <the milestone>
-
-Checkpoint at <tokens> tokens of context. Read `AGENTS.md` and `docs/session-handoff.md` first.
-Branch: `<branch>`. Head: `<sha>`. Role: <role>.
-Load the `one-pr-one-session` skill and the skills of the task before any change.
-Open work: <each open finding, review round, or check, or `none`>.
-First action: <the next concrete action>.
-```
+Never write a prompt that hands an open pull request to a new session. The only prompt at the end of a session is the transitional prompt of section 5, after the merge.
 
 ## 5. The transitional prompt
 

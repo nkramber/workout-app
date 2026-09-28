@@ -15,7 +15,8 @@ A focused roadmap for one phase gets a file named `phase-<n>-<short-name>.md` in
 
 - Write in ASD-STE100 (D-83). `make ste-check` checks each file.
 - Cite each decision as a D- id and each question as a Q- id. `make ref-check` fails on an id that no register defines.
-- Give no permanent pull request numbers (D-9). A roadmap names work areas.
+- The high-level roadmap names work areas with no pull request ids (D-9). A focused roadmap gives each pull request a PR-<n> id, from PR-1 (D-86).
+- Name each pull request `<type>: <summary> (PR-<n>)` on the branch `<type>/pr-<n>-<slug>` (D-86).
 - A work area holds one milestone with one acceptance story. It can hold two, three, or more concerns (D-10, D-12).
 - Every work area names its exit evidence. The evidence is a check, a test, a report, or a device result that a reader can see.
 - Mark each paid check. A paid check runs only after the owner approves it (D-25).

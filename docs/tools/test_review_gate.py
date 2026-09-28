@@ -99,6 +99,31 @@ class ReviewRecord(unittest.TestCase):
         self.assertIn(("RG 5", "FAULT"), states)
 
 
+class RecordCommit(unittest.TestCase):
+    """D-87: the gate names the commit that last changed the record, and the owner reads it."""
+
+    def test_an_approved_record_names_its_last_commit(self):
+        results = rg.evaluate(N, "owner", set(), ["go/a.go"], CODE, {SESSION}, lambda p: record(),
+                              record_commit="abc1234 docs(review): add the review record of #7")
+        rule = [r for r in results if r[0] == "RG 6"]
+        self.assertEqual(len(rule), 1)
+        self.assertEqual(rule[0][1], "INFO")
+        self.assertIn("abc1234 docs(review): add the review record of #7", rule[0][2])
+        self.assertIn("D-87", rule[0][2])
+
+    def test_a_record_that_the_author_writes_passes_and_names_its_commit(self):
+        # The finding P1-1 of PR #1: the gate can not tell a Codex record from an author record.
+        # D-87 accepts the risk, so the gate passes, and RG 6 shows the commit to the owner.
+        results = rg.evaluate(N, "owner", set(), ["go/a.go"], CODE, {SESSION}, lambda p: record(),
+                              record_commit="def5678 fix: write the record by hand")
+        self.assertEqual(faults(results), [])
+        self.assertIn("def5678 fix: write the record by hand", dict((r[0], r[2]) for r in results)["RG 6"])
+
+    def test_no_commit_name_asks_for_a_check_by_hand(self):
+        results = rg.evaluate(N, "owner", set(), ["go/a.go"], CODE, {SESSION}, lambda p: record())
+        self.assertIn("by hand", dict((r[0], r[2]) for r in results)["RG 6"])
+
+
 class Fork(unittest.TestCase):
     def test_a_record_from_a_fork_fails(self):
         rules, results = run(text=record(), fork="someone/gym-route")
@@ -120,7 +145,7 @@ class DocumentsAfterTheApproval(unittest.TestCase):
             with self.subTest(path=path):
                 states, results = run(commits=CODE + [("d" * 40, [path])], text=record())
                 self.assertEqual(faults(states), [], results)
-                self.assertIn("each later commit changes documents alone", results[-1][2])
+                self.assertIn("each later commit changes documents alone", dict((r[0], r[2]) for r in results)["RG 5"])
 
     def test_many_commits_of_documents_keep_the_gate(self):
         commits = CODE + [("d" * 40, ["docs/decisions.md"]), ("e" * 40, ["docs/session-handoff.md"]),
@@ -283,6 +308,8 @@ class GitFacts(unittest.TestCase):
         status, out = self.gate()
         self.assertEqual(status, 0, out)
         self.assertIn(f"effective head `{code}`", out)
+        self.assertIn("RG 6: INFO", out)
+        self.assertIn(" review` last changed", out)
 
     def test_the_command_fails_an_approved_record_from_a_fork(self):
         code = self.commit({"go/a.go": "package a\n"}, "code")

@@ -12,8 +12,8 @@ The registers: docs/decisions.md defines each D- id with a table row, and
 docs/questions.md defines each Q- id with a table row. The first cell of
 the row starts with the id, as in "| D-10 (amended by D-12) |".
 
-A token with the prefix "decktome:" names an id or a path of the Decktome
-repository, for example decktome:D-811 or decktome:docs/decisions.md. The
+A token with the prefix "decktome:", "the-thing-below:", or "what-you-carry:"
+names an id or a path of that role-model repository, for example decktome:D-811 or decktome:docs/decisions.md. The
 checker skips it, because this checkout does not hold that repository.
 
 REF 2 reads a path with a slash and a first part that names a top-level
@@ -49,7 +49,8 @@ SCRATCH = "/.local/"
 DATED = re.compile(r"-\d{4}-\d{2}-\d{2}\.md$|session-handoff-archive\.md$")
 
 # A reference to the other repository. It takes no rule.
-OTHER_REPO = re.compile(r"\bdecktome:[^\s`),;]*", re.I)
+# The three role-model repositories of the owner (D-86, D-87).
+OTHER_REPO = re.compile(r"\b(?:decktome|the-thing-below|what-you-carry):[^\s`),;]*", re.I)
 
 ID = re.compile(r"\b((?:D|Q)-\d+)\b")
 ROW_ID = re.compile(r"^\|\s*((?:D|Q)-\d+)\b", re.M)

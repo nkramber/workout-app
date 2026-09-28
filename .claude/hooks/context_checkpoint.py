@@ -10,8 +10,9 @@ tokens, and its cache write tokens.
 A session can not see the size of its own context. So this hook tells
 the session at 300,000 tokens,
 and again at each further 100,000. The session then follows section 4 of
-the `one-pr-one-session` skill: it writes its state to the hand-off, and
-a new clean session continues the same pull request.
+the `one-pr-one-session` skill: it updates the hand-off, tells the owner
+that it is ready for a context compaction, and continues the same pull
+request until the merge (D-85).
 
 The hook writes the last level it told to the git common dir of the
 repository, so each level speaks one time:
@@ -75,9 +76,9 @@ def message(context):
     return (
         f"Context checkpoint (D-12): the last call of this session held {context:,} tokens of context, "
         f"past the limit of {LIMIT:,}. Do section 4 of the one-pr-one-session skill at the next safe point. "
-        "Write the state to docs/session-handoff.md, commit it, and push it. "
-        "Then give the owner the checkpoint prompt, and end this session. "
-        "A new clean session continues the same pull request."
+        "Update the resume section of docs/session-handoff.md, and tell the owner that the session "
+        "is ready for a context compaction. Do not end the session. "
+        "Continue the same pull request until it merges (D-85)."
     )
 
 

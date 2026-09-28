@@ -72,6 +72,15 @@ class Decide(unittest.TestCase):
         self.assertIn("402,000", cc.decide(self.store, "s1", 402_000))
         self.assertEqual(cc.decide(self.store, "s1", 390_000), "")
 
+    def test_the_session_continues_until_the_merge(self):
+        # D-85: the checkpoint asks for a compaction, never for the end of the session.
+        text = cc.message(305_000)
+        self.assertIn("D-85", text)
+        self.assertIn("context compaction", text)
+        self.assertIn("Do not end the session", text)
+        self.assertNotIn("end this session", text)
+        self.assertNotIn("new clean session", text)
+
     def test_sessions_are_apart(self):
         self.assertTrue(cc.decide(self.store, "s1", 310_000))
         self.assertTrue(cc.decide(self.store, "s2", 310_000))

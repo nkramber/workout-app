@@ -12,8 +12,8 @@ spec = importlib.util.spec_from_file_location("pr_check", os.path.join(HERE, "pr
 pc = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(pc)
 
-TITLE = "feat(plan): the policy checks each planned load"
-BRANCH = "feat/policy-load-check"
+TITLE = "feat(plan): the policy checks each planned load (PR-4)"
+BRANCH = "feat/pr-4-policy-load-check"
 
 SESSION = f"""## Session
 
@@ -336,3 +336,33 @@ class RepositoryFiles(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Naming(unittest.TestCase):
+    """D-86: the form of the-thing-below for every pull request after #1."""
+
+    def test_a_matching_title_and_branch_pass(self):
+        self.assertEqual(pc.check_naming("feat: the rest timer (PR-7)", "feat/pr-7-rest-timer"), [])
+        self.assertEqual(pc.check_naming("docs(roadmap): the phase 1 roadmap (PR-1)", "docs/pr-1-phase-one"), [])
+
+    def test_the_branch_of_pr_1_is_exempt(self):
+        self.assertEqual(pc.check_naming("docs: establish the foundation", pc.FIRST_BRANCH), [])
+
+    def test_a_title_without_the_id_fails(self):
+        errors = pc.check_naming("feat: the rest timer", "feat/pr-7-rest-timer")
+        self.assertEqual(len(errors), 1)
+        self.assertIn("D-86", errors[0])
+
+    def test_a_branch_without_the_id_fails(self):
+        for branch in ("feat/rest-timer", "feat/pr-7", "feat/pr-07-rest-timer", "feat/pr-7-Rest-Timer", "pr-7-rest"):
+            with self.subTest(branch=branch):
+                self.assertTrue(pc.check_naming("feat: the rest timer (PR-7)", branch))
+
+    def test_a_different_id_or_type_fails(self):
+        self.assertTrue(pc.check_naming("feat: the rest timer (PR-8)", "feat/pr-7-rest-timer"))
+        self.assertTrue(pc.check_naming("fix: the rest timer (PR-7)", "feat/pr-7-rest-timer"))
+
+    def test_the_check_runs_inside_the_contract(self):
+        errors = pc.check_pr("feat: the rest timer", "", "owner", "feat/rest-timer", [], lambda p: True)
+        self.assertTrue(any("D-86" in e for e in errors))
+

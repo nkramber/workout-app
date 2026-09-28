@@ -5,8 +5,8 @@ This file is the durable question register. It keeps every question, its answer,
 The ids have three ranges:
 
 - Q-1 to Q-73 are the questions of the launch prompt of the first session.
-- Q-74 to Q-89 are follow-up questions of the first session.
-- Q-90 and later are open questions. Each open question names the phase of `docs/roadmaps/high-level-roadmap.md` that needs the answer.
+- Q-74 to Q-89, Q-108, and Q-109 are follow-up questions of the first session.
+- Q-90 to Q-107 are open questions, and Q-90 has an answer. Each open question names the phase of `docs/roadmaps/high-level-roadmap.md` that needs the answer.
 
 The owner answered through the answer controls of the session. The first session asked Q-1 to Q-46 and Q-74 to Q-88 on 2026-09-27. It asked the other questions on 2026-09-28. The column "Rec." tells whether the owner chose the option that the launch prompt marked as recommended. A "No" in that column is an owner decision, not a mistake.
 
@@ -158,6 +158,8 @@ The owner answered through the answer controls of the session. The first session
 | Q-87 | How does a user stop a workout partway? | "Finish now" skips the remaining exercises, and the session records as ended early. | Answered | D-63 |
 | Q-88 | Which global rounding rule applies to prescribed loads? | The nearest 5 lb, up or down. | Answered | D-65 |
 | Q-89 | Which audience statement holds: Q-2 (invite beta) or Q-58 (just for me)? | "Only you, ever". | Answered | D-67 |
+| Q-108 | The three role-model repositories name pull requests in different forms. Which form do pull requests after #1 use? | The form of the-thing-below: `<type>: <summary> (PR-<n>)` and `<type>/pr-<n>-<slug>`. | Answered | D-86 |
+| Q-109 | Codex finding P1-1: the review gate can not prove that Codex wrote the review record. How is it resolved? | The rule what-you-carry:D-198: an accepted risk, with the commit of the record in the gate output. | Answered | D-87 |
 
 ## Open questions
 

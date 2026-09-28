@@ -15,6 +15,12 @@ A pull request passes in one of three ways:
     OVERRIDE_ENABLED False until the owner ends the roadmap period.
   - Dependabot opened it, and Dependabot wrote every commit.
 
+The gate trusts the record at the head. One shared GitHub identity can
+not prove which provider wrote a commit, so the gate stops an accident
+and not an attack (D-87). Rule RG 6 names the commit that last changed
+the record, with its subject, and the owner reads that line before each
+merge. This rule follows what-you-carry:D-198.
+
 The workflow runs this file from `main` on `pull_request_target`. It
 reads the head of the pull request as data alone: it runs git on the
 head ref, and it never runs a file of the head. This file is a port of
@@ -157,7 +163,7 @@ def check_head(path, text, head, commits=None):
     return "FAULT", f"the head field of `{path}` is `{recorded}`, and the effective head is `{head}`. Review the new diff, then update the head and the verdict together."
 
 
-def evaluate(number, author, labels, files, commits, authors, read_record, fork=""):
+def evaluate(number, author, labels, files, commits, authors, read_record, fork="", record_commit=""):
     """Give the result of each rule as (rule, state, message).
 
     files is the list of changed paths. commits holds (sha, files) pairs,
@@ -165,7 +171,8 @@ def evaluate(number, author, labels, files, commits, authors, read_record, fork=
     committer other than GitHub. read_record
     gives the text of a path at the head, or None. fork names the head
     repository when it is not the base repository, and it is empty for a
-    branch of the base repository.
+    branch of the base repository. record_commit names the commit that
+    last changed the record, as "<sha> <subject>", for rule RG 6 (D-87).
     """
     results = []
     if LABEL in labels and not OVERRIDE_ENABLED:
@@ -200,7 +207,22 @@ def evaluate(number, author, labels, files, commits, authors, read_record, fork=
     results.append(("RG 3", "PASS", f"the head holds the review record at `{path}`."))
     results.append(("RG 4", *check_verdict(path, text)))
     results.append(("RG 5", *check_head(path, text, effective_head(commits, number), commits)))
+    results.append(("RG 6", "INFO", last_change(path, record_commit)))
     return results
+
+
+def last_change(path, record_commit):
+    """The owner line of rule RG 6 (D-87): the commit that last changed the record."""
+    if not record_commit:
+        return f"git names no commit that changed `{path}`. The owner checks the record by hand before the merge (D-87)."
+    return (f"the commit `{record_commit}` last changed `{path}`. One GitHub identity can not prove the provider "
+            "of a commit. The owner reads this line before the merge (D-87).")
+
+
+def record_commit_of(repo, head, path):
+    """Give "<short sha> <subject>" of the last commit at head that changed path, or an empty string."""
+    out = git(repo, "log", "-1", "--format=%h %s", head, "--", path, check=False)
+    return out.stdout.strip() if out.returncode == 0 else ""
 
 
 def git(repo, *args, check=True):
@@ -275,7 +297,8 @@ def main():
     author = (pr.get("user") or {}).get("login", "")
     labels = {label["name"] for label in pr.get("labels") or []}
     files, commits, authors, read_record = gather(args.repo, pr["base"]["sha"], args.head)
-    results = evaluate(number, author, labels, files, commits, authors, read_record, fork=head_fork(pr))
+    results = evaluate(number, author, labels, files, commits, authors, read_record, fork=head_fork(pr),
+                       record_commit=record_commit_of(args.repo, args.head, record_path(number)))
     print(f"review-gate: PR #{number}, {len(files)} changed path(s), {len(commits)} commit(s).")
     for rule, state, message in results:
         print(f"{rule}: {state} - {message}")

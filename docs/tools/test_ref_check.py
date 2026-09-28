@@ -54,6 +54,10 @@ class Ids(unittest.TestCase):
         # The prefix covers the one token after it alone.
         self.assertEqual(run("See decktome:D-936 and D-9."), [(1, "REF 1", "no register defines D-9")])
 
+    def test_the_other_role_model_repositories_are_skipped(self):
+        self.assertEqual(run("It follows what-you-carry:D-198 and the-thing-below:D-8."), [])
+        self.assertEqual(run("It follows what-you-carry D-198."), [(1, "REF 1", "no register defines D-198")])
+
     def test_roadmap_labels_are_no_register_ids(self):
         self.assertEqual(run("Work area 2.1 of Phase 3 holds Scenario A and step M-4, F-2, PR-7."), [])
 

@@ -66,6 +66,14 @@ MILESTONE_FIELDS = ("Concerns", "Acceptance story", "Owner approval")
 CONVENTIONAL = re.compile(
     r"^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9][a-z0-9._/-]*\))?!?: \S"
 )
+# D-86: every pull request after #1 names its roadmap id, as in
+# the-thing-below and what-you-carry. Title: "<type>: <summary> (PR-<n>)".
+# Branch: "<type>/pr-<n>-<slug>". The two carry the same type and id.
+# The id comes from a focused roadmap, and it is not the GitHub number.
+TITLE_ID = re.compile(r"^([a-z]+)(\([a-z0-9][a-z0-9._/-]*\))?!?: .+ \(PR-([1-9][0-9]*)\)$")
+BRANCH_ID = re.compile(r"^([a-z]+)/pr-([1-9][0-9]*)-[a-z0-9]+(-[a-z0-9]+)*$")
+# PR #1 started before D-86, so its branch keeps its old name.
+FIRST_BRANCH = "docs/foundation-roadmap"
 # D-14: no AI attribution. The commit-msg hook holds the same rule.
 AI_NAME = r"(claude|anthropic|codex|openai|chatgpt|gpt)"
 ATTRIBUTION = re.compile(
@@ -262,6 +270,24 @@ def attribution_lines(text):
     return [m.group(0).strip() for m in ATTRIBUTION.finditer(text or "")]
 
 
+def check_naming(title, head_ref):
+    """Check the roadmap id of the title and of the branch (D-86)."""
+    if head_ref == FIRST_BRANCH:
+        return []
+    errors = []
+    branch = BRANCH_ID.match(head_ref or "")
+    if not branch:
+        errors.append(f"the branch '{head_ref}' is not '<type>/pr-<n>-<slug>', such as 'feat/pr-7-rest-timer' (D-86)")
+    if not title:
+        return errors
+    named = TITLE_ID.match(title)
+    if not named:
+        errors.append(f"the title '{title}' does not end with the roadmap id, such as 'feat: the rest timer (PR-7)' (D-86)")
+    elif branch and (named.group(1), named.group(3)) != (branch.group(1), branch.group(2)):
+        errors.append(f"the title '{title}' and the branch '{head_ref}' name a different type or PR id (D-86)")
+    return errors
+
+
 def check_pr(title, body, author, head_ref, changed, exists, is_ancestor=None, handoff_added="", handoff_text=None):
     """Return every contract error of one pull request. Empty means it passes.
 
@@ -273,6 +299,7 @@ def check_pr(title, body, author, head_ref, changed, exists, is_ancestor=None, h
     body = body or ""
     errors = []
     errors.extend(check_title(title))
+    errors.extend(check_naming(title, head_ref))
     errors.extend(check_session(body, head_ref, is_ancestor))
     errors.extend(check_milestone(body))
     errors.extend(check_matrix(body, changed, exists))
