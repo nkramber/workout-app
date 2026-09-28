@@ -11,7 +11,7 @@ The first session ended at a context checkpoint. CI is green at `d0be0f3`. The f
 Open work on PR #1:
 
 1. Answer P1-1. Every commit comes from one GitHub account, so a commit author does not identify a reviewer. Ask the owner how to prove the review. Options: a GitHub review from a second account, or a signed review result. Then fix `docs/tools/review_gate.py` and add a regression test for a record that the author writes.
-2. Record the naming decision of 2026-09-28 as D-85 and Q-108. The owner chose the form of the-thing-below for every pull request after #1. The title is `<type>: <summary> (PR-<n>)`, and the branch is `<type>/pr-<n>-<slug>`. Focused roadmaps assign the PR-<n> ids, from PR-1. Mark D-9 "(extended by D-85)". Update the rule in `docs/roadmaps/README.md` and rule 7 of `AGENTS.md`. Add a title and branch check to `docs/tools/pr_check.py` in the same change.
+2. Record the naming decision of 2026-09-28 with the next free D- and Q- ids. The owner chose the form of the-thing-below for every pull request after #1. The title is `<type>: <summary> (PR-<n>)`, and the branch is `<type>/pr-<n>-<slug>`. Focused roadmaps assign the PR-<n> ids, from PR-1. Mark D-9 as extended by the new row. Update the rule in `docs/roadmaps/README.md` and rule 7 of `AGENTS.md`. Add a title and branch check to `docs/tools/pr_check.py` in the same change.
 3. Push, wait for green CI, and run `make codex-review PR=1` again (D-8).
 4. After the approval, ask the owner about the merge with the four-part summary (D-13).
 
@@ -50,5 +50,5 @@ Completed:
 
 Open work:
 
-- P1-1 of the first Codex round, D-85, a second Codex round, and the merge of PR #1.
+- P1-1 of the first Codex round, the naming decision, a second Codex round, and the merge of PR #1.
 - Q-91 to Q-107.
