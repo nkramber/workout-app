@@ -6,12 +6,12 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 Date: 2026-09-28. Phase 0 is complete (D-91, D-92). Phase 1 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR-1 of `docs/roadmaps/phase-1-risk-spikes.md` is open as GitHub #2 on the branch `docs/pr-1-phase-1-roadmap`.
 
-PR-1 holds the Phase 1 focused roadmap, the owner answers D-91 to D-100, and the D-86 branch form in the `one-pr-one-session` skill. `make verify` passed. The Codex review is pending, and the merge is pending the owner.
+PR-1 holds the Phase 1 focused roadmap, the owner answers D-91 to D-100, and the D-86 branch form in the `one-pr-one-session` skill. Codex reviewed effective head `dd6bd403acf9c1c3123e3bf8a61958616f99de50` and recorded `Ready for owner merge` with no findings. `make verify` passed. The review record is in `docs/reviews/pr-2.md`. Publication and the owner confirmation remain.
 
 Open work on PR-1:
 
-1. Wait for a green CI, then run `make codex-review PR=2`.
-2. Answer each finding. After the approval, ask the owner about the merge with the four-part summary (D-13, D-87, D-89).
+1. Publish the Codex review record and hand-off. Confirm the review-gate check passes.
+2. Ask the owner about the merge with the four-part summary (D-13, D-87, D-89).
 
 Every Phase 1 question has an answer. Q-91 to Q-93 and Q-98 to Q-107 stay open, and each names the phase that needs it.
 
