@@ -93,7 +93,7 @@ The verdict at `81f74d624feebc88bd20f602a707ff45f9735c69` was **Changes required
 - PR comments and review threads: none. One GraphQL query result is at `/tmp/pr4-threads.json`.
 - Pillow-dependent image generation: not run because Pillow is unavailable. The author reports a successful run and sample inspection in the pull request body.
 - Paid targets: not run, as required by the review skill.
-- Push: pending publication of this review record and hand-off.
+- Push: `45aa695f866f4eb10eef2ef965a1e02bff81f517` was the head of `origin/feat/pr-3-recognition-test-set`, verified with `gh pr view`.
 
 ## Open questions and accepted risks
 
