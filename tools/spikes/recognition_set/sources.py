@@ -174,10 +174,10 @@ def check(manifest, opener=None, sleep=time.sleep):
     for img in manifest["images"]:
         if img["source"] == "commons":
             m = meta.get(img["title"])
-            fields = ("license", "author", "file_url", "bytes")
+            fields = ("source_url", "license", "license_url", "author", "file_url", "bytes")
         else:
             m = openverse(img["license_proof"].rstrip("/").rsplit("/", 1)[1], opener, sleep)
-            fields = ("license", "author", "file_url")
+            fields = ("source_url", "license", "license_url", "author", "file_url")
         if not m or m["missing"]:
             errors.append(f"{img['image_id']}: {img['title']} is not at the source")
             continue

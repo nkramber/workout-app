@@ -8,7 +8,9 @@ Date: 2026-09-28. Phase 1 of `docs/roadmaps/high-level-roadmap.md` is in progres
 
 The Codex review record is `docs/reviews/pr-4.md`. Verdict: `Changes required`, with open finding P2-1 on source URL and license URL verification. `make verify`, the manifest check, the source check, and the 130-image download and hash check passed. Two image tests skipped because Pillow is not installed in this environment. At the published metadata head, GitHub `review-gate` failed RG 4 because the verdict is `Changes required`. The other checks passed.
 
-Next action: correct P2-1. Add URL mismatch regression tests. Push the correction and request a repeat review. Keep P2-1 and the earlier verdict in the same record. After the correction, refresh the checks and review-gate result.
+The author found full merit in P2-1, and corrected it. `sources.py check` now compares the source URL and the license URL too, and the manifest check accepts only a license page on `creativecommons.org`. `docs/reviews/pr-4-response.md` holds the answer and its three regression tests. `make verify` and the source check passed after the correction.
+
+Next action: when CI is green, run the Codex repeat review with `make codex-review PR=4`. On `Ready for owner merge`, ask the owner to confirm the merge (D-13).
 
 ## Facts that expire
 

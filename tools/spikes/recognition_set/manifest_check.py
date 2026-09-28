@@ -71,13 +71,19 @@ def license_ok(code):
 
 
 def license_url_ok(code, url):
-    """True when the license URL names the same license as the code."""
-    if code in ("cc0", "pd"):
-        return url is None or url.startswith("https://") or url.startswith("http://")
-    family = re.match(r"^(cc-by(?:-sa|-nc)?)-(\d\.\d)", code)
-    if not family or not url:
+    """True when the license URL is a Creative Commons page of the same license.
+    A public domain image can have no license URL."""
+    if url is None:
+        return code in ("cc0", "pd")
+    parts = urlparse(url)
+    if parts.scheme not in ("http", "https") or parts.netloc != "creativecommons.org":
         return False
-    return LICENSE_PATH[family.group(1)] + family.group(2) in url
+    if code == "cc0":
+        return parts.path.startswith("/publicdomain/zero/")
+    if code == "pd":
+        return parts.path.startswith("/publicdomain/")
+    family = re.match(r"^(cc-by(?:-sa|-nc)?)-(\d\.\d)", code)
+    return bool(family) and parts.path.startswith(LICENSE_PATH[family.group(1)] + family.group(2))
 
 
 def check_image(img, catalog_ids, none_label, gyms):

@@ -98,6 +98,18 @@ class LicenseTest(unittest.TestCase):
         self.assertFalse(manifest_check.license_url_ok("cc-by-sa-4.0", None))
         self.assertTrue(manifest_check.license_url_ok("pd", None))
 
+    def test_the_license_url_must_be_on_creativecommons_org(self):
+        ok = manifest_check.license_url_ok
+        self.assertTrue(ok("cc-by-sa-2.0", "https://creativecommons.org/licenses/by-sa/2.0/"))
+        self.assertTrue(ok("cc0", "http://creativecommons.org/publicdomain/zero/1.0/deed.en"))
+        self.assertTrue(ok("cc0", None))
+        for code, url in (("cc-by-2.0", "https://example.org/licenses/by/2.0"),
+                          ("cc-by-2.0", "https://creativecommons.org.example.org/licenses/by/2.0"),
+                          ("cc0", "https://example.org/publicdomain/zero/1.0/"),
+                          ("pd", "https://example.org/"),
+                          ("cc0", "https://creativecommons.org/licenses/by/2.0/")):
+            self.assertFalse(ok(code, url), (code, url))
+
 
 class ImageCheckTest(unittest.TestCase):
     def errors(self, **changes):
@@ -348,6 +360,32 @@ class SourcesTest(unittest.TestCase):
         self.assertEqual(sources.openverse_license({"license": "by-nc", "license_version": "2.0"}), "cc-by-nc-2.0")
         self.assertEqual(sources.openverse_license({"license": "pdm", "license_version": "1.0"}), "pd")
         self.assertFalse(manifest_check.license_ok(sources.openverse_license({"license": "by-nc-sa", "license_version": "2.0"})))
+
+    def test_check_gives_each_changed_url(self):
+        answer = self.api_answer("cc-by-sa-4.0", b"image bytes")
+        opener = lambda request, timeout=None: FakeResponse(answer)
+        changes = {"source_url": "https://commons.wikimedia.org/wiki/File:Other.jpg",
+                   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/deed.fr"}
+        for field, value in changes.items():
+            errors = sources.check({"images": [image(**{field: value})]}, opener=opener, sleep=lambda s: None)
+            self.assertTrue(any(f"{field} at the source" in e for e in errors), (field, errors))
+
+    def test_check_gives_each_changed_flickr_url(self):
+        uuid = "0f0e8c3a-1b2c-4d5e-8f90-a1b2c3d4e5f6"
+        record = {"id": uuid, "title": "T", "creator": "A. Author", "license": "by-sa", "license_version": "2.0",
+                  "license_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+                  "url": "https://live.staticflickr.com/874/41989122941_0123abcd_b.jpg",
+                  "foreign_landing_url": "https://www.flickr.com/photos/127311295@N06/41989122941"}
+        img = image(source="flickr", title="T", source_url=record["foreign_landing_url"], file_url=record["url"],
+                    license="cc-by-sa-2.0", license_url=record["license_url"],
+                    license_proof=sources.OPENVERSE + uuid + "/")
+        opener = lambda request, timeout=None: FakeResponse(json.dumps(record).encode())
+        self.assertEqual(sources.check({"images": [img]}, opener=opener, sleep=lambda s: None), [])
+        changes = {"source_url": "https://www.flickr.com/photos/127311295@N06/1",
+                   "license_url": "https://creativecommons.org/licenses/by-sa/2.0/deed.de"}
+        for field, value in changes.items():
+            errors = sources.check({"images": [dict(img, **{field: value})]}, opener=opener, sleep=lambda s: None)
+            self.assertTrue(any(f"{field} at the source" in e for e in errors), (field, errors))
 
     def test_check_gives_a_changed_license(self):
         answer = self.api_answer("cc-by-nc-sa-4.0", b"image bytes")
