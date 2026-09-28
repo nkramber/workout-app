@@ -37,12 +37,12 @@ CAUTION: A paid run spends the OpenAI API account of the owner. The owner approv
 python3 tools/spikes/luna_plan/harness.py --provider openai --owner-approved
 ```
 
-Before each call, the harness reserves the worst-case cost of the call. It skips each call that can pass the cap, and it records the call as `cap_skip`. Each request sets `store` to false.
+Before each attempt, retries included, the harness reserves the worst-case cost of the attempt. It skips each plan that the cap can not cover, and it records the plan as `cap_skip`. It stops the retries of a plan when the cap can not cover one more attempt. An attempt with an unknown charge, such as a timeout or a server error, counts at its worst-case cost. Each request sets `store` to false.
 
 ## Results
 
 The harness writes each run to `.local/spikes/luna_plan/<run id>/`, which Git ignores:
 
 - `plans.jsonl`: one record for each plan, with the raw text, the schema errors, the violations, the tokens, and the cost.
-- `summary.json`: the rates, the counts for each rule, the cost, and the go result of D-101.
+- `summary.json`: the rates, the counts for each rule, the cost, and the go result of D-101. It also gives the attempts with an unknown charge, and the spend bound.
 - `summary.md`: the same summary as Markdown tables.

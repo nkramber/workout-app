@@ -15,13 +15,12 @@ PR-2 holds the Luna plan spike of work area 1.1:
 
 The owner approved the paid run at run time (D-25). The smoke call and the run of 60 plans cost 0.0564 USD in total, under the cap of 2 USD (D-98). `make verify` passed.
 
-Codex reviewed effective head `365c2045ec80d68fe5f97914e05e74abe99b599e`. The verdict is `Changes required`, with open finding P2-1 in `docs/reviews/pr-3.md`.
+Codex round 1 reviewed effective head `365c2045ec80d68fe5f97914e05e74abe99b599e`. The verdict is `Changes required`, with finding P2-1 in `docs/reviews/pr-3.md`. The author found full merit, and corrected the budget guard. Now the harness reserves the worst-case cost of each attempt, retries included. `docs/reviews/pr-3-response.md` holds the answer and its regression checks. `make verify` passed after the correction.
 
 Open work on PR-2:
 
-1. Correct finding P2-1 in the paid-call budget guard, then rerun its regression check and `make verify`.
-2. Get green CI and a new Codex review for the corrected effective head.
-3. Ask the owner about the merge with the four-part summary (D-13, D-87, D-89).
+1. Get green CI, then run `make codex-review PR=3` for the repeat review.
+2. Ask the owner about the merge with the four-part summary (D-13, D-87, D-89).
 
 Q-91 to Q-93 and Q-98 to Q-107 stay open, and each names the phase that needs it. The draft rules use draft values for Q-92, Q-101, Q-102, Q-104, Q-105, and Q-106, and they answer none of them.
 
@@ -52,9 +51,10 @@ Branch: `feat/pr-2-luna-plan-spike`. Role: author.
 Completed:
 
 - The owner approved the milestone before the first edit (D-12), and set the go bar (D-101).
-- Wrote the Luna plan harness, the fake provider, the fixtures, the schema, and the draft policy rules table, with 40 unit tests in `make test`.
+- Wrote the Luna plan harness, the fake provider, the fixtures, the schema, and the draft policy rules table, with 44 unit tests in `make test`.
 - Ran the paid run after the owner approval. All 60 plans passed the schema, 4 plans broke a rule, and the cost was 0.0564 USD.
 - Wrote the report `docs/research/luna-plan-spike.md`.
+- Answered Codex finding P2-1 with full merit: each retry of a paid call now stays inside the cap.
 
 Open work:
 

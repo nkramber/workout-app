@@ -47,7 +47,9 @@ The profile set is wider than the scope of the first release on purpose. It test
 
 The prompt states the fitness boundary of D-36 and the check text of each draft rule. The policy then checks each rule again on the answer. So the rejection rate measures how well Luna obeys stated rules, and the policy stays the final check (D-23).
 
-The harness reserves the worst-case cost of each call before the call. The worst case is about 0.016 USD for each call. So the spend can not pass the cap.
+Before each attempt, retries included, the harness reserves the worst-case cost of the attempt, about 0.016 USD. An attempt with an unknown charge, such as a timeout, counts at that worst case. So the spend can not pass the cap.
+
+The run used the first version of this guard, which reserved once for each plan and did not count retries. Review finding P2-1 of `docs/reviews/pr-3.md` found that gap. The run made no retry, so each plan made one attempt, and the first guard also bounded this run.
 
 ### 2.3 Measures
 
