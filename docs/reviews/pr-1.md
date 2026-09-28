@@ -92,7 +92,7 @@ None.
 - `make hooks`: passed. Hooks installed from `.githooks`.
 - Live ruleset check: not run. Q-94 is open, and the hand-off says the live ruleset does not exist.
 - Paid target: not run.
-- Push: <pending>.
+- Push: `73cc7ba699e14aedaa9c2f485e49f0651d356ede` was the head of `origin/docs/foundation-roadmap` when verified with `gh pr view`.
 
 ## Open questions and accepted risks
 
