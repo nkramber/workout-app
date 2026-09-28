@@ -4,16 +4,18 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-28. Phase 0 of `docs/roadmaps/high-level-roadmap.md` is in progress.
+Date: 2026-09-28. Phase 0 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR #1 is open on the branch `docs/foundation-roadmap`.
 
-The first session wrote the foundation documents, the research, the high-level roadmap, and the process tooling on the branch `docs/foundation-roadmap`. The Codex review of PR #1 found P1-1 at `d0be0f3`: the review gate accepts an author-created approval record. The verdict is Changes required. Every launch question has an answer or a "Not applicable" status. Q-91 to Q-107 in `docs/questions.md` stay open, and each names the phase that needs it.
+The first session ended at a context checkpoint. CI is green at `d0be0f3`. The first Codex round gave "Changes required" with one open finding, P1-1, in `docs/reviews/pr-1.md`. The review gate accepts a review record that the author can write without a Codex review.
 
-How to resume:
+Open work on PR #1:
 
-1. Run `make where`. It prints the branch, the tree, and the state of the pull request.
-2. If the Phase 0 pull request is still open, finish its review loop with the `one-pr-one-session` and `pr-review` skills.
-3. If it merged, ask the owner about Q-94, the live ruleset of `main`.
-4. Then start the Phase 1 focused roadmap in a new clean session, after the owner approves the work (D-12).
+1. Answer P1-1. Every commit comes from one GitHub account, so a commit author does not identify a reviewer. Ask the owner how to prove the review. Options: a GitHub review from a second account, or a signed review result. Then fix `docs/tools/review_gate.py` and add a regression test for a record that the author writes.
+2. Record the naming decision of 2026-09-28 as D-85 and Q-108. The owner chose the form of the-thing-below for every pull request after #1. The title is `<type>: <summary> (PR-<n>)`, and the branch is `<type>/pr-<n>-<slug>`. Focused roadmaps assign the PR-<n> ids, from PR-1. Mark D-9 "(extended by D-85)". Update the rule in `docs/roadmaps/README.md` and rule 7 of `AGENTS.md`. Add a title and branch check to `docs/tools/pr_check.py` in the same change.
+3. Push, wait for green CI, and run `make codex-review PR=1` again (D-8).
+4. After the approval, ask the owner about the merge with the four-part summary (D-13).
+
+Every launch question has an answer or a "Not applicable" status. Q-91 to Q-107 in `docs/questions.md` stay open, and each names the phase that needs it.
 
 ## Facts that expire
 
@@ -27,7 +29,7 @@ How to resume:
 
 ## Next steps, in order
 
-1. Close the Phase 0 pull request: CI, Codex review, owner confirmation, merge.
+1. Close PR #1: the open work of the resume section, then the owner confirmation and the merge.
 2. Ask the owner about Q-94, then apply the ruleset and run `make ruleset-check`.
 3. Write the Phase 1 focused roadmap: the Luna plan spike, the recognition spike, and the iPhone web platform spike.
 
@@ -48,5 +50,5 @@ Completed:
 
 Open work:
 
-- The review loop and the merge of the Phase 0 pull request.
+- P1-1 of the first Codex round, D-85, a second Codex round, and the merge of PR #1.
 - Q-91 to Q-107.
