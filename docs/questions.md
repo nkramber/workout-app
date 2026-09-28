@@ -8,6 +8,7 @@ The ids have three ranges:
 - Q-74 to Q-89 and Q-108 to Q-112 are follow-up questions of the first session.
 - Q-113 to Q-118 are questions of the Phase 1 roadmap session.
 - Q-119 is a question of the Luna plan spike session.
+- Q-120 to Q-123 are questions of the recognition test set session.
 - Q-90 to Q-107 are open questions. Q-90 and Q-94 to Q-97 have an answer. Each open question names the phase of `docs/roadmaps/high-level-roadmap.md` that needs the answer.
 
 The owner answered through the answer controls of the session. The first session asked Q-1 to Q-46 and Q-74 to Q-88 on 2026-09-27. It asked the other questions on 2026-09-28. The column "Rec." tells whether the owner chose the option that the launch prompt marked as recommended. A "No" in that column is an owner decision, not a mistake.
@@ -182,6 +183,15 @@ The owner answered through the answer controls of the session. The first session
 | # | Question | Answer | Status | Decision |
 |---|---|---|---|---|
 | Q-119 | No decision defines the go bar of the Luna plan risk. Which bar does the report of the spike apply? | A schema pass rate of 95% or more, a policy rejection rate of 25% or less, and a mean cost per plan of 0.01 USD or less. | Answered | D-101 |
+
+## Questions of the recognition test set session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-120 | Where does the recognition test set look for images? | Wikimedia Commons first. Add another source only when a machine type has too few images, and record the license proof of each image. | Answered | D-102 |
+| Q-121 | Licensed photos of gym machines are few, and many name no gym. The owner asked why the set needs so many images. Which size does the set get? | Keep about 200 licensed images. The images are one-photo trials that measure the rate of confident wrong answers. When a photo names no gym, the photographer and the upload event give the gym key. Accept a smaller real count, and record it. | Answered | D-103 |
+| Q-122 | Few face-free photos exist for many strength machines. Can the set use a photo that shows the face of a person? | Yes, when no other photo or few other photos exist for that machine type. | Answered | D-104 |
+| Q-123 | Four catalog types have no image on Commons, and six types have images from one source only. How does the set fill these gaps? | Add a source outside Commons for these types, with the license proof of each image. | Answered | D-105 |
 
 ## Open questions
 
