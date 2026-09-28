@@ -10,26 +10,26 @@ Date: 2026-09-28
 - Target: `main`
 - Base: `613c3cb08733338b9ac73b33e19d2380220b41da`
 - Merge base: `613c3cb08733338b9ac73b33e19d2380220b41da`
-- Head: `918d8e66779ae0ff411ce4363d318739fdb04048`
+- Head: `7931be813f2262c559bfa89878cdf2e79b14e6a6`
 - Branch: `docs/foundation-roadmap`
 
 ## Provider gate
 
-The hand-off names Claude Code (Anthropic) as the author. This session uses Codex (OpenAI). The provider line names the source. No owner statement conflicts with it, so the declared providers differ. Finding P1-3 describes why the branch cannot prove that declaration.
+The hand-off names Claude Code (Anthropic) as the author. The prior review names this session as Codex (OpenAI). The hand-off names the source, and the owner has no conflicting statement in the reviewed record. The declared providers differ. P1-3 records the accepted risk that the author controls the provider line.
 
 ## Intended behavior and scope
 
 The milestone adds the Phase 0 foundation and process tooling. Its acceptance story says a fresh session can find decisions, questions, and phases, and the ported gates pass. D-4 requires Codex review of each documentation pull request during the roadmap period. D-8 requires the author session to start the review. D-13 reserves merge confirmation to the owner. D-15 requires cross-provider review for code or safety changes.
 
-The full pull request diff has 54 paths and 8,812 insertions. The last review covered effective head `973703fea92df0ef5cdb480038bbe845f11ae2e4`. This review covers the 14 paths changed since that head. I read the changed review tool, tests, make target, decision and question rows, README, hand-off, response, review record, and PR body.
+The full pull request has 54 paths and 8,938 insertions. The prior review covered head `918d8e66779ae0ff411ce4363d318739fdb04048`. This review covers 13 paths since that head. I read each changed path and each bootstrap file named in the request. I read the hand-off, milestone, pull request body, decisions, questions, gate code, tests, review history, workflows, roadmap, and contract references.
 
-I read each requested bootstrap rule file as code: `.claude/skills/one-pr-one-session/SKILL.md`, `.claude/skills/pr-review/SKILL.md`, the five reference files, `.claude/skills/ste-writing/SKILL.md`, `AGENTS.md`, and `CLAUDE.md`. I also read the project decisions, questions, roadmap, gate, workflows, ruleset, and the prior review history. I did not inspect every line of the design and research documents.
+I did not inspect every line of the design and research documents. This round changes review process documents and tools.
 
-The provider-specific author commands correct P1-2. The gate still accepts branch-supplied provider claims, inherits review approval across later documentation changes, and exempts Dependabot without an owner decision.
+The changes remove approval inheritance across document commits during D-4 and remove the Dependabot exemption. They record D-89 as an accepted risk for the author-controlled provider line.
 
 ## Findings
 
-### P1-1: The required review record has no verifiable reviewer identity
+### P1-1: The review gate cannot prove who wrote the review record
 
 Status: accepted risk, D-87.
 
@@ -37,17 +37,17 @@ Open at: `d0be0f3d98ce5b6d286847f224c59e73755ead96`.
 
 File: `docs/tools/review_gate.py:190-202`.
 
-Trigger: A pull request author adds `docs/reviews/pr-<n>.md` with a current effective-head hash and the text `**Ready for owner merge.**`.
+Trigger: A pull request author adds a record with a current head hash and the text `**Ready for owner merge.**`.
 
-Expected: D-4 and D-8 require a Codex review of each pull request during the roadmap period. The required check must reject a record that the author can create without that review.
+Expected: D-4 and D-8 require a Codex review of each pull request during the roadmap period. The gate cannot identify the writer of the record.
 
-Actual: `evaluate()` checks that the file exists, the verdict says approved, and the recorded hash matches. The owner accepted this risk in D-87. RG 6 names the commit that last changed the record.
+Actual: The gate checks the file, verdict, and head. D-87 accepts this limit. RG 6 reports the last commit that changed the record.
 
-Consequence: The gate cannot prove that Codex wrote the record. The owner must inspect the named commit before each merge.
+Consequence: A same-provider or fabricated review record can pass the automated check. The owner must inspect the record commit before merge.
 
 Correction: None. D-87 accepts this risk.
 
-Regression check: The prior review reproduced the gate pass for an author-created record. The prior round's `make verify` passed, but its gate tests do not reject that record.
+Regression check: The prior review reproduced an author-created record that passes the gate. `make verify` passed 301 tests at the current head.
 
 ### P1-2: The author loop can run a same-provider review
 
@@ -57,77 +57,77 @@ Open at: `973703fea92df0ef5cdb480038bbe845f11ae2e4`.
 
 File: `.claude/skills/one-pr-one-session/SKILL.md:71-81`, `.claude/skills/pr-review/references/answer-review.md:7-14`.
 
-Trigger: A Codex session authors a pull request, then follows the author loop after CI passes.
+Trigger: A Codex session authors a pull request and follows the review instructions after CI passes.
 
-Expected: D-15 requires Claude Code to review Codex-authored work. The author guidance must select the other provider and record the true author provider.
+Expected: D-15 requires Claude Code to review Codex-authored work.
 
-Actual: The prior round sent every pull request to Codex and told each author to record Claude Code. This round adds `make claude-review` for Codex authors and tells each author to record its true provider.
+Actual: The prior round sent every pull request to Codex. The correction adds `make claude-review` for Codex authors and records the true declared author provider.
 
-Consequence: The correction restores the required provider-specific author path.
+Consequence: The author instructions select the other provider.
 
-Correction: Add the Claude Code review target, a reviewer-provider gate, and provider-specific instructions.
+Correction: Add the Claude Code review target and provider-specific author instructions.
 
-Regression check: `make verify` passed 300 tests. Two tests reject a Claude review for a Claude Code author and a Codex review for a Codex author. The tests trust the provider values. P1-3 covers that source.
+Regression check: The current `make verify` passed 301 tests. Provider tests reject the configured same-provider cases. P1-3 records the separate limit in the source of the provider value.
 
-### P1-3: The provider gate trusts the PR author's provider label
+### P1-3: The provider gate trusts the author-controlled provider line
 
-Status: open.
-
-Open at: `918d8e66779ae0ff411ce4363d318739fdb04048`.
-
-File: `docs/tools/codex_review.py:290-310`.
-
-Trigger: A Codex author writes `Author provider: Claude Code` in the hand-off for the PR branch.
-
-Expected: D-15 and D-88 require a review by the provider that did not write the pull request. The provider gate must use evidence that does not come only from the PR author.
-
-Actual: `check_provider()` reads the hand-off from the PR head, extracts its provider line, and accepts that claim as fact. I passed a fabricated hand-off that names Claude Code to `check_provider()` for a Codex review. The gate returned success.
-
-Consequence: A Codex author can label the PR as Claude Code work and make the Codex target accept a same-provider review. The skill also accepts the line when no separate owner statement exists.
-
-Correction: Verify the author provider with a source that the PR author cannot change. Otherwise, treat the provider as unknown and block the review until the owner confirms it.
-
-Regression check: The inline Python reproduction at `918d8e6` returned success for the fabricated provider line. `make verify` passed 300 tests, but the provider tests supply trusted hand-off text and do not test a false provider claim.
-
-### P1-4: The gate carries approval across new documentation changes
-
-Status: open.
+Status: accepted risk, D-89.
 
 Open at: `918d8e66779ae0ff411ce4363d318739fdb04048`.
 
-File: `docs/tools/review_gate.py:150-163`, `docs/tools/review_gate.py:82-83`, `.claude/skills/pr-review/references/review-record.md:21-31`.
+File: `docs/tools/codex_review.py:298-310`, `AGENTS.md:34`.
 
-Trigger: A pull request gets an approved record, then adds a later commit that changes only a document, skill, roadmap, or other eligible path.
+Trigger: A Codex author writes `Author provider: Claude Code` in the hand-off.
 
-Expected: D-4 requires Codex review of each documentation pull request until the owner ends the roadmap period. A changed review rule or roadmap must receive current review.
+Expected: D-15 and D-88 require review by the provider that did not write the pull request. The automated provider gate must not treat an author-controlled claim as independent evidence.
 
-Actual: `documents_since()` lets the old head pass RG 5 when every later commit changes eligible documentation alone. The test `DocumentsAfterTheApproval.test_a_commit_of_each_kind_of_document_keeps_the_gate` asserts that an edit to `.claude/skills/pr-review/SKILL.md` keeps the old approval.
+Actual: `check_provider()` reads the hand-off from the pull request head and accepts its provider line. The regression test explicitly confirms that a false line passes. D-89 accepts this risk and tells the owner to read the author provider before merge.
 
-Consequence: The required check can pass for changed documentation that the recorded review never examined, while D-4 still applies.
+Consequence: A same-provider review can pass the automated provider gate if the author misstates the provider. The bootstrap rules weaken the provider gate at this point, despite the manual owner check.
 
-Correction: While D-4 holds, require a review record for the newest documentation change. Keep metadata-only commits outside the effective head.
+Correction: None. D-89 accepts this risk. The owner must verify the provider outside the pull request before merge.
 
-Regression check: The inline Python reproduction at `918d8e6` returned `PASS` for an old approved head followed by a roadmap change. `make verify` passed 300 tests, including tests that preserve this behavior.
+Regression check: `ProviderGate.test_a_false_provider_line_passes_as_d89_accepts` passed. It proves the accepted bypass remains possible. `make verify` passed 301 tests.
+
+### P1-4: The gate carries approval across new document changes
+
+Status: fixed in `7931be813f2262c559bfa89878cdf2e79b14e6a6`.
+
+Open at: `918d8e66779ae0ff411ce4363d318739fdb04048`.
+
+File: `docs/tools/review_gate.py:159-165`, `.claude/skills/pr-review/references/review-record.md:21-31`.
+
+Trigger: A pull request receives an approval, then a later commit changes an eligible document during the D-4 period.
+
+Expected: D-4 requires a current review of each document change during that period.
+
+Actual: `check_head()` now allows document-only commits to preserve approval only when `OVERRIDE_ENABLED` is true. The constant is false during D-4. Metadata-only commits still preserve the effective head.
+
+Consequence: A later document change fails the review gate until a new review updates the record.
+
+Correction: Require current review for document changes during D-4.
+
+Regression check: The new during-period tests and the Git repository reproduction fail RG 5 for a later roadmap change. `make verify` passed 301 tests.
 
 ### P1-5: Dependabot can skip the required review
 
-Status: open.
+Status: fixed in `7931be813f2262c559bfa89878cdf2e79b14e6a6`.
 
 Open at: `918d8e66779ae0ff411ce4363d318739fdb04048`.
 
-File: `docs/tools/review_gate.py:191-193`, `.claude/skills/pr-review/SKILL.md:20-25`, `.claude/skills/pr-review/references/review-record.md:150-154`.
+File: `docs/tools/review_gate.py:191-202`, `.claude/skills/pr-review/SKILL.md:20-22`.
 
-Trigger: Dependabot opens a documentation-only pull request and writes every commit.
+Trigger: Dependabot opens a pull request and writes each commit.
 
-Expected: D-4 requires Codex review of every documentation-only pull request until the owner ends the roadmap period. D-4 defines no Dependabot exception.
+Expected: D-4 requires a review of every pull request during the roadmap period. D-90 removes the Dependabot exemption.
 
-Actual: RG 2 returns `PASS` for any pull request that Dependabot opens and whose commits all use Dependabot's author email. It does not check the changed paths or the D-4 period. The inline reproduction for a Dependabot documentation pull request returned the RG 2 pass without a review record.
+Actual: The gate no longer has a Dependabot bypass. The new tests require a review record for Dependabot changes to code and documents.
 
-Consequence: A documentation-only pull request can merge without the review that D-4 requires.
+Consequence: Dependabot changes must satisfy the review gate.
 
-Correction: Remove the exception for documentation-only pull requests while D-4 holds, or get an owner decision that amends D-4.
+Correction: Remove the exemption.
 
-Regression check: The inline Python reproduction at `918d8e6` returned `RG 2 PASS` for `docs/decisions.md` with no review record. `make verify` passed 300 tests, including the broad Dependabot exemption.
+Regression check: Dependabot gate tests and the Git repository reproduction require RG 3 to find a review record. `make verify` passed 301 tests.
 
 ## Out of scope
 
@@ -135,7 +135,7 @@ None.
 
 ## PR comments
 
-No general comments or review threads exist. `gh pr view --comments` returned no comments. The GraphQL review-thread query returned zero threads.
+No issue comments, submitted reviews, or review threads exist. The GitHub API returned zero for each.
 
 ## Description edits
 
@@ -143,41 +143,43 @@ None.
 
 ## Verification
 
-- `make where`: clean detached worktree at `918d8e6`, based on `origin/main` at `613c3cb`.
-- `git diff --stat origin/main...HEAD`: 54 paths, 8,812 insertions.
-- `git diff --stat 973703f...HEAD`: 14 paths, 312 insertions and 50 deletions.
-- `python3 docs/tools/review_gate.py --effective-head 1`: `918d8e66779ae0ff411ce4363d318739fdb04048`.
-- `make verify` at `918d8e6`: passed. STE, reference, lifecycle, and context checks passed. All 300 tests passed.
-- `gh pr checks 1 --repo nkramber/workout-app`: `pr-contract`, `verify:lint`, and `verify:test` passed at `918d8e6`. `review-gate` did not run because `origin/main` does not contain the workflow.
-- `gh pr view 1 --repo nkramber/workout-app`: PR is open at `918d8e66779ae0ff411ce4363d318739fdb04048`, based on `613c3cb08733338b9ac73b33e19d2380220b41da`.
-- `gh pr view --comments` and the GraphQL review-thread query: no comments and zero review threads.
-- Inline reproduction: RG 5 passed an old approval after a roadmap change.
-- Inline reproduction: RG 2 passed a Dependabot documentation pull request without a record.
-- Inline reproduction: `check_provider()` accepted a fabricated Claude Code provider line.
-- `make hooks`: passed. Hooks are installed from `.githooks`.
+- `make where`: clean detached worktree at `7931be8`, based on `origin/main` at `613c3cb`.
+- `git diff --stat 918d8e6..HEAD`: 13 paths, 228 insertions, and 102 deletions.
+- `python3 docs/tools/review_gate.py --effective-head 1`: `7931be813f2262c559bfa89878cdf2e79b14e6a6`.
+- `make verify` at `7931be8`: passed. STE, reference, lifecycle, and context checks passed. All 301 tests passed.
+- `make ste-check`: 0 findings.
+- `make ref-check`: 0 findings.
+- `git diff --check 918d8e6..HEAD`: passed.
+- `git diff --check 613c3cb..HEAD`: failed because `docs/tools/test_pr_check.py:368` has an extra blank line at EOF. That line is in the original PR commit, not this review round.
+- Pre-commit `python3 docs/tools/review_gate.py --event /tmp/pr1-event.json --head HEAD`: failed on the old committed record. The gate reads committed files, so it did not read this working copy.
+- `gh pr checks 1`: `pr-contract`, `verify:lint`, and `verify:test` passed at head `7931be8`. The review-gate workflow did not run because `main` does not contain it.
+- GitHub issue comments, submitted reviews, and review threads: zero.
 - Live ruleset check: not run. Q-94 remains open, and the hand-off says no live ruleset exists.
 - Paid review targets: not run.
-- Push: `dc74aade330ba0002821d3d0b9c1ea11f5e3d48e` was the head of `origin/docs/foundation-roadmap`, verified with `gh pr view`.
+- Push: pending.
 
 ## Open questions and accepted risks
 
-- D-87 accepts the risk that the gate cannot prove which provider wrote the review record. RG 6 names the commit, and the owner must inspect it.
+- D-87 accepts that the gate cannot prove who wrote the review record. The owner must inspect the record commit.
+- D-89 accepts that the provider gate trusts the provider line in the author-controlled hand-off. A false line passes the provider gate. The owner must independently verify both providers before merge.
 - Q-94 remains open. The live `main` ruleset does not exist, so GitHub does not enforce the committed required checks.
-- P1-3 needs a trusted provider source or an owner decision.
-- P1-4 and P1-5 conflict with D-4 and need correction or an owner decision.
 
 ## Earlier verdicts
 
 **Changes required.** This verdict applied to head `d0be0f3d98ce5b6d286847f224c59e73755ead96`.
 
-The review gate accepted an author-created approval record. The owner accepted this risk in D-87.
+The gate accepted an author-created approval record. D-87 accepted that risk.
 
 **Changes required.** This verdict applied to head `973703fea92df0ef5cdb480038bbe845f11ae2e4`.
 
 The author loop sent Codex-authored work to Codex. P1-2 records that finding.
 
+**Changes required.** This verdict applied to head `918d8e66779ae0ff411ce4363d318739fdb04048`.
+
+P1-3 through P1-5 left the provider gate and documentation review open to bypass.
+
 ## Verdict
 
-**Changes required.** This verdict applies to head `918d8e66779ae0ff411ce4363d318739fdb04048`.
+**Ready for owner merge.** This verdict applies to head `7931be813f2262c559bfa89878cdf2e79b14e6a6`.
 
-P1-3 through P1-5 leave the provider gate or the required documentation review open to bypass.
+The earlier findings are fixed or accepted by D-87 and D-89. The owner must verify the provider identities and review commit, and Q-94 still leaves the live ruleset unenforced.
