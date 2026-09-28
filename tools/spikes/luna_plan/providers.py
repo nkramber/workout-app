@@ -241,8 +241,13 @@ class OpenAIProvider:
         }
 
     def plan(self, instructions, user_text, schema, profile, attempt, gate=None):
+        return self.send(self.request_body(instructions, user_text, schema), gate)
+
+    def send(self, body, gate=None):
+        """Send one request body, with the retries and the gate. The
+        recognition spike sends its own body through this method."""
         gate = gate or OpenGate()
-        data = json.dumps(self.request_body(instructions, user_text, schema)).encode("utf-8")
+        data = json.dumps(body).encode("utf-8")
         started = time.monotonic()
         detail, sent = "", 0
         for n in range(self.attempts):

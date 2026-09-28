@@ -1,0 +1,21 @@
+{
+  "note": "The role configuration of the recognition spike (D-24). The model id appears here and nowhere else. The prices come from docs/research/platform-cloud-and-ai.md section 7, read 2026-09-28. The cap is D-94. The photo settings follow section 5.7 of the same document. image_tokens_max is a high bound for the worst-case cost, because OpenAI publishes no image rate for this model (Q-96).",
+  "roles": {
+    "recognize": {
+      "provider": "openai",
+      "model": "gpt-6-luna",
+      "reasoning_effort": "medium",
+      "max_output_tokens": 12000,
+      "image_detail": "high",
+      "image_long_side_px": 1536,
+      "image_jpeg_quality": 80,
+      "image_tokens_max": 10000,
+      "price_usd_per_million_tokens": {"input": 0.10, "cached_input": 0.01, "output": 0.50},
+      "run_cap_usd": 2.0
+    }
+  },
+  "providers": {
+    "openai": {"endpoint": "https://api.openai.com/v1/responses", "api_key_env": "OPENAI_API_KEY"},
+    "fake": {}
+  }
+}
