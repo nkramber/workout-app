@@ -10,7 +10,7 @@ Date: 2026-09-28
 - Target: `main`
 - Base: `89046b4219827aa3dbd5b505c228adcea48cf149`
 - Merge base: `89046b4219827aa3dbd5b505c228adcea48cf149`
-- Head: `c3c5c7a1b4c49857bf4a6d676c8704ef2e1ed8d4`
+- Head: `d87e7ce36df325ac50745c3a777b10555f8317cc`
 - Branch: `feat/pr-3-recognition-test-set`
 
 ## Provider gate
@@ -21,7 +21,7 @@ The session record for this work in `docs/session-handoff.md` names Claude Code 
 
 The acceptance story requires a free manifest check and a downloader that fills the ignored local cache with every manifest image whose SHA-256 agrees. The milestone also adds a 26-type catalog, 130-image manifest and 44 degraded-photo recipes, source metadata verification, tests, and updates to the roadmap and research. The relevant contracts are D-45, D-56, D-95, D-97, D-102 to D-105, and section 6.6 of `docs/research/platform-cloud-and-ai.md`.
 
-I inspected all 16 changed paths from the base: `README.md`, `docs/decisions.md`, `docs/questions.md`, `docs/research/platform-cloud-and-ai.md`, `docs/reviews/pr-4-response.md`, `docs/reviews/pr-4.md`, `docs/roadmaps/phase-1-risk-spikes.md`, `docs/session-handoff.md`, and the eight files in `tools/spikes/recognition_set/`. The prior review examined the original 14 paths. This review examined the correction and its consumers. Git tracks no image files.
+I inspected all 18 changed paths from the base: `AGENTS.md`, `README.md`, `docs/decisions.md`, `docs/design.md`, `docs/questions.md`, `docs/research/platform-cloud-and-ai.md`, `docs/reviews/pr-4-response.md`, `docs/reviews/pr-4.md`, `docs/roadmaps/phase-1-risk-spikes.md`, `docs/session-handoff.md`, and the eight files in `tools/spikes/recognition_set/`. The earlier review examined the original 16 paths. This review examined the latest corrections and their consumers. Git tracks no image files.
 
 ## Findings
 
@@ -67,7 +67,7 @@ Regression check: The focused tests and `make verify` pass at `c3c5c7a1b4c49857b
 
 ### P2-3: License validation accepts unpublished version numbers
 
-Status: open.
+Status: fixed in `642a16a`.
 
 Open at: `c3c5c7a1b4c49857bf4a6d676c8704ef2e1ed8d4`.
 
@@ -83,11 +83,11 @@ Consequence: A made-up license code and matching path pass the license gate as v
 
 Correction: Match the issued version numbers and valid jurisdiction ports. Add false cases for unsupported versions and true cases for valid versions, including a 2.1 port.
 
-Regression check: Direct probes reproduce the false accepts and the 2.1 false reject at `c3c5c7a`. The existing 43 recognition-set tests and `make verify` pass, but neither tests these versions.
+Regression check: `LicenseTest.test_only_issued_versions_and_ports_pass` and `LicenseTest.test_the_url_of_an_unissued_license_fails` pass. The checks accept issued version and port pairs and reject unsupported pairs, including each trigger at `c3c5c7a`.
 
 ### P2-4: Manifest attribution names conflict with the privacy rule
 
-Status: open.
+Status: fixed in `d87e7ce`.
 
 Open at: `c3c5c7a1b4c49857bf4a6d676c8704ef2e1ed8d4`.
 
@@ -103,7 +103,7 @@ Consequence: The manifest follows D-97 and conflicts with the privacy rule. The 
 
 Correction: The owner must define whether public attribution names are an exception. Then the author must apply that decision and update the decision register when required.
 
-Regression check: Read the manifest entry at line 817 and D-97. The conflict reproduces in the committed files.
+Regression check: Q-124 records the owner's answer as D-106. `AGENTS.md` and section 6 of `docs/design.md` now permit only the author credit that an image license requires and the source publishes. `make ref-check` passes.
 
 ## Out of scope
 
@@ -123,30 +123,33 @@ The verdict at `81f74d624feebc88bd20f602a707ff45f9735c69` was **Changes required
 
 The verdict at `a1bf5dbb73b6f22d72601fe40a1c113779c25c41` was **Changes required.** P2-1 was fixed. P2-2 was open because malformed license paths passed validation.
 
+The verdict at `c3c5c7a1b4c49857bf4a6d676c8704ef2e1ed8d4` was **Blocked.** P2-1 and P2-2 were fixed. P2-3 was open, and P2-4 needed an owner decision.
+
 ## Verification
 
-- `git fetch origin` and `git status --short --branch`: passed. The tree was clean at `c3c5c7a1b4c49857bf4a6d676c8704ef2e1ed8d4` on detached HEAD.
-- `python3 docs/tools/review_gate.py --effective-head 4`: passed. It returned `c3c5c7a1b4c49857bf4a6d676c8704ef2e1ed8d4`.
-- `git diff --stat 89046b4219827aa3dbd5b505c228adcea48cf149...c3c5c7a1b4c49857bf4a6d676c8704ef2e1ed8d4`: 16 paths, 4,693 insertions, 42 deletions.
-- `git diff --check 89046b4219827aa3dbd5b505c228adcea48cf149...HEAD`: passed.
-- `make verify` at `c3c5c7a1b4c49857bf4a6d676c8704ef2e1ed8d4`: passed. STE, reference, lifecycle, context, 301 document-tool tests, 44 Luna tests, and 43 recognition-set tests passed. Two image tests skipped because Pillow is not installed.
+- `git fetch origin` and `git status --short --branch`: passed at start, with a clean tree at `318da6853649b6d9d3057bbb10f94bd2a91665c4` on detached HEAD.
+- `python3 docs/tools/review_gate.py --effective-head 4`: passed. It returned `d87e7ce36df325ac50745c3a777b10555f8317cc`.
+- `git diff --stat 89046b4219827aa3dbd5b505c228adcea48cf149...HEAD`: 18 paths, 4,830 insertions, 43 deletions.
+- `git diff --check 89046b4219827aa3dbd5b505c228adcea48cf149..HEAD`: passed.
+- `make verify` at the effective head: passed. STE, reference, lifecycle, context, 301 document-tool tests, 44 Luna tests, and 45 recognition-set tests passed. Two image tests skipped because Pillow was absent from the default environment.
+- `PYTHONPATH=/tmp/pr4-pillow python3 -m unittest -v test_recognition_set.DegradeTest test_recognition_set.DegradeOrientationTest`: passed all 5 tests with Pillow 11.3.0 in a temporary target.
+- `python3 tools/spikes/recognition_set/manifest_check.py`: passed. It reported 130 images, 44 degraded-photo recipes, and 0 errors.
+- `python3 tools/spikes/recognition_set/sources.py check`: passed with 0 differences.
+- `python3 -m unittest -v test_recognition_set` from the repository root: failed to import `degrade` because the test module expects its folder on the import path. The correct invocation from `tools/spikes/recognition_set/` passed all 45 tests.
+- `make pr-check`: failed because this detached review worktree has no pull request association. The explicit body/title check also failed because it treated `HEAD` as the branch. `python3 docs/tools/pr_check.py pr --body-file /tmp/pr4-body.md --title "feat: the recognition test set (PR-3)" --head feat/pr-3-recognition-test-set --base origin/main`: passed with 0 contract errors.
 - `python3 tools/spikes/recognition_set/download.py`: 130 images downloaded, 0 errors. Each SHA-256 agreed.
 - `python3 tools/spikes/recognition_set/download.py --offline`: 130 cached images, 0 downloads, 0 errors.
 - `python3 tools/spikes/recognition_set/sources.py check`: passed with 0 differences.
-- Direct license URL probes: P2-2's malformed paths fail. P2-3's `cc-by-4.5`, `cc-by-sa-3.5`, and `cc-by-nc-1.5` codes and matching URLs pass incorrectly. `cc-by-sa-2.1-es` fails despite its issued license page.
-- GitHub checks at `c3c5c7a1b4c49857bf4a6d676c8704ef2e1ed8d4`: `pr-contract`, `verify:lint`, and `verify:test` passed. `review-gate` failed because the record held a non-ready verdict.
-- PR comments, reviews, and review threads: none. The one-query export is `/tmp/pr4-comments.json`.
-- Pillow-dependent image generation: not run because Pillow is unavailable. The author reports a successful run and sample inspection in the pull request body.
+- P2-3 correction probes: seven issued code/port pairs pass, nine unsupported pairs fail, and license URL probes reject the prior false accepts. The official Creative Commons site lists the 2.1 Spain deed and legal code ([deed](https://creativecommons.org/licenses/by-sa/2.1/es/deed.en), [legal code](https://creativecommons.org/licenses/by-sa/2.1/es/legalcode.es)).
+- GitHub checks at tip `318da6853649b6d9d3057bbb10f94bd2a91665c4`: `pr-contract`, `verify:lint`, and `verify:test` passed. `review-gate` failed because the published record still held the prior blocked verdict.
 - Paid targets: not run, as required by the review skill.
-- Push: `c3c5c7a1b4c49857bf4a6d676c8704ef2e1ed8d4` was the head of `origin/feat/pr-3-recognition-test-set`, verified with `gh pr view` before this review commit.
+- PR comments, review comments, and review threads: none. The one-query export is `/tmp/pr4-comments.json`.
 
 ## Open questions and accepted risks
 
-Pillow is unavailable in this environment, so the degradation output was not independently inspected. The author reports a successful run and sample inspection in the pull request body.
-
-The owner must resolve this rule conflict: “Write no ... personal data” in `AGENTS.md`, and D-97's requirement to record each image author. The reviewer asked whether public attribution names are an exception.
+None. The owner resolved the attribution question in Q-124 and D-106.
 
 ## Verdict
 
-**Blocked.** This verdict applies to head `c3c5c7a1b4c49857bf4a6d676c8704ef2e1ed8d4`.
-P2-3 is open because the manifest check accepts unpublished license versions. P2-4 needs an owner decision because the author-attribution requirement conflicts with the privacy rule. The review cannot approve this head until these issues are resolved.
+**Ready for owner merge.** This verdict applies to head `d87e7ce36df325ac50745c3a777b10555f8317cc`.
+The earlier findings are fixed. The focused checks pass, and the owner resolved the attribution question.

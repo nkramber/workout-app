@@ -6,12 +6,12 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 Date: 2026-09-28. Phase 1 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR-3 of `docs/roadmaps/phase-1-risk-spikes.md` is GitHub PR #4, open on `feat/pr-3-recognition-test-set`, from the base `89046b4`.
 
-The Codex review record is `docs/reviews/pr-4.md`. P2-1 and P2-2 are fixed. Round 3 was Blocked at `c3c5c7a` with P2-3 and P2-4. The author answered both in `docs/reviews/pr-4-response.md`:
+The Codex review record is `docs/reviews/pr-4.md`. P2-1 to P2-4 are fixed. The latest review is Ready for owner merge at effective head `d87e7ce`:
 
-- P2-3: the manifest check now accepts only the license versions and ports that Creative Commons issued.
-- P2-4: the owner answered Q-124 (D-106). The author credit that an image license requires is not personal data under the privacy rule.
+- P2-3: the manifest check accepts only issued Creative Commons versions and ports.
+- P2-4: the owner answered Q-124 (D-106). The privacy rule permits the author credit that an image license requires and the source publishes.
 
-Next action: when CI is green, run the next Codex review round with `make codex-review PR=4`.
+Next action: the owner confirms or declines the merge of PR #4.
 
 ## Facts that expire
 
