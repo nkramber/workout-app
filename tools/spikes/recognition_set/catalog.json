@@ -1,0 +1,33 @@
+{
+  "note": "Catalog shortlist of the recognition spike. Fixed-path resistance machines and cardio machines only (D-45). Each type has a distinguishing detail, so a quick owner confirmation stays meaningful (section 6.7 of docs/research/platform-cloud-and-ai.md). An image of a machine outside this list has the label none_of_these.",
+  "version": 1,
+  "none_label": "none_of_these",
+  "types": [
+    {"type_id": "leg_press_plate", "name": "Leg press, plate-loaded", "kind": "strength", "load": "plate_loaded", "detail": "A sled on rails with plate horns, often at 45 degrees."},
+    {"type_id": "leg_press_stack", "name": "Leg press, selectorized", "kind": "strength", "load": "selectorized", "detail": "A seat and a footplate, with a weight stack and a pin."},
+    {"type_id": "hack_squat", "name": "Hack squat", "kind": "strength", "load": "plate_loaded", "detail": "Standing on an angled footplate, back against a pad, shoulder pads on top."},
+    {"type_id": "leg_extension", "name": "Leg extension", "kind": "strength", "load": "either", "detail": "Seated, a roller pad in front of the shins."},
+    {"type_id": "leg_curl_seated", "name": "Seated leg curl", "kind": "strength", "load": "either", "detail": "Seated, a roller pad behind the lower legs and a pad over the thighs."},
+    {"type_id": "leg_curl_lying", "name": "Lying leg curl", "kind": "strength", "load": "either", "detail": "Face-down on a bench, a roller pad behind the ankles."},
+    {"type_id": "hip_abduction", "name": "Hip abduction or adduction", "kind": "strength", "load": "selectorized", "detail": "Seated, pads at the knees that open or close sideways."},
+    {"type_id": "calf_raise", "name": "Calf raise machine", "kind": "strength", "load": "either", "detail": "A toe block, with shoulder pads or a knee pad."},
+    {"type_id": "chest_press_stack", "name": "Chest press, selectorized", "kind": "strength", "load": "selectorized", "detail": "Seated, handles at chest height that push forward, a weight stack."},
+    {"type_id": "chest_press_plate", "name": "Chest press, plate-loaded", "kind": "strength", "load": "plate_loaded", "detail": "Seated, handles that push forward, plate horns on the arms."},
+    {"type_id": "shoulder_press", "name": "Shoulder press", "kind": "strength", "load": "either", "detail": "Seated, handles at shoulder height that push up."},
+    {"type_id": "pec_fly", "name": "Pec fly or rear delt", "kind": "strength", "load": "selectorized", "detail": "Seated, two arms that swing together in front of the chest."},
+    {"type_id": "lat_pulldown", "name": "Lat pulldown", "kind": "strength", "load": "either", "detail": "Seated, thigh pads, a bar or handles above the head that pull down."},
+    {"type_id": "seated_row", "name": "Seated row machine", "kind": "strength", "load": "either", "detail": "Seated, a chest pad, handles in front that pull back."},
+    {"type_id": "assisted_pullup", "name": "Assisted pull-up and dip", "kind": "strength", "load": "selectorized", "detail": "A knee pad or a platform that lifts, pull-up and dip handles on top."},
+    {"type_id": "smith_machine", "name": "Smith machine", "kind": "strength", "load": "plate_loaded", "detail": "A barbell fixed in vertical rails, with hooks along the rails."},
+    {"type_id": "biceps_curl", "name": "Biceps curl machine", "kind": "strength", "load": "either", "detail": "Seated, the upper arms on an angled pad, handles that curl up."},
+    {"type_id": "triceps_extension", "name": "Triceps extension or dip machine", "kind": "strength", "load": "either", "detail": "Seated, handles that push down or out with the elbows bent."},
+    {"type_id": "back_extension", "name": "Back extension machine", "kind": "strength", "load": "selectorized", "detail": "Seated, a pad behind the upper back that pushes back."},
+    {"type_id": "ab_crunch", "name": "Abdominal crunch machine", "kind": "strength", "load": "selectorized", "detail": "Seated, pads or handles at the chest or shoulders that pull forward and down."},
+    {"type_id": "treadmill", "name": "Treadmill", "kind": "cardio", "load": "none", "detail": "A moving belt with a console and hand rails."},
+    {"type_id": "bike_upright", "name": "Upright stationary bike", "kind": "cardio", "load": "none", "detail": "A saddle above the pedals, handlebars in front."},
+    {"type_id": "bike_recumbent", "name": "Recumbent stationary bike", "kind": "cardio", "load": "none", "detail": "A seat with a backrest, pedals in front of the seat."},
+    {"type_id": "rower", "name": "Rowing machine", "kind": "cardio", "load": "none", "detail": "A sliding seat on a rail, a handle on a chain or a strap, a flywheel."},
+    {"type_id": "elliptical", "name": "Elliptical trainer", "kind": "cardio", "load": "none", "detail": "Two foot pedals on an oval path, often with moving arms."},
+    {"type_id": "stair_climber", "name": "Stair climber or stepper", "kind": "cardio", "load": "none", "detail": "Moving steps or two step pedals, with hand rails."}
+  ]
+}
