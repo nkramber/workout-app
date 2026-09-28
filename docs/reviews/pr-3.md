@@ -71,9 +71,9 @@ None.
 - `make verify` at `eb8164b99dd9bb8d82c002ad3d5b7d53abf408d9`: passed. STE, reference, lifecycle, and context checks passed. All 301 document-tool tests and 44 spike tests passed.
 - `PYTHONPATH=tools/spikes/luna_plan python3 -m unittest test_luna_plan.RetryCapTest`: passed, 4 tests.
 - Input reservation comparison on the 20 committed profile requests: passed. Each estimate was 1.46 to 1.49 times reported input usage.
-- `gh pr checks 3 --repo nkramber/workout-app` at `88d43423124908169c2ecc6736d901facdb5d942`: `pr-contract`, `verify:lint`, and `verify:test` passed. `review-gate` failed because this record said `Blocked`. The gate needs a fresh run after this record says `Ready for owner merge`.
+- `gh pr checks 3 --repo nkramber/workout-app` at `408e56f2a44238bfede846bfba82e0904e8b054e`: `pr-contract`, `review-gate`, `verify:lint`, and `verify:test` passed.
 - Paid target: not run. The review skill forbids paid targets.
-- Push: `88d43423124908169c2ecc6736d901facdb5d942` is the head of `origin/feat/pr-2-luna-plan-spike`, verified with `gh pr view`.
+- Push: `408e56f2a44238bfede846bfba82e0904e8b054e` is the head of `origin/feat/pr-2-luna-plan-spike`, verified with `gh pr view`.
 
 ## Open questions and accepted risks
 
@@ -82,4 +82,4 @@ None.
 ## Verdict
 
 **Ready for owner merge.** This verdict applies to head `eb8164b99dd9bb8d82c002ad3d5b7d53abf408d9`.
-The earlier finding is fixed, the review covers all changed paths, and the product checks pass. The fresh gate run can now validate this verdict for the same effective head.
+The earlier finding is fixed, the review covers all changed paths, and all four GitHub checks passed on the published branch tip.
