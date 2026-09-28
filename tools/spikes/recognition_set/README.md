@@ -55,6 +55,10 @@ The design follows section 6.6 of `docs/research/platform-cloud-and-ai.md`:
 
 The check accepts only the licenses of D-95: CC0, public domain, CC BY, CC BY-SA, and CC BY-NC. It refuses each other license, for example GFDL, CC BY-NC-SA, CC BY-ND, and "No restrictions".
 
+The check accepts only a version and a jurisdiction port that Creative Commons issued, for example `cc-by-sa-2.1-es`. It refuses a code such as `cc-by-4.5`. `CC_PORTS` in `manifest_check.py` holds the list, from the legal tools data of Creative Commons, read 2026-09-28.
+
+The `author` field holds the credit that the license of the image requires, as the source publishes it. D-106 permits this credit in the public repository.
+
 ## Commands
 
 Each command is free. The download commands use the network, and they make no paid call.

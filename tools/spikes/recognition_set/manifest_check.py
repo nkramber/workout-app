@@ -20,7 +20,23 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # license codes of the Commons extmetadata. A code with a jurisdiction port,
 # such as cc-by-sa-3.0-de, is the same license. CC BY-NC-SA, CC BY-ND, GFDL,
 # and "No restrictions" are outside D-95, so the check refuses them.
-LICENSE = re.compile(r"^(cc0|pd|cc-by(-sa|-nc)?-[1-4]\.[05](-[a-z]{2})?)$")
+LICENSE = re.compile(r"^(cc-by(?:-sa|-nc)?)-(\d\.\d)(?:-([a-z]+))?$")
+# The issued versions and jurisdiction ports of CC BY, CC BY-SA, and CC BY-NC.
+# "" is the generic license. The three families have the same ports. Version
+# 2.1 has ports alone, and 4.0 has no port. Source: config/cc-legal-tools.csv
+# of github.com/creativecommons/cc-legal-tools-data at 3edadd4, read 2026-09-28.
+CC_PORTS = {
+    "1.0": {"", "fi", "il", "nl"},
+    "2.0": {"", "at", "au", "be", "br", "ca", "cl", "de", "es", "fr", "hr", "it", "jp", "kr", "nl", "pl",
+            "tw", "uk", "za"},
+    "2.1": {"au", "ca", "es", "jp"},
+    "2.5": {"", "ar", "au", "bg", "br", "ca", "ch", "cn", "co", "dk", "es", "hr", "hu", "il", "in", "it",
+            "mk", "mt", "mx", "my", "nl", "pe", "pl", "pt", "scotland", "se", "si", "tw", "za"},
+    "3.0": {"", "am", "at", "au", "az", "br", "ca", "ch", "cl", "cn", "cr", "cz", "de", "ec", "ee", "eg",
+            "es", "fr", "ge", "gr", "gt", "hk", "hr", "ie", "igo", "it", "lu", "nl", "no", "nz", "ph", "pl",
+            "pr", "pt", "ro", "rs", "sg", "th", "tw", "ug", "us", "ve", "vn", "za"},
+    "4.0": {""},
+}
 LICENSE_PATH = {"cc-by": "/licenses/by/", "cc-by-sa": "/licenses/by-sa/", "cc-by-nc": "/licenses/by-nc/"}
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 IMAGE_ID = re.compile(r"^R\d{3}$")
@@ -66,8 +82,12 @@ def load(name, folder=HERE):
 
 
 def license_ok(code):
-    """True when the license code is inside D-95."""
-    return isinstance(code, str) and bool(LICENSE.match(code))
+    """True when the license code is inside D-95, with an issued version and
+    jurisdiction port."""
+    if code in ("cc0", "pd"):
+        return True
+    m = LICENSE.match(code) if isinstance(code, str) else None
+    return bool(m) and (m.group(3) or "") in CC_PORTS.get(m.group(2), ())
 
 
 # The last part of a license path: none, the deed, or the legal code, with an
@@ -79,6 +99,8 @@ def license_url_ok(code, url):
     """True when the license URL is the Creative Commons page of the same
     license: the family, the version, and the jurisdiction port of the code.
     A public domain image can have no license URL."""
+    if not license_ok(code):
+        return False
     if url is None:
         return code in ("cc0", "pd")
     parts = urlparse(url)
@@ -89,9 +111,7 @@ def license_url_ok(code, url):
     elif code == "pd":
         path = r"/publicdomain/mark/1\.0"
     else:
-        m = re.match(r"^(cc-by(?:-sa|-nc)?)-(\d\.\d)(?:-([a-z]{2}))?$", code)
-        if not m:
-            return False
+        m = LICENSE.match(code)
         path = re.escape(LICENSE_PATH[m.group(1)] + m.group(2)) + (f"/{m.group(3)}" if m.group(3) else "")
     return bool(re.fullmatch(path + LICENSE_PAGE, parts.path))
 

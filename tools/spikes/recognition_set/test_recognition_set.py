@@ -88,6 +88,22 @@ class LicenseTest(unittest.TestCase):
                      "No restrictions", "fal", "cc-by-sa-4.0 ", "CC BY-SA 4.0", "cc-by-9.0"):
             self.assertFalse(manifest_check.license_ok(code), code)
 
+    def test_only_issued_versions_and_ports_pass(self):
+        # P2-3 of the review of #4: the versions and ports of the CC legal tools list.
+        for code in ("cc-by-1.0", "cc-by-sa-2.1-es", "cc-by-nc-2.1-jp", "cc-by-2.5-scotland",
+                     "cc-by-sa-3.0-igo", "cc-by-sa-2.0-uk", "cc-by-nc-3.0-us"):
+            self.assertTrue(manifest_check.license_ok(code), code)
+        for code in ("cc-by-4.5", "cc-by-sa-3.5", "cc-by-nc-1.5", "cc-by-sa-2.1", "cc-by-4.0-de",
+                     "cc-by-3.0-zz", "cc-by-sa-2.0-igo", "cc-by-sa-1.0-de", "cc-by-5.0"):
+            self.assertFalse(manifest_check.license_ok(code), code)
+
+    def test_the_url_of_an_unissued_license_fails(self):
+        ok = manifest_check.license_url_ok
+        self.assertTrue(ok("cc-by-sa-2.1-es", "https://creativecommons.org/licenses/by-sa/2.1/es/"))
+        self.assertFalse(ok("cc-by-4.5", "https://creativecommons.org/licenses/by/4.5"))
+        self.assertFalse(ok("cc-by-sa-3.5", "https://creativecommons.org/licenses/by-sa/3.5/"))
+        self.assertFalse(ok("cc-by-3.0-zz", "https://creativecommons.org/licenses/by/3.0/zz/"))
+
     def test_the_check_refuses_an_image_outside_d95(self):
         errors = manifest_check.check_image(image(license="gfdl"), set(TYPE_IDS), "none_of_these", GYMS)
         self.assertEqual(errors, ["R001: license 'gfdl' is outside D-95"])
