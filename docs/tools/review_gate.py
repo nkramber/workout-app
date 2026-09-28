@@ -5,15 +5,18 @@
   review_gate.py --effective-head NUMBER [--base REF] [--head REF]
       Print the effective head. A reviewer records this commit.
 
-A pull request passes in one of three ways:
+A pull request passes in one of two ways:
 
-  - A Codex review record at `docs/reviews/pr-<N>.md` on the head
-    approves the effective head (D-8). A record of an earlier commit
-    also passes when each later commit changes documents alone.
+  - A review record of the other provider at `docs/reviews/pr-<N>.md`
+    on the head approves the effective head (D-8, D-88). After the D-4
+    period, a record of an earlier commit also passes when each later
+    commit changes documents alone. During the period, each document
+    change needs a current review (D-4).
   - The `review-override` label is on, OVERRIDE_ENABLED is True, and
     every changed path is in the documentation set. D-4 keeps
     OVERRIDE_ENABLED False until the owner ends the roadmap period.
-  - Dependabot opened it, and Dependabot wrote every commit.
+
+No author is exempt. D-90 removed the Dependabot exemption of Decktome.
 
 The gate trusts the record at the head. One shared GitHub identity can
 not prove which provider wrote a commit, so the gate stops an accident
@@ -46,8 +49,6 @@ APPROVED = "Ready for owner merge"
 VERDICTS = (APPROVED, "Changes required", "Blocked")
 SHORTEST_HASH = 7
 HANDOFF_FILES = ("docs/session-handoff.md",)
-DEPENDABOT = "dependabot[bot]"
-DEPENDABOT_EMAIL = "49699333+dependabot[bot]@users.noreply.github.com"
 # GitHub commits a Dependabot change, and a local amend or rebase writes
 # another committer.
 GITHUB_COMMITTER = "noreply@github.com"
@@ -158,7 +159,9 @@ def check_head(path, text, head, commits=None):
         return "FAULT", f"the head field of `{path}` is `{recorded}`, shorter than {SHORTEST_HASH} characters."
     if head.lower().startswith(recorded.lower()):
         return "PASS", f"the head field of `{path}` names the effective head `{head}`."
-    if commits is not None and documents_since(commits, recorded):
+    # D-4: during the roadmap period, a change of documents needs a current
+    # review too. Only the metadata set keeps the effective head then.
+    if commits is not None and OVERRIDE_ENABLED and documents_since(commits, recorded):
         return "PASS", f"the head field of `{path}` names `{recorded}`, and each later commit changes documents alone, so the approval holds."
     return "FAULT", f"the head field of `{path}` is `{recorded}`, and the effective head is `{head}`. Review the new diff, then update the head and the verdict together."
 
@@ -188,11 +191,6 @@ def evaluate(number, author, labels, files, commits, authors, read_record, fork=
     else:
         results.append(("RG 1", "SKIP", f"the pull request carries no `{LABEL}` label."))
 
-    if author == DEPENDABOT and authors == {DEPENDABOT_EMAIL}:
-        results.append(("RG 2", "PASS", "Dependabot opened the pull request and wrote every commit."))
-        return results
-    if author == DEPENDABOT:
-        results.append(("RG 2", "SKIP", "Dependabot opened the pull request, and another author wrote a commit, so the Codex review applies."))
 
     path = record_path(number)
     # `make codex-review` refuses a fork, so a record in a fork is a

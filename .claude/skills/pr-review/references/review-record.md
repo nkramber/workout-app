@@ -26,7 +26,7 @@ The effective head is the newest commit that changes a path outside the metadata
 
 A commit that changes those paths alone is a metadata commit. It does not move the effective head. So the commit of the record does not make the record stale, and a later hand-off commit of the author does not either. A commit that changes the record of another pull request moves the effective head.
 
-The check also passes a record of an earlier commit, when each later commit changes documents alone. The documents are the documentation set of `docs/tools/review_gate.py`. So a later commit of the roadmap, a decision, or a skill keeps the approval. Still record the effective head, because `make codex-review` reads a new record against it.
+During the D-4 period, a later commit of a document moves the effective head, and it needs a new review (D-4). After the period, the check also passes a record of an earlier commit, when each later commit changes documents alone. The documents are the documentation set of `docs/tools/review_gate.py`. Always record the effective head, because the review target reads a new record against it.
 
 A merge commit always moves the effective head, because it brings new code into the branch.
 
@@ -145,13 +145,13 @@ The reviewer never changes what the author says the pull request does, or why. I
 
 ## The review-gate check
 
-The check has five rules:
+The check has these rules. D-90 removed the Dependabot rule RG 2 of Decktome, so the list has no RG 2.
 
 1. RG 1: when the `review-override` label is on and `OVERRIDE_ENABLED` is `True`, each changed path is in the documentation set. While D-4 holds, the constant is `False`, and the label satisfies no rule.
-2. RG 2: Dependabot opened the pull request and wrote every commit, and GitHub committed each one. This rule passes the check alone.
-3. RG 3: `docs/reviews/pr-<number>.md` exists on the head, and the head is a branch of this repository, not a fork.
-4. RG 4: the verdict is `Ready for owner merge`.
-5. RG 5: the head field names the effective head, or an earlier commit that documents alone follow.
+2. RG 3: `docs/reviews/pr-<number>.md` exists on the head, and the head is a branch of this repository, not a fork.
+3. RG 4: the verdict is `Ready for owner merge`.
+4. RG 5: the head field names the effective head. After the D-4 period, it can name an earlier commit that documents alone follow.
+5. RG 6: the commit that last changed the record, with its subject. The owner reads it before the merge (D-87).
 
 `docs/tools/review_gate.py` holds each rule, and `docs/tools/test_review_gate.py` holds its tests. A push of code after the approval fails RG 5. That result is correct: review the new diff, then change the head field and the verdict together.
 

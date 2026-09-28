@@ -239,6 +239,12 @@ class ProviderGate(unittest.TestCase):
             with self.subTest(reviewer=reviewer), self.assertRaises(cr.Stop):
                 self.gate(reviewer, handoff=text)
 
+    def test_a_false_provider_line_passes_as_d89_accepts(self):
+        # Finding P1-3 of PR #1: the gate can not prove the provider of an author.
+        # D-89 accepts the risk, and the owner reads the provider before the merge.
+        self.assertIsNone(self.gate("codex", first="Claude Code"))
+        self.assertIn("D-89", cr.check_provider.__doc__)
+
     def test_no_author_record_refuses(self):
         with self.assertRaises(cr.Stop):
             self.gate("codex", handoff="# hand-off\n")

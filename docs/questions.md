@@ -5,7 +5,7 @@ This file is the durable question register. It keeps every question, its answer,
 The ids have three ranges:
 
 - Q-1 to Q-73 are the questions of the launch prompt of the first session.
-- Q-74 to Q-89 and Q-108 to Q-110 are follow-up questions of the first session.
+- Q-74 to Q-89 and Q-108 to Q-112 are follow-up questions of the first session.
 - Q-90 to Q-107 are open questions, and Q-90 has an answer. Each open question names the phase of `docs/roadmaps/high-level-roadmap.md` that needs the answer.
 
 The owner answered through the answer controls of the session. The first session asked Q-1 to Q-46 and Q-74 to Q-88 on 2026-09-27. It asked the other questions on 2026-09-28. The column "Rec." tells whether the owner chose the option that the launch prompt marked as recommended. A "No" in that column is an owner decision, not a mistake.
@@ -160,6 +160,8 @@ The owner answered through the answer controls of the session. The first session
 | Q-89 | Which audience statement holds: Q-2 (invite beta) or Q-58 (just for me)? | "Only you, ever". | Answered | D-67 |
 | Q-108 | The three role-model repositories name pull requests in different forms. Which form do pull requests after #1 use? | The form of the-thing-below: `<type>: <summary> (PR-<n>)` and `<type>/pr-<n>-<slug>`. | Answered | D-86 |
 | Q-110 | Codex finding P1-2: the author loop sends a pull request that Codex writes to a Codex review. Can the Codex author session run a Claude Code review automatically? | Yes, automatically, as D-8 does for Codex. | Answered | D-88 |
+| Q-111 | Codex finding P1-3: the provider gate trusts the `Author provider` line of the author. How is it resolved? | Extend the accepted risk of D-87. The merge question names the author provider. | Answered | D-89 |
+| Q-112 | Codex finding P1-5: Dependabot pull requests skip the review gate, and the repository has no Dependabot. What happens to the exemption? | Remove it. | Answered | D-90 |
 | Q-109 | Codex finding P1-1: the review gate can not prove that Codex wrote the review record. How is it resolved? | The rule what-you-carry:D-198: an accepted risk, with the commit of the record in the gate output. | Answered | D-87 |
 
 ## Open questions

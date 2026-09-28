@@ -107,7 +107,7 @@ Write the summary in four sections, with a few sentences in each section:
 - **What:** the milestone, and the problem that it solves.
 - **How:** the method of the change, the evidence, and each risk that stays open.
 - **CI:** green or not. Name each check that is not green.
-- **Codex review:** the verdict of the record, `Ready for owner merge`, `Blocked`, or `Changes required`. Name the commit that last changed the record, from rule RG 6 of `review-gate` or from `git log -1 -- docs/reviews/pr-<n>.md`. The owner reads it before the merge (D-87).
+- **Codex review:** the verdict of the record, `Ready for owner merge`, `Blocked`, or `Changes required`. Name the commit that last changed the record, from rule RG 6 of `review-gate` or from `git log -1 -- docs/reviews/pr-<n>.md`. Name the author provider of the hand-off and the provider of the reviewer. The owner reads both before the merge (D-87, D-89).
 
 Write the summary in the question text of `AskUserQuestion`, and ask the owner for the confirmation of the merge in the same text. The owner can see the question alone, so a summary outside it does not reach the owner. Without the confirmation, do not turn on the auto-merge.
 
@@ -215,7 +215,7 @@ The session ends with this prompt. It makes no branch and no change for the next
 | AI attribution in a pull request | `make pr-check` and the `pr-contract` workflow (D-14) |
 | A commit on `main`, a commit on a merged branch, and a staged document that fails STE | The `pre-commit` hook of `make hooks` (D-14, D-83) |
 | A commit subject that is not Conventional Commits, and AI attribution in a commit | The `commit-msg` hook of `make hooks` (D-14) |
-| A merge with no approved Codex record or Dependabot exemption | The `review-gate` workflow and the ruleset of `main` (D-4, D-8) |
+| A merge with no approved record of the other provider | The `review-gate` workflow and the ruleset of `main` (D-4, D-8) |
 | A merge with a red check, or an open review thread | The ruleset of `main`, and `make ruleset-check` for its content (D-14) |
 | A Codex review on a dirty tree, or with an open review thread | `make codex-review` (D-8) |
 | The third open round of one finding | `make codex-review`, exit 4 |

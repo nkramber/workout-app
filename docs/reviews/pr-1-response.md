@@ -1,6 +1,6 @@
 # Pull request 1 - author response
 
-Date: 2026-09-28. Review round 1 recorded head `d0be0f3`, and round 2 recorded head `973703f`. Each gave the verdict "Changes required".
+Date: 2026-09-28. Review rounds 1, 2, and 3 recorded heads `d0be0f3`, `973703f`, and `918d8e6`. Each gave the verdict "Changes required".
 
 ## P1-1: The required review record has no verifiable reviewer identity
 
@@ -45,6 +45,32 @@ The author loop of `.claude/skills/one-pr-one-session/SKILL.md` sent every pull 
 - `ProviderGate.test_two_authors_of_one_branch_refuse_each_reviewer` and `ProviderGate.test_no_author_record_refuses` cover the conflict cases.
 - `ClaudeReviewer` tests cover the environment, the login, the probe, and a usage error.
 - `make verify`: 300 tests pass, and every document check reports 0 findings.
+
+## P1-3: The provider gate trusts the author provider label
+
+Round 3 recorded head `918d8e6`.
+
+**Result: partial merit.** The trigger reproduces. The correction that the finding asks for has the same limit as P1-1. One GitHub account writes every commit, so no source that the author can not change names the provider. The owner extended the accepted risk of D-87 to the provider line (D-89).
+
+**Correction.** The merge question of the `one-pr-one-session` skill names the author provider and the reviewer provider, and the owner reads both. `AGENTS.md` rule 9 and the docstring of `check_provider` state the risk.
+
+**Regression check.** `ProviderGate.test_a_false_provider_line_passes_as_d89_accepts` records the accepted behavior.
+
+## P1-4: The gate carries approval across new documentation changes
+
+**Result: full merit.** D-4 needs a current review of each document change during the roadmap period.
+
+**Correction.** `check_head` in `docs/tools/review_gate.py` carries an approval across later document commits only when `OVERRIDE_ENABLED` is `True`, after the D-4 period. During the period, only the metadata set keeps the effective head: the record, the response file, and the hand-off. The `review-record.md` reference of the `pr-review` skill states the rule.
+
+**Regression checks.** `DocumentsDuringTheRoadmapPeriod` proves that a roadmap, decision, skill, or rules commit fails RG 5, and that a metadata commit keeps the approval. `GitFacts.test_the_command_fails_a_commit_of_documents_after_the_review_in_the_period` runs the command on a real Git repository.
+
+## P1-5: Dependabot can skip the required review
+
+**Result: full merit.** No owner decision of this repository made the exemption. It came with the port of the Decktome gate.
+
+**Correction.** The owner removed the exemption (D-90). `docs/tools/review_gate.py` has no Dependabot rule, and the `pr-review` skill and its `review-record.md` reference say that no author is exempt.
+
+**Regression checks.** `NoExemptAuthor` proves that a Dependabot pull request of code or of documents needs the record. `GitFacts.test_the_command_fails_a_dependabot_pull_request_with_no_record` runs the command. `make verify` passes 301 tests.
 
 ## Other changes in this round
 

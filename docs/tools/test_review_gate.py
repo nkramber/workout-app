@@ -88,11 +88,12 @@ class ReviewRecord(unittest.TestCase):
         states, results = run(commits=commits, text=record())
         self.assertEqual(faults(states), [], results)
 
-    def test_a_commit_of_another_record_moves_the_effective_head_and_keeps_the_gate(self):
+    def test_a_commit_of_another_record_moves_the_effective_head(self):
         commits = CODE + [("f" * 40, ["docs/reviews/pr-211.md"])]
         self.assertEqual(rg.effective_head(commits, N), "f" * 40)
-        states, results = run(commits=commits, text=record())
-        self.assertEqual(faults(states), [], results)
+        # D-4: during the roadmap period, the change needs a current review.
+        states, _ = run(commits=commits, text=record())
+        self.assertIn(("RG 5", "FAULT"), states)
 
     def test_metadata_commits_alone_have_no_effective_head(self):
         states, _ = run(commits=[(HEAD, ["docs/session-handoff.md"])], text=record())
@@ -135,8 +136,30 @@ class Fork(unittest.TestCase):
         self.assertEqual(faults(rules), [])
 
 
+class DocumentsDuringTheRoadmapPeriod(unittest.TestCase):
+    """D-4, finding P1-4 of PR #1: each document change needs a current review during the period."""
+
+    def test_a_commit_of_each_kind_of_document_needs_a_new_review(self):
+        self.assertFalse(rg.OVERRIDE_ENABLED)
+        for path in ["docs/roadmaps/high-level-roadmap.md", "docs/decisions.md", ".claude/skills/pr-review/SKILL.md",
+                     "AGENTS.md", "README.md"]:
+            with self.subTest(path=path):
+                states, _ = run(commits=CODE + [("d" * 40, [path])], text=record())
+                self.assertIn(("RG 5", "FAULT"), states)
+
+    def test_the_metadata_set_keeps_the_approval(self):
+        commits = CODE + [("d" * 40, [rg.record_path(N), f"docs/reviews/pr-{N}-response.md", "docs/session-handoff.md"])]
+        states, results = run(commits=commits, text=record())
+        self.assertEqual(faults(states), [], results)
+
+
 class DocumentsAfterTheApproval(unittest.TestCase):
-    """A commit of documents alone keeps a green gate green."""
+    """After the D-4 period, a commit of documents alone keeps a green gate green."""
+
+    def setUp(self):
+        patch = unittest.mock.patch.object(rg, "OVERRIDE_ENABLED", True)
+        patch.start()
+        self.addCleanup(patch.stop)
 
     def test_a_commit_of_each_kind_of_document_keeps_the_gate(self):
         for path in ["docs/roadmaps/high-level-roadmap.md", "docs/decisions.md", ".claude/skills/pr-review/SKILL.md",
@@ -238,18 +261,17 @@ class OverrideLabelEnabled(unittest.TestCase):
                 self.assertIn(("RG 1", "FAULT"), states)
 
 
-class Dependabot(unittest.TestCase):
-    def test_a_pull_request_of_dependabot_alone_passes(self):
-        states, results = run(author=rg.DEPENDABOT, authors=[rg.DEPENDABOT_EMAIL])
-        self.assertEqual(faults(states), [], results)
+class NoExemptAuthor(unittest.TestCase):
+    """D-90, finding P1-5 of PR #1: no author skips the review, Dependabot included."""
 
-    def test_a_session_commit_on_a_dependabot_branch_needs_the_record(self):
-        states, _ = run(author=rg.DEPENDABOT, authors=[rg.DEPENDABOT_EMAIL, SESSION])
-        self.assertIn(("RG 3", "FAULT"), states)
+    def test_a_dependabot_pull_request_needs_the_record(self):
+        for files in (["go.mod"], ["docs/decisions.md"]):
+            with self.subTest(files=files):
+                states, _ = run(files=files, author="dependabot[bot]", authors=["49699333+dependabot[bot]@users.noreply.github.com"])
+                self.assertIn(("RG 3", "FAULT"), states)
 
-    def test_the_dependabot_email_alone_does_not_exempt_another_author(self):
-        states, _ = run(authors=[rg.DEPENDABOT_EMAIL])
-        self.assertIn(("RG 3", "FAULT"), states)
+    def test_the_gate_names_no_exempt_author(self):
+        self.assertFalse(hasattr(rg, "DEPENDABOT"))
 
 
 class GitFacts(unittest.TestCase):
@@ -341,11 +363,19 @@ class GitFacts(unittest.TestCase):
         self.assertEqual(status, 1, out)
         self.assertIn("RG 5: FAULT", out)
 
+    def test_the_command_fails_a_commit_of_documents_after_the_review_in_the_period(self):
+        code = self.commit({"go/a.go": "package a\n"}, "code")
+        self.commit({rg.record_path(N): record(head=code)}, "review")
+        self.commit({"docs/roadmaps/high-level-roadmap.md": "mark\n"}, "documents")
+        status, out = self.gate()
+        self.assertEqual(status, 1, out)
+        self.assertIn("RG 5: FAULT", out)
+
     def test_the_command_passes_a_commit_of_documents_after_the_review(self):
         code = self.commit({"go/a.go": "package a\n"}, "code")
         self.commit({rg.record_path(N): record(head=code)}, "review")
         self.commit({"docs/roadmaps/high-level-roadmap.md": "mark\n", "docs/decisions.md": "row\n"}, "documents")
-        status, out = self.gate()
+        status, out = self.gate(enabled=True)
         self.assertEqual(status, 0, out)
         self.assertIn("RG 5: PASS", out)
         self.assertIn("each later commit changes documents alone", out)
@@ -405,25 +435,11 @@ class GitFacts(unittest.TestCase):
         status, out = self.gate(labels=[rg.LABEL], enabled=True)
         self.assertEqual(status, 0, out)
 
-    def test_dependabot_passes_with_the_committer_of_github(self):
-        self.commit({"go/go.mod": "module a\n"}, "bump", email=rg.DEPENDABOT_EMAIL, committer=rg.GITHUB_COMMITTER)
-        status, out = self.gate(author=rg.DEPENDABOT)
-        self.assertEqual(status, 0, out)
-
-    def test_dependabot_fails_after_an_amend_by_a_session(self):
-        self.commit({"go/go.mod": "module a\n"}, "bump", email=rg.DEPENDABOT_EMAIL, committer=rg.GITHUB_COMMITTER)
-        self.commit({"go/go.sum": "x\n"}, "fix the conflict", email=rg.DEPENDABOT_EMAIL, committer=SESSION)
-        status, out = self.gate(author=rg.DEPENDABOT)
+    def test_the_command_fails_a_dependabot_pull_request_with_no_record(self):
+        self.commit({"go/go.mod": "module a\n"}, "bump", email="49699333+dependabot[bot]@users.noreply.github.com", committer=rg.GITHUB_COMMITTER)
+        status, out = self.gate(author="dependabot[bot]")
         self.assertEqual(status, 1, out)
-        self.assertIn("RG 2: SKIP", out)
-
-    def test_dependabot_reads_the_commit_authors(self):
-        self.commit({"go/go.mod": "module a\n"}, "bump", email=rg.DEPENDABOT_EMAIL)
-        status, out = self.gate(author=rg.DEPENDABOT)
-        self.assertEqual(status, 0, out)
-        self.commit({"web/x.ts": "x\n"}, "fix")
-        status, out = self.gate(author=rg.DEPENDABOT)
-        self.assertEqual(status, 1, out)
+        self.assertIn("RG 3: FAULT", out)
 
 
 class RecordTemplate(unittest.TestCase):

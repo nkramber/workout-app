@@ -298,7 +298,12 @@ def author_providers(handoff, branch):
 
 
 def check_provider(run, repo, head, branch, reviewer):
-    """Refuse a review by the provider that wrote the pull request (D-15, D-88)."""
+    """Refuse a review by the provider that wrote the pull request (D-15, D-88).
+
+    The author writes the hand-off, so the gate trusts its provider line.
+    One GitHub identity can not prove a provider. D-89 accepts that risk,
+    and the owner reads the author provider before each merge.
+    """
     code, out, _ = run(["git", "show", f"{head}:{HANDOFF}"], cwd=repo)
     providers = author_providers(out if code == 0 else "", branch)
     need = AUTHOR_OF_REVIEWER[reviewer]

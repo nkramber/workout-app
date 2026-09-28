@@ -26,7 +26,8 @@ Stage: Phase 0 of `docs/roadmaps/high-level-roadmap.md`. No app, service, or clo
    - Codex reviews every pull request of documents alone until the owner ends the D-4 period. The `review-override` label does not pass the gate before then (D-4).
    - Gitar is not part of this repository until the owner approves it (D-3).
    - The third open round of one finding stops the loop, and the owner decides.
-   - The gate can not prove the provider of a record. Before each merge, the owner reads the commit that last changed it (D-87).
+   - The gate can not prove the provider of a record or of an author. Before each merge, the owner reads the commit that last changed the record and the author provider (D-87, D-89).
+   - During the D-4 period, a document change after an approval needs a new review. No author is exempt, Dependabot included (D-90).
 10. **The owner confirms every merge** (D-13). After the Codex approval, ask the owner with a summary in four sections: What, How, CI, and Codex review. Turn on the auto-merge only after the confirmation.
 11. **Push back.** When two owner statements conflict, quote both and ask. When a request rests on a wrong premise, say so with the evidence.
 12. **One pull request, one clean session** (D-12). The owner approves the work before it starts. A pull request holds one milestone with one acceptance story, and it can hold two, three, or more concerns (D-10). The session continues until the pull request merges, and a context checkpoint never ends it (D-85). Load `.claude/skills/one-pr-one-session/SKILL.md` for all work on a pull request.
