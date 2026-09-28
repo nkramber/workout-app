@@ -68,11 +68,12 @@ None.
 - `python3 tools/spikes/recognition_set/manifest_check.py`: passed. It found 130 images, 44 degraded photos, and 0 errors.
 - `python3 tools/spikes/recognition_set/sources.py check`: passed with 0 differences. It does not cover the URL fields in P2-1.
 - `PR_BODY_FILE=/tmp/pr4-body.md PR_TITLE='feat: the recognition test set (PR-3)' make pr-check`: did not pass in this review worktree. The checker needs a branch name, but the PR head is `HEAD`. It reported branch and session-branch mismatches.
-- GitHub checks at the reviewed head: `pr-contract`, `verify:lint`, and `verify:test` passed. `review-gate` failed RG 3 because `docs/reviews/pr-4.md` did not exist. The log confirms this.
+- GitHub checks at the reviewed head: `pr-contract`, `verify:lint`, and `verify:test` passed. The first `review-gate` failed RG 3 because the record did not exist.
 - PR comments and review threads: none. I read `gh pr view` and saved the GraphQL `reviewThreads` query at `/tmp/pr4-review-threads.json`.
 - Pillow-dependent visual generation: not run because Pillow is unavailable. The two related unit tests skipped. The author reports running the degrade script and examining samples in the PR body.
 - Paid target: not run, as required by the review skill.
-- Push: pending.
+- After publication, `gh pr checks 4 --repo nkramber/workout-app`: `pr-contract`, `verify:lint`, and `verify:test` passed. `review-gate` failed RG 4 because the verdict is `Changes required`.
+- Push: `5b2d6bd23b0dc6ec2fefb565e78d26402793af05` was the head of `origin/feat/pr-3-recognition-test-set` when `gh pr view` verified the push.
 
 ## Open questions and accepted risks
 

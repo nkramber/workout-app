@@ -6,7 +6,7 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 Date: 2026-09-28. Phase 1 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR-3 of `docs/roadmaps/phase-1-risk-spikes.md` is GitHub PR #4, open on `feat/pr-3-recognition-test-set`. Its base and merge base are `89046b4219827aa3dbd5b505c228adcea48cf149`. Its reviewed effective head is `81f74d624feebc88bd20f602a707ff45f9735c69`.
 
-The Codex review record is `docs/reviews/pr-4.md`. Verdict: `Changes required`, with open finding P2-1 on source URL and license URL verification. `make verify`, the manifest check, the source check, and the 130-image download and hash check passed. Two image tests skipped because Pillow is not installed in this environment. GitHub `review-gate` failed because the review record was not on the branch. The other checks passed.
+The Codex review record is `docs/reviews/pr-4.md`. Verdict: `Changes required`, with open finding P2-1 on source URL and license URL verification. `make verify`, the manifest check, the source check, and the 130-image download and hash check passed. Two image tests skipped because Pillow is not installed in this environment. At the published metadata head, GitHub `review-gate` failed RG 4 because the verdict is `Changes required`. The other checks passed.
 
 Next action: correct P2-1. Add URL mismatch regression tests. Push the correction and request a repeat review. Keep P2-1 and the earlier verdict in the same record. After the correction, refresh the checks and review-gate result.
 
