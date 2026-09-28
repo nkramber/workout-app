@@ -1,0 +1,17 @@
+{
+  "note": "The role configuration of the Luna plan spike (D-24). The model id appears here and nowhere else. The prices come from docs/research/platform-cloud-and-ai.md section 7, read 2026-09-28. The cap is D-98.",
+  "roles": {
+    "plan": {
+      "provider": "openai",
+      "model": "gpt-6-luna",
+      "reasoning_effort": "medium",
+      "max_output_tokens": 32000,
+      "price_usd_per_million_tokens": {"input": 0.10, "cached_input": 0.01, "output": 0.50},
+      "run_cap_usd": 2.0
+    }
+  },
+  "providers": {
+    "openai": {"endpoint": "https://api.openai.com/v1/responses", "api_key_env": "OPENAI_API_KEY"},
+    "fake": {}
+  }
+}

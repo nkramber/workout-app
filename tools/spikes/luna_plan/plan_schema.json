@@ -1,0 +1,61 @@
+{
+  "$comment": "The plan output of Luna, version luna-plan-schema-v1. The form obeys the strict structured outputs of OpenAI: each property is required, and additionalProperties is false. The policy of policy.py checks the values, not this schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["summary", "sessions", "guidance"],
+  "properties": {
+    "summary": {"type": "string"},
+    "sessions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["day", "title", "warm_up", "exercises", "cardio", "cool_down"],
+        "properties": {
+          "day": {"type": "integer"},
+          "title": {"type": "string"},
+          "warm_up": {"type": "string"},
+          "exercises": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["machine_id", "exercise_name", "rest_seconds", "sets", "reason"],
+              "properties": {
+                "machine_id": {"type": "string"},
+                "exercise_name": {"type": "string"},
+                "rest_seconds": {"type": "integer"},
+                "sets": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["reps", "load_lb", "rir_target"],
+                    "properties": {
+                      "reps": {"type": "integer"},
+                      "load_lb": {"type": "number"},
+                      "rir_target": {"type": "integer"}
+                    }
+                  }
+                },
+                "reason": {"type": "string"}
+              }
+            }
+          },
+          "cardio": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["machine_id", "minutes", "intensity"],
+            "properties": {
+              "machine_id": {"type": "string"},
+              "minutes": {"type": "integer"},
+              "intensity": {"type": "string", "enum": ["none", "easy", "moderate"]}
+            }
+          },
+          "cool_down": {"type": "string"}
+        }
+      }
+    },
+    "guidance": {"type": "string"}
+  }
+}

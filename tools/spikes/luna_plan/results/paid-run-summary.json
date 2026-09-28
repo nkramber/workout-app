@@ -1,0 +1,110 @@
+{
+ "run_id": "20260928T170811Z-openai",
+ "date_utc": "2026-09-28T17:08:11+00:00",
+ "provider": "openai",
+ "model": "gpt-6-luna",
+ "reasoning_effort": "medium",
+ "prompt_version": "luna-plan-prompt-v1",
+ "prompt_hash": "1de3a3a06b7f97a2",
+ "schema_version": "luna-plan-schema-v1",
+ "policy_version": "policy-draft-0.1.0",
+ "cap_usd": 1.95,
+ "attempts": 3,
+ "profiles": 20,
+ "requested": 60,
+ "status_counts": {
+  "completed": 60
+ },
+ "returned": 60,
+ "schema_pass": 60,
+ "schema_pass_rate": 1.0,
+ "rejected": 4,
+ "rejection_rate": 0.06666666666666667,
+ "rejected_without_open_question_rules": 1,
+ "rejection_rate_without_open_question_rules": 0.016666666666666666,
+ "per_rule": {
+  "POL-001": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-002": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-003": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-004": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-005": {
+   "plans": 1,
+   "violations": 2
+  },
+  "POL-006": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-007": {
+   "plans": 2,
+   "violations": 4
+  },
+  "POL-008": {
+   "plans": 1,
+   "violations": 4
+  },
+  "POL-009": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-010": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-011": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-012": {
+   "plans": 1,
+   "violations": 1
+  },
+  "POL-013": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-014": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-015": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-016": {
+   "plans": 0,
+   "violations": 0
+  }
+ },
+ "total_cost_usd": 0.055056,
+ "cost_per_plan_usd": 0.000918,
+ "tokens": {
+  "input_tokens": 98211,
+  "cached_input_tokens": 67102,
+  "output_tokens": 102549,
+  "reasoning_tokens": 42068
+ },
+ "mean_seconds": 19.0,
+ "max_seconds": 29.7,
+ "go": {
+  "result": "go",
+  "reasons": [],
+  "bar": {
+   "schema_pass_rate_min": 0.95,
+   "rejection_rate_max": 0.25,
+   "cost_per_plan_max_usd": 0.01
+  }
+ }
+}

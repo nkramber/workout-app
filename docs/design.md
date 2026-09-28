@@ -122,6 +122,8 @@ These rules hold for every phase. The label names the source of each rule.
 9. The app strips photo metadata and deletes each photo after the confirmation (Decision, D-52, and Recommendation for metadata).
 10. A logged set survives a lost connection and an app restart (Decision, D-62).
 
+The first draft of the policy rules table is in `tools/spikes/luna_plan/policy.py`, with an id and a version for each rule (Recommendation, draft). The owner approved no rule of it yet. `docs/research/luna-plan-spike.md` gives the results of the draft on 60 Luna plans.
+
 ### 5.2 Accepted risks
 
 The owner chose these options against the launch prompt recommendations. The research in `docs/research/exercise-safety.md` records the evidence behind each recommendation.

@@ -1,0 +1,110 @@
+{
+ "run_id": "20260928T170739Z-openai",
+ "date_utc": "2026-09-28T17:07:39+00:00",
+ "provider": "openai",
+ "model": "gpt-6-luna",
+ "reasoning_effort": "medium",
+ "prompt_version": "luna-plan-prompt-v1",
+ "prompt_hash": "1de3a3a06b7f97a2",
+ "schema_version": "luna-plan-schema-v1",
+ "policy_version": "policy-draft-0.1.0",
+ "cap_usd": 0.05,
+ "attempts": 1,
+ "profiles": 1,
+ "requested": 1,
+ "status_counts": {
+  "completed": 1
+ },
+ "returned": 1,
+ "schema_pass": 1,
+ "schema_pass_rate": 1.0,
+ "rejected": 0,
+ "rejection_rate": 0.0,
+ "rejected_without_open_question_rules": 0,
+ "rejection_rate_without_open_question_rules": 0.0,
+ "per_rule": {
+  "POL-001": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-002": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-003": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-004": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-005": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-006": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-007": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-008": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-009": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-010": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-011": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-012": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-013": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-014": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-015": {
+   "plans": 0,
+   "violations": 0
+  },
+  "POL-016": {
+   "plans": 0,
+   "violations": 0
+  }
+ },
+ "total_cost_usd": 0.001348,
+ "cost_per_plan_usd": 0.001348,
+ "tokens": {
+  "input_tokens": 1751,
+  "cached_input_tokens": 0,
+  "output_tokens": 2345,
+  "reasoning_tokens": 843
+ },
+ "mean_seconds": 25.1,
+ "max_seconds": 25.1,
+ "go": {
+  "result": "go",
+  "reasons": [],
+  "bar": {
+   "schema_pass_rate_min": 0.95,
+   "rejection_rate_max": 0.25,
+   "cost_per_plan_max_usd": 0.01
+  }
+ }
+}

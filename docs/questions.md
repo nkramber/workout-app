@@ -7,6 +7,7 @@ The ids have three ranges:
 - Q-1 to Q-73 are the questions of the launch prompt of the first session.
 - Q-74 to Q-89 and Q-108 to Q-112 are follow-up questions of the first session.
 - Q-113 to Q-118 are questions of the Phase 1 roadmap session.
+- Q-119 is a question of the Luna plan spike session.
 - Q-90 to Q-107 are open questions. Q-90 and Q-94 to Q-97 have an answer. Each open question names the phase of `docs/roadmaps/high-level-roadmap.md` that needs the answer.
 
 The owner answered through the answer controls of the session. The first session asked Q-1 to Q-46 and Q-74 to Q-88 on 2026-09-27. It asked the other questions on 2026-09-28. The column "Rec." tells whether the owner chose the option that the launch prompt marked as recommended. A "No" in that column is an owner decision, not a mistake.
@@ -175,6 +176,12 @@ The owner answered through the answer controls of the session. The first session
 | Q-116 | Which cap does the paid run of the Luna plan spike get? | 2 USD. | Answered | D-98 |
 | Q-117 | The iPhone web platform spike needs a trusted HTTPS origin and an auth project. How does it serve its probe? | Create the development project early, with Firebase Hosting and Firebase Authentication only. | Answered | D-99 |
 | Q-118 | Which language do the Luna spike harnesses use? | Python. | Answered | D-100 |
+
+## Questions of the Luna plan spike session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-119 | No decision defines the go bar of the Luna plan risk. Which bar does the report of the spike apply? | A schema pass rate of 95% or more, a policy rejection rate of 25% or less, and a mean cost per plan of 0.01 USD or less. | Answered | D-101 |
 
 ## Open questions
 
