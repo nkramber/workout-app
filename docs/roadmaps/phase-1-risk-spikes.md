@@ -106,10 +106,11 @@ Concerns:
 
 The design of section 6.6 holds hard negatives, machines outside the catalog, degraded photos, and a split by gym. A script makes the degraded photos in the local cache, so Git holds no image.
 
-Recommendations for this pull request:
+Owner decisions for this pull request:
 
-- About 200 images, so that the paid run of PR-4 stays below its cap.
-- No image that shows the face of a person.
+- About 200 images, so that the paid run of PR-4 stays below its cap. A smaller real count is acceptable (D-103).
+- No image that shows the face of a person, except for a catalog type with few other photos (D-103, D-104).
+- Wikimedia Commons first (D-102). Flickr through Openverse for the types with too few Commons images (D-105).
 
 Acceptance story: `make verify` checks the manifest for free. The download script fills the cache with each image of the manifest, and each hash agrees.
 

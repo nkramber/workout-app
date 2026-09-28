@@ -22,7 +22,7 @@ OpenAI `gpt-6-luna` proposes each plan and each revision. A deterministic, versi
 | `docs/research/` | Research with sources and dates |
 | `docs/reviews/` | Codex review records |
 | `docs/tools/` | Document and pull request checks, with tests |
-| `tools/spikes/` | The Phase 1 spike harnesses, with fake providers and tests |
+| `tools/spikes/` | The Phase 1 spike harnesses and the recognition test set, with tests |
 | `.claude/skills/` | Skills for writing, pull request work, and review |
 | `.github/` | CI workflows, the pull request template, and the ruleset of `main` |
 | `.githooks/` | Git hooks that refuse a commit on `main` and AI attribution |

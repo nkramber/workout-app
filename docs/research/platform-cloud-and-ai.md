@@ -421,6 +421,8 @@ D-56 limits the recognition test set to public or properly licensed images. D-53
 
 Split the set by gym, not by photo, and hold out a calibration split for the thresholds. Measure top-1 and top-3 accuracy, precision at each tier, abstention precision, and the risk-coverage curve. Run the set again after each change of model, prompt, schema, or catalog. Luna shows no dated snapshot (PC-61), so a silent model change is possible, and a periodic rerun catches it.
 
+The recognition test set of work area 1.2 applies this design. `tools/spikes/recognition_set/README.md` describes it. A finding of the curation on 2026-09-28: licensed photos of cardio machines are plentiful, but licensed photos of selectorized strength machines are few. Most of them show the face of a person, and few name a gym. Commons and Flickr through Openverse gave no usable photo of a seated row machine or a back extension machine. The manifest records each such gap.
+
 ### 6.7 Risk of confident wrong identification
 
 A wrong machine identity gives the policy a wrong exercise and a wrong load scale. The model can state high confidence while it is wrong, as the papers in section 6.3 show. The owner confirmation of D-49 is the main control. Each candidate card needs a distinguishing detail, such as seated or standing, so a quick confirmation stays meaningful (recommendation). The load estimate of D-41 comes from the owner after the confirmation, not from the photo.
