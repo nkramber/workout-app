@@ -232,7 +232,7 @@ The owner answered through the answer controls of the session. The first session
 |---|---|---|---|---|
 | Q-140 | The exit evidence of work area 2.1 puts the contract, Go, and emulator tests in `make verify`. D-113 keeps `make verify` Python only. Which rule wins? | D-113. The product checks get their own `make` targets and CI jobs. | Answered | D-126 |
 | Q-141 | The owner ended the D-4 period. Which pull request changes `OVERRIDE_ENABLED` and the rule text? | PR-7. | Answered | D-125 |
-| Q-142 | Work area 2.3 needs a billing account for Cloud Run and for the backups of D-124. D-99 kept the project with no billing account. Which billing account and which budget alert apply? | No answer yet. The owner stated on 2026-09-29 that the billing account of Decktome is in the free trial, with about 280 USD and 70 days left. The session could not read the account, so the statement is not verified. The owner asked for a check of the account first. The session of PR-10 reads the billing state before it asks. | Open | none |
+| Q-142 | Work area 2.3 needs a billing account for Cloud Run and for the backups of D-124. D-99 kept the project with no billing account. Which billing account and which budget alert apply? | No answer yet. The owner asked for a check of the billing account first. The session of PR-10 reads the billing state before it asks. | Open | none |
 | Q-143 | Are the CI jobs of the product code required checks of `main`? | Yes. Each pull request that adds a job adds it to the ruleset. | Answered | D-127 |
 | Q-144 | How does Phase 2 split into pull requests? | PR-8 to PR-11, as the focused roadmap gives them. | Answered | D-128 |
 

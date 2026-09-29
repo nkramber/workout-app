@@ -133,7 +133,7 @@ Questions for the session:
 
 Branch: `feat/pr-10-deploy`. Work area 2.3. It needs PR-9 on `main`.
 
-Before the work, read the billing state of the owner account. Then ask Q-142. `gcloud` shows the billing account and its link, but it does not show the credit of a free trial. The owner reads that in the console.
+Before the work, read the billing state of the owner account. Then ask Q-142. `gcloud` shows the billing account and its link. The owner reads the credits of the account in the console.
 
 Concerns:
 

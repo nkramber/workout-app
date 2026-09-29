@@ -8,9 +8,9 @@ Date: 2026-09-29. GitHub pull request 8 is open on branch `docs/pr-7-phase-2-roa
 
 The pull request holds the focused roadmap of Phase 2, with PR-8 to PR-11 (D-128). It records the owner answers D-122 to D-128. It also ends the D-4 period (D-125): `OVERRIDE_ENABLED` in `docs/tools/review_gate.py` is `True`, and the rule text changes with it.
 
-State: Codex reviewed effective head `f1a9321a02fbfa15017b82da69b9c93195260e56`. Finding P2-1 is open because the public records disclose owner billing information. The verdict is `Changes required`. `make verify` passed. The review-gate check awaits the review record.
+State: Codex round 1 reviewed effective head `f1a9321`, with the verdict `Changes required` and finding P2-1 (owner billing details in public files). The correction removes the details, and `docs/reviews/pr-8-response.md` holds the answer. `make verify` passed.
 
-Next action: remove the owner billing details from `docs/questions.md` and `docs/session-handoff.md`, then request a new review of the changed head.
+Next action: wait for green CI, and run round 2 of `make codex-review PR=8`.
 
 ## Facts that expire
 
@@ -18,7 +18,6 @@ Next action: remove the owner billing details from `docs/questions.md` and `docs
 |---|---|---|
 | The repository is public. | 2026-09-27 | GitHub repository settings |
 | The owner ended the D-4 period. `OVERRIDE_ENABLED` is `True` on the branch of PR-7, and `False` on `main` until PR-7 merges. | 2026-09-29 | D-125, `docs/tools/review_gate.py` |
-| The owner stated that the billing account of Decktome is in the free trial, with about 280 USD and 70 days left. Not verified: the `gcloud` token of the owner machine had expired. At the end of a trial, Google stops each project of the account unless the owner upgrades. | 2026-09-29 | Owner statement, Q-142, the Google Cloud free trial page |
 | `main` has the live ruleset `review-gate` and the merge settings of `.github/rulesets`. `make ruleset-check` passed. | 2026-09-28 | `make ruleset-check` |
 | The review-gate workflow runs from `main`, so it runs on each pull request. | 2026-09-28 | `.github/workflows/review-gate.yml` |
 | `gpt-6-luna` costs 0.10 USD per million input tokens and 0.50 USD per million output tokens. | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
