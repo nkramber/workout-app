@@ -80,7 +80,7 @@ Do these steps for each round of changes (D-8):
 
 The author session starts each round itself, with no approval of the owner for each round (D-8, D-88). The target spends the Codex plan or the Claude plan of the owner, and never the API. Each target reads the `Author provider` lines of the branch, and it refuses a review by the provider of the author.
 
-The Codex review applies to every pull request, and to a pull request of documents alone too (D-4). The owner states when the roadmap period of D-4 ends. After that period, D-15 needs a review of the other provider only for a change of code or of safety behavior. `OVERRIDE_ENABLED` in `docs/tools/review_gate.py` holds that state, and it stays `False` until the owner ends the period.
+The owner ended the roadmap period of D-4 on 2026-09-29 (D-125). Now D-15 needs a review of the other provider only for a change of code or of safety behavior. A pull request of documents alone can carry the `review-override` label in place of the review. `OVERRIDE_ENABLED` in `docs/tools/review_gate.py` holds that state, and it is `True`.
 
 The pull request is complete only when all of these are true:
 
@@ -89,7 +89,7 @@ The pull request is complete only when all of these are true:
 - The roadmap and the hand-off read the state of this pull request.
 - `make pr-check` passes, and every category has its row.
 - `make verify` passes.
-- The `review-gate` check passes. A Codex record approves the effective head (D-8).
+- The `review-gate` check passes. A Codex record approves the effective head (D-8), or the `review-override` label covers a pull request of documents alone (D-15).
 - The acceptance story of the milestone holds, with evidence.
 - No work waits for a second pull request.
 
@@ -235,6 +235,6 @@ The session ends with this prompt. It makes no branch and no change for the next
 ## Rules of this repo that win over other skills
 
 - This session answers each review finding of its pull request, and an answer never needs a new session.
-- Never call the pull request ready before a current Codex record approves its effective head (D-4, D-8).
+- Never call the pull request ready before a current Codex record approves its effective head (D-8). A pull request of documents alone can use the `review-override` label in place of the record (D-15, D-125).
 - Never turn on the auto-merge before the owner confirms the merge (D-13).
 - A merge or a deploy of an earlier pull request never gets its own pull request. The next work area reads the base when its own milestone needs it.

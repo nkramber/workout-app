@@ -6,7 +6,7 @@ OpenAI `gpt-6-luna` proposes each plan and each revision. A deterministic, versi
 
 ## Status
 
-**The workout app and its backend do not exist yet.** The development project `gym-route-dev` exists, with Firebase Hosting and Firebase Authentication only. The repository holds the foundation documents, the research, the roadmaps, and the process tooling. Phase 0 is complete. Phase 1 (risk spikes) gave its three reports. The Luna plan and the iPhone web platform got a go, and photo recognition got a no-go. Phase 2 starts with its focused roadmap.
+**The workout app and its backend do not exist yet.** The development project `gym-route-dev` exists, with Firebase Hosting and Firebase Authentication only. The repository holds the foundation documents, the research, the roadmaps, and the process tooling. Phase 0 is complete. Phase 1 (risk spikes) gave its three reports. The Luna plan and the iPhone web platform got a go, and photo recognition got a no-go. Phase 2 (platform skeleton) has its focused roadmap, `docs/roadmaps/phase-2-platform-skeleton.md`.
 
 ## Repository map
 

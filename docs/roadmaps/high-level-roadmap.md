@@ -2,7 +2,7 @@
 
 This roadmap gives the path from a blank repository to a safe, useful Gym Route for its one user, the owner (D-67). It names the phases, their order, the risk work, the outcomes, the work areas of pull request size, and the exit evidence of each phase. It is not a plan of tasks. A focused roadmap turns one phase into tasks later. `docs/roadmaps/README.md` gives the rules for focused roadmaps.
 
-The date of this version is 2026-09-28. `docs/design.md` holds the product design. `docs/decisions.md` and `docs/questions.md` hold every decision and question that this roadmap cites.
+The date of this version is 2026-09-29. `docs/design.md` holds the product design. `docs/decisions.md` and `docs/questions.md` hold every decision and question that this roadmap cites.
 
 ## 1. Rules of this roadmap
 
@@ -11,7 +11,7 @@ The date of this version is 2026-09-28. `docs/design.md` holds the product desig
 - One clean session works on one pull request. The owner approves the work before it starts (D-12).
 - A phase starts only after the exit evidence of each phase that it depends on is complete.
 - A paid check runs only after the owner approves it (D-25). Section 6 lists the free and the paid checks.
-- Codex reviews every pull request of documents alone until the D-4 period ends (D-4). After that period, a cross-provider review is necessary for a change of code or safety behavior (D-15).
+- The owner ended the D-4 period on 2026-09-29 (D-125). A cross-provider review is necessary for a change of code or safety behavior (D-15).
 - The owner confirms every merge (D-13). Only `main` deploys (D-14).
 
 ## 2. Scope that shapes the phases
@@ -95,11 +95,13 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 
 | Work area | Concerns | Exit evidence |
 |---|---|---|
-| 2.1 Contract and API skeleton | Protobuf contract and generated code. Go API with the Firebase token check and the invite allowlist (D-75). Emulators and fakes for local work. | `make verify` runs contract, Go, and emulator tests for free. |
+| 2.1 Contract and API skeleton | Protobuf contract and generated code. Go API with the Firebase token check and the invite allowlist (D-75). Emulators and fakes for local work. | Product `make` targets run contract, Go, and emulator tests for free. `make verify` stays Python only (D-113, D-126). |
 | 2.2 Installable web shell | Phone layout only (D-20). A shell that fills the whole screen and blocks the pinch zoom (D-120). Sign-in. Offline store and outbox skeleton (D-62, D-77). | Browser tests pass in the WebKit and Chromium engines. The owner installs and signs in on the iPhone, and sees no gap at the bottom edge and no pinch zoom. |
-| 2.3 Development project and deploy | Firestore, Cloud Run, Secret Manager, and a budget alert in `us-central1`, in the project of work area 1.3 (D-99). Cloud Build deploy from `main`. The backup choice of Q-99. | A merge deploys. The live version endpoint names the merged commit. |
+| 2.3 Development project and deploy | Firestore, Cloud Run, Secret Manager, and a budget alert in `us-central1`, in the project of work area 1.3 (D-99). Cloud Build deploy from `main`. Point-in-time recovery and a daily backup (D-124). The billing link of Q-142. | A merge deploys. The live version endpoint names the merged commit. |
 
-**Decisions and questions.** D-17, D-18, D-20, D-62, D-74 to D-77, D-80, D-82, D-84, D-99, D-120, Q-99.
+**Decisions and questions.** D-17, D-18, D-20, D-62, D-74 to D-77, D-80, D-82, D-84, D-99, D-120, D-124 to D-128, Q-99, Q-142.
+
+**Focused roadmap.** `docs/roadmaps/phase-2-platform-skeleton.md`.
 
 ### Phase 3 - Workout domain and safety policy
 
@@ -111,11 +113,11 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 
 | Work area | Concerns | Exit evidence |
 |---|---|---|
-| 3.1 Domain model and catalog | Machines, exercises, inventory, plan, session, and set log. The catalog of fixed-path and cardio machines (D-45). The cardio log fields of Q-100. | Table tests for every type and for the catalog lookups. |
+| 3.1 Domain model and catalog | Machines, exercises, inventory, plan, session, and set log. The catalog of fixed-path and cardio machines (D-45). The cardio log fields of D-123. Machines with pound markings only (D-122). | Table tests for every type and for the catalog lookups. |
 | 3.2 Policy engine and fallback | Rep, reps-in-reserve, rest, and load bounds (D-37). The 5 lb rounding of D-65 and the jump limit of Q-92. The rules fallback. | Golden scenario tests pass, section 5 scenarios included. Property tests prove that no output breaks a bound. |
 | 3.3 Luna role layer | Planner and reviser roles on `gpt-6-luna` at medium effort. The fake provider. Cost records, cap hooks, and a prompt that keeps text inside the fitness boundary (D-36, Q-95, Q-101). | Fake-provider tests cover a valid proposal, a malformed proposal, an unsafe proposal, and a timeout. |
 
-**Decisions and questions.** D-22 to D-25, D-30, D-32, D-36 to D-38, D-40, D-43, D-45, D-64 to D-66, Q-92, Q-95, Q-100 to Q-102, Q-104 to Q-107.
+**Decisions and questions.** D-22 to D-25, D-30, D-32, D-36 to D-38, D-40, D-43, D-45, D-64 to D-66, D-122, D-123, Q-92, Q-95, Q-100 to Q-102, Q-104 to Q-107.
 
 **Gate.** A limited paid evaluation of the planner and the reviser runs only with owner approval (D-25).
 
@@ -192,11 +194,11 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 
 | Work area | Concerns | Exit evidence |
 |---|---|---|
-| 8.1 Backups and recovery | Firestore backups of Q-99. A restore drill into a new database. A rollback procedure for the API and the web app. | A restore drill report. |
+| 8.1 Backups and recovery | The backups of D-124 from work area 2.3. A restore drill into a new database. A rollback procedure for the API and the web app. | A restore drill report. |
 | 8.2 Alerts and cost caps | Error and job-failure alerts. The AI caps of Q-98. Spend caps on the development project. | A test alert reaches the owner. A cap test refuses a call over the cap. |
 | 8.3 Version migration | Policy and evidence version changes. A model change when `gpt-6-luna` retires. An incident runbook. | A replay of stored sessions under a new policy version gives a diff report. |
 
-**Decisions and questions.** D-25, D-76, D-80, Q-98, Q-99.
+**Decisions and questions.** D-25, D-76, D-80, D-124, Q-98, Q-99.
 
 **Exit for the roadmap.** Four weeks of owner use with no lost set, no refused valid sync, and no policy breach in the decision log.
 

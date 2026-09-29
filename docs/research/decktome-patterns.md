@@ -58,7 +58,7 @@ Gym Route has the same shape: one owner, AI agents, an installable phone-first w
 | Documentation gates: ste-check, ref-check, context-budget | `decktome:docs/tools/ste-check.py`, `decktome:docs/tools/ref_check.py`, `decktome:docs/tools/context_budget.py` | Adopt | D-6, D-83. |
 | Pull request template, pr-check, pr-contract workflow | `decktome:.github/pull_request_template.md`, `decktome:docs/tools/pr_check.py` | Adapt | One milestone with two, three, or more concerns (D-10, D-12). |
 | Review gate from `main`, head read as data only | `decktome:.github/workflows/review-gate.yml`, `decktome:docs/tools/review_gate.py` | Adopt | D-6. |
-| `review-override` label for docs-only pull requests | `decktome:docs/tools/review_gate.py` | Adapt | The label exists, but the Codex review still applies to docs-only pull requests until the roadmaps finish (D-4). |
+| `review-override` label for docs-only pull requests | `decktome:docs/tools/review_gate.py` | Adapt | The label exists. The Codex review applied to docs-only pull requests until the owner ended the roadmap period on 2026-09-29 (D-4, D-125). |
 | Codex review by `make codex-review`, record in the reviews folder, verdict bound to one head | `decktome:docs/tools/codex_review.py`, `decktome:docs/reviews` | Adapt | D-3, D-8. The author session runs it after CI is green. |
 | Gitar third-party review before Codex | `decktome:.claude/skills/gitar-review/SKILL.md` | Decline | Out until the owner approves it (D-3). |
 | Branch ruleset in the repository, ruleset-check | `decktome:.github/rulesets/review-gate.json`, `decktome:docs/tools/ruleset_check.py` | Adopt | D-6. |
@@ -114,7 +114,7 @@ These patterns transfer with a new project name and no change of rule:
 | CORS | Allow one origin: the `web.app` URL of the Hosting site. | D-82 |
 | STE checker | Add fitness terms to the allow list of the checker, for example "loaded", "selectorized", "seated", and "warm-up". Add only after a real false finding. | D-83 |
 | Codex review rules | The Decktome review reads its rules from `origin/main`. The first Gym Route pull request adds those rules, so `main` holds none yet. The first round reads the rules from the head, and the record says so. | D-3, D-8 |
-| Codex review of docs-only pull requests | The `review-override` label exists, but the review still runs on docs-only pull requests until the owner ends the roadmap period. | D-4, D-15 |
+| Codex review of docs-only pull requests | The `review-override` label exists. The review ran on docs-only pull requests until the owner ended the roadmap period on 2026-09-29. | D-4, D-15, D-125 |
 | Pull request scope | The template and pr-check ask for the concerns of one milestone and one combined acceptance story. | D-10, D-12 |
 | Commit format | Conventional Commits. A commit-msg hook checks the title and refuses an AI attribution trailer. | D-14 |
 | AGENTS.md and CLAUDE.md | AGENTS.md holds every rule. CLAUDE.md only tells Claude Code to read AGENTS.md. | D-7 |
@@ -133,7 +133,7 @@ The first pull request ports the process items of D-3 and D-6. The table maps ea
 | ste-check | `decktome:docs/tools/ste-check.py` | Same rules. Fitness terms go in the allow list only after a false finding. | D-83 |
 | ref-check | `decktome:docs/tools/ref_check.py` | Skip each token with the `decktome:` prefix. | D-6 |
 | pr-check and the template | `decktome:docs/tools/pr_check.py`, `decktome:.github/pull_request_template.md` | "The one concern" becomes "The concerns of the milestone". | D-10, D-12 |
-| review-gate workflow | `decktome:.github/workflows/review-gate.yml`, `decktome:docs/tools/review_gate.py` | Keep the label path for docs-only pull requests. The session still runs the Codex review during the roadmap period. | D-4 |
+| review-gate workflow | `decktome:.github/workflows/review-gate.yml`, `decktome:docs/tools/review_gate.py` | Keep the label path for docs-only pull requests. The owner ended the roadmap period on 2026-09-29. | D-4, D-125 |
 | Pre-commit hook | `decktome:.githooks/pre-commit` | Keep the `main` guard and the STE check. Add a commit-msg hook. | D-6, D-14 |
 | `make where`, `make hooks`, `make verify` | `decktome:Makefile` | Keep the free targets only. Add the paid targets later with a CAUTION line. | D-6, D-25 |
 | Ruleset and ruleset-check | `decktome:.github/rulesets/review-gate.json`, `decktome:docs/tools/ruleset_check.py` | Required checks match the Gym Route CI jobs. | D-6 |

@@ -4,19 +4,20 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-29. GitHub pull request 7 is open on branch docs/pr-6-iphone-platform-report, from base `d6e3c54`. Its work area id is PR-6 in `docs/roadmaps/phase-1-risk-spikes.md`.
+Date: 2026-09-29. GitHub pull request 8 is open on branch `docs/pr-7-phase-2-roadmap`, from base `71b5220`. Its id is PR-7 in `docs/roadmaps/phase-2-platform-skeleton.md`.
 
-The pull request holds the iPhone web platform spike report of work area 1.3. Its report gives a go under D-118, as amended by D-121. The owner device checklist passed items 1 to 5, and the median first contentful paint was 33 ms for five launches. The app of the roadmap fixes the probe display faults under D-120.
+The pull request holds the focused roadmap of Phase 2, with PR-8 to PR-11 (D-128). It records the owner answers D-122 to D-128. It also ends the D-4 period (D-125): `OVERRIDE_ENABLED` in `docs/tools/review_gate.py` is `True`, and the rule text changes with it.
 
-State: Codex round 2 reviewed effective head `0d66365c6efdd34483eb3c3ee9caa3913504d8cf`. Finding P2-1 is fixed by D-121. The review verdict is `Ready for owner merge`. `make verify` passed. The current review record and this hand-off update await publication.
+State: Codex round 2 reviewed effective head `6d1db28`, with the verdict `Ready for owner merge`. Finding P2-1 is fixed. `make verify` and all GitHub checks passed. The owner can read the review record and hand-off on the branch. The owner must confirm the merge.
 
-Next action: publish the review record and this hand-off. Then the owner reads the review summary and confirms the merge.
+Next action: verify the published review-gate check, then ask the owner to confirm the merge.
 
 ## Facts that expire
 
 | Fact | Date read | Source |
 |---|---|---|
 | The repository is public. | 2026-09-27 | GitHub repository settings |
+| The owner ended the D-4 period. `OVERRIDE_ENABLED` is `True` on the branch of PR-7, and `False` on `main` until PR-7 merges. | 2026-09-29 | D-125, `docs/tools/review_gate.py` |
 | `main` has the live ruleset `review-gate` and the merge settings of `.github/rulesets`. `make ruleset-check` passed. | 2026-09-28 | `make ruleset-check` |
 | The review-gate workflow runs from `main`, so it runs on each pull request. | 2026-09-28 | `.github/workflows/review-gate.yml` |
 | `gpt-6-luna` costs 0.10 USD per million input tokens and 0.50 USD per million output tokens. | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
@@ -34,10 +35,28 @@ Next action: publish the review record and this hand-off. Then the owner reads t
 
 ## Next steps, in order
 
-1. Close PR-6: CI, the Codex review, the owner confirmation, and the merge.
-2. After the merge, Phase 1 ends (section 5 of `docs/roadmaps/phase-1-risk-spikes.md`). Start the focused roadmap of Phase 2 in a clean session. Its ids start at PR-7 (D-96).
+1. Close PR-7: CI, the Codex review, the owner confirmation, and the merge.
+2. After the merge, start PR-8 (work area 2.1) in a clean session, with `docs/roadmaps/phase-2-platform-skeleton.md` section 4.
 
 ## Session records
+
+### Session 8 - 2026-09-29
+
+Author provider: Claude Code
+
+Branch: `docs/pr-7-phase-2-roadmap`. Role: author.
+
+Completed:
+
+- The owner approved the milestone before the first edit (D-12), and answered Q-91, Q-93, Q-99, Q-100, and Q-140 to Q-144 (D-122 to D-128).
+- Wrote the focused roadmap `docs/roadmaps/phase-2-platform-skeleton.md`.
+- Set `OVERRIDE_ENABLED` to `True`, with the tests of the gate, and changed the rule text of the D-4 period (D-125).
+- Changed the high-level roadmap: the exit evidence of work area 2.1 (D-126), the backups of work area 2.3 (D-124), and the cited ids.
+
+Open work:
+
+- Q-142, the billing account of work area 2.3. The session of PR-10 reads the billing state, then asks.
+- The Codex review, the owner confirmation, and the merge of PR-7.
 
 ### Session 7 - 2026-09-29
 
@@ -55,7 +74,7 @@ Completed:
 
 Open work:
 
-- The Codex review, the owner confirmation, and the merge of PR-6.
+- None. PR #7 merged.
 
 ### Session 6 - 2026-09-28
 
@@ -76,21 +95,3 @@ Completed:
 Open work:
 
 - None. PR #6 merged.
-
-### Session 5 - 2026-09-28
-
-Author provider: Claude Code
-
-Branch: `feat/pr-4-recognition-spike`. Role: author.
-
-Completed:
-
-- The owner approved the milestone before the first edit (D-12), and set the go bar and the photo set (D-107, D-108).
-- Wrote the recognition harness, the fake provider, and 19 unit tests in `make test`. The harness uses the call loop and the cap gate of the Luna plan spike.
-- Ran the smoke call and the paid run after the owner approval (D-25, D-109). The result is a no-go under D-107, at a cost of 0.0651 USD.
-- Wrote the report `docs/research/recognition-spike.md`.
-- The owner changed the roadmap after the no-go (D-110 to D-112). Changed the high-level roadmap, the focused roadmap, the design, and the research.
-
-Open work:
-
-- None. PR #5 merged.

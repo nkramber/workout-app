@@ -44,9 +44,9 @@ The question gives the finding, the evidence of the reviewer, each answer of the
 
 ## The label
 
-D-4 keeps the Codex review for every pull request of documents alone until the owner ends the roadmap period. Until then, `OVERRIDE_ENABLED` in `docs/tools/review_gate.py` is `False`, and the label satisfies no rule. Do not apply the label in that period.
+D-4 kept the Codex review for every pull request of documents alone until the owner ended the roadmap period. The owner ended it on 2026-09-29 (D-125), and `OVERRIDE_ENABLED` in `docs/tools/review_gate.py` is `True`.
 
-After the owner ends the period, a pull request of documents alone can merge with no Codex review (D-15). A change of the constant needs its own pull request and its own Codex review. Then apply the `review-override` label yourself when all of these conditions are true:
+Now a pull request of documents alone can merge with no Codex review (D-15). A change of the constant is a change of code, so it needs a Codex review. Apply the `review-override` label yourself when all of these conditions are true:
 
 - Each changed path is in the documentation set of `docs/tools/review_gate.py`.
 - The change does not change safety behavior (D-15).

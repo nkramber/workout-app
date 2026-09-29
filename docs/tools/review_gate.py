@@ -8,13 +8,13 @@
 A pull request passes in one of two ways:
 
   - A review record of the other provider at `docs/reviews/pr-<N>.md`
-    on the head approves the effective head (D-8, D-88). After the D-4
-    period, a record of an earlier commit also passes when each later
-    commit changes documents alone. During the period, each document
-    change needs a current review (D-4).
+    on the head approves the effective head (D-8, D-88). A record of an
+    earlier commit also passes when each later commit changes documents
+    alone. During the D-4 period, each document change needed a current
+    review.
   - The `review-override` label is on, OVERRIDE_ENABLED is True, and
-    every changed path is in the documentation set. D-4 keeps
-    OVERRIDE_ENABLED False until the owner ends the roadmap period.
+    every changed path is in the documentation set (D-15). The owner
+    ended the D-4 period on 2026-09-29 (D-125).
 
 No author is exempt. D-90 removed the Dependabot exemption of Decktome.
 
@@ -40,11 +40,11 @@ import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 LABEL = "review-override"
-# D-4: the Codex review applies to every pull request of documents alone
-# until the owner states that the roadmap period ends. Until then the
-# label satisfies no rule. The owner sets this to True at that time, and
-# D-15 then permits the label for a change of documents alone.
-OVERRIDE_ENABLED = False  # D-4
+# D-4: the Codex review applied to every pull request of documents alone
+# until the owner ended the roadmap period. False gives that period back:
+# the label satisfies no rule. The owner ended the period on 2026-09-29
+# (D-125), so D-15 permits the label for a change of documents alone.
+OVERRIDE_ENABLED = True  # D-4, D-125
 APPROVED = "Ready for owner merge"
 VERDICTS = (APPROVED, "Changes required", "Blocked")
 SHORTEST_HASH = 7
@@ -159,8 +159,8 @@ def check_head(path, text, head, commits=None):
         return "FAULT", f"the head field of `{path}` is `{recorded}`, shorter than {SHORTEST_HASH} characters."
     if head.lower().startswith(recorded.lower()):
         return "PASS", f"the head field of `{path}` names the effective head `{head}`."
-    # D-4: during the roadmap period, a change of documents needs a current
-    # review too. Only the metadata set keeps the effective head then.
+    # D-4: during the roadmap period, a change of documents needed a current
+    # review too. Only the metadata set kept the effective head then.
     if commits is not None and OVERRIDE_ENABLED and documents_since(commits, recorded):
         return "PASS", f"the head field of `{path}` names `{recorded}`, and each later commit changes documents alone, so the approval holds."
     return "FAULT", f"the head field of `{path}` is `{recorded}`, and the effective head is `{head}`. Review the new diff, then update the head and the verdict together."

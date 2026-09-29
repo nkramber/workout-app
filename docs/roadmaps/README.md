@@ -1,6 +1,6 @@
 # Roadmaps
 
-This folder holds the roadmaps of Gym Route. The date of this version is 2026-09-28.
+This folder holds the roadmaps of Gym Route. The date of this version is 2026-09-29.
 
 ## Files
 
@@ -9,6 +9,7 @@ This folder holds the roadmaps of Gym Route. The date of this version is 2026-09
 | `docs/roadmaps/high-level-roadmap.md` | The one high-level roadmap: phases, order, work areas, exit evidence |
 | `docs/roadmaps/README.md` | This file: the rules for all roadmaps |
 | `docs/roadmaps/phase-1-risk-spikes.md` | The focused roadmap of Phase 1: PR-1 to PR-6 |
+| `docs/roadmaps/phase-2-platform-skeleton.md` | The focused roadmap of Phase 2: PR-7 to PR-11 |
 
 A focused roadmap for one phase gets a file named `phase-<n>-<short-name>.md` in this folder.
 
@@ -30,7 +31,7 @@ A focused roadmap for one phase gets a file named `phase-<n>-<short-name>.md` in
 3. Ask the owner each open question that the phase names. Record each answer in `docs/decisions.md`.
 4. Split each work area into pull requests of one milestone each.
 5. Give each pull request its concerns, its acceptance story, its checks, and its documentation impact.
-6. Open one pull request with the focused roadmap and the hand-off. Codex reviews it during the D-4 period.
+6. Open one pull request with the focused roadmap and the hand-off. It can use the `review-override` label (D-15, D-125).
 
 ## When a roadmap changes
 
