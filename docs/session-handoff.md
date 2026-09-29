@@ -17,7 +17,9 @@ The owner approved the paid run at run time (D-25). The smoke call and the run o
 
 After the no-go, the owner changed the roadmap. Phase 4 gives manual selection and text entry only (D-110). No phase holds photo recognition (D-111). The iPhone probe of PR-5 has no camera page (D-112).
 
-Next action: the Codex review of PR #5, then the owner confirmation of the merge.
+Review: Codex approves effective head `63fe65df968140dead8aae5f497766fd41d8cb47` as Ready for owner merge. Open findings: none.
+
+Next action: the owner confirms the merge, then the author session turns on auto-merge.
 
 ## Facts that expire
 
