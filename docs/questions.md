@@ -216,6 +216,13 @@ The owner answered through the answer controls of the session. The first session
 | Q-134 | Which project id and which Google account does the development project of D-76 use? | The id `gym-route-dev`, and the account that the Firebase CLI of the owner machine uses. The account stays out of the repository. | Answered | D-116 |
 | Q-135 | GitHub secret scanning flags the Firebase browser key of `gym-route-dev` in the public repository. How does the project handle it? | Keep the key in the repository, because each browser that loads the app gets it. Limit the key to the Auth APIs and to the sites of the probe, and turn off self sign-up. The owner closes the alert. | Answered | D-117 |
 
+## Questions of the iPhone report session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-136 | Which bar gives a go for the iPhone web platform risk? | Go when items 1 to 5 of the device checklist pass in the Home Screen app, and the median first contentful paint of 5 cold starts in standalone mode is 2500 ms or less. Else no-go. | Answered | D-118 |
+| Q-137 | Where does the owner run the items of the device checklist? | In the Home Screen app only. Item 3 starts in Chrome, because Chrome adds the app to the Home Screen. | Answered | D-119 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |

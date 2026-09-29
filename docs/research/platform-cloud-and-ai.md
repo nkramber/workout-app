@@ -32,7 +32,7 @@ Chrome on iPhone leads, and it uses the WebKit engine (D-29). The web client use
 
 - The current iOS is iOS 27 with Safari 27.0, released on 2026-09-14. The Safari 27 release notes page did not render, so its web app fixes stay unresolved (PC-18).
 - The capability findings hold as of iOS 26.x. The research found no iOS 27 regression.
-- Nobody tested on a physical iPhone. Playwright WebKit differs from branded Safari, and it can not run a Home Screen web app (PC-28).
+- Nobody tested on a physical iPhone. Playwright WebKit differs from branded Safari, and it can not run a Home Screen web app (PC-28). The device checklist of work area 1.3 tested one iPhone on iOS 27.0 on 2026-09-29 (`docs/research/iphone-platform-spike.md`).
 - Prices are USD list prices on the access dates. Vendors change them without notice.
 - Pages on openai.com returned HTTP 403. The launch post of Luna stays unresolved (PC-70). A dated copy of the usage policies gives their text (PC-101).
 
@@ -150,7 +150,7 @@ Chrome on iOS uses the WebKit engine (D-29). So each iOS limit below applies to 
 |---|---|---|---|---|
 | Install flow | No beforeinstallprompt. The user taps Share, then Add to Home Screen. Safari 26 needs no manifest. | beforeinstallprompt, then an install button. Needs name, 192 and 512 px icons, start_url, a standalone display, and HTTPS. | A short instruction screen on iOS. A stable manifest with apple-touch-icon. | PC-11, PC-1, PC-15, PC-16 |
 | iOS 26 Home Screen default | Every site that the user adds to the Home Screen opens as a web app. The user can turn off "Open as Web App". | Not applicable | Tell the owner to keep the default. | PC-1 |
-| Install from Chrome on iPhone | The sources describe Safari only. The Chrome path to the Home Screen on iOS 26 and 27 stays untested. | Not applicable | Test on the owner's iPhone in Phase 1. | unresolved, PC-1 |
+| Install from Chrome on iPhone | The sources describe Safari only. Tested on 2026-09-29 with Chrome 154 on iOS 27.0: the share button of Chrome adds the app to the Home Screen, and the app opens in the `standalone` display mode. | Not applicable | Give the share steps on an install screen. | evidence, `docs/research/iphone-platform-spike.md` |
 | Storage isolation | Cookies, localStorage, and IndexedDB of a Home Screen app are separate from the browser. This is by design. | Not researched | The owner signs in again inside the installed app. Data logged in a browser tab stays in the tab. | PC-7 |
 | Quota, eviction, persist() | Up to 60% of disk per origin. Home Screen apps get equal quotas. LRU eviction skips persistent origins. WebKit grants persist() by heuristics that favor Home Screen apps, with no prompt. | Chrome grants persist() silently by engagement. | Call navigator.storage.persist() in the installed app and log the result. The server copy stays the durable record (D-77). | PC-4, PC-12, PC-26 |
 | 7-day ITP cap | Safari deletes script-written storage after 7 days of browser use with no interaction. Home Screen apps count their own days of use, and WebKit does not expect their first-party data to go. | Not applicable | Log workouts in the installed app only. | PC-5, PC-12 |
@@ -563,12 +563,12 @@ D-72 defers accessibility work. D-71 still makes large targets and few taps a fo
 | Item | Why it matters | Next step | Source |
 |---|---|---|---|
 | Safari 27.0 web app fixes | A fix or regression can change the capability table. | Read the notes in a browser. | PC-18 |
-| Chrome on iPhone Home Screen install | The owner uses Chrome (D-29). | Test on the owner's iPhone in Phase 1. | PC-1 |
+| Chrome on iPhone Home Screen install | The owner uses Chrome (D-29). | Tested on 2026-09-29: the install works on iOS 27.0. | `docs/research/iphone-platform-spike.md` |
 | Canvas re-encode removes EXIF | Photo privacy. | Unit test on the output bytes. | PC-19 |
 | Luna image token rate | Recognition cost. | PR-4 of `docs/roadmaps/phase-1-risk-spikes.md` measures it, with a cap of 2 USD (D-94). | PC-62 |
 | Luna dated snapshot | A silent model change can shift behavior. | Check the model page again. Rerun the test set. | PC-61 |
 | Image input with strict structured outputs | The recognition schema needs both. | Smoke test through the fake-provider seam. | PC-63 |
-| React startup on a phone | The only weak score of React. | The Phase 1 profile (D-84). | PC-34, PC-35 |
+| React startup on a phone | The only weak score of React. | Measured on 2026-09-29: a median first contentful paint of 33 ms for the probe on an iPhone 16 Pro. Measure the app again from the tap. | `docs/research/iphone-platform-spike.md` |
 | Preact compat with React 19 | Only relevant to a later switch. | None now. | PC-41 |
 | Web OCR in WASM | A possible on-device shortlist. | Research only if the catalog outgrows one enum. | none |
 | Cloud Run free tier and idle min instances | A cost only if min instances rise above 0. | Check the billing report. | PC-72 |
