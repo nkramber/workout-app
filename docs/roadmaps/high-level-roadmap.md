@@ -37,7 +37,7 @@ These decisions remove whole areas of work from the roadmap.
 | 1 | Risk spikes | 0 | Measured answers about Luna plans, photo recognition, and the iPhone web platform |
 | 2 | Platform skeleton | 1 | A signed-in, installable app shell on the development project, deployed from `main` |
 | 3 | Workout domain and safety policy | 1, 2 | A versioned policy engine and the Luna role layer, with golden scenarios |
-| 4 | Equipment capture and inventory | 2, 3 | Confirmed machines from photos or manual entry, with photo deletion |
+| 4 | Equipment inventory | 2, 3 | Confirmed machines from manual selection or text entry (D-110) |
 | 5 | Onboarding and plan generation | 3, 4 | A validated plan from the profile and the confirmed inventory |
 | 6 | Guided workout and offline logging | 5 | A fast, one-handed workout flow that survives a lost connection |
 | 7 | Adaptation loop | 6 | Validated next-session targets with reasons, overrides, and break handling |
@@ -77,7 +77,7 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 |---|---|---|
 | 1.1 Luna plan spike | Structured plan output from a profile and an inventory. The first draft of the policy rules table. Rejection counts. | A report on a fixed set of profiles: schema pass rate, policy rejection rate, cost per plan, and the unsafe proposals that the draft rules catch. |
 | 1.2 Recognition spike | A test set of public or licensed machine images (D-56, Q-97). Luna identification against a catalog shortlist. Cost per photo (Q-96). | A report with correct, wrong, and abstained counts, the wrong answers with high stated confidence, and the cost per photo. |
-| 1.3 iPhone web platform spike | Camera input, IndexedDB durability after an app kill, Screen Wake Lock, install and sign-in in the Home Screen app from Chrome on iPhone (D-29). Startup time of a React build (D-84). The development project of D-76 with Firebase Hosting and Firebase Authentication only (D-99). | A device checklist with a result for each item on the owner's iPhone, and a startup time. |
+| 1.3 iPhone web platform spike | IndexedDB durability after an app kill, Screen Wake Lock, install and sign-in in the Home Screen app from Chrome on iPhone (D-29). Startup time of a React build (D-84). The development project of D-76 with Firebase Hosting and Firebase Authentication only (D-99). | A device checklist with a result for each item on the owner's iPhone, and a startup time. |
 
 **Decisions and questions.** D-22 to D-24, D-29, D-53, D-56, D-84, D-93 to D-100, Q-95, Q-96, Q-97.
 
@@ -119,9 +119,9 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 
 **Gate.** A limited paid evaluation of the planner and the reviser runs only with owner approval (D-25).
 
-### Phase 4 - Equipment capture and inventory
+### Phase 4 - Equipment inventory
 
-**Objective.** Turn photos or manual entries into confirmed machines (D-49 to D-55).
+**Objective.** Turn manual selections and text entries into confirmed machines (D-49, D-51, D-55). The recognition spike gave a no-go, so this phase has no photo recognition (D-110). Section "Deferred - Photo recognition" holds the photo work.
 
 **Depends on.** Phase 2 and Phase 3.
 
@@ -129,11 +129,10 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 
 | Work area | Concerns | Exit evidence |
 |---|---|---|
-| 4.1 Capture and upload | One photo first, more on doubt (D-50). Metadata removal on the phone. Short-lived upload URL. | Unit tests prove that an uploaded image has no location metadata. |
-| 4.2 Identification and confirmation | Luna identification against the catalog. Confirm, correct, retry, manual selection, and text entry on every screen (D-51, D-55). | The recognition test set of Phase 1 meets the thresholds that the focused roadmap sets. |
-| 4.3 Photo deletion | Deletion after confirmation (D-52). A scheduled purge job. The kept-photo rule of Q-103. | An emulator test proves that no source photo outlives its confirmation, except a kept photo. |
+| 4.1 Selection and text entry | The owner selects each machine from the catalog of D-45, or enters it as text (D-51, D-55). The owner confirms each machine before a plan uses it (D-49). | Browser UI tests add a machine by selection and by text entry. A plan can not use a machine that the owner did not confirm. |
+| 4.2 Machine details | Identity and available weights only (D-54). The load estimate of the owner (D-41). Kilogram markings (Q-91). | An emulator test proves that a stored machine holds only the fields of D-54 and the load estimate. |
 
-**Decisions and questions.** D-45 to D-56, Q-91, Q-97, Q-103.
+**Decisions and questions.** D-41, D-45, D-46, D-49, D-51, D-54, D-55, D-110, Q-91.
 
 ### Phase 5 - Onboarding and plan generation
 
@@ -201,6 +200,20 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 
 **Exit for the roadmap.** Four weeks of owner use with no lost set, no refused valid sync, and no policy breach in the decision log.
 
+### Deferred - Photo recognition
+
+The recognition spike of work area 1.2 gave a no-go under D-107. Luna gave a wrong answer with a high stated confidence for 8.6% of the photos (`docs/research/recognition-spike.md`). So no phase holds photo recognition (D-110, D-111). A later owner decision adds a phase for it. Before that phase starts, a recognition method must pass the bar of D-107 on the recognition test set.
+
+The deferred work areas:
+
+| Work area | Concerns | Exit evidence |
+|---|---|---|
+| Capture and upload | One photo first, more on doubt (D-50). Metadata removal on the phone. Short-lived upload URL. | Unit tests prove that an uploaded image has no location metadata. |
+| Identification and confirmation | Luna identification against the catalog. Confirm, correct, retry, manual selection, and text entry on every screen (D-51, D-55). | The recognition test set passes the bar of D-107. |
+| Photo deletion | Deletion after confirmation (D-52). A scheduled purge job. The kept-photo rule of Q-103. | An emulator test proves that no source photo outlives its confirmation, except a kept photo. |
+
+**Decisions and questions.** D-50, D-52, D-53, D-56, D-107, D-111, Q-103.
+
 ## 5. Adaptation scenarios
 
 The policy of Phase 3 must pass these scenarios. The numbers come from the synthesis in `docs/research/exercise-safety.md`. They are recommendations until the Phase 3 focused roadmap fixes them with the owner. Q-92 decides the rule for a rounded jump that exceeds the limit.
@@ -226,17 +239,17 @@ The policy of Phase 3 must pass these scenarios. The numbers come from the synth
 | Emulator integration tests | API, Firestore, Storage, and Auth behavior on local emulators | Free | 2 and later |
 | Offline and sync tests | A replayed workout with lost connections gives one copy of each set | Free | 6 |
 | Browser UI tests | Flows in the WebKit and Chromium engines with phone emulation | Free | 2 and later |
-| Security and privacy checks | No secrets or personal data in the repository, no sensitive fields in logs, no metadata in photos | Free | 2 and later |
-| Real iPhone checklist | Home Screen install, camera, storage, wake lock on the owner's phone | Free, manual | 1, 6 |
+| Security and privacy checks | No secrets or personal data in the repository, no sensitive fields in logs | Free | 2 and later |
+| Real iPhone checklist | Home Screen install, storage, wake lock on the owner's phone | Free, manual | 1, 6 |
 | Codex review | Cross-provider review of each pull request (D-4, D-15) | Codex plan (D-8) | All |
 | Luna plan and revision evaluation | Schema pass rate, policy rejection rate, scenario results with the live model | Paid, owner approval | 1, 3, 7 |
-| Recognition evaluation | Correct, wrong, and abstained counts on licensed images | Paid, owner approval | 1, 4 |
+| Recognition evaluation | Correct, wrong, and abstained counts on licensed images | Paid, owner approval | 1, and the deferred photo work |
 
 D-72 defers accessibility tests.
 
 ### 6.2 Recognition evaluation
 
-The test set holds public or licensed images only (D-56). The main risk is a confident wrong identification. The spike report and Phase 4 count these results for each image:
+The test set holds public or licensed images only (D-56). The main risk is a confident wrong identification. The spike report and the deferred photo work count these results for each image:
 
 - Correct identity.
 - Wrong identity. A separate count holds each wrong identity that Luna gave with high stated confidence.

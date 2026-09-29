@@ -387,13 +387,14 @@ Every tier ends with the owner confirmation (D-49). So a tier only chooses the s
 | Luna image tokens | The vision guide gives 32 px patches and a multiplier for other models. It gives no Luna multiplier. | Unknown | unresolved | PC-62 |
 | One 1024 by 1024 photo, if the 1.2 multiplier applies | 1,229 tokens x $0.10 / 1M | About $0.00012 | assumption | PC-62, PC-61 |
 | One photo call with 1,500 text tokens and 300 output tokens | (1,229 + 1,500) x $0.10 / 1M + 300 x $0.50 / 1M | About $0.00042 | assumption | PC-61 |
+| Measured on 2026-09-28: one photo call, 1536 px, detail high, medium effort | 2,815 input tokens and 368 output tokens on average, at the prices of section 7 | 0.00037 USD | evidence | `docs/research/recognition-spike.md` |
 | Five self-consistency samples | Five separate calls | About $0.0021 | assumption | PC-61 |
 | US data residency | 10% uplift for models released on or after 2026-03-05 | x 1.1 | evidence | PC-65 |
 | Context: Gemini 3.5 Flash-Lite, 3 photos | 4,860 x $0.30 / 1M + 300 x $2.50 / 1M | About $0.0022 per session | evidence (prices) | PC-57 |
 | Context: Gemini 3 image tokens | Default media resolution | 1,120 tokens per image | evidence | PC-59 |
 | Cloud Vision OCR fallback | $1.50 per 1,000 units after 1,000 free a month | $0.0015 per photo, free for one user | evidence | PC-56 |
 
-One owner with one gym takes tens of photos in total (assumption). So the recognition cost stays far below one dollar. A paid probe of the true Luna image rate needs owner approval (D-25).
+One owner with one gym takes tens of photos in total (assumption). So the recognition cost stays far below one dollar. The recognition spike measured 0.00037 USD for each photo (Q-96).
 
 ### 6.5 Privacy
 
@@ -423,6 +424,8 @@ Split the set by gym, not by photo, and hold out a calibration split for the thr
 
 The recognition test set of work area 1.2 applies this design. `tools/spikes/recognition_set/README.md` describes it. A finding of the curation on 2026-09-28: licensed photos of cardio machines are plentiful, but licensed photos of selectorized strength machines are few. Most of them show the face of a person, and few name a gym. Commons and Flickr through Openverse gave no usable photo of a seated row machine or a back extension machine. The manifest records each such gap.
 
+The recognition spike ran this set on 2026-09-28 (`docs/research/recognition-spike.md`). Luna was correct on 78.2% of the 174 photos. But 8.6% of the photos had a wrong answer with a stated confidence of 0.8 or more, so the result was a no-go under D-107. The stated confidence behaved as section 6.3 predicted. The owner then deferred photo recognition (D-110, D-111).
+
 ### 6.7 Risk of confident wrong identification
 
 A wrong machine identity gives the policy a wrong exercise and a wrong load scale. The model can state high confidence while it is wrong, as the papers in section 6.3 show. The owner confirmation of D-49 is the main control. Each candidate card needs a distinguishing detail, such as seated or standing, so a quick confirmation stays meaningful (recommendation). The load estimate of D-41 comes from the owner after the confirmation, not from the photo.
@@ -439,7 +442,7 @@ A wrong machine identity gives the policy a wrong exercise and a wrong load scal
 | Endpoints | Chat Completions, Responses, Batch. | evidence | PC-61 |
 | Features | Streaming, structured outputs, function calling, file search, image input, web search, prompt caching. No logprobs listed. | evidence | PC-61 |
 | Structured outputs | text.format with type json_schema and strict true. Every field required, additionalProperties false. A refusal field replaces the schema output. | evidence | PC-63 |
-| Images plus structured outputs | The guide does not state the combination. A smoke test confirms it. | unresolved | PC-63 |
+| Images plus structured outputs | Luna accepts an image with a strict JSON schema. All 176 answers of the recognition spike passed the schema on 2026-09-28. | evidence | `docs/research/recognition-spike.md` |
 | Image input | PNG, JPEG, WEBP, non-animated GIF. Detail low, high, original, auto. Up to 1,500 images and 512 MB a request. | evidence | PC-62 |
 | Logprobs | With effort other than none, remove top_logprobs and the logprobs include. | evidence | PC-66 |
 | Data controls | No training by default. Abuse logs up to 30 days. ZDR needs approval. store false avoids the 30-day application state. | evidence | PC-65 |

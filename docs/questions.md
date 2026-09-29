@@ -9,6 +9,7 @@ The ids have three ranges:
 - Q-113 to Q-118 are questions of the Phase 1 roadmap session.
 - Q-119 is a question of the Luna plan spike session.
 - Q-120 to Q-124 are questions of the recognition test set session.
+- Q-125 to Q-130 are questions of the recognition spike session.
 - Q-90 to Q-107 are open questions. Q-90 and Q-94 to Q-97 have an answer. Each open question names the phase of `docs/roadmaps/high-level-roadmap.md` that needs the answer.
 
 The owner answered through the answer controls of the session. The first session asked Q-1 to Q-46 and Q-74 to Q-88 on 2026-09-27. It asked the other questions on 2026-09-28. The column "Rec." tells whether the owner chose the option that the launch prompt marked as recommended. A "No" in that column is an owner decision, not a mistake.
@@ -194,6 +195,17 @@ The owner answered through the answer controls of the session. The first session
 | Q-123 | Four catalog types have no image on Commons, and six types have images from one source only. How does the set fill these gaps? | Add a source outside Commons for these types, with the license proof of each image. | Answered | D-105 |
 | Q-124 | The Codex review of #4 found that the author names of the manifest (D-97) conflict with the privacy rule of `AGENTS.md`. Which rule controls? | D-97 controls for the author credit. The license requires the credit, and the source publishes it. The privacy rule still covers each other personal datum. | Answered | D-106 |
 
+## Questions of the recognition spike session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-125 | No decision defines the go bar of the recognition risk. D-101 is the bar of the Luna plan risk only. Which bar does the report of the spike apply? | Safety first. A stated confidence of 0.8 or more is high. Go when the high-confidence wrong answers are 2% or less of all photos, the correct answers are 70% or more, and the mean cost per photo is 0.01 USD or less. | Answered | D-107 |
+| Q-126 | Which photos go into the paid run? | All 174: the 130 originals and the 44 degraded photos, with the counts of each group in the report. | Answered | D-108 |
+| Q-127 | The OpenAI API key is not in the environment of the session. How does the harness get it? | The owner first chose a new key file in `.local` of the worktree. Then the owner named the `.env` file of the main checkout, which holds the key and which Git ignores. The session loads that file into the command of the harness only. | Answered | D-109 |
+| Q-128 | The recognition spike gave a no-go: 8.6% of the photos had a wrong answer with a high stated confidence, and the bar is 2%. The roadmap needs an owner decision for a no-go. How does it change? | Manual entry first. Phase 4 gives manual selection and text entry only, and photo recognition moves out of Phase 4. | Answered | D-110 |
+| Q-129 | Which phase holds photo recognition after D-110? | No phase. The roadmap records it as deferred, and a later owner decision adds a phase. | Answered | D-111 |
+| Q-130 | The iPhone probe has a camera page. Does it keep the page after D-110? | No. The probe tests only the device items that the manual app needs. | Answered | D-112 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |
@@ -204,14 +216,14 @@ The owner answered through the answer controls of the session. The first session
 | Q-93 | When does the D-4 period end, and which focused roadmaps must exist first? | The `review-override` label stays off until then. | After the first focused roadmaps merge | Open |
 | Q-94 | Does the owner apply the committed ruleset of `main` on GitHub after this PR merges? | The ruleset makes the review gate and the contract check mandatory. It changes live GitHub settings. Answer on 2026-09-28: yes. The session applied both files, and `make ruleset-check` passed (D-91). | Right after this PR merges | Answered |
 | Q-95 | What do the current OpenAI usage policies say about fitness and health advice? | The research could not read the policy page. The prompts of Luna must obey it. Answer on 2026-09-28: use the dated copy of the policy page (D-93). | Phase 1 | Answered |
-| Q-96 | What does one equipment photo cost on `gpt-6-luna`? | OpenAI does not publish the image token rate of this model. A paid probe needs owner approval (D-25). Answer on 2026-09-28: the recognition spike measures it, with a cap of 2 USD (D-94). | Phase 1 | Answered |
+| Q-96 | What does one equipment photo cost on `gpt-6-luna`? | OpenAI does not publish the image token rate of this model. A paid probe needs owner approval (D-25). Answer on 2026-09-28: the recognition spike measures it, with a cap of 2 USD (D-94). Measured on 2026-09-28: 0.00037 USD per photo, with 2,815 input tokens and 368 output tokens on average (`docs/research/recognition-spike.md`). | Phase 1 | Answered |
 | Q-97 | Which image licenses are acceptable for the recognition test set (D-56)? | Test images must be lawful to copy and store. Answer on 2026-09-28: CC0, public domain, CC BY, CC BY-SA, and CC BY-NC (D-95). | Phase 1 | Answered |
 | Q-98 | What are the monthly AI caps for the one user and for the project (D-25)? | A cap stops a runaway loop from a large bill. | Phase 4 | Open |
 | Q-99 | Does the one development project get Firestore backups and point-in-time recovery? | D-76 leaves one project. It holds the only copy of the workout history. | Phase 4 | Open |
 | Q-100 | Which fields does a cardio machine log hold? | D-57 defines the set log for resistance machines only. D-45 adds cardio machines. | Phase 2 | Open |
 | Q-101 | Where does mobility and recovery guidance come from, as text only (D-73) and inside the fitness boundary (D-36)? | Luna can write this text, and the policy can not check prose for medical claims as easily as numbers. | Phase 3 | Open |
 | Q-102 | How long a gap counts as a long break (D-66)? | The re-entry rule needs a threshold. | Phase 3 | Open |
-| Q-103 | Where do the photos that a user chooses to keep (D-52) live, and for how long? | Retention needs a place and a limit. | Phase 2 | Open |
+| Q-103 | Where do the photos that a user chooses to keep (D-52) live, and for how long? | Retention needs a place and a limit. | The deferred photo work (D-111) | Open |
 | Q-104 | Which way does D-65 round a value exactly halfway between two 5 lb steps, such as 22.5 lb? | "Nearest" does not decide a tie, and the policy needs one answer. | Phase 3 | Open |
 | Q-105 | What happens when a rounded load does not exist on the machine? | D-54 stores the available weights, and D-65 rounds to a global 5 lb step. The two can disagree. | Phase 3 | Open |
 | Q-106 | Do calibration sets for a new machine use three to four reps in reserve, when D-37 sets targets at one to three? | The research recommends more reserve for the first sets on an unknown machine. | Phase 3 | Open |

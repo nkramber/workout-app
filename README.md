@@ -1,6 +1,6 @@
 # Gym Route
 
-Gym Route is a personal workout app for one person, its owner. The owner describes the muscles to train, the schedule, and the experience. The owner photographs the machines of the gym. The app identifies each machine with the owner's confirmation, builds a workout plan, guides each workout, records each set, and adapts the next targets.
+Gym Route is a personal workout app for one person, its owner. The owner describes the muscles to train, the schedule, and the experience. The owner selects the machines of the gym from a catalog, or enters them as text, and confirms each one. The app builds a workout plan, guides each workout, records each set, and adapts the next targets.
 
 OpenAI `gpt-6-luna` proposes each plan and each revision. A deterministic, versioned policy checks every set and load before the owner sees it. Gym Route is an installable, phone-first web app on Google Cloud. It never goes to an app store.
 

@@ -6,7 +6,7 @@ Each statement has a label. **Fact** means a verified fact with a source in `doc
 
 ## 1. Product thesis
 
-Gym Route is a personal workout app for one person, the owner (Decision, D-67). The owner tells the app the muscles to train, the schedule, the experience, the injuries, and the goals. The owner photographs each machine of the gym. The app identifies each machine, and the owner confirms it (Decision, D-49). The app builds a workout plan, guides each workout, records each set, and adapts the next targets from the history.
+Gym Route is a personal workout app for one person, the owner (Decision, D-67). The owner tells the app the muscles to train, the schedule, the experience, the injuries, and the goals. The owner selects each machine of the gym from a catalog, or enters it as text, and confirms it (Decision, D-49, D-110). No phase of the roadmap holds photo recognition now (Decision, D-111). The app builds a workout plan, guides each workout, records each set, and adapts the next targets from the history.
 
 The core of the app is **a thin LLM over a strict policy** (Decision, D-22, D-23). OpenAI `gpt-6-luna` at medium effort proposes each plan and each revision (Decision, D-24). A deterministic, versioned policy checks every set, load, and change before the owner sees it. When Luna fails or proposes a value that the policy refuses, a rules fallback gives a safe target. This thesis copies the Decktome thesis, where deterministic code checks every card that the model names.
 
@@ -34,9 +34,13 @@ The owner enters experience, goals, injuries and restrictions, age, height, weig
 
 ### 3.2 Equipment capture
 
-The owner takes one general photo of a machine (Decision, D-50). The app asks for more photos only when the result is uncertain. Every screen also offers manual selection and text entry (Decision, D-51, D-55). The owner confirms or corrects each machine before a plan uses it (Decision, D-49). The owner then gives a current load estimate for the machine (Decision, D-41).
+The owner selects each machine from the catalog, or enters it as text (Decision, D-51, D-55, D-110). The owner confirms or corrects each machine before a plan uses it (Decision, D-49). The owner then gives a current load estimate for the machine (Decision, D-41).
 
-The app deletes each source photo after the confirmation, unless the owner keeps it (Decision, D-52). No user photo goes into an evaluation set (Decision, D-53).
+No phase of the roadmap holds photo recognition now (Decision, D-111). The recognition spike gave a no-go, because Luna gave too many wrong answers with a high stated confidence (Decision, D-107, and `docs/research/recognition-spike.md`). When a later decision adds a photo phase, these rules apply:
+
+- The owner takes one general photo of a machine, and the app asks for more photos only when the result is uncertain (Decision, D-50).
+- The app deletes each source photo after the confirmation, unless the owner keeps it (Decision, D-52).
+- No user photo goes into an evaluation set (Decision, D-53).
 
 The equipment record holds the identity and the available weights of each machine (Decision, D-54). The owner has one active inventory (Decision, D-46).
 
@@ -67,28 +71,29 @@ Targets use one to three reps in reserve. Failure is rare, and it never occurs i
 
 ```text
  Phone (installable web app, Chrome or Safari on iPhone)
-   UI, IndexedDB store and outbox, camera input, wake lock
+   UI, IndexedDB store and outbox, wake lock
         |  HTTPS, Connect-RPC unary calls, Firebase ID token
         v
  Cloud Run API (Go, default run.app URL, CORS to the app origin)
    auth interceptor -> handlers -> policy engine -> role layer -> OpenAI gpt-6-luna
-        |                    |
-        v                    v
- Firestore (server only)   Cloud Storage (short-lived photos)
- Cloud Scheduler -> Cloud Run jobs (photo purge, maintenance)
+        |
+        v
+ Firestore (server only)
+ Cloud Scheduler -> Cloud Run jobs (maintenance)
  Firebase Hosting (static app), Firebase Authentication (email and password)
 ```
 
 | Part | Role | Sensitivity | Label |
 |---|---|---|---|
-| Web app | Screens, offline store, outbox, camera input | Holds workout history and profile data on the phone | Decision, D-17, D-62, D-77 |
+| Web app | Screens, offline store, outbox | Holds workout history and profile data on the phone | Decision, D-17, D-62, D-77 |
 | API | Auth check, sync, plan calls, policy | Reads and writes all user data | Decision, D-18, D-82 |
 | Policy engine | Checks every prescription | Safety-critical | Decision, D-23 |
 | Role layer | Model choice, cost records, fake provider | Sends profile and workout data to OpenAI | Decision, D-24 |
 | Firestore | Source of record after sync | Injuries, body data, workout history | Decision, D-77 |
-| Cloud Storage | Photos until confirmation | Photos can show other people | Decision, D-52 |
 | Firebase Auth | Email and password, invite allowlist | Email address | Decision, D-75 |
 | GCP project | One development project in `us-central1` | All of the above | Decision, D-76 |
+
+The deferred photo work adds camera input, Cloud Storage for short-lived photos, and a photo purge job (Decision, D-52, D-111).
 
 The web client stack follows Decktome by default (Decision, D-74). After research on alternatives, the owner chose the Decktome React stack with Vite 8 (Decision, D-84). The native framework comparison of the launch prompt does not apply (Decision, D-17).
 
@@ -119,7 +124,7 @@ These rules hold for every phase. The label names the source of each rule.
 6. Each paid AI run in development needs owner approval. Production has caps (Decision, D-25).
 7. Logs, metrics, and error reports hold ids only. No workout text, photos, prompts, or health details (Decision, D-80).
 8. Only `main` deploys (Decision, D-14).
-9. The app strips photo metadata and deletes each photo after the confirmation (Decision, D-52, and Recommendation for metadata).
+9. When a later phase adds photos, the app strips photo metadata and deletes each photo after the confirmation (Decision, D-52, D-111).
 10. A logged set survives a lost connection and an app restart (Decision, D-62).
 
 The first draft of the policy rules table is in `tools/spikes/luna_plan/policy.py`, with an id and a version for each rule (Recommendation, draft). The owner approved no rule of it yet. `docs/research/luna-plan-spike.md` gives the results of the draft on 60 Luna plans.
@@ -148,7 +153,7 @@ Gym Route stores data about one person, the owner (Decision, D-67). The owner ch
 - The repository is public. No personal data, email address, photo, or workout log goes into it. The author credit that the license of a test image requires is the one exception (Decision, D-106).
 - Telemetry holds ids only (Decision, D-80).
 - The API sends OpenAI requests with the response store turned off (Recommendation, from `docs/research/platform-cloud-and-ai.md`).
-- Photos have their metadata removed before upload, and the server deletes them after the confirmation (Decision, D-52).
+- The app takes no photo now (Decision, D-110). In a later photo phase, the app removes photo metadata before upload, and the server deletes each photo after the confirmation (Decision, D-52).
 - Secrets live in Secret Manager, never in the repository.
 
 A change of audience reopens D-78, D-79, D-81, D-34, D-39, and D-40. The high-level roadmap names this reopening gate.

@@ -310,6 +310,9 @@ class OpenAIProviderTest(unittest.TestCase):
         provider, calls = self.make([self.http_error(429), self.http_error(503), response_body()])
         result = provider.plan("i", "u", {}, BY_ID["SP-01"], 1)
         self.assertEqual((result.status, result.retries, len(calls)), ("completed", 2, 3))
+        # The reason of each failed attempt stays in the result.
+        self.assertEqual(result.detail, "after retry: HTTP 429: slow down; HTTP 503: slow down")
+        self.assertNotIn(self.KEY, result.detail)
 
     def test_no_retry_on_400_and_no_key_in_detail(self):
         provider, calls = self.make([self.http_error(400)])
