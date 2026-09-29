@@ -15,3 +15,9 @@ node_modules/
 
 # macOS.
 .DS_Store
+
+# The pinned buf binary that `make proto` builds from go/go.mod.
+.bin/
+
+# The logs of the local Firebase emulators.
+*-debug.log

@@ -1,10 +1,14 @@
 name: verify
 
 # The free checks of every pull request and of every push to `main` (D-6).
-# `make verify` runs the same checks on the machine of the owner, and the
-# two answer the same question. The ruleset of `main` requires both jobs.
+# `make verify` runs the checks of verify:lint and verify:test on the
+# machine of the owner. The ruleset of `main` requires each job except
+# verify:probe.
 # The job verify:probe runs `make probe` for the iPhone probe (D-113). It
-# is not a required check (D-114).
+# is not a required check (D-114). The jobs verify:contract, verify:go,
+# and verify:emulator run the product checks of work area 2.1 (D-126).
+# Each one is a required check of `main` (D-127), so none has a path
+# filter: a required check that does not run blocks the merge.
 #
 # Every action is pinned to a full commit SHA. The comment gives the tag
 # that the SHA resolves to, and the date of the check with
@@ -75,3 +79,66 @@ jobs:
       # (D-115).
       - name: probe
         run: make probe
+
+  contract:
+    name: "verify:contract"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 verified_at 2026-09-28
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0 verified_at 2026-09-29
+        with:
+          go-version-file: go/go.mod
+          cache-dependency-path: go/go.sum
+      # The breaking check reads the contract of origin/main. The
+      # repository is public, so the fetch needs no credentials.
+      - name: fetch main
+        run: git fetch --no-tags --depth=1 origin +refs/heads/main:refs/remotes/origin/main
+      # buf lint, the generated code in Git, and buf breaking.
+      - name: contract
+        run: make contract
+
+  go:
+    name: "verify:go"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 verified_at 2026-09-28
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0 verified_at 2026-09-29
+        with:
+          go-version-file: go/go.mod
+          cache-dependency-path: go/go.sum
+      # gofmt, go mod tidy, go vet, and the unit tests.
+      - name: go
+        run: make go-test
+
+  emulator:
+    name: "verify:emulator"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 verified_at 2026-09-28
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0 verified_at 2026-09-29
+        with:
+          go-version-file: go/go.mod
+          cache-dependency-path: go/go.sum
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0 verified_at 2026-09-28
+        with:
+          node-version-file: emulators/.nvmrc
+          cache: npm
+          cache-dependency-path: emulators/package-lock.json
+      # The Firestore emulator of firebase-tools 15 needs Java 21.
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1 verified_at 2026-09-29
+        with:
+          distribution: temurin
+          java-version: "21"
+      # The acceptance story over the Auth and Firestore emulators. No
+      # call reaches a real project (D-115).
+      - name: emulator
+        run: make emulator-test

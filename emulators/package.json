@@ -1,0 +1,11 @@
+{
+  "name": "gym-route-emulators",
+  "private": true,
+  "description": "The pinned firebase-tools of the local emulators. See firebase.json at the root.",
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "firebase-tools": "15.32.0"
+  }
+}

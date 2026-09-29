@@ -39,6 +39,18 @@
           {
             "context": "verify:test",
             "integration_id": 15368
+          },
+          {
+            "context": "verify:contract",
+            "integration_id": 15368
+          },
+          {
+            "context": "verify:go",
+            "integration_id": 15368
+          },
+          {
+            "context": "verify:emulator",
+            "integration_id": 15368
           }
         ]
       }
