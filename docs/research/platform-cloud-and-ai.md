@@ -240,7 +240,7 @@ D-17 removes native apps. The launch prompt asked for this comparison, so the ke
 
 ## 5. Offline logging and sync design
 
-D-62 and D-77 make the phone store logs first and sync later. Firestore, through the API, is the source of record after a sync. The designs below are recommendations, and the owner did not accept them yet.
+D-62 and D-77 make the phone store logs first and sync later. Firestore, through the API, is the source of record after a sync. The designs below are recommendations. On 2026-09-29, the owner accepted the local store and the outbox form (D-132), the update strategy (D-133), and the persistent storage request (D-134). The other rows stay recommendations.
 
 ### 5.1 Local store
 
@@ -583,11 +583,11 @@ Each row below is a recommendation of this research. None is an owner decision u
 
 | Id | Recommendation | Status | Section |
 |---|---|---|---|
-| REC-1 | Dexie on IndexedDB, an outbox with UUIDv7 op ids, and idempotent unary sync keyed by op id. | Recommendation, not an owner decision | 5.1, 5.2 |
+| REC-1 | Dexie on IndexedDB, an outbox with UUIDv7 op ids, and idempotent unary sync keyed by op id. | Owner decision D-132, 2026-09-29 | 5.1, 5.2 |
 | REC-2 | Sync on start, visible, online, after each set, and on demand. No reliance on Background Sync. | Recommendation, not an owner decision | 5.3 |
-| REC-3 | registerType prompt, no update during a workout, and no-cache headers on sw.js, index.html, and the manifest. | Recommendation, not an owner decision | 5.4 |
+| REC-3 | registerType prompt, no update during a workout, and no-cache headers on sw.js, index.html, and the manifest. | Owner decision D-133, 2026-09-29 | 5.4 |
 | REC-4 | A client version header, additive protobuf changes, and an "Update required" screen. | Recommendation, not an owner decision | 5.4 |
-| REC-5 | Install and sign in inside the Home Screen app before the first log. Call persist(). | Recommendation, not an owner decision | 5.1 |
+| REC-5 | Install and sign in inside the Home Screen app before the first log. Call persist(). | Owner decision D-134, 2026-09-29 | 5.1 |
 | REC-6 | Rest timer from a stored end time. Screen wake lock with a request again on each return to view. | Recommendation, not an owner decision | 5.6 |
 | REC-7 | Camera: file input with capture, no image/heic, downscale, JPEG re-encode, an EXIF test, and a server re-encode. | Recommendation, not an owner decision | 5.7 |
 | REC-8 | Luna with a strict schema, a catalog enum, and none_of_these. Confidence from sample agreement, not from stated confidence. | Recommendation, not an owner decision | 6.2, 6.3 |

@@ -1,6 +1,7 @@
 # The generators. The Go plugins come from the tool directives of
-# go/go.mod, so go/go.sum pins them (D-130). The web client of work area
-# 2.2 adds its TypeScript plugin here.
+# go/go.mod, so go/go.sum pins them (D-130). The TypeScript plugin comes
+# from web/node_modules, so web/package-lock.json pins it, as in
+# decktome:buf.gen.yaml.
 version: v2
 # Each run removes the output folder first, so the code of a deleted
 # proto file does not stay.
@@ -12,3 +13,6 @@ plugins:
   - local: [go, -C, go, tool, protoc-gen-connect-go]
     out: go/gen
     opt: paths=source_relative
+  - local: web/node_modules/.bin/protoc-gen-es
+    out: web/src/gen
+    opt: target=ts

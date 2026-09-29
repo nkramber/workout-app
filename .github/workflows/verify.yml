@@ -6,7 +6,8 @@ name: verify
 # verify:probe.
 # The job verify:probe runs `make probe` for the iPhone probe (D-113). It
 # is not a required check (D-114). The jobs verify:contract, verify:go,
-# and verify:emulator run the product checks of work area 2.1 (D-126).
+# and verify:emulator run the product checks of work area 2.1, and
+# verify:web runs the check of the web client of work area 2.2 (D-126).
 # Each one is a required check of `main` (D-127), so none has a path
 # filter: a required check that does not run blocks the merge.
 #
@@ -92,6 +93,12 @@ jobs:
         with:
           go-version-file: go/go.mod
           cache-dependency-path: go/go.sum
+      # `make proto` runs the TypeScript plugin of web/node_modules.
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0 verified_at 2026-09-28
+        with:
+          node-version-file: web/.nvmrc
+          cache: npm
+          cache-dependency-path: web/package-lock.json
       # The breaking check reads the contract of origin/main. The
       # repository is public, so the fetch needs no credentials.
       - name: fetch main
@@ -142,3 +149,39 @@ jobs:
       # call reaches a real project (D-115).
       - name: emulator
         run: make emulator-test
+
+  web:
+    name: "verify:web"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 verified_at 2026-09-28
+        with:
+          persist-credentials: false
+      # The browser tests start the API of go/.
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0 verified_at 2026-09-29
+        with:
+          go-version-file: go/go.mod
+          cache-dependency-path: go/go.sum
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0 verified_at 2026-09-28
+        with:
+          node-version-file: web/.nvmrc
+          cache: npm
+          cache-dependency-path: |
+            web/package-lock.json
+            emulators/package-lock.json
+      # The Firestore emulator of firebase-tools 15 needs Java 21.
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1 verified_at 2026-09-29
+        with:
+          distribution: temurin
+          java-version: "21"
+      # The system libraries of WebKit and Chromium. `make web` then
+      # downloads the browsers themselves.
+      - name: browser libraries
+        working-directory: web
+        run: npx --yes playwright@1.63.0 install-deps chromium webkit
+      # Types, the unit tests, the build, and the browser tests over the
+      # Auth and Firestore emulators and the API. No call reaches a real
+      # project (D-115).
+      - name: web
+        run: make web

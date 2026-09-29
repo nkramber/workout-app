@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+/* The shell of src/shell.tsx is the whole window, and its main region is
+   the one part that scrolls. The document never scrolls, so the page
+   never bounces and never shows empty ground below the app. The shell
+   reads the dynamic viewport height, not 100% of the page: with the
+   translucent status bar of the Home Screen app, a shell of 100% left a
+   gap at the bottom edge (D-120, decktome:D-625). */
+html,
+body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  margin: 0;
+  background: #0b1220;
+  color: #e2e8f0;
+  -webkit-text-size-adjust: 100%;
+}

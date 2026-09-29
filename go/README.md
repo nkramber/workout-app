@@ -46,4 +46,6 @@ The owner writes the entry of the owner uid in the live project (work area 2.3).
 | Hub | 4690 | 4490 | 4400 |
 | Logging | 4790 | 4590 | 4500 |
 
+The browser tests of `web/` start the API on port 8480, with `ALLOWED_ORIGIN` set to the origin of the test build (`web/README.md`).
+
 The UI of the emulators stays off. `make emulator-test` starts the emulators with the pinned `firebase-tools` of `emulators/package.json`, and runs the Go tests with the build tag `emulator`. The project id is `demo-gym-route`, so no call reaches a real project (D-115). The Firestore emulator needs Java 21.

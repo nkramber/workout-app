@@ -6,7 +6,7 @@ OpenAI `gpt-6-luna` proposes each plan and each revision. A deterministic, versi
 
 ## Status
 
-**The workout app does not exist yet.** The contract in `proto/` and the Go API skeleton in `go/` exist, and they run only on the local emulators. The development project `gym-route-dev` exists, with Firebase Hosting and Firebase Authentication only. The repository holds the foundation documents, the research, the roadmaps, and the process tooling. Phase 0 is complete. Phase 1 (risk spikes) gave its three reports. The Luna plan and the iPhone web platform got a go, and photo recognition got a no-go. Phase 2 (platform skeleton) has its focused roadmap, `docs/roadmaps/phase-2-platform-skeleton.md`.
+**The workout app does not exist yet.** The contract in `proto/`, the Go API skeleton in `go/`, and the web shell in `web/` exist, and they run only on the local emulators. The development project `gym-route-dev` exists, with Firebase Hosting and Firebase Authentication only. The repository holds the foundation documents, the research, the roadmaps, and the process tooling. Phase 0 is complete. Phase 1 (risk spikes) gave its three reports. The Luna plan and the iPhone web platform got a go, and photo recognition got a no-go. Phase 2 (platform skeleton) has its focused roadmap, `docs/roadmaps/phase-2-platform-skeleton.md`.
 
 ## Repository map
 
@@ -25,6 +25,7 @@ OpenAI `gpt-6-luna` proposes each plan and each revision. A deterministic, versi
 | `tools/spikes/` | The Phase 1 spike harnesses and the recognition test set, with tests |
 | `proto/` | The Connect-RPC contract |
 | `go/` | The Go API, with the generated code in `go/gen`. `go/README.md` describes it. |
+| `web/` | The web client, with the generated code in `web/src/gen`. `web/README.md` describes it. |
 | `firebase.json`, `emulators/` | The local emulators and their pinned `firebase-tools` |
 | `.claude/skills/` | Skills for writing, pull request work, and review |
 | `.github/` | CI workflows, the pull request template, and the ruleset of `main` |
@@ -32,7 +33,7 @@ OpenAI `gpt-6-luna` proposes each plan and each revision. A deterministic, versi
 
 ## Setup
 
-The documentation checks and the Phase 1 spike harnesses need Python 3, Git, and GitHub CLI. The iPhone probe of `tools/spikes/iphone_probe/` also needs Node 22. The product checks need Go 1.27.1, and the emulator tests also need Node 20 or later and Java 21 (D-130).
+The documentation checks and the Phase 1 spike harnesses need Python 3, Git, and GitHub CLI. The iPhone probe of `tools/spikes/iphone_probe/` also needs Node 22. The product checks need Go 1.27.1, and the emulator tests also need Node 20 or later and Java 21 (D-130). The contract check and the web check need Node 22.
 
 ```bash
 make hooks    # install the Git hooks once in each checkout
@@ -42,6 +43,7 @@ make probe    # build the iPhone probe and run its browser tests, needs Node 22
 make contract       # buf lint, the generated code in Git, and buf breaking against main
 make go-test        # gofmt, go mod tidy, go vet, and the Go unit tests
 make emulator-test  # the Go tests over the Auth and Firestore emulators
+make web            # the web client: types, unit tests, build, and browser tests
 ```
 
 `make codex-review PR=<n>` starts a Codex review of a pull request that Claude Code writes. `make claude-review PR=<n>` starts a Claude Code review of a pull request that Codex writes. Each spends a plan of the owner.
