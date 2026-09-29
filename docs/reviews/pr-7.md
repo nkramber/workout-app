@@ -63,7 +63,7 @@ None.
 - `make verify` at `61d9309a63001f3bdf7c6ec82ad0d0a4db5d4659` — passed. STE, reference, lifecycle, context-budget, and unit tests passed. Counts: 302 tool tests, 12 iPhone probe tests, 44 Luna plan tests, 19 recognition tests (1 skipped), and 45 recognition-set tests (2 skipped).
 - GitHub checks at `61d9309a63001f3bdf7c6ec82ad0d0a4db5d4659` — `pr-contract`, `verify:lint`, `verify:probe`, and `verify:test` passed. `review-gate` failed because the record was absent before this review.
 - Device cold-start reproduction — not run. This environment has no access to the owner's iPhone or its launch evidence.
-- Push: pending.
+- Push: `1b2d8ac3a5de289a059a2593d036bcb0c803e795` was verified as the head of `origin/docs/pr-6-iphone-platform-report` with `gh pr view`.
 
 ## Open questions and accepted risks
 
