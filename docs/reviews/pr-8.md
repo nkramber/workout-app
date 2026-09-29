@@ -10,7 +10,7 @@ Date: 2026-09-29
 - Target: `main`
 - Base: `71b5220c6ca2f1c159023ceefc6675135144ebfe`
 - Merge base: `71b5220c6ca2f1c159023ceefc6675135144ebfe`
-- Head: `f1a9321a02fbfa15017b82da69b9c93195260e56`
+- Head: `6d1db28c486b09000dbebb35b275863e6057682a`
 - Branch: `docs/pr-7-phase-2-roadmap`
 
 ## Provider gate
@@ -27,7 +27,7 @@ I inspected each changed path: `.claude/skills/one-pr-one-session/SKILL.md`, `.c
 
 ### P2-1: The public records disclose owner billing details
 
-Status: open.
+Status: fixed in `6d1db28c486b09000dbebb35b275863e6057682a`.
 
 Open at: `f1a9321a02fbfa15017b82da69b9c93195260e56`.
 
@@ -41,9 +41,13 @@ Actual: The Q-142 row and hand-off disclose an owner-specific billing trial stat
 
 Consequence: The pull request publishes private owner billing information in a public repository.
 
-Correction: Remove the billing status, credit, and remaining-time details from both public records. Keep Q-142 open and state only that the account check remains pending before someone asks the owner.
+Correction: The author removed the billing status, credit, and remaining-time details from both public records. Q-142 stays open until the account check.
 
-Regression check: After correction, search both files for the account status and amounts. The private details must be absent. Run `make ref-check` and `make ste-check`.
+Regression check: The search `rg -n "280 USD|70 days|free trial" docs/questions.md docs/session-handoff.md docs/roadmaps` returned no matches. The author reports `make ref-check`, `make ste-check`, and `make verify` passed at this head. I reran `make verify` at `6d1db28c486b09000dbebb35b275863e6057682a`. All checks passed.
+
+## Earlier verdicts
+
+- `Changes required` at `f1a9321a02fbfa15017b82da69b9c93195260e56` for P2-1.
 
 ## Out of scope
 
@@ -59,16 +63,14 @@ None.
 
 ## Verification
 
-- `make verify` at `f1a9321a02fbfa15017b82da69b9c93195260e56`: passed. STE, references, lifecycle, context budget, and all 302 tests passed.
-- GitHub `pr-contract` at `f1a9321a02fbfa15017b82da69b9c93195260e56`: passed.
-- GitHub `verify:lint` at `f1a9321a02fbfa15017b82da69b9c93195260e56`: passed.
-- GitHub `verify:probe` at `f1a9321a02fbfa15017b82da69b9c93195260e56`: passed.
-- GitHub `verify:test` at `f1a9321a02fbfa15017b82da69b9c93195260e56`: passed.
-- GitHub `review-gate` at published head `853376fe2200f7ed8ac0da214e6fabc61d85c8b6`: failed at RG 4. It read this record and rejected the `Changes required` verdict. RG 5 passed for effective head `f1a9321a02fbfa15017b82da69b9c93195260e56`. The gate must remain red until the author fixes the finding and gets a new review.
-- `git diff --stat $(git merge-base origin/main HEAD)..HEAD`: inspected. The intended behavior and scope section lists all 16 changed paths.
-- `make ste-check`: passed with 0 findings for this record and handoff update.
-- `make ref-check`: passed with 0 findings for this record and handoff update.
-- Push: `853376fe2200f7ed8ac0da214e6fabc61d85c8b6` was the head of `origin/docs/pr-7-phase-2-roadmap`, verified with `gh pr view` after the first publication.
+- `make verify` at `6d1db28c486b09000dbebb35b275863e6057682a`: passed. STE, references, lifecycle, context budget, and all tests passed.
+- `git diff --check 71b5220c6ca2f1c159023ceefc6675135144ebfe...HEAD`: passed.
+- GitHub `pr-contract`, `verify:lint`, `verify:probe`, and `verify:test` at `6d1db28c486b09000dbebb35b275863e6057682a`: passed.
+- GitHub `review-gate` at `6d1db28c486b09000dbebb35b275863e6057682a`: failed at RG 4 because this record still held `Changes required`.
+- PR comments and review threads: none. I read one saved command output at `/tmp/pr8-comments.json` and `/tmp/pr8-review-comments.json`.
+- Inspected all 18 changed paths from base `71b5220c6ca2f1c159023ceefc6675135144ebfe` to effective head `6d1db28c486b09000dbebb35b275863e6057682a`.
+- `make ste-check` and `make ref-check`: pending for this record and hand-off update.
+- Push: pending.
 
 ## Open questions and accepted risks
 
@@ -76,5 +78,5 @@ Q-142 remains open. Later work area 2.3 must verify the billing account and budg
 
 ## Verdict
 
-**Changes required.** This verdict applies to head `f1a9321a02fbfa15017b82da69b9c93195260e56`.
-The public records disclose private owner billing information. Remove those details before merge. The owner can answer Q-142 after the account check.
+**Ready for owner merge.** This verdict applies to head `6d1db28c486b09000dbebb35b275863e6057682a`.
+The earlier finding is fixed. The acceptance story holds, and the required checks pass.
