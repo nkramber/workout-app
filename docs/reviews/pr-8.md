@@ -66,11 +66,12 @@ None.
 - `make verify` at `6d1db28c486b09000dbebb35b275863e6057682a`: passed. STE, references, lifecycle, context budget, and all tests passed.
 - `git diff --check 71b5220c6ca2f1c159023ceefc6675135144ebfe...HEAD`: passed.
 - GitHub `pr-contract`, `verify:lint`, `verify:probe`, and `verify:test` at `6d1db28c486b09000dbebb35b275863e6057682a`: passed.
-- GitHub `review-gate` at `6d1db28c486b09000dbebb35b275863e6057682a`: failed at RG 4 because this record still held `Changes required`.
+- GitHub `review-gate` at published head `12871d4b7e20186a8648e1c4d7a5699c7d943d68`: passed.
+- GitHub `pr-contract`, `verify:lint`, `verify:probe`, and `verify:test` at `12871d4b7e20186a8648e1c4d7a5699c7d943d68`: passed.
 - PR comments and review threads: none. I read one saved command output at `/tmp/pr8-comments.json` and `/tmp/pr8-review-comments.json`.
 - Inspected all 18 changed paths from base `71b5220c6ca2f1c159023ceefc6675135144ebfe` to effective head `6d1db28c486b09000dbebb35b275863e6057682a`.
-- `make ste-check` and `make ref-check`: pending for this record and hand-off update.
-- Push: pending.
+- `make ste-check` and `make ref-check` for the record and hand-off: passed with 0 findings.
+- Push: `12871d4b7e20186a8648e1c4d7a5699c7d943d68` was the head of `origin/docs/pr-7-phase-2-roadmap`, verified with `gh pr view`.
 
 ## Open questions and accepted risks
 
