@@ -249,7 +249,7 @@ class OpenAIProvider:
         gate = gate or OpenGate()
         data = json.dumps(body).encode("utf-8")
         started = time.monotonic()
-        detail, sent = "", 0
+        detail, sent, failures = "", 0, []
         for n in range(self.attempts):
             if not gate.begin():
                 if sent == 0:
@@ -265,16 +265,21 @@ class OpenAIProvider:
                 result = parse_response(body)
                 gate.end(result.usage)
                 result.seconds, result.retries = time.monotonic() - started, n
+                if failures and not result.detail:
+                    # Keep the reason of each failed attempt before this one.
+                    result.detail = "after retry: " + "; ".join(failures)
                 return result
             except urllib.error.HTTPError as exc:
                 gate.end(unknown_charge=exc.code in UNKNOWN_CHARGE_STATUS)
                 detail = f"HTTP {exc.code}: {read_error(exc)}"
+                failures.append(detail)
                 if exc.code not in RETRY_STATUS:
                     break
             except (urllib.error.URLError, TimeoutError, OSError, ValueError) as exc:
                 # The request can reach OpenAI before the failure, so the charge is unknown.
                 gate.end(unknown_charge=True)
                 detail = f"{exc.__class__.__name__}: {str(exc)[:200]}"
+                failures.append(detail)
             if n + 1 < self.attempts:
                 self.sleep(2 ** (n + 1))
         return Result("error", detail=detail, seconds=time.monotonic() - started, retries=max(sent - 1, 0))
