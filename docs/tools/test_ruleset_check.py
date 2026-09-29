@@ -49,7 +49,8 @@ class TheFile(unittest.TestCase):
 
     def test_the_file_requires_the_gate_the_contract_and_each_verify_job(self):
         verify = {n for n in job_names("verify.yml") if n.startswith("verify:")} - self.OPTIONAL
-        self.assertEqual(verify, {"verify:lint", "verify:test"})
+        # The product jobs of work area 2.1 are required checks too (D-127).
+        self.assertEqual(verify, {"verify:lint", "verify:test", "verify:contract", "verify:go", "verify:emulator"})
         self.assertIn("pr-contract", job_names("pr-contract.yml"))
         self.assertIn("review-gate", job_names("review-gate.yml"))
         self.assertEqual(self.contexts(), verify | {"review-gate", "pr-contract"})

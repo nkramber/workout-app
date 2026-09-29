@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package gymroute.v1;
+
+option go_package = "github.com/nkramber/workout-app/go/gen/gymroute/v1;gymroutev1";
+
+// UserService names the signed-in user (work area 2.1). Every call needs a
+// Firebase ID token of a uid on the invite allowlist (D-75, D-131).
+service UserService {
+  // GetMe returns the uid of the caller, so the web shell can prove the
+  // whole path from sign-in to the API.
+  rpc GetMe(GetMeRequest) returns (GetMeResponse) {}
+}
+
+message GetMeRequest {}
+
+message GetMeResponse {
+  // The Firebase uid of the caller.
+  string uid = 1;
+}

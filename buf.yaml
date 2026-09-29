@@ -1,0 +1,15 @@
+version: v2
+modules:
+  - path: proto
+lint:
+  use:
+    - STANDARD
+breaking:
+  # WIRE_JSON refuses each change that breaks the wire format or the JSON
+  # encoding that a deployed web build reads. The two delete rules refuse
+  # the removal of a call or a service that a deployed build still calls.
+  # The rules are the rules of decktome:buf.yaml.
+  use:
+    - WIRE_JSON
+    - RPC_NO_DELETE
+    - SERVICE_NO_DELETE

@@ -11,6 +11,7 @@ The ids have three ranges:
 - Q-120 to Q-124 are questions of the recognition test set session.
 - Q-125 to Q-130 are questions of the recognition spike session.
 - Q-140 to Q-144 are questions of the Phase 2 roadmap session.
+- Q-145 to Q-147 are questions of the API skeleton session.
 - Q-90 to Q-107 are open questions. Q-90, Q-91, Q-93 to Q-97, Q-99, and Q-100 have an answer. Each open question names the phase of `docs/roadmaps/high-level-roadmap.md` that needs the answer.
 
 The owner answered through the answer controls of the session. The first session asked Q-1 to Q-46 and Q-74 to Q-88 on 2026-09-27. It asked the other questions on 2026-09-28. The column "Rec." tells whether the owner chose the option that the launch prompt marked as recommended. A "No" in that column is an owner decision, not a mistake.
@@ -235,6 +236,14 @@ The owner answered through the answer controls of the session. The first session
 | Q-142 | Work area 2.3 needs a billing account for Cloud Run and for the backups of D-124. D-99 kept the project with no billing account. Which billing account and which budget alert apply? | No answer yet. The owner asked for a check of the billing account first. The session of PR-10 reads the billing state before it asks. | Open | none |
 | Q-143 | Are the CI jobs of the product code required checks of `main`? | Yes. Each pull request that adds a job adds it to the ruleset. | Answered | D-127 |
 | Q-144 | How does Phase 2 split into pull requests? | PR-8 to PR-11, as the focused roadmap gives them. | Answered | D-128 |
+
+## Questions of the API skeleton session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-145 | How does the Go API guard against an emulator variable on Cloud Run (REC-17)? | It refuses to start on Cloud Run when any `_EMULATOR_HOST` variable exists. It has no debug user. | Answered | D-129 |
+| Q-146 | Which Go and buf versions does the product code pin? | Go 1.27.1 and buf v1.73.0, through `go/go.mod`. | Answered | D-130 |
+| Q-147 | D-75 names an allowlist as in Decktome, which keys the list by email. The PR-8 story names a uid. Which key applies? | The uid. | Answered | D-131 |
 
 ## Open questions
 

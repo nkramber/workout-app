@@ -1,0 +1,14 @@
+# The generators. The Go plugins come from the tool directives of
+# go/go.mod, so go/go.sum pins them (D-130). The web client of work area
+# 2.2 adds its TypeScript plugin here.
+version: v2
+# Each run removes the output folder first, so the code of a deleted
+# proto file does not stay.
+clean: true
+plugins:
+  - local: [go, -C, go, tool, protoc-gen-go]
+    out: go/gen
+    opt: paths=source_relative
+  - local: [go, -C, go, tool, protoc-gen-connect-go]
+    out: go/gen
+    opt: paths=source_relative

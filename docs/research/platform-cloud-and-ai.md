@@ -579,7 +579,7 @@ D-72 defers accessibility work. D-71 still makes large targets and few taps a fo
 
 ### 11.2 Recommendations not yet owner decisions
 
-Each row below is a recommendation of this research. None is an owner decision until `docs/decisions.md` records it.
+Each row below is a recommendation of this research. None is an owner decision until `docs/decisions.md` records it. The status cell names the decision when the owner answers one.
 
 | Id | Recommendation | Status | Section |
 |---|---|---|---|
@@ -599,7 +599,7 @@ Each row below is a recommendation of this research. None is an owner decision u
 | REC-14 | Photo bucket with UBLA, PAP, soft delete 0, no Bucket Lock, a 1-day lifecycle backstop, and short signed URLs. | Recommendation, not an owner decision | 8.1 |
 | REC-15 | Cloud Run request billing with min instances 0, a Cloud Run spend cap, an alerts budget, and role-layer AI caps. | Recommendation, not an owner decision | 8.1 |
 | REC-16 | Photo purge as a Go Cloud Run job from Cloud Scheduler. No Firebase Extension. | Recommendation, not an owner decision | 8.1 |
-| REC-17 | A startup guard that refuses emulator variables on Cloud Run. | Recommendation, not an owner decision | 8.3 |
+| REC-17 | A startup guard that refuses emulator variables on Cloud Run. | Owner decision D-129, 2026-09-29 | 8.3 |
 | REC-18 | No App Check at first. Add it with a reCAPTCHA Enterprise key if the audience changes. | Recommendation, not an owner decision | 8.1 |
 | REC-19 | Phase 1 profile targets: first interaction under 2.5 s, no launch task over 200 ms. | Recommendation, not an owner decision | 4.3 |
 | REC-20 | Touch targets of at least 48 CSS pixels as the scale of D-71. | Recommendation, not an owner decision | 10 |

@@ -86,11 +86,11 @@ Targets use one to three reps in reserve. Failure is rare, and it never occurs i
 | Part | Role | Sensitivity | Label |
 |---|---|---|---|
 | Web app | Screens, offline store, outbox | Holds workout history and profile data on the phone | Decision, D-17, D-62, D-77 |
-| API | Auth check, sync, plan calls, policy | Reads and writes all user data | Decision, D-18, D-82 |
+| API | Auth check, sync, plan calls, policy. It refuses to start on Cloud Run with an emulator variable. | Reads and writes all user data | Decision, D-18, D-82, D-129 |
 | Policy engine | Checks every prescription | Safety-critical | Decision, D-23 |
 | Role layer | Model choice, cost records, fake provider | Sends profile and workout data to OpenAI | Decision, D-24 |
 | Firestore | Source of record after sync | Injuries, body data, workout history | Decision, D-77 |
-| Firebase Auth | Email and password, invite allowlist | Email address | Decision, D-75 |
+| Firebase Auth | Email and password, and an invite allowlist of uids in Firestore | Email address | Decision, D-75, D-131 |
 | GCP project | One development project in `us-central1` | All of the above | Decision, D-76 |
 
 The deferred photo work adds camera input, Cloud Storage for short-lived photos, and a photo purge job (Decision, D-52, D-111).
