@@ -93,37 +93,50 @@ test("the viewport meta blocks the pinch zoom", async ({ page }) => {
   expect(parts).toContain("viewport-fit=cover");
 });
 
-// Playwright gives a pinch gesture in Chromium alone, through the DevTools
-// protocol. WebKit reads the same meta, and the device check of PR-11
-// pinches the real phone.
+// Playwright sends a touch of two fingers in Chromium alone, through the
+// DevTools protocol. WebKit reads the same meta, and the device check of
+// PR-11 pinches the real phone. `Input.synthesizePinchGesture` zooms no
+// page in Chromium on Linux, so the test moves two touch points apart.
 test.describe("in Chromium", () => {
   // Playwright can not change a page that a service worker serves, and
   // the control below changes the page.
   test.use({ serviceWorkers: "block" });
 
-  test("a pinch does not zoom the page", async ({ page, browserName }) => {
-    test.skip(browserName !== "chromium", "Playwright can pinch in Chromium alone");
-    const cdp = await page.context().newCDPSession(page);
-    const pinch = async () => {
-      await cdp.send("Input.synthesizePinchGesture", { x: 150, y: 300, scaleFactor: 2.5, gestureSourceType: "touch" });
-      return page.evaluate(() => window.visualViewport?.scale ?? 0);
+  test("a pinch does not zoom the page", async ({ context, browserName }) => {
+    test.skip(browserName !== "chromium", "Playwright sends a touch of two fingers in Chromium alone");
+
+    // pinchIn loads a page in a new tab, waits until the page shows the
+    // shell and draws two frames, and then moves two fingers apart. It
+    // gives the scale of the visual viewport after the pinch.
+    const pinchIn = async (path: string) => {
+      const page = await context.newPage();
+      await page.goto(path);
+      await expect(page.getByTestId("shell")).toBeVisible();
+      await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+      const cdp = await context.newCDPSession(page);
+      const fingers = (d: number) => [
+        { x: 200 - d, y: 400, id: 0 },
+        { x: 200 + d, y: 400, id: 1 },
+      ];
+      await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: fingers(20) });
+      for (let d = 30; d <= 150; d += 10) await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: fingers(d) });
+      await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+      return page.evaluate(() => new Promise<number>((r) => requestAnimationFrame(() => r(window.visualViewport?.scale ?? 0))));
     };
 
-    await page.goto("/");
-    expect(await pinch()).toBe(1);
-
-    // The control: the same page with a viewport meta that allows the
-    // zoom. The same pinch zooms it, so the check above proves the block
-    // of the meta. Chromium reads the meta at load, so the route changes
-    // the page before the load.
-    await page.route((url) => url.pathname === "/", async (route) => {
+    // The control comes first: the same page with a viewport meta that
+    // allows the zoom. The pinch zooms it, so a pinch in this browser
+    // works, and the check below proves the block of the meta. Chromium
+    // reads the meta at load, so the route changes the page before the
+    // load.
+    await context.route((url) => url.pathname === "/" && url.search === "?control", async (route) => {
       const res = await route.fetch();
       const html = (await res.text()).replace("maximum-scale=1, user-scalable=no, ", "");
       expect(html).not.toContain("user-scalable=no");
       await route.fulfill({ response: res, body: html });
     });
-    await page.goto("/?control");
-    expect(await pinch()).toBeGreaterThan(1.5);
+    expect(await pinchIn("/?control")).toBeGreaterThan(1.5);
+    expect(await pinchIn("/")).toBe(1);
   });
 });
 
