@@ -6,7 +6,7 @@ OpenAI `gpt-6-luna` proposes each plan and each revision. A deterministic, versi
 
 ## Status
 
-**No app or service exists yet.** The development project `gym-route-dev` exists with Firebase Hosting and Firebase Authentication only. The repository holds the foundation documents, the research, the roadmaps, and the process tooling. Phase 0 is complete, and Phase 1 (risk spikes) is in progress.
+**The workout app and its backend do not exist yet.** The development project `gym-route-dev` exists, with Firebase Hosting and Firebase Authentication only. The repository holds the foundation documents, the research, the roadmaps, and the process tooling. Phase 0 is complete, and Phase 1 (risk spikes) is in progress.
 
 ## Repository map
 

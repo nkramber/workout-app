@@ -17,9 +17,9 @@ State: the probe builds, and its 12 browser tests pass in WebKit and Chromium on
 
 The browser key allows only the Auth APIs and the probe sites, and self sign-up is off (D-117). GitHub secret scanning flags the key, and the owner closes the alert.
 
-Review: Codex found P2-1 open at head `2c20c66229ccb21bde5eb29010b4af89fa74b5cf`. The `AGENTS.md` stage statement conflicts with D-99 and D-116. The local review did not reread the external key settings because gcloud credentials expired. The review-gate check failed at RG 4 because the verdict is Changes required.
+Review: Codex approved `a1b6bff` in round 1. Round 2 gave P2-1 at `2c20c66`: the stage line of `AGENTS.md` said that no service exists. The author corrected `AGENTS.md` and `README.md`, and `docs/reviews/pr-6-response.md` gives the answer. The reviewer did not read the key settings again, because its gcloud login expired. The pull request body holds the evidence of the author.
 
-Next action: correct P2-1, push the change, and request a new Codex review.
+Next action: CI of the tip, then round 3 with `make codex-review PR=6`.
 
 ## Facts that expire
 
@@ -61,6 +61,7 @@ Completed:
 - The owner signed in to the Firebase CLI again after an HTTP 401. Created the project `gym-route-dev` with the approved steps (D-116). The default Hosting site came with the project.
 - Committed the public web configuration and `.firebaserc`. A sign-in from the production build reached the real project in WebKit and Chromium.
 - After the alert of GitHub secret scanning, limited the browser key and turned off self sign-up (D-117).
+- Answered Codex finding P2-1 with full merit: the stage lines of `AGENTS.md` and `README.md`.
 
 Open work:
 
