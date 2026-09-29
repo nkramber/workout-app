@@ -8,7 +8,7 @@
 SHELL := bash
 .SHELLFLAGS := -o pipefail -c
 
-.PHONY: help doctor lint ste-check ref-check lifecycle-check context-budget test verify where hooks pr-check codex-review claude-review ruleset-check
+.PHONY: help doctor lint ste-check ref-check lifecycle-check context-budget test verify probe where hooks pr-check codex-review claude-review ruleset-check
 
 help: ## Show this help
 	@set -o pipefail; grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-16s %s\n", $$1, $$2}'
@@ -65,6 +65,20 @@ test: ## Run the unit tests of docs/tools, of the hooks, and of each spike of to
 
 verify: lint test ## Run every check that CI runs, on this machine, free
 	@echo "verify: every check passed."
+
+# The iPhone probe of work area 1.3 (D-113). It needs Node 22 and the
+# Playwright browsers, so `make verify` does not run it. The CI job
+# verify:probe runs it. The browser tests use the local Auth emulator and
+# make no call to the real project (D-115).
+PROBE := tools/spikes/iphone_probe
+
+probe: ## Build the iPhone probe and run its browser tests in WebKit and Chromium, free, needs Node 22 (D-113)
+	@echo "==> probe"
+	@node --version 2>/dev/null | grep -q '^v22\.' || { echo "probe: needs Node 22, see $(PROBE)/.nvmrc"; exit 2; }
+	@cd $(PROBE) && npm ci --no-audit --no-fund
+	@cd $(PROBE) && npx playwright install chromium webkit
+	@cd $(PROBE) && npm run build
+	@cd $(PROBE) && npm run test:e2e
 
 where: ## Print the branch, the tree, main, and the pull request state, free (D-14)
 	@./scripts/where.sh

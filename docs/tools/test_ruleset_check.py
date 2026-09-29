@@ -43,12 +43,20 @@ class TheFile(unittest.TestCase):
     def contexts(self):
         return {c["context"] for c in rule(FILE, "required_status_checks")["parameters"]["required_status_checks"]}
 
+    # The job of the iPhone probe runs on each pull request, but it is not
+    # a required check (D-114).
+    OPTIONAL = {"verify:probe"}
+
     def test_the_file_requires_the_gate_the_contract_and_each_verify_job(self):
-        verify = {n for n in job_names("verify.yml") if n.startswith("verify:")}
+        verify = {n for n in job_names("verify.yml") if n.startswith("verify:")} - self.OPTIONAL
         self.assertEqual(verify, {"verify:lint", "verify:test"})
         self.assertIn("pr-contract", job_names("pr-contract.yml"))
         self.assertIn("review-gate", job_names("review-gate.yml"))
         self.assertEqual(self.contexts(), verify | {"review-gate", "pr-contract"})
+
+    def test_the_probe_job_runs_and_is_no_required_check(self):
+        self.assertIn("verify:probe", job_names("verify.yml"))
+        self.assertTrue(self.OPTIONAL.isdisjoint(self.contexts()))
 
     def test_the_ruleset_check_itself_is_no_required_check(self):
         # The live ruleset does not exist until the owner applies it, so CI can not run the check.

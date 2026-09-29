@@ -142,7 +142,7 @@ Branch: `feat/pr-5-iphone-platform-probe`. Work area 1.3.
 
 Concerns:
 
-- a probe web app on the React stack of D-84, in `tools/spikes/<name>/`,
+- a probe web app on the React stack of D-84, in `tools/spikes/iphone_probe/`,
 - a probe page for each device item: IndexedDB data after an app kill, Screen Wake Lock, install, sign-in, and a startup timer,
 - the development project of D-76, with Firebase Hosting and Firebase Authentication only (D-99),
 - the Firebase configuration of the probe, with sign-in by email and password (D-75).
@@ -151,13 +151,13 @@ The session creates the project only after the owner approves that step. The pro
 
 Acceptance story: the probe builds in CI, and its browser tests pass in the WebKit and Chromium engines. The project exists with Firebase Hosting and Firebase Authentication, and it has no other service.
 
-Checks: `make verify` and the browser tests, free.
+Checks: `make verify`, free. `make probe` builds the probe and runs the browser tests against the local Auth emulator, free (D-113, D-115). The CI job `verify:probe` runs `make probe`, and it is not a required check (D-114).
 
 ### PR-6 - The iPhone web platform spike report
 
 Branch: `docs/pr-6-iphone-platform-report`. Work area 1.3. It needs PR-5 on `main`.
 
-Before the work, deploy the probe by hand from a clean checkout of `main` (D-14). Check the branch and the commit before the deploy.
+Before the work, deploy the probe by hand from a clean checkout of `main` (D-14). Check the branch and the commit before the deploy. `tools/spikes/iphone_probe/README.md` gives the steps. The owner makes the probe account in the Firebase console. The probe has no form that makes an account, and self sign-up is off (D-117).
 
 Concerns:
 

@@ -3,6 +3,8 @@ name: verify
 # The free checks of every pull request and of every push to `main` (D-6).
 # `make verify` runs the same checks on the machine of the owner, and the
 # two answer the same question. The ruleset of `main` requires both jobs.
+# The job verify:probe runs `make probe` for the iPhone probe (D-113). It
+# is not a required check (D-114).
 #
 # Every action is pinned to a full commit SHA. The comment gives the tag
 # that the SHA resolves to, and the date of the check with
@@ -50,3 +52,26 @@ jobs:
       # Each test that makes a commit sets its own git identity.
       - name: test
         run: make test
+
+  probe:
+    name: "verify:probe"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1 verified_at 2026-09-28
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0 verified_at 2026-09-28
+        with:
+          node-version-file: tools/spikes/iphone_probe/.nvmrc
+          cache: npm
+          cache-dependency-path: tools/spikes/iphone_probe/package-lock.json
+      # The system libraries of WebKit and Chromium. `make probe` then
+      # downloads the browsers themselves.
+      - name: browser libraries
+        working-directory: tools/spikes/iphone_probe
+        run: npx --yes playwright@1.63.0 install-deps chromium webkit
+      # The build, and the browser tests against the local Auth emulator
+      # (D-115).
+      - name: probe
+        run: make probe

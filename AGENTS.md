@@ -6,7 +6,7 @@ This file holds the rules for every agent and every session in this repository. 
 
 Gym Route is a personal workout app for one user, the owner (D-67). It is an installable, phone-first web app on Google Cloud, and it never goes to an app store (D-17). OpenAI `gpt-6-luna` proposes plans and revisions. A deterministic, versioned policy checks every set and load before the owner sees it (D-22, D-23).
 
-Stage: Phase 1 of `docs/roadmaps/high-level-roadmap.md`, with the pull requests of `docs/roadmaps/phase-1-risk-spikes.md`. No app, service, or cloud resource exists yet. `docs/design.md` holds the design.
+Stage: Phase 1 of `docs/roadmaps/high-level-roadmap.md`, with the pull requests of `docs/roadmaps/phase-1-risk-spikes.md`. The workout app and its backend do not exist yet. The development project `gym-route-dev` exists, with Firebase Hosting and Firebase Authentication only (D-99, D-116). `docs/design.md` holds the design.
 
 **The repository is public.** Write no email address, no personal data, no photo, no workout log, and no secret into a file, an issue, or a pull request. The one exception is the author credit that the license of a test image requires (D-106).
 
@@ -59,6 +59,7 @@ make pr-check        # the body and the diff of the pull request, free
 make where           # the branch, the tree, and the pull request state
 make hooks           # install the Git hooks once in each checkout
 make ruleset-check   # the live ruleset of main against .github/rulesets
+make probe           # the iPhone probe build and its browser tests, needs Node 22 (D-113)
 ```
 
 Paid targets: `make codex-review` and `make claude-review`. They spend the owner's Codex plan and Claude plan, never the API (D-8, D-88).
