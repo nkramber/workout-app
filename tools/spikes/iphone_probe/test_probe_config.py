@@ -47,6 +47,17 @@ class FirebaseServicesTest(unittest.TestCase):
         self.assertEqual(services, {"auth"})
         self.assertFalse(emulators["ui"]["enabled"])
 
+    def test_the_web_config_and_firebaserc_name_the_same_project(self):
+        # D-116: the development project is `gym-route-dev`.
+        self.assertEqual(load(".firebaserc"), {"projects": {"default": "gym-route-dev"}})
+        with open(os.path.join(HERE, "src/lib/firebase-config.ts"), encoding="utf-8") as f:
+            text = f.read()
+        self.assertIn('projectId: "gym-route-dev"', text)
+        self.assertIn('authDomain: "gym-route-dev.firebaseapp.com"', text)
+        # The probe uses Firebase Authentication alone (D-99).
+        self.assertNotIn("storageBucket", text)
+        self.assertNotIn("databaseURL", text)
+
     def test_hosting_serves_the_build(self):
         hosting = load("firebase.json")["hosting"]
         self.assertEqual(hosting["public"], "dist")

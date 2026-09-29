@@ -13,9 +13,9 @@ PR-5 holds the iPhone web platform probe of work area 1.3:
 - the development project `gym-route-dev` with Firebase Hosting and Firebase Authentication only (D-99, D-116),
 - the owner answers Q-131 to Q-134 and the decisions D-113 to D-116.
 
-State: the probe builds, and its 12 browser tests pass in WebKit and Chromium on the owner machine. The Firebase CLI login of the owner machine gave HTTP 401, so the project does not exist yet. The owner must sign in to the Firebase CLI again.
+State: the probe builds, and its 12 browser tests pass in WebKit and Chromium on the owner machine. The project `gym-route-dev` exists on the free plan with no billing account. It has the default Hosting site and the email and password provider. It has no Firestore database, no Storage bucket, no Realtime Database, and no Cloud Functions. No deploy of the probe exists. PR-6 deploys it from `main` (D-14).
 
-Next action: after the owner signs in again, create the project with the four approved steps of D-116. Then commit the web configuration and `.firebaserc`, and record the evidence.
+Next action: CI of the tip, then `make codex-review PR=6`.
 
 ## Facts that expire
 
@@ -28,6 +28,8 @@ Next action: after the owner signs in again, create the project with the four ap
 | The OpenAI usage policies page returns HTTP 403. The owner accepted a copy printed on 2025-11-07 (D-93). | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
 | `gpt-6-luna` accepts the strict JSON schema of the plan through the Responses API. 60 of 60 plans passed the schema. | 2026-09-28 | `docs/research/luna-plan-spike.md` |
 | `gpt-6-luna` accepts an image with a strict JSON schema. One photo at 1536 px costs 0.00037 USD. | 2026-09-28 | `docs/research/recognition-spike.md` |
+| The project `gym-route-dev` exists. Billing is off, and the project has no Storage bucket, no Firestore database, and no Realtime Database. | 2026-09-28 | `gcloud billing projects describe`, `gcloud storage buckets list`, `firebase database:instances:list` |
+| The Hosting site `gym-route-dev` is the default site, at `https://gym-route-dev.web.app`. It holds no deploy. | 2026-09-28 | `firebase hosting:sites:list` |
 | WebKit refuses a page on port 4190. The probe uses port 4173. | 2026-09-28 | `tools/spikes/iphone_probe/README.md` |
 | `firebase deploy --only auth` turns on the email and password provider from the `auth` block of `firebase.json` (firebase-tools 15.32.0). | 2026-09-28 | `tools/spikes/iphone_probe/firebase.json` |
 | Commons answers HTTP 429 to a fast client. One request each 2 seconds passes, and it accepts only standard thumbnail widths. | 2026-09-28 | `tools/spikes/recognition_set/download.py` |
@@ -35,9 +37,8 @@ Next action: after the owner signs in again, create the project with the four ap
 
 ## Next steps, in order
 
-1. Create the project `gym-route-dev` after the owner signs in to the Firebase CLI again (D-116).
-2. Close PR-5: CI, the Codex review, the owner confirmation, and the merge.
-3. Start PR-6 of `docs/roadmaps/phase-1-risk-spikes.md` in a clean session. Deploy the probe by hand from `main` first (D-14).
+1. Close PR-5: CI, the Codex review, the owner confirmation, and the merge.
+2. Start PR-6 of `docs/roadmaps/phase-1-risk-spikes.md` in a clean session. Deploy the probe by hand from `main` first (D-14). The owner makes the probe account in the Firebase console.
 
 ## Session records
 
@@ -50,12 +51,14 @@ Branch: `feat/pr-5-iphone-platform-probe`. Role: author.
 Completed:
 
 - The owner approved the milestone before the first edit (D-12), and answered Q-131 to Q-134 (D-113 to D-116).
-- Wrote the probe web app with five pages and no camera page (D-112), 12 browser tests, and 11 configuration tests.
+- Wrote the probe web app with five pages and no camera page (D-112), 12 browser tests, and 12 configuration tests.
 - Added `make probe` and the CI job `verify:probe`.
+- The owner signed in to the Firebase CLI again after an HTTP 401. Created the project `gym-route-dev` with the approved steps (D-116). The default Hosting site came with the project.
+- Committed the public web configuration and `.firebaserc`. A sign-in from the production build reached the real project in WebKit and Chromium.
 
 Open work:
 
-- The project `gym-route-dev`, the web configuration, the Codex review, the owner confirmation, and the merge of PR-5.
+- The Codex review, the owner confirmation, and the merge of PR-5.
 
 ### Session 5 - 2026-09-28
 
