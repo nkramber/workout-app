@@ -4,21 +4,22 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-29. GitHub pull request 9 is open on branch `feat/pr-8-api-skeleton`, from base `7aa7bd4`. Its roadmap id is PR-8 in `docs/roadmaps/phase-2-platform-skeleton.md`, work area 2.1.
+Date: 2026-09-29. PR-9 of `docs/roadmaps/phase-2-platform-skeleton.md`, work area 2.2, is on branch `feat/pr-9-web-shell`, from base `d9b192e`.
 
-The pull request holds the contract and the API skeleton:
+The pull request holds the installable web shell in `web/`:
 
-- the buf v2 contract `proto/gymroute/v1/user_service.proto` with one call `GetMe`, and the generated Go code in `go/gen`,
-- the Go API in `go/`: the token check, the allowlist of uids (D-131), and CORS for one origin (D-82),
-- the route `/version` of the build commit, and the start guard of D-129,
-- the Auth and Firestore emulators in `firebase.json`, with `firebase-tools` pinned in `emulators/`,
-- the targets `make proto`, `make contract`, `make go-test`, and `make emulator-test`, and the CI jobs `verify:contract`, `verify:go`, and `verify:emulator` (D-126),
-- the three jobs as required checks in `.github/rulesets/review-gate.json` (D-127),
-- the owner answers Q-145 to Q-147 (D-129 to D-131).
+- a React and Vite client on the stack of D-84, with the phone layout alone (D-20), as one npm package (D-135),
+- a shell of the dynamic viewport height with the safe areas, and a viewport meta that blocks the pinch zoom (D-120),
+- sign-in with email and password on Firebase Authentication, with no form that makes an account (D-75, D-117),
+- an empty home screen that calls `GetMe` through the API and shows the uid,
+- the Dexie store and the outbox, with one transaction for a change and its outbox entry (D-132),
+- the service worker in the `prompt` mode (D-133), and the persistent storage request (D-134),
+- the generated TypeScript code in `web/src/gen`, the target `make web`, and the CI job `verify:web` as a required check (D-126, D-127),
+- the owner answers Q-148 to Q-151 (D-132 to D-135).
 
-State: Codex reviewed effective head `3c3db409fdb93178897473a404769cec7a39bd61`. The verdict is `Ready for owner merge`, with no open findings. `make verify`, `make contract`, `make go-test`, `make emulator-test`, and `make ruleset-check` passed on the review machine. Each GitHub check passed at published head `dd4ff6ccf46bec19a6b2e21045bf7963d9b25838`.
+State: `make web` passed: 21 unit tests, and 17 browser tests in WebKit and Chromium. The WebKit copy of the pinch test skips, because Playwright can pinch in Chromium alone. `make verify` passed. The pull request, CI, the live ruleset, and the Codex review are pending.
 
-Next action: the owner confirms the merge, then the author session enables auto-merge.
+Next action: open the pull request, read CI, apply the ruleset after the owner approval, and run `make codex-review`.
 
 ## Facts that expire
 
@@ -39,6 +40,9 @@ Next action: the owner confirms the merge, then the author session enables auto-
 | WebKit refuses a page on port 4190. The probe uses port 4173. | 2026-09-28 | `tools/spikes/iphone_probe/README.md` |
 | Go 1.27.1, buf v1.73.0, connect v1.21.0, and firebase-admin-go v4.22.0 are the newest releases. | 2026-09-29 | go.dev and proxy.golang.org, `go/go.mod` |
 | `firebase-tools` 15.32.0 refuses a Java version before 21. The Firestore emulator is v1.22.0. | 2026-09-29 | `make emulator-test` |
+| The newest npm releases: React 19.3.0, Vite 8.3.1, `vite-plugin-pwa` 1.3.0, Dexie 4.4.6, Connect Query 2.3.1, `@bufbuild/protobuf` 2.16.0, and Playwright 1.63.0. TypeScript 7.0.2 exists, and `web/` keeps 5.9.3, as in Decktome. | 2026-09-29 | `npm view`, `web/package.json` |
+| In Chromium, a new service worker controls a navigation about 300 ms after it shows the `activated` state. | 2026-09-29 | `web/e2e/shell.spec.ts` |
+| Chromium reads the viewport meta at load. A change of the meta after the load does not allow the pinch zoom. | 2026-09-29 | `web/e2e/shell.spec.ts` |
 | Decktome uses the emulator ports 8281, 9199, 9150, 4490, and 4590, and the probe uses 9099. Gym Route uses other ports. | 2026-09-29 | `go/README.md` |
 | `firebase deploy --only auth` turns on the email and password provider from the `auth` block of `firebase.json` (firebase-tools 15.32.0). | 2026-09-28 | `tools/spikes/iphone_probe/firebase.json` |
 | Commons answers HTTP 429 to a fast client. One request each 2 seconds passes, and it accepts only standard thumbnail widths. | 2026-09-28 | `tools/spikes/recognition_set/download.py` |
@@ -46,10 +50,28 @@ Next action: the owner confirms the merge, then the author session enables auto-
 
 ## Next steps, in order
 
-1. Close PR-8: the Codex review, the owner confirmation, and the merge.
-2. After the merge, start PR-9 (work area 2.2) in a clean session, with `docs/roadmaps/phase-2-platform-skeleton.md` section 4.
+1. Close PR-9: CI, the live ruleset, the Codex review, the owner confirmation, and the merge.
+2. After the merge, start PR-10 (work area 2.3) in a clean session. Read the billing state first, then ask Q-142.
+3. In PR-10, check that the browser key allows the Hosting site of the web app (D-117).
 
 ## Session records
+
+### Session 10 - 2026-09-29
+
+Author provider: Claude Code
+
+Branch: `feat/pr-9-web-shell`. Role: author.
+
+Completed:
+
+- The owner approved the milestone before the first edit (D-12), and answered Q-148 to Q-151 (D-132 to D-135).
+- Wrote the web shell in `web/` with the patterns of `decktome:web/apps/web/src/lib/api.ts` and `decktome:web/apps/web/e2e/phone.spec.ts`.
+- Wrote the browser tests of the acceptance story, with a control that proves the pinch block of the viewport meta.
+- Moved the Java 21 lookup of `make emulator-test` into `scripts/java21.sh`, so `make web` uses it too.
+
+Open work:
+
+- CI, the live ruleset, the Codex review, the owner confirmation, and the merge of PR-9.
 
 ### Session 9 - 2026-09-29
 
@@ -68,7 +90,7 @@ Completed:
 
 Open work:
 
-- The Codex review, the owner confirmation, and the merge of PR-8.
+- None. PR #9 merged.
 
 ### Session 8 - 2026-09-29
 
@@ -87,21 +109,3 @@ Open work:
 
 - Q-142, the billing account of work area 2.3. The session of PR-10 reads the billing state, then asks.
 - None for PR-7. PR #8 merged.
-
-### Session 7 - 2026-09-29
-
-Author provider: Claude Code
-
-Branch: `docs/pr-6-iphone-platform-report`. Role: author.
-
-Completed:
-
-- The owner approved the milestone before the first edit (D-12), and answered Q-136 and Q-137 (D-118, D-119).
-- Deployed the probe by hand from a clean worktree of `main` at `d6e3c54`, after a check of the branch and the commit (D-14).
-- Wrote the report `docs/research/iphone-platform-spike.md` from the device results of the owner: a go under D-118.
-- Recorded the display faults of the probe (D-120), and answered Codex finding P2-1 with the owner definition of a cold start (D-121).
-- Changed the focused roadmap, the platform research, and the stage lines of `AGENTS.md` and `README.md`.
-
-Open work:
-
-- None. PR #7 merged.

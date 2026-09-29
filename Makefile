@@ -8,7 +8,7 @@
 SHELL := bash
 .SHELLFLAGS := -o pipefail -c
 
-.PHONY: help doctor lint ste-check ref-check lifecycle-check context-budget test verify probe proto contract go-test emulator-test where hooks pr-check codex-review claude-review ruleset-check
+.PHONY: help doctor lint ste-check ref-check lifecycle-check context-budget test verify probe proto contract go-test emulator-test web where hooks pr-check codex-review claude-review ruleset-check
 
 help: ## Show this help
 	@set -o pipefail; grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-16s %s\n", $$1, $$2}'
@@ -80,13 +80,15 @@ probe: ## Build the iPhone probe and run its browser tests in WebKit and Chromiu
 	@cd $(PROBE) && npm run build
 	@cd $(PROBE) && npm run test:e2e
 
-# The product checks of work area 2.1 (D-126). Each target has its own CI
-# job, and each job is a required check of main (D-127). `make verify`
-# stays Python only (D-113), so it runs none of them. Go comes from
-# go/go.mod, and buf and the Go plugins come from its tool directives
-# (D-130).
+# The product checks of work areas 2.1 and 2.2 (D-126). Each target has
+# its own CI job, and each job is a required check of main (D-127).
+# `make verify` stays Python only (D-113), so it runs none of them. Go
+# comes from go/go.mod, and buf and the Go plugins come from its tool
+# directives (D-130). The TypeScript plugin comes from
+# web/package-lock.json.
 GO := go -C go
 BUF := .bin/buf
+PROTOC_GEN_ES := web/node_modules/.bin/protoc-gen-es
 
 # The ref of the breaking check. A CI checkout of a pull request has no
 # local main branch, only origin/main.
@@ -95,7 +97,11 @@ PROTO_BASE = $(shell git rev-parse --verify --quiet origin/main >/dev/null && ec
 $(BUF): go/go.mod go/go.sum
 	@mkdir -p .bin && $(GO) build -o ../$(BUF) github.com/bufbuild/buf/cmd/buf
 
-proto: $(BUF) ## Lint the contract in proto/ and write the generated Go code of go/gen, free
+$(PROTOC_GEN_ES): web/package-lock.json
+	@cd web && npm ci --no-audit --no-fund --loglevel=error
+	@touch $@
+
+proto: $(BUF) $(PROTOC_GEN_ES) ## Lint the contract in proto/ and write the generated code of go/gen and web/src/gen, free, needs Node 22
 	@echo "==> buf lint"
 	@$(BUF) lint
 	@echo "==> buf generate"
@@ -106,8 +112,8 @@ proto: $(BUF) ## Lint the contract in proto/ and write the generated Go code of 
 # with no proto/ folder has no contract to break.
 contract: proto ## Check the contract: buf lint, the generated code in Git, and buf breaking against main, free
 	@echo "==> generated code in Git"
-	@git diff --exit-code --stat -- go/gen && test -z "$$(git ls-files --others --exclude-standard -- go/gen)" \
-	  || { echo "contract: the generated code is stale. Run make proto, then commit go/gen."; exit 1; }
+	@git diff --exit-code --stat -- go/gen web/src/gen && test -z "$$(git ls-files --others --exclude-standard -- go/gen web/src/gen)" \
+	  || { echo "contract: the generated code is stale. Run make proto, then commit go/gen and web/src/gen."; exit 1; }
 	@echo "==> buf breaking against $(PROTO_BASE)"
 	@if git cat-file -e "$(PROTO_BASE):proto" 2>/dev/null; then \
 	  base=$$(mktemp -d) && trap 'rm -rf "$$base"' EXIT && \
@@ -130,25 +136,37 @@ go-test: ## Check the Go code: gofmt, go mod tidy, go vet, and the unit tests, f
 # firebase.json with the pinned firebase-tools of emulators/. The ports
 # do not collide with Decktome or the probe. The project id starts with
 # demo-, so no call reaches a real project (D-115). The Firestore
-# emulator needs Java 21. The target uses the first Java 21 of JAVA_HOME,
-# the Homebrew keg openjdk@21, and the java of PATH.
+# emulator needs Java 21, and scripts/java21.sh finds it.
 EMULATOR_PROJECT := demo-gym-route
-JAVA21_KEG := /opt/homebrew/opt/openjdk@21
+EMULATORS := env -u FIREBASE_AUTH_EMULATOR_HOST -u FIRESTORE_EMULATOR_HOST GOOGLE_CLOUD_PROJECT=$(EMULATOR_PROJECT) \
+  emulators/node_modules/.bin/firebase emulators:exec --config firebase.json --only auth,firestore --project $(EMULATOR_PROJECT)
 
 emulator-test: ## Run the Go emulator tests over the local Auth and Firestore emulators, free, needs Node 20 or later and Java 21
 	@echo "==> emulator-test"
 	@cd emulators && npm ci --no-audit --no-fund --loglevel=error
-	@java21=""; \
-	for bin in "$${JAVA_HOME:+$$JAVA_HOME/bin}" "$(JAVA21_KEG)/bin" "$$(dirname "$$(command -v java 2>/dev/null || echo /none/java)")"; do \
-	  [ -x "$$bin/java" ] || continue; \
-	  major=$$("$$bin/java" -version 2>&1 | head -1 | sed -E 's/.*version "([0-9]+).*/\1/'); \
-	  if [ "$${major:-0}" -ge 21 ] 2>/dev/null; then java21="$$bin"; break; fi; \
-	done; \
-	[ -n "$$java21" ] || { echo "emulator-test: needs Java 21 or later. Set JAVA_HOME to a Java 21 JDK."; exit 2; }; \
-	export PATH="$$java21:$$PATH"; unset JAVA_HOME; \
-	env -u FIREBASE_AUTH_EMULATOR_HOST -u FIRESTORE_EMULATOR_HOST GOOGLE_CLOUD_PROJECT=$(EMULATOR_PROJECT) \
-	  emulators/node_modules/.bin/firebase emulators:exec --config firebase.json --only auth,firestore \
-	  --project $(EMULATOR_PROJECT) '$(GO) test -tags emulator -count=1 ./...'
+	@java21=$$(scripts/java21.sh) || exit 2; export PATH="$$java21:$$PATH"; unset JAVA_HOME; \
+	  $(EMULATORS) '$(GO) test -tags emulator -count=1 ./...'
+
+# The web client of work area 2.2 (D-84). The browser tests run in WebKit
+# and in Chromium with phone emulation. They start the API of go/ and a
+# build of the web client that talks to the local emulators, so no call
+# reaches a real project (D-115).
+web: ## Check the web client: types, unit tests, the build, and the browser tests over the emulators and the API, free, needs Node 22, Go, and Java 21
+	@echo "==> web"
+	@node --version 2>/dev/null | grep -q '^v22\.' || { echo "web: needs Node 22, see web/.nvmrc"; exit 2; }
+	@cd web && npm ci --no-audit --no-fund --loglevel=error
+	@cd emulators && npm ci --no-audit --no-fund --loglevel=error
+	@cd web && npx playwright install chromium webkit
+	@echo "==> web typecheck"
+	@cd web && npm run typecheck
+	@echo "==> web unit tests"
+	@cd web && npm test
+	@echo "==> web build"
+	@cd web && npm run build
+	@echo "==> web browser tests"
+	@mkdir -p .bin && $(GO) build -o ../.bin/api ./cmd/api
+	@java21=$$(scripts/java21.sh) || exit 2; export PATH="$$java21:$$PATH"; unset JAVA_HOME; \
+	  $(EMULATORS) 'cd web && npx playwright test'
 
 where: ## Print the branch, the tree, main, and the pull request state, free (D-14)
 	@./scripts/where.sh

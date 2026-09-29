@@ -245,6 +245,15 @@ The owner answered through the answer controls of the session. The first session
 | Q-146 | Which Go and buf versions does the product code pin? | Go 1.27.1 and buf v1.73.0, through `go/go.mod`. | Answered | D-130 |
 | Q-147 | D-75 names an allowlist as in Decktome, which keys the list by email. The PR-8 story names a uid. Which key applies? | The uid. | Answered | D-131 |
 
+## Questions of the web shell session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-148 | Which local store and which outbox form does the web client use (REC-1)? | Dexie on IndexedDB, and an outbox with UUIDv7 op ids. The change and its outbox entry go into one transaction. | Answered | D-132 |
+| Q-149 | How does the service worker apply an update (REC-3)? | The `prompt` mode. The owner applies the update, and never during a workout. | Answered | D-133 |
+| Q-150 | Does the app ask for persistent storage after the first sign-in (REC-5)? | Yes, one time on each device, and the home screen shows the result. | Answered | D-134 |
+| Q-151 | Does `web/` use the pnpm workspace of Decktome? | No. One npm package, with the generated code in `web/src/gen`. | Answered | D-135 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |

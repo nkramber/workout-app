@@ -51,6 +51,10 @@
           {
             "context": "verify:emulator",
             "integration_id": 15368
+          },
+          {
+            "context": "verify:web",
+            "integration_id": 15368
           }
         ]
       }

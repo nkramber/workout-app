@@ -1,0 +1,5 @@
+# The builds and the browser test output of the web client.
+dist/
+dist-e2e/
+test-results/
+playwright-report/

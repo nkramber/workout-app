@@ -37,7 +37,7 @@ Phase 3 needs D-122 and D-123 for the domain model. Phase 2 records them because
 
 ## 3. Rules for each pull request of this phase
 
-- The layout of the product code follows Decktome (D-74): `proto/` for the contract, `go/` for the API, and `web/` for the web client (recommendation).
+- The layout of the product code follows Decktome (D-74): `proto/` for the contract, `go/` for the API, and `web/` for the web client. `web/` is one npm package, not the pnpm workspace of Decktome (D-135).
 - Each product check gets its own `make` target and its own CI job (D-126). `make verify` stays Python only (D-113).
 - Each new CI job of the product code becomes a required check of `main` in the pull request that adds it (D-127). The session applies the ruleset only after the owner approves the step at run time. Then it runs `make ruleset-check`.
 - Tests and CI make no call to the real project. They use the Firebase emulators and fakes, as the probe does (D-115).
@@ -128,6 +128,8 @@ Questions for the session:
 - the local store and the outbox form (REC-1),
 - the update strategy of the service worker (REC-3),
 - the persistent storage request after the first sign-in (REC-5).
+
+The owner answered the three questions on 2026-09-29 (D-132, D-133, D-134), and chose one npm package for `web/` (D-135).
 
 ### PR-10 - The development project and the deploy
 
