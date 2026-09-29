@@ -8,9 +8,9 @@ Date: 2026-09-29. GitHub pull request 8 is open on branch `docs/pr-7-phase-2-roa
 
 The pull request holds the focused roadmap of Phase 2, with PR-8 to PR-11 (D-128). It records the owner answers D-122 to D-128. It also ends the D-4 period (D-125): `OVERRIDE_ENABLED` in `docs/tools/review_gate.py` is `True`, and the rule text changes with it.
 
-State: `make verify` and `make pr-check` passed. The Codex review of PR-7 is necessary, because PR-7 changes the review gate (D-125).
+State: Codex reviewed effective head `f1a9321a02fbfa15017b82da69b9c93195260e56`. Finding P2-1 is open because the public records disclose owner billing information. The verdict is `Changes required`. `make verify` passed. The review-gate check awaits the review record.
 
-Next action: wait for green CI, and run `make codex-review PR=8`. Then the owner reads the review summary and confirms the merge.
+Next action: remove the owner billing details from `docs/questions.md` and `docs/session-handoff.md`, then request a new review of the changed head.
 
 ## Facts that expire
 
