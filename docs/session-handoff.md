@@ -17,9 +17,9 @@ State: the probe builds, and its 12 browser tests pass in WebKit and Chromium on
 
 The browser key allows only the Auth APIs and the probe sites, and self sign-up is off (D-117). GitHub secret scanning flags the key, and the owner closes the alert.
 
-Review: Codex approved `a1b6bff` in round 1. Round 2 gave P2-1 at `2c20c66`: the stage line of `AGENTS.md` said that no service exists. The author corrected `AGENTS.md` and `README.md`, and `docs/reviews/pr-6-response.md` gives the answer. The reviewer did not read the key settings again, because its gcloud login expired. The pull request body holds the evidence of the author.
+Review: Codex reviewed effective head `50094a139a1e8a461fabc2d6578de1e5020ea14e`. P2-1 is fixed in that commit. The record says Ready for owner merge. The reviewer accepted the owner's dated D-117 settings check because gcloud credentials expired.
 
-Next action: CI of the tip, then round 3 with `make codex-review PR=6`.
+Next action: wait for `review-gate` on the review publication, then ask the owner to confirm the merge.
 
 ## Facts that expire
 
