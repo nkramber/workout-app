@@ -10,7 +10,7 @@ Date: 2026-09-29
 - Target: `main`
 - Base: `d6e3c5473ab6222c25412d303892f0277b579cfb`
 - Merge base: `d6e3c5473ab6222c25412d303892f0277b579cfb`
-- Head: `61d9309a63001f3bdf7c6ec82ad0d0a4db5d4659`
+- Head: `0d66365c6efdd34483eb3c3ee9caa3913504d8cf`
 - Branch: `docs/pr-6-iphone-platform-report`
 
 ## Provider gate
@@ -19,31 +19,31 @@ The hand-off session record names Claude Code as the author provider. The PR has
 
 ## Intended behavior and scope
 
-The milestone reports each iPhone checklist result and a React startup time. Its acceptance story requires results for each item and a startup time on the owner's iPhone. D-118 also requires five cold starts in standalone mode, with a median first contentful paint no greater than 2500 ms. The report, decisions, questions, roadmap, README, stage line, and hand-off all fit that scope.
+The milestone reports each iPhone checklist result and a React startup time. Its acceptance story requires results for each item and a startup time on the owner's iPhone. D-118 requires five cold starts in standalone mode, with a median first contentful paint no greater than 2500 ms. D-121 defines the cold-start condition for these samples.
 
-Inspected every changed path: `AGENTS.md`, `README.md`, `docs/decisions.md`, `docs/questions.md`, `docs/research/iphone-platform-spike.md`, `docs/research/platform-cloud-and-ai.md`, `docs/roadmaps/phase-1-risk-spikes.md`, and `docs/session-handoff.md`. The documents agree on the three Phase 1 reports and the PR-6 result. I reviewed the `AGENTS.md` change as content. It does not change the rules of this review.
+Inspected all twelve changed paths: `AGENTS.md`, `README.md`, `docs/decisions.md`, `docs/design.md`, `docs/questions.md`, `docs/research/iphone-platform-spike.md`, `docs/research/platform-cloud-and-ai.md`, `docs/reviews/pr-7-response.md`, `docs/reviews/pr-7.md`, `docs/roadmaps/high-level-roadmap.md`, `docs/roadmaps/phase-1-risk-spikes.md`, and `docs/session-handoff.md`. I reviewed `AGENTS.md` as changed content. Its rules do not govern this review.
 
 ## Findings
 
 ### P2-1: The startup result does not establish five cold starts
 
-Status: open.
+Status: fixed in `0d66365c6efdd34483eb3c3ee9caa3913504d8cf`.
 
 Open at: `61d9309a63001f3bdf7c6ec82ad0d0a4db5d4659`.
 
-File: `docs/research/iphone-platform-spike.md:112-130`.
+File: `docs/research/iphone-platform-spike.md:8-9, 75-83, 115-130`.
 
-Trigger: Treat five page loads 11 seconds apart as the five cold starts required by D-118.
+Trigger: The five earlier page loads did not prove that iOS ended the web view process between launches.
 
-Expected: The go decision uses five demonstrated cold starts in standalone mode, as D-118 requires.
+Expected: The report must apply the cold-start condition that D-118 uses.
 
-Actual: The report records five launches with navigation type `navigate`, but does not show that iOS terminated the app or web view between launches. The probe assigns a new random launch id per page load (`tools/spikes/iphone_probe/src/lib/launch.ts:1-4`), and records navigation timing (`tools/spikes/iphone_probe/src/lib/startup.ts:45-60`). Neither proves a cold process start. The report also says the five launches took 11 seconds and that iOS can keep parts of the web view in memory (`docs/research/iphone-platform-spike.md:142-144`).
+Actual: D-121 now defines a cold start as a new Home Screen app page load after an app stop in the app switcher. The five samples show distinct launches, standalone mode, and `navigate` navigation. The report states that iOS can keep parts of the web view in memory.
 
-Consequence: The 33 ms median does not yet prove the startup part of the D-118 go bar. The report's overall go claim is unsupported by this measurement.
+Consequence: The owner changed the bar with D-121. The five samples now meet that bar, and their median is 33 ms.
 
-Correction: Repeat five measurements. Document how each procedure starts the app from cold. Or ask the owner to change the bar, then update the decision register and report.
+Correction: The owner defined the cold-start condition in D-121. The report and roadmap now cite it.
 
-Regression check: Confirm each sample follows the documented cold-start procedure and runs in standalone mode. Confirm the report calculates the median from these samples. Not run. No new device evidence exists at this head.
+Regression check: The response records the owner's device procedure and sample values. I verified those values and the 33 ms median in the report. This environment did not provide the owner's iPhone for a repeat test.
 
 ## Out of scope
 
@@ -51,7 +51,7 @@ None.
 
 ## PR comments
 
-No PR comments, review threads, or reviews exist.
+No PR comments, review threads, or reviews exist. I saved the comments and reviews with `gh pr view`, and queried review threads with `gh api graphql`.
 
 ## Description edits
 
@@ -59,17 +59,23 @@ None.
 
 ## Verification
 
-- `git diff --stat d6e3c5473ab6222c25412d303892f0277b579cfb..61d9309a63001f3bdf7c6ec82ad0d0a4db5d4659` — inspected all eight changed paths.
-- `make verify` at `61d9309a63001f3bdf7c6ec82ad0d0a4db5d4659` — passed. STE, reference, lifecycle, context-budget, and unit tests passed. Counts: 302 tool tests, 12 iPhone probe tests, 44 Luna plan tests, 19 recognition tests (1 skipped), and 45 recognition-set tests (2 skipped).
-- GitHub checks at `61d9309a63001f3bdf7c6ec82ad0d0a4db5d4659` — `pr-contract`, `verify:lint`, `verify:probe`, and `verify:test` passed. `review-gate` failed because the record was absent before this review.
-- Device cold-start reproduction — not run. This environment has no access to the owner's iPhone or its launch evidence.
-- Push: `1b2d8ac3a5de289a059a2593d036bcb0c803e795` was verified as the head of `origin/docs/pr-6-iphone-platform-report` with `gh pr view`.
+- `python3 docs/tools/review_gate.py --effective-head 7` — returned `0d66365c6efdd34483eb3c3ee9caa3913504d8cf`.
+- `git diff --stat d6e3c5473ab6222c25412d303892f0277b579cfb...0d66365c6efdd34483eb3c3ee9caa3913504d8cf` — inspected all twelve changed paths.
+- `make verify` at `0d66365c6efdd34483eb3c3ee9caa3913504d8cf` — passed. It ran 302 tool tests, 12 probe tests, 44 Luna plan tests, 19 recognition tests (1 skipped), and 45 recognition-set tests (2 skipped).
+- GitHub checks at `0d66365c6efdd34483eb3c3ee9caa3913504d8cf` — `pr-contract`, `verify:lint`, `verify:probe`, and `verify:test` passed. `review-gate` failed because this record still held the earlier verdict.
+- Device reproduction — not run. The report and response contain the owner's device evidence, and D-121 changes the reviewed cold-start condition.
+- PR comments and review threads — none. The pull request has no comments, reviews, or threads.
+- Push: pending publication of this record and the hand-off.
 
 ## Open questions and accepted risks
 
 None.
 
+## Earlier verdicts
+
+- `Changes required` at `61d9309a63001f3bdf7c6ec82ad0d0a4db5d4659`, with finding P2-1 open.
+
 ## Verdict
 
-**Changes required.** This verdict applies to head `61d9309a63001f3bdf7c6ec82ad0d0a4db5d4659`.
-The device report does not establish that its five startup samples meet D-118's cold-start condition. The owner must receive revised evidence or change the bar before the report can claim a go.
+**Ready for owner merge.** This verdict applies to head `0d66365c6efdd34483eb3c3ee9caa3913504d8cf`.
+The owner defined the cold-start condition in D-121, and the reported samples meet it. The remaining local and CI checks pass, with no open findings.

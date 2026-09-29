@@ -4,22 +4,13 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-29. PR-6 of `docs/roadmaps/phase-1-risk-spikes.md` is open on the branch `docs/pr-6-iphone-platform-report`, from the base `d6e3c54`. It is the last pull request of Phase 1.
+Date: 2026-09-29. GitHub pull request 7 is open on branch docs/pr-6-iphone-platform-report, from base `d6e3c54`. Its work area id is PR-6 in `docs/roadmaps/phase-1-risk-spikes.md`.
 
-PR-6 holds the iPhone web platform spike report of work area 1.3:
+The pull request holds the iPhone web platform spike report of work area 1.3. Its report gives a go under D-118, as amended by D-121. The owner device checklist passed items 1 to 5, and the median first contentful paint was 33 ms for five launches. The app of the roadmap fixes the probe display faults under D-120.
 
-- the report `docs/research/iphone-platform-spike.md`: go under the bar of D-118,
-- the owner answers Q-136 to Q-139, and the decisions D-118 to D-121,
-- the result line of PR-6 in the focused roadmap, and the dated results in `docs/research/platform-cloud-and-ai.md`,
-- the stage lines of `AGENTS.md` and `README.md`: Phase 1 gave its three reports.
+State: Codex round 2 reviewed effective head `0d66365c6efdd34483eb3c3ee9caa3913504d8cf`. Finding P2-1 is fixed by D-121. The review verdict is `Ready for owner merge`. `make verify` passed. The current review record and this hand-off update await publication.
 
-The session deployed the probe by hand from a clean worktree of `main` at `d6e3c54` (D-14). The live page showed `build d6e3c54`. The owner made the probe account in the Firebase console (D-117). The owner ran the checklist in the Home Screen app (D-119), on an iPhone 16 Pro with iOS 27.0 and Chrome 154. Items 1 to 5 passed, and the median first contentful paint of 5 cold starts was 33 ms.
-
-The owner saw two display faults of the probe: the layout sat too high, and a pinch zoomed the page. D-120 makes the app of the roadmap fix both, in work area 2.2.
-
-State: Codex round 1 reviewed effective head `61d9309a63001f3bdf7c6ec82ad0d0a4db5d4659`, with the verdict `Changes required` and finding P2-1. The owner defined a cold start for the bar (D-121). `docs/reviews/pr-7-response.md` holds the answer. `make verify` passed.
-
-Next action: wait for CI on the answer, then run the Codex round 2 with `make codex-review`.
+Next action: publish the review record and this hand-off. Then the owner reads the review summary and confirms the merge.
 
 ## Facts that expire
 
