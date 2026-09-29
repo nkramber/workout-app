@@ -10,7 +10,8 @@ The ids have three ranges:
 - Q-119 is a question of the Luna plan spike session.
 - Q-120 to Q-124 are questions of the recognition test set session.
 - Q-125 to Q-130 are questions of the recognition spike session.
-- Q-90 to Q-107 are open questions. Q-90 and Q-94 to Q-97 have an answer. Each open question names the phase of `docs/roadmaps/high-level-roadmap.md` that needs the answer.
+- Q-140 to Q-144 are questions of the Phase 2 roadmap session.
+- Q-90 to Q-107 are open questions. Q-90, Q-91, Q-93 to Q-97, Q-99, and Q-100 have an answer. Each open question names the phase of `docs/roadmaps/high-level-roadmap.md` that needs the answer.
 
 The owner answered through the answer controls of the session. The first session asked Q-1 to Q-46 and Q-74 to Q-88 on 2026-09-27. It asked the other questions on 2026-09-28. The column "Rec." tells whether the owner chose the option that the launch prompt marked as recommended. A "No" in that column is an owner decision, not a mistake.
 
@@ -225,21 +226,31 @@ The owner answered through the answer controls of the session. The first session
 | Q-138 | The probe showed two display faults on the iPhone: the layout sat too high, and a pinch zoomed the page. What do they mean for the app of the roadmap? | The owner stated on 2026-09-29: the probe can keep them, but the app of the roadmap must fix both. It blocks the pinch zoom as Decktome does. | Answered | D-120 |
 | Q-139 | Codex finding P2-1 of pull request 7: the page can not prove that iOS ended the web view between the five launches. Does the bar of D-118 need a new definition of a cold start? | Yes. A cold start is a new page load of the Home Screen app after an app stop in the app switcher. The report keeps the limit that iOS can keep the web view in memory. | Answered | D-121 |
 
+## Questions of the Phase 2 roadmap session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-140 | The exit evidence of work area 2.1 puts the contract, Go, and emulator tests in `make verify`. D-113 keeps `make verify` Python only. Which rule wins? | D-113. The product checks get their own `make` targets and CI jobs. | Answered | D-126 |
+| Q-141 | The owner ended the D-4 period. Which pull request changes `OVERRIDE_ENABLED` and the rule text? | PR-7. | Answered | D-125 |
+| Q-142 | Work area 2.3 needs a billing account for Cloud Run and for the backups of D-124. D-99 kept the project with no billing account. Which billing account and which budget alert apply? | No answer yet. The owner stated on 2026-09-29 that the billing account of Decktome is in the free trial, with about 280 USD and 70 days left. The session could not read the account, so the statement is not verified. The owner asked for a check of the account first. The session of PR-10 reads the billing state before it asks. | Open | none |
+| Q-143 | Are the CI jobs of the product code required checks of `main`? | Yes. Each pull request that adds a job adds it to the ruleset. | Answered | D-127 |
+| Q-144 | How does Phase 2 split into pull requests? | PR-8 to PR-11, as the focused roadmap gives them. | Answered | D-128 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |
 |---|---|---|---|---|
 | Q-90 | Which web client stack does the app use? | Q-52 asked for research first. Answer on 2026-09-28: the Decktome React stack (D-84). | Before this PR closes | Answered |
-| Q-91 | How does the app handle equipment with kilogram markings under pounds only (D-28)? | A wrong conversion gives a wrong load. | Phase 2 | Open |
+| Q-91 | How does the app handle equipment with kilogram markings under pounds only (D-28)? | A wrong conversion gives a wrong load. Answer on 2026-09-29: such a machine is out of scope, and the app makes no conversion (D-122). | Phase 2 | Answered |
 | Q-92 | When nearest-5-lb rounding (D-65) makes a load jump larger than the policy limit, does the policy hold the load or add reps instead? | On a 25 lb stack, one 5 lb step is a 20 percent jump. | Phase 3 | Open |
-| Q-93 | When does the D-4 period end, and which focused roadmaps must exist first? | The `review-override` label stays off until then. | After the first focused roadmaps merge | Open |
+| Q-93 | When does the D-4 period end, and which focused roadmaps must exist first? | The `review-override` label stays off until then. Answer on 2026-09-29: the period ends now, and PR-7 turns on the label (D-125). | After the first focused roadmaps merge | Answered |
 | Q-94 | Does the owner apply the committed ruleset of `main` on GitHub after this PR merges? | The ruleset makes the review gate and the contract check mandatory. It changes live GitHub settings. Answer on 2026-09-28: yes. The session applied both files, and `make ruleset-check` passed (D-91). | Right after this PR merges | Answered |
 | Q-95 | What do the current OpenAI usage policies say about fitness and health advice? | The research could not read the policy page. The prompts of Luna must obey it. Answer on 2026-09-28: use the dated copy of the policy page (D-93). | Phase 1 | Answered |
 | Q-96 | What does one equipment photo cost on `gpt-6-luna`? | OpenAI does not publish the image token rate of this model. A paid probe needs owner approval (D-25). Answer on 2026-09-28: the recognition spike measures it, with a cap of 2 USD (D-94). Measured on 2026-09-28: 0.00037 USD per photo, with 2,815 input tokens and 368 output tokens on average (`docs/research/recognition-spike.md`). | Phase 1 | Answered |
 | Q-97 | Which image licenses are acceptable for the recognition test set (D-56)? | Test images must be lawful to copy and store. Answer on 2026-09-28: CC0, public domain, CC BY, CC BY-SA, and CC BY-NC (D-95). | Phase 1 | Answered |
 | Q-98 | What are the monthly AI caps for the one user and for the project (D-25)? | A cap stops a runaway loop from a large bill. | Phase 4 | Open |
-| Q-99 | Does the one development project get Firestore backups and point-in-time recovery? | D-76 leaves one project. It holds the only copy of the workout history. | Phase 4 | Open |
-| Q-100 | Which fields does a cardio machine log hold? | D-57 defines the set log for resistance machines only. D-45 adds cardio machines. | Phase 2 | Open |
+| Q-99 | Does the one development project get Firestore backups and point-in-time recovery? | D-76 leaves one project. It holds the only copy of the workout history. Answer on 2026-09-29: yes, point-in-time recovery and a daily backup from work area 2.3 (D-124). | Phase 4 | Answered |
+| Q-100 | Which fields does a cardio machine log hold? | D-57 defines the set log for resistance machines only. D-45 adds cardio machines. Answer on 2026-09-29: duration and an effort rating, with optional distance, level, pain, and note (D-123). | Phase 2 | Answered |
 | Q-101 | Where does mobility and recovery guidance come from, as text only (D-73) and inside the fitness boundary (D-36)? | Luna can write this text, and the policy can not check prose for medical claims as easily as numbers. | Phase 3 | Open |
 | Q-102 | How long a gap counts as a long break (D-66)? | The re-entry rule needs a threshold. | Phase 3 | Open |
 | Q-103 | Where do the photos that a user chooses to keep (D-52) live, and for how long? | Retention needs a place and a limit. | The deferred photo work (D-111) | Open |

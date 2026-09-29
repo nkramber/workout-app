@@ -19,7 +19,7 @@ The `review-gate` check reads that file, and the ruleset of `main` requires the 
 
 A review that `make codex-review` or `make claude-review` starts has no owner in the loop. Where this skill says to ask the owner, write the question under `## Open questions and accepted risks`. Then give the verdict `Blocked`. The author session asks the owner.
 
-The Codex review applies to every pull request, and to a pull request of documents alone too, until the owner ends the roadmap period (D-4). After that period, a review of the other provider is necessary only for a change of code or of safety behavior (D-15). Then a pull request of documents alone can carry the `review-override` label in place of the review. `references/answer-review.md` gives the rule. The label passes the check only when `OVERRIDE_ENABLED` of `docs/tools/review_gate.py` is `True`. No author is exempt from the review, Dependabot included (D-90).
+The owner ended the roadmap period of D-4 on 2026-09-29 (D-125). A review of the other provider is necessary only for a change of code or of safety behavior (D-15). A pull request of documents alone can carry the `review-override` label in place of the review. `references/answer-review.md` gives the rule. The label passes the check only when `OVERRIDE_ENABLED` of `docs/tools/review_gate.py` is `True`. No author is exempt from the review, Dependabot included (D-90).
 
 ## Reference files
 

@@ -6,7 +6,7 @@ This file holds the rules for every agent and every session in this repository. 
 
 Gym Route is a personal workout app for one user, the owner (D-67). It is an installable, phone-first web app on Google Cloud, and it never goes to an app store (D-17). OpenAI `gpt-6-luna` proposes plans and revisions. A deterministic, versioned policy checks every set and load before the owner sees it (D-22, D-23).
 
-Stage: the end of Phase 1 of `docs/roadmaps/high-level-roadmap.md`. The three reports of `docs/roadmaps/phase-1-risk-spikes.md` exist, and Phase 2 needs its focused roadmap. The workout app and its backend do not exist yet. The development project `gym-route-dev` exists, with Firebase Hosting and Firebase Authentication only (D-99, D-116). `docs/design.md` holds the design.
+Stage: Phase 2 of `docs/roadmaps/high-level-roadmap.md`, with the pull requests of `docs/roadmaps/phase-2-platform-skeleton.md`. The three reports of Phase 1 exist. The workout app and its backend do not exist yet. The development project `gym-route-dev` exists, with Firebase Hosting and Firebase Authentication only (D-99, D-116). `docs/design.md` holds the design.
 
 **The repository is public.** Write no email address, no personal data, no photo, no workout log, and no secret into a file, an issue, or a pull request. The one exception is the author credit that the license of a test image requires (D-106).
 
@@ -23,11 +23,11 @@ Stage: the end of Phase 1 of `docs/roadmaps/high-level-roadmap.md`. The three re
 9. **Review before merge.**
    - After CI is green, the author session runs the review of the other provider without a separate approval. A Claude Code author runs `make codex-review PR=<n>` (D-8). A Codex author runs `make claude-review PR=<n>` (D-88).
    - Codex reviews Claude Code work, and Claude Code reviews Codex work (D-15). A review by the same provider never counts.
-   - Codex reviews every pull request of documents alone until the owner ends the D-4 period. The `review-override` label does not pass the gate before then (D-4).
+   - The owner ended the D-4 period on 2026-09-29 (D-125). A pull request of documents alone can pass the gate with the `review-override` label (D-15).
    - Gitar is not part of this repository until the owner approves it (D-3).
    - The third open round of one finding stops the loop, and the owner decides.
    - The gate can not prove the provider of a record or of an author. Before each merge, the owner reads the commit that last changed the record and the author provider (D-87, D-89).
-   - During the D-4 period, a document change after an approval needs a new review. No author is exempt, Dependabot included (D-90).
+   - A change of code after an approval needs a new review. No author is exempt, Dependabot included (D-90).
 10. **The owner confirms every merge** (D-13). After the Codex approval, ask the owner with a summary in four sections: What, How, CI, and Codex review. Turn on the auto-merge only after the confirmation.
 11. **Push back.** When two owner statements conflict, quote both and ask. When a request rests on a wrong premise, say so with the evidence.
 12. **One pull request, one clean session** (D-12). The owner approves the work before it starts. A pull request holds one milestone with one acceptance story, and it can hold two, three, or more concerns (D-10). The session continues until the pull request merges, and a context checkpoint never ends it (D-85). Load `.claude/skills/one-pr-one-session/SKILL.md` for all work on a pull request.

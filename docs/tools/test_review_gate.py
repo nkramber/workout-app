@@ -92,7 +92,8 @@ class ReviewRecord(unittest.TestCase):
         commits = CODE + [("f" * 40, ["docs/reviews/pr-211.md"])]
         self.assertEqual(rg.effective_head(commits, N), "f" * 40)
         # D-4: during the roadmap period, the change needs a current review.
-        states, _ = run(commits=commits, text=record())
+        with unittest.mock.patch.object(rg, "OVERRIDE_ENABLED", False):
+            states, _ = run(commits=commits, text=record())
         self.assertIn(("RG 5", "FAULT"), states)
 
     def test_metadata_commits_alone_have_no_effective_head(self):
@@ -136,11 +137,11 @@ class Fork(unittest.TestCase):
         self.assertEqual(faults(rules), [])
 
 
+@unittest.mock.patch.object(rg, "OVERRIDE_ENABLED", False)
 class DocumentsDuringTheRoadmapPeriod(unittest.TestCase):
     """D-4, finding P1-4 of PR #1: each document change needs a current review during the period."""
 
     def test_a_commit_of_each_kind_of_document_needs_a_new_review(self):
-        self.assertFalse(rg.OVERRIDE_ENABLED)
         for path in ["docs/roadmaps/high-level-roadmap.md", "docs/decisions.md", ".claude/skills/pr-review/SKILL.md",
                      "AGENTS.md", "README.md"]:
             with self.subTest(path=path):
@@ -214,13 +215,18 @@ class DocumentsAfterTheApproval(unittest.TestCase):
         self.assertEqual(state, "FAULT")
 
 
+class OverrideState(unittest.TestCase):
+    """D-125 ended the D-4 period on 2026-09-29."""
+
+    def test_the_constant_is_true_after_the_roadmap_period(self):
+        self.assertIs(rg.OVERRIDE_ENABLED, True)
+
+
+@unittest.mock.patch.object(rg, "OVERRIDE_ENABLED", False)
 class OverrideLabel(unittest.TestCase):
-    """D-4 keeps OVERRIDE_ENABLED False. The label then satisfies no rule."""
+    """During the D-4 period, OVERRIDE_ENABLED is False. The label then satisfies no rule."""
 
     DOCS = ["docs/decisions.md", "docs/session-handoff.md", ".claude/skills/pr-review/SKILL.md", "CLAUDE.md"]
-
-    def test_the_constant_is_false_for_the_roadmap_period(self):
-        self.assertIs(rg.OVERRIDE_ENABLED, False)
 
     def test_while_disabled_the_label_does_not_pass_documents(self):
         states, results = run(labels=[rg.LABEL], files=self.DOCS)
@@ -240,7 +246,7 @@ class OverrideLabel(unittest.TestCase):
 
 @unittest.mock.patch.object(rg, "OVERRIDE_ENABLED", True)
 class OverrideLabelEnabled(unittest.TestCase):
-    """After the owner ends the D-4 period, the label passes documents alone (D-15)."""
+    """After the owner ends the D-4 period, the label passes documents alone (D-15, D-125)."""
 
     def test_a_documentation_pull_request_with_the_label_passes(self):
         files = ["docs/decisions.md", "docs/session-handoff.md", ".claude/skills/pr-review/SKILL.md", "CLAUDE.md"]
@@ -302,16 +308,16 @@ class GitFacts(unittest.TestCase):
         self.git("commit", "-q", "-m", message, email=email, committer=committer)
         return self.git("rev-parse", "HEAD")
 
-    def gate(self, labels=(), author="owner", head_repo=REPO, enabled=False):
-        """Run the command. With enabled, run a copy with OVERRIDE_ENABLED True (the state after D-4)."""
+    def gate(self, labels=(), author="owner", head_repo=REPO, enabled=True):
+        """Run the command. With enabled False, run a copy with OVERRIDE_ENABLED False (the D-4 period)."""
         script = os.path.join(HERE, "review_gate.py")
-        if enabled:
+        if not enabled:
             with open(script, encoding="utf-8") as handle:
                 text = handle.read()
-            self.assertIn("OVERRIDE_ENABLED = False  # D-4", text)
+            self.assertIn("OVERRIDE_ENABLED = True  # D-4, D-125", text)
             script = os.path.join(self.tmp.name + "-tool.py")
             with open(script, "w", encoding="utf-8") as handle:
-                handle.write(text.replace("OVERRIDE_ENABLED = False  # D-4", "OVERRIDE_ENABLED = True"))
+                handle.write(text.replace("OVERRIDE_ENABLED = True  # D-4, D-125", "OVERRIDE_ENABLED = False"))
             self.addCleanup(os.remove, script)
         event = os.path.join(self.repo, "..", f"event-{os.path.basename(self.repo)}.json")
         head = {"sha": "x", "repo": None if head_repo is None else {"full_name": head_repo}}
@@ -350,7 +356,7 @@ class GitFacts(unittest.TestCase):
 
     def test_the_label_passes_documents_from_a_fork_after_the_period_alone(self):
         self.commit({"docs/decisions.md": "| D-1 |\n"}, "docs")
-        status, out = self.gate(labels=[rg.LABEL], head_repo="someone/gym-route")
+        status, out = self.gate(labels=[rg.LABEL], head_repo="someone/gym-route", enabled=False)
         self.assertEqual(status, 1, out)
         status, out = self.gate(labels=[rg.LABEL], head_repo="someone/gym-route", enabled=True)
         self.assertEqual(status, 0, out)
@@ -367,7 +373,7 @@ class GitFacts(unittest.TestCase):
         code = self.commit({"go/a.go": "package a\n"}, "code")
         self.commit({rg.record_path(N): record(head=code)}, "review")
         self.commit({"docs/roadmaps/high-level-roadmap.md": "mark\n"}, "documents")
-        status, out = self.gate()
+        status, out = self.gate(enabled=False)
         self.assertEqual(status, 1, out)
         self.assertIn("RG 5: FAULT", out)
 
@@ -428,7 +434,7 @@ class GitFacts(unittest.TestCase):
 
     def test_the_label_passes_documents_after_the_period_alone(self):
         self.commit({"docs/decisions.md": "| D-1 |\n"}, "docs")
-        status, out = self.gate(labels=[rg.LABEL])
+        status, out = self.gate(labels=[rg.LABEL], enabled=False)
         self.assertEqual(status, 1, out)
         self.assertIn("RG 1: SKIP", out)
         self.assertIn("RG 3: FAULT", out)
