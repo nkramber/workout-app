@@ -1,0 +1,128 @@
+{
+ "run_id": "20260929T004945Z-openai",
+ "date_utc": "2026-09-29T00:49:45+00:00",
+ "provider": "openai",
+ "model": "gpt-6-luna",
+ "reasoning_effort": "medium",
+ "image_detail": "high",
+ "image_long_side_px": 1536,
+ "prompt_version": "recognition-prompt-v1",
+ "prompt_hash": "24851131a227b755",
+ "catalog_version": 1,
+ "catalog_types": 26,
+ "cap_usd": 0.05,
+ "requested": 2,
+ "status_counts": {
+  "completed": 2
+ },
+ "returned": 2,
+ "outcomes": {
+  "correct": 0,
+  "wrong": 2,
+  "abstained": 0,
+  "invalid": 0
+ },
+ "correct_rate": 0.0,
+ "wrong_rate": 1.0,
+ "abstained_rate": 0.0,
+ "high_confidence_wrong": 0,
+ "high_confidence_wrong_rate": 0.0,
+ "by_group": {
+  "original": {
+   "correct": 0,
+   "wrong": 2,
+   "abstained": 0,
+   "invalid": 0
+  },
+  "degraded": {
+   "correct": 0,
+   "wrong": 0,
+   "abstained": 0,
+   "invalid": 0
+  }
+ },
+ "by_truth": {
+  "catalog": {
+   "correct": 0,
+   "wrong": 2,
+   "abstained": 0,
+   "invalid": 0
+  },
+  "outside": {
+   "correct": 0,
+   "wrong": 0,
+   "abstained": 0,
+   "invalid": 0
+  }
+ },
+ "by_split": {
+  "test": {
+   "correct": 0,
+   "wrong": 2,
+   "abstained": 0,
+   "invalid": 0
+  }
+ },
+ "hard_negatives": {
+  "correct": 0,
+  "wrong": 0,
+  "abstained": 0,
+  "invalid": 0
+ },
+ "calibration": [
+  {
+   "bin": "0.0-0.5",
+   "answers": 0,
+   "correct": 0,
+   "precision": null
+  },
+  {
+   "bin": "0.5-0.8",
+   "answers": 2,
+   "correct": 0,
+   "precision": 0.0
+  },
+  {
+   "bin": "0.8-0.9",
+   "answers": 0,
+   "correct": 0,
+   "precision": null
+  },
+  {
+   "bin": "0.9-1.0",
+   "answers": 0,
+   "correct": 0,
+   "precision": null
+  }
+ ],
+ "high_confidence_wrong_answers": [],
+ "total_cost_usd": 0.001269,
+ "unknown_charges": 0,
+ "cost_per_photo_usd": 0.000634,
+ "tokens": {
+  "input_tokens": 3892,
+  "cached_input_tokens": 1087,
+  "output_tokens": 1955,
+  "reasoning_tokens": 1826
+ },
+ "input_tokens_per_photo": {
+  "min": 1946,
+  "mean": 1946,
+  "max": 1946
+ },
+ "mean_seconds": 12.4,
+ "max_seconds": 13.1,
+ "go": {
+  "result": "no-go",
+  "reasons": [
+   "correct rate under the bar"
+  ],
+  "bar": {
+   "high_confidence_min": 0.8,
+   "high_confidence_wrong_rate_max": 0.02,
+   "correct_rate_min": 0.7,
+   "cost_per_photo_max_usd": 0.01
+  }
+ },
+ "spend_bound_usd": 0.001269
+}

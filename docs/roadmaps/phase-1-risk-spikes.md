@@ -23,13 +23,14 @@ Every question of Phase 1 has an answer. No open question of this phase stays.
 | Question | Answer | Decision |
 |---|---|---|
 | Q-95, usage policies | The dated copy of the policy page. Luna text stays inside the fitness boundary of D-36. | D-93 |
-| Q-96, cost per photo | PR-4 measures it with one paid run. The cap is 2 USD. | D-94 |
+| Q-96, cost per photo | PR-4 measures it with one paid run. The cap is 2 USD. PR-4 measured 0.00037 USD per photo. | D-94 |
 | Q-97, image licenses | CC0, public domain, CC BY, CC BY-SA, and CC BY-NC. | D-95 |
 | Q-114, PR-<n> ids | One sequence across all focused roadmaps. | D-96 |
 | Q-115, image store | A manifest in Git, and the images in a local cache. | D-97 |
 | Q-116, plan spike cap | 2 USD for the paid run of PR-2. | D-98 |
 | Q-117, probe origin | The development project of D-76, early, with Firebase Hosting and Firebase Authentication only. | D-99 |
 | Q-118, spike language | Python. | D-100 |
+| Q-130, probe camera page | No camera page, because the app of the roadmap has no photo upload after the no-go of PR-4 (D-110). | D-112 |
 
 ## 3. Rules for each spike pull request
 
@@ -133,6 +134,8 @@ Checks:
 - `make verify` with the fake provider, free.
 - **Paid:** one run on the test set of PR-3 (estimate 0.50 USD for 200 photos). The cap is 2 USD (D-94). The owner approves the run at run time (D-25).
 
+Result: no-go under the bar of D-107. 8.6% of the 174 photos had a wrong answer with a high stated confidence, and the bar is 2%. The report is `docs/research/recognition-spike.md`, and the harness is in `tools/spikes/recognition/`. The real cost was 0.0651 USD. The owner then moved photo recognition out of Phase 4, and no phase holds it now (D-110, D-111).
+
 ### PR-5 - The iPhone web platform probe
 
 Branch: `feat/pr-5-iphone-platform-probe`. Work area 1.3.
@@ -140,7 +143,7 @@ Branch: `feat/pr-5-iphone-platform-probe`. Work area 1.3.
 Concerns:
 
 - a probe web app on the React stack of D-84, in `tools/spikes/<name>/`,
-- a probe page for each device item: camera input, IndexedDB data after an app kill, Screen Wake Lock, install, sign-in, and a startup timer,
+- a probe page for each device item: IndexedDB data after an app kill, Screen Wake Lock, install, sign-in, and a startup timer,
 - the development project of D-76, with Firebase Hosting and Firebase Authentication only (D-99),
 - the Firebase configuration of the probe, with sign-in by email and password (D-75).
 
@@ -163,13 +166,14 @@ Concerns:
 
 The checklist holds these items:
 
-1. Open the camera from the probe, and take a photo.
-2. Write data to IndexedDB, stop the app, and open it again.
-3. Keep the screen on with Screen Wake Lock.
-4. Add the probe to the Home Screen from Chrome.
-5. Sign in with email and password in the Home Screen app.
-6. Stop the Home Screen app, open it again, and check the sign-in state.
-7. Measure the startup time of the React build (D-84).
+1. Write data to IndexedDB, stop the app, and open it again.
+2. Keep the screen on with Screen Wake Lock.
+3. Add the probe to the Home Screen from Chrome.
+4. Sign in with email and password in the Home Screen app.
+5. Stop the Home Screen app, open it again, and check the sign-in state.
+6. Measure the startup time of the React build (D-84).
+
+The probe has no camera page (D-112).
 
 Acceptance story: the report gives a result for each item and a startup time on the iPhone of the owner.
 

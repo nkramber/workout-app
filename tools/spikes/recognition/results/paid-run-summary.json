@@ -1,0 +1,270 @@
+{
+ "run_id": "20260929T005046Z-openai",
+ "date_utc": "2026-09-29T00:50:46+00:00",
+ "provider": "openai",
+ "model": "gpt-6-luna",
+ "reasoning_effort": "medium",
+ "image_detail": "high",
+ "image_long_side_px": 1536,
+ "prompt_version": "recognition-prompt-v1",
+ "prompt_hash": "24851131a227b755",
+ "catalog_version": 1,
+ "catalog_types": 26,
+ "cap_usd": 1.95,
+ "requested": 174,
+ "status_counts": {
+  "completed": 174
+ },
+ "returned": 174,
+ "outcomes": {
+  "correct": 136,
+  "wrong": 30,
+  "abstained": 8,
+  "invalid": 0
+ },
+ "correct_rate": 0.7816091954022989,
+ "wrong_rate": 0.1724137931034483,
+ "abstained_rate": 0.04597701149425287,
+ "high_confidence_wrong": 15,
+ "high_confidence_wrong_rate": 0.08620689655172414,
+ "by_group": {
+  "original": {
+   "correct": 105,
+   "wrong": 23,
+   "abstained": 2,
+   "invalid": 0
+  },
+  "degraded": {
+   "correct": 31,
+   "wrong": 7,
+   "abstained": 6,
+   "invalid": 0
+  }
+ },
+ "by_truth": {
+  "catalog": {
+   "correct": 109,
+   "wrong": 22,
+   "abstained": 8,
+   "invalid": 0
+  },
+  "outside": {
+   "correct": 27,
+   "wrong": 8,
+   "abstained": 0,
+   "invalid": 0
+  }
+ },
+ "by_split": {
+  "calibration": {
+   "correct": 33,
+   "wrong": 6,
+   "abstained": 0,
+   "invalid": 0
+  },
+  "test": {
+   "correct": 103,
+   "wrong": 24,
+   "abstained": 8,
+   "invalid": 0
+  }
+ },
+ "hard_negatives": {
+  "correct": 63,
+  "wrong": 19,
+  "abstained": 6,
+  "invalid": 0
+ },
+ "calibration": [
+  {
+   "bin": "0.0-0.5",
+   "answers": 0,
+   "correct": 0,
+   "precision": null
+  },
+  {
+   "bin": "0.5-0.8",
+   "answers": 27,
+   "correct": 12,
+   "precision": 0.444
+  },
+  {
+   "bin": "0.8-0.9",
+   "answers": 28,
+   "correct": 20,
+   "precision": 0.714
+  },
+  {
+   "bin": "0.9-1.0",
+   "answers": 84,
+   "correct": 77,
+   "precision": 0.917
+  }
+ ],
+ "high_confidence_wrong_answers": [
+  {
+   "photo_id": "R001",
+   "group": "original",
+   "degrade": null,
+   "truth": "ab_crunch",
+   "answer": "hip_abduction",
+   "confidence": 0.93,
+   "hard_negative": null
+  },
+  {
+   "photo_id": "R002",
+   "group": "original",
+   "degrade": null,
+   "truth": "ab_crunch",
+   "answer": "hip_abduction",
+   "confidence": 0.88,
+   "hard_negative": null
+  },
+  {
+   "photo_id": "R007",
+   "group": "original",
+   "degrade": null,
+   "truth": "biceps_curl",
+   "answer": "seated_row",
+   "confidence": 0.86,
+   "hard_negative": "triceps_extension"
+  },
+  {
+   "photo_id": "R022",
+   "group": "original",
+   "degrade": null,
+   "truth": "chest_press_stack",
+   "answer": "pec_fly",
+   "confidence": 0.92,
+   "hard_negative": "chest_press_plate"
+  },
+  {
+   "photo_id": "R033",
+   "group": "original",
+   "degrade": null,
+   "truth": "hack_squat",
+   "answer": "leg_press_plate",
+   "confidence": 0.86,
+   "hard_negative": "leg_press_plate"
+  },
+  {
+   "photo_id": "R042",
+   "group": "original",
+   "degrade": null,
+   "truth": "lat_pulldown",
+   "answer": "assisted_pullup",
+   "confidence": 0.88,
+   "hard_negative": "assisted_pullup"
+  },
+  {
+   "photo_id": "R044",
+   "group": "original",
+   "degrade": null,
+   "truth": "leg_curl_lying",
+   "answer": "hip_abduction",
+   "confidence": 0.9,
+   "hard_negative": "leg_curl_seated"
+  },
+  {
+   "photo_id": "R046",
+   "group": "original",
+   "degrade": null,
+   "truth": "leg_curl_seated",
+   "answer": "hip_abduction",
+   "confidence": 0.88,
+   "hard_negative": "leg_curl_lying"
+  },
+  {
+   "photo_id": "R074",
+   "group": "original",
+   "degrade": null,
+   "truth": "shoulder_press",
+   "answer": "chest_press_plate",
+   "confidence": 0.92,
+   "hard_negative": null
+  },
+  {
+   "photo_id": "R104",
+   "group": "original",
+   "degrade": null,
+   "truth": "none_of_these",
+   "answer": "calf_raise",
+   "confidence": 0.9,
+   "hard_negative": null
+  },
+  {
+   "photo_id": "R113",
+   "group": "original",
+   "degrade": null,
+   "truth": "none_of_these",
+   "answer": "leg_curl_lying",
+   "confidence": 0.82,
+   "hard_negative": null
+  },
+  {
+   "photo_id": "R126",
+   "group": "original",
+   "degrade": null,
+   "truth": "none_of_these",
+   "answer": "leg_extension",
+   "confidence": 0.86,
+   "hard_negative": "lat_pulldown"
+  },
+  {
+   "photo_id": "D016",
+   "group": "degraded",
+   "degrade": "occlusion-2",
+   "truth": "rower",
+   "answer": "stair_climber",
+   "confidence": 0.94,
+   "hard_negative": null
+  },
+  {
+   "photo_id": "D036",
+   "group": "degraded",
+   "degrade": "occlusion-1",
+   "truth": "chest_press_stack",
+   "answer": "pec_fly",
+   "confidence": 0.9,
+   "hard_negative": "chest_press_plate"
+  },
+  {
+   "photo_id": "D044",
+   "group": "degraded",
+   "degrade": "occlusion-1",
+   "truth": "leg_curl_lying",
+   "answer": "hip_abduction",
+   "confidence": 0.84,
+   "hard_negative": "leg_curl_seated"
+  }
+ ],
+ "total_cost_usd": 0.063789,
+ "unknown_charges": 28,
+ "cost_per_photo_usd": 0.000367,
+ "tokens": {
+  "input_tokens": 489830,
+  "cached_input_tokens": 190850,
+  "output_tokens": 63966,
+  "reasoning_tokens": 52003
+ },
+ "input_tokens_per_photo": {
+  "min": 1332,
+  "mean": 2815,
+  "max": 3751
+ },
+ "mean_seconds": 5.5,
+ "max_seconds": 22.7,
+ "go": {
+  "result": "no-go",
+  "reasons": [
+   "high-confidence wrong rate over the bar"
+  ],
+  "bar": {
+   "high_confidence_min": 0.8,
+   "high_confidence_wrong_rate_max": 0.02,
+   "correct_rate_min": 0.7,
+   "cost_per_photo_max_usd": 0.01
+  }
+ },
+ "spend_bound_usd": 0.265104
+}
