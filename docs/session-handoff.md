@@ -15,9 +15,9 @@ PR-6 holds the iPhone web platform spike report of work area 1.3:
 
 The session deployed the probe by hand from a clean worktree of `main` at `d6e3c54` (D-14). The live page showed `build d6e3c54`. The owner made the probe account in the Firebase console (D-117). The owner ran the checklist in the Home Screen app (D-119), on an iPhone 16 Pro with iOS 27.0 and Chrome 154. Items 1 to 5 passed, and the median first contentful paint of 5 cold starts was 33 ms.
 
-State: the draft is ready for CI and the Codex review. `make verify` passed.
+State: Codex reviewed effective head `61d9309a63001f3bdf7c6ec82ad0d0a4db5d4659` and recorded `Changes required` in `docs/reviews/pr-7.md`. Finding P2-1 is open. `make verify` passed.
 
-Next action: push, wait for CI, then run `make codex-review` for the pull request of PR-6.
+Next action: establish five cold-start samples for D-118 or ask the owner to change the bar. Then revise the report and request a new review.
 
 ## Facts that expire
 
