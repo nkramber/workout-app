@@ -16,9 +16,9 @@ The pull request holds the contract and the API skeleton:
 - the three jobs as required checks in `.github/rulesets/review-gate.json` (D-127),
 - the owner answers Q-145 to Q-147 (D-129 to D-131).
 
-State: `make verify`, `make contract`, `make go-test`, and `make emulator-test` passed on the machine of the owner. The live ruleset does not yet require the three new jobs.
+State: `make verify`, `make contract`, `make go-test`, and `make emulator-test` passed on the machine of the owner. Each CI job of the first push passed, except `review-gate`, which waits for the Codex record. The owner approved the change of the live ruleset at run time. The session applied it, and `make ruleset-check` passed.
 
-Next action: read the CI result. Then ask the owner to approve the change of the live ruleset, apply it, and run `make ruleset-check`. Then run the Codex review.
+Next action: run the Codex review, then answer each finding.
 
 ## Facts that expire
 
@@ -26,7 +26,7 @@ Next action: read the CI result. Then ask the owner to approve the change of the
 |---|---|---|
 | The repository is public. | 2026-09-27 | GitHub repository settings |
 | The owner ended the D-4 period. `OVERRIDE_ENABLED` is `True` on `main`. | 2026-09-29 | D-125, `docs/tools/review_gate.py` |
-| `main` has the live ruleset `review-gate` and the merge settings of `.github/rulesets`. `make ruleset-check` passed. | 2026-09-28 | `make ruleset-check` |
+| `main` has the live ruleset `review-gate` and the merge settings of `.github/rulesets`. The ruleset requires `verify:contract`, `verify:go`, and `verify:emulator` too. `make ruleset-check` passed. | 2026-09-29 | `make ruleset-check` |
 | The review-gate workflow runs from `main`, so it runs on each pull request. | 2026-09-28 | `.github/workflows/review-gate.yml` |
 | `gpt-6-luna` costs 0.10 USD per million input tokens and 0.50 USD per million output tokens. | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
 | The OpenAI usage policies page returns HTTP 403. The owner accepted a copy printed on 2025-11-07 (D-93). | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
@@ -46,7 +46,7 @@ Next action: read the CI result. Then ask the owner to approve the change of the
 
 ## Next steps, in order
 
-1. Close PR-8: CI, the live ruleset, the Codex review, the owner confirmation, and the merge.
+1. Close PR-8: the Codex review, the owner confirmation, and the merge.
 2. After the merge, start PR-9 (work area 2.2) in a clean session, with `docs/roadmaps/phase-2-platform-skeleton.md` section 4.
 
 ## Session records
@@ -64,10 +64,11 @@ Completed:
 - Wrote the emulator test of the acceptance story: no token, a bad token, and a token of another project give `unauthenticated`. A uid outside the allowlist gives `permission_denied`. An allowed uid gets its uid back.
 - Proved that `make contract` refuses a changed field number, with a copy of the tree as the base.
 - Installed the Homebrew keg `openjdk@21` on the machine of the owner, because the Firestore emulator needs Java 21.
+- Applied the three new required checks to the live ruleset after the owner approval (D-127). `make ruleset-check` passed.
 
 Open work:
 
-- The change of the live ruleset, the Codex review, the owner confirmation, and the merge of PR-8.
+- The Codex review, the owner confirmation, and the merge of PR-8.
 
 ### Session 8 - 2026-09-29
 
