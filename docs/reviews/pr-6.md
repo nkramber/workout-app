@@ -10,7 +10,7 @@ Date: 2026-09-29
 - Target: `main`
 - Base: `abf6a0933bc471cd4827b87b9ff6bfa7227593e0`
 - Merge base: `abf6a0933bc471cd4827b87b9ff6bfa7227593e0`
-- Head: `a1b6bff31a3eed46c917300c10ee97c5febd08fb`
+- Head: `2c20c66229ccb21bde5eb29010b4af89fa74b5cf`
 - Branch: `feat/pr-5-iphone-platform-probe`
 
 ## Provider gate
@@ -21,11 +21,29 @@ The hand-off session 6 names Claude Code as the author provider. The PR has two 
 
 The milestone adds a React probe for five required iPhone platform items. It adds browser tests in WebKit and Chromium, a separate `make probe` target, and an optional CI job. The approved development project has Firebase Hosting and Firebase Authentication. The acceptance story requires the probe build and browser tests to pass. It also requires those two Firebase products alone.
 
-The diff changes nine named paths and 36 paths under `tools/spikes/iphone_probe/`. I inspected the workflow, Make target, ruleset test, decision and question rows, roadmap, and hand-off context. I inspected the probe source, tests, Firebase configuration, package manifest, lockfile constraints, and generated icons. The changes respect D-23, D-24, D-75, D-80, D-99, and D-112 to D-116. No product workout code or paid target changed.
+The full PR changes 46 paths: the workflow, `AGENTS.md`, `Makefile`, `README.md`, five decision or review documents, and 36 probe paths. The earlier review inspected each path. This review inspected the complete change since `a1b6bff`, including the key configuration, project notes, tests, and the changes to `AGENTS.md`.
 
 ## Findings
 
-No finding.
+### P2-1: AGENTS.md says no service exists while Firebase services are active
+
+Status: open.
+
+Open at: `2c20c66229ccb21bde5eb29010b4af89fa74b5cf`.
+
+File: `AGENTS.md:9`.
+
+Trigger: a session reads the stage after creation of the `gym-route-dev` project.
+
+Expected: the stage statement describes the project state consistently with D-99 and D-116.
+
+Actual: it says no service exists, then states that Firebase Hosting and Firebase Authentication exist.
+
+Consequence: the top-level project status gives conflicting instructions about whether services exist.
+
+Correction: qualify the first statement as no workout app or product backend exists yet.
+
+Regression check: read the stage statement with D-99 and D-116, then run `make ref-check`.
 
 ## Out of scope
 
@@ -41,19 +59,24 @@ None.
 
 ## Verification
 
-- `make verify` at `a1b6bff31a3eed46c917300c10ee97c5febd08fb`: passed. It includes STE, reference, lifecycle, context-budget, and all unit tests (302 core tests and the spike tests, with three expected skips).
-- `make probe` at `a1b6bff31a3eed46c917300c10ee97c5febd08fb`: not run locally because this machine has Node `v20.17.0`. The target requires Node 22.
-- GitHub `verify:probe` at `a1b6bff31a3eed46c917300c10ee97c5febd08fb`: passed. The CI run built the probe and passed the browser tests.
-- GitHub `verify:lint`, `verify:test`, and `pr-contract` at `a1b6bff31a3eed46c917300c10ee97c5febd08fb`: passed.
-- GitHub `review-gate` at `a1b6bff31a3eed46c917300c10ee97c5febd08fb`: failed because the review record did not yet exist on that head. This review publishes the required record. The new head must pass the gate.
-- `git diff --check abf6a0933bc471cd4827b87b9ff6bfa7227593e0..a1b6bff31a3eed46c917300c10ee97c5febd08fb`: passed.
-- Push: `0e783f71f670612f322bfcb9f6bfc1f0dacc5a8e` was the head of `origin/feat/pr-5-iphone-platform-probe`, verified with `gh pr view`.
+- `make verify` at `2c20c66229ccb21bde5eb29010b4af89fa74b5cf`: passed. It includes STE, reference, lifecycle, context-budget, and all unit tests.
+- `make pr-check` failed because this review worktree uses detached `HEAD`. The check requires a matching branch name in the session block.
+- GitHub `verify:probe`, `verify:lint`, `verify:test`, and `pr-contract` at `2c20c66229ccb21bde5eb29010b4af89fa74b5cf`: passed.
+- GitHub `review-gate` at `2c20c66229ccb21bde5eb29010b4af89fa74b5cf`: failed because the existing record named the earlier head. The updated record must pass after publication.
+- Local `make probe` did not run. This machine has Node `v20.17.0`. The target requires Node 22, and GitHub `verify:probe` passed.
+- The gcloud API key list command did not run. The shell reported expired credentials. Non-interactive mode blocks a prompt. The hand-off records the owner check from 2026-09-29.
+- `git diff --check a1b6bff31a3eed46c917300c10ee97c5febd08fb..2c20c66229ccb21bde5eb29010b4af89fa74b5cf`: passed.
+- Push: pending.
 
 ## Open questions and accepted risks
 
-None.
+- D-117: this session did not reread the external API-key and sign-up settings because gcloud credentials expired. The hand-off records the owner's settings check from 2026-09-29.
+
+## Earlier verdicts
+
+- **Ready for owner merge.** This verdict applied to head `a1b6bff31a3eed46c917300c10ee97c5febd08fb`.
 
 ## Verdict
 
-**Ready for owner merge.** This verdict applies to head `a1b6bff31a3eed46c917300c10ee97c5febd08fb`.
-The cross-provider review found no in-scope defect, and the required lint, test, contract, and probe checks passed. The review-gate check must pass on the published review commit before merge.
+**Changes required.** This verdict applies to head `2c20c66229ccb21bde5eb29010b4af89fa74b5cf`.
+The project status in `AGENTS.md` contradicts the Firebase services that D-99 and D-116 say exist.

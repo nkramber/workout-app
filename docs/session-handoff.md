@@ -4,7 +4,7 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-28. Phase 1 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR-5 of `docs/roadmaps/phase-1-risk-spikes.md` is open on `feat/pr-5-iphone-platform-probe`, from the base `abf6a09`.
+Date: 2026-09-29. Phase 1 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR-5 of `docs/roadmaps/phase-1-risk-spikes.md` is open on `feat/pr-5-iphone-platform-probe`, from the base `abf6a09`.
 
 PR-5 holds the iPhone web platform probe of work area 1.3:
 
@@ -17,9 +17,9 @@ State: the probe builds, and its 12 browser tests pass in WebKit and Chromium on
 
 The browser key allows only the Auth APIs and the probe sites, and self sign-up is off (D-117). GitHub secret scanning flags the key, and the owner closes the alert.
 
-Review: Codex found no finding and marked head `a1b6bff31a3eed46c917300c10ee97c5febd08fb` Ready for owner merge. The review commit must pass `review-gate`.
+Review: Codex found P2-1 open at head `2c20c66229ccb21bde5eb29010b4af89fa74b5cf`. The `AGENTS.md` stage statement conflicts with D-99 and D-116. The local review did not reread the external key settings because gcloud credentials expired. The review-gate check must pass after publication.
 
-Next action: the owner confirms the merge after the review-gate check passes.
+Next action: correct P2-1, push the change, and request a new Codex review.
 
 ## Facts that expire
 
