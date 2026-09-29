@@ -157,7 +157,7 @@ Checks: `make verify`, free. `make probe` builds the probe and runs the browser 
 
 Branch: `docs/pr-6-iphone-platform-report`. Work area 1.3. It needs PR-5 on `main`.
 
-Before the work, deploy the probe by hand from a clean checkout of `main` (D-14). Check the branch and the commit before the deploy. `tools/spikes/iphone_probe/README.md` gives the steps. The owner makes the probe account in the Firebase console, because the probe has no form that makes an account.
+Before the work, deploy the probe by hand from a clean checkout of `main` (D-14). Check the branch and the commit before the deploy. `tools/spikes/iphone_probe/README.md` gives the steps. The owner makes the probe account in the Firebase console. The probe has no form that makes an account, and self sign-up is off (D-117).
 
 Concerns:
 

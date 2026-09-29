@@ -6,6 +6,10 @@ import type { FirebaseOptions } from "firebase/app";
 // project protect the data, not these values. The probe uses Firebase
 // Authentication alone, so the configuration holds no storage bucket
 // and no messaging sender.
+//
+// GitHub secret scanning flags the key. The project limits the key to
+// the two Auth APIs and to the sites of the probe, and self sign-up is
+// off, so the key can make no account (D-117).
 export const projectConfig: FirebaseOptions | null = {
   apiKey: "AIzaSyAlu62ipBFG_lUiOApvQ6gAcOKxqZpH_Ac",
   authDomain: "gym-route-dev.firebaseapp.com",

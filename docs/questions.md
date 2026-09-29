@@ -214,6 +214,7 @@ The owner answered through the answer controls of the session. The first session
 | Q-132 | Is the CI job `verify:probe` a required check of the ruleset of `main`? | No. The job runs on each pull request and each push to `main`, and the ruleset does not change. | Answered | D-114 |
 | Q-133 | How do the browser tests check sign-in with no network access to the real project? | The tests use the real Firebase Auth SDK against the local Auth emulator, with a pinned `firebase-tools`. | Answered | D-115 |
 | Q-134 | Which project id and which Google account does the development project of D-76 use? | The id `gym-route-dev`, and the account that the Firebase CLI of the owner machine uses. The account stays out of the repository. | Answered | D-116 |
+| Q-135 | GitHub secret scanning flags the Firebase browser key of `gym-route-dev` in the public repository. How does the project handle it? | Keep the key in the repository, because each browser that loads the app gets it. Limit the key to the Auth APIs and to the sites of the probe, and turn off self sign-up. The owner closes the alert. | Answered | D-117 |
 
 ## Open questions
 

@@ -41,9 +41,22 @@ The browser tests use the real Firebase Auth SDK against the local Auth emulator
 
 ## Sign-in
 
-The probe has no form that makes an account. The owner makes the account in the Firebase console. The page shows the user id only, and it never shows or logs the email (D-80).
+The probe has no form that makes an account, and self sign-up is off in the project (D-117). The owner makes the account in the Firebase console. The page shows the user id only, and it never shows or logs the email (D-80).
 
 The probe reads the stored session from IndexedDB first, and then from local storage. So the device checklist tests the storage that the app of the roadmap uses.
+
+## The project settings
+
+The project `gym-route-dev` holds these settings outside the repository (D-116, D-117). The owner set them with approval, and `firebase.json` does not hold them.
+
+| Setting | Value |
+|---|---|
+| Billing | Off. The project stays on the free plan (D-99). |
+| The APIs of the browser key | `identitytoolkit.googleapis.com` and `securetoken.googleapis.com` only |
+| The sites of the browser key | `https://gym-route-dev.web.app/*`, `https://gym-route-dev.firebaseapp.com/*`, and ports 4173 and 5173 of `localhost` and `127.0.0.1` |
+| Self sign-up | Off. A sign-up call gives `ADMIN_ONLY_OPERATION`. |
+
+The browser key is in `src/lib/firebase-config.ts`. GitHub secret scanning flags it, but each browser that loads the probe gets the key. The settings above limit what the key can do. A new port for the probe needs a new site on the key.
 
 ## Deploy
 
