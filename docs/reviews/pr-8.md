@@ -64,9 +64,11 @@ None.
 - GitHub `verify:lint` at `f1a9321a02fbfa15017b82da69b9c93195260e56`: passed.
 - GitHub `verify:probe` at `f1a9321a02fbfa15017b82da69b9c93195260e56`: passed.
 - GitHub `verify:test` at `f1a9321a02fbfa15017b82da69b9c93195260e56`: passed.
-- GitHub `review-gate` at `f1a9321a02fbfa15017b82da69b9c93195260e56`: failed because the head did not yet contain `docs/reviews/pr-8.md`. The verdict in this record is `Changes required`. The gate must remain red until the author fixes the finding and gets a new review.
+- GitHub `review-gate` at published head `853376fe2200f7ed8ac0da214e6fabc61d85c8b6`: failed at RG 4. It read this record and rejected the `Changes required` verdict. RG 5 passed for effective head `f1a9321a02fbfa15017b82da69b9c93195260e56`. The gate must remain red until the author fixes the finding and gets a new review.
 - `git diff --stat $(git merge-base origin/main HEAD)..HEAD`: inspected. The intended behavior and scope section lists all 16 changed paths.
-- Push: pending.
+- `make ste-check`: passed with 0 findings for this record and handoff update.
+- `make ref-check`: passed with 0 findings for this record and handoff update.
+- Push: `853376fe2200f7ed8ac0da214e6fabc61d85c8b6` was the head of `origin/docs/pr-7-phase-2-roadmap`, verified with `gh pr view` after the first publication.
 
 ## Open questions and accepted risks
 
