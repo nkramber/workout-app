@@ -65,7 +65,7 @@ None.
 - `make probe` did not run locally because this machine has Node `v20.17.0`. CI passed the build and browser tests.
 - This session did not reread the external Firebase key settings because gcloud credentials expired. The hand-off records the owner's check from 2026-09-29.
 - `git diff --check abf6a0933bc471cd4827b87b9ff6bfa7227593e0..50094a139a1e8a461fabc2d6578de1e5020ea14e`: passed.
-- Push: pending.
+- Push: `94f5774eafa6f7ae026adba98516e6ed2a3f734e` was the head of `origin/feat/pr-5-iphone-platform-probe`, verified with `gh pr view`.
 
 ## Open questions and accepted risks
 
