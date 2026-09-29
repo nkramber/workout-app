@@ -17,7 +17,7 @@ State: the probe builds, and its 12 browser tests pass in WebKit and Chromium on
 
 The browser key allows only the Auth APIs and the probe sites, and self sign-up is off (D-117). GitHub secret scanning flags the key, and the owner closes the alert.
 
-Review: Codex found P2-1 open at head `2c20c66229ccb21bde5eb29010b4af89fa74b5cf`. The `AGENTS.md` stage statement conflicts with D-99 and D-116. The local review did not reread the external key settings because gcloud credentials expired. The review-gate check must pass after publication.
+Review: Codex found P2-1 open at head `2c20c66229ccb21bde5eb29010b4af89fa74b5cf`. The `AGENTS.md` stage statement conflicts with D-99 and D-116. The local review did not reread the external key settings because gcloud credentials expired. The review-gate check failed at RG 4 because the verdict is Changes required.
 
 Next action: correct P2-1, push the change, and request a new Codex review.
 

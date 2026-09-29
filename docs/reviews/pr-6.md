@@ -66,7 +66,7 @@ None.
 - Local `make probe` did not run. This machine has Node `v20.17.0`. The target requires Node 22, and GitHub `verify:probe` passed.
 - The gcloud API key list command did not run. The shell reported expired credentials. Non-interactive mode blocks a prompt. The hand-off records the owner check from 2026-09-29.
 - `git diff --check a1b6bff31a3eed46c917300c10ee97c5febd08fb..2c20c66229ccb21bde5eb29010b4af89fa74b5cf`: passed.
-- Push: pending.
+- Push: `4e2b3aa7e738e2913daa31bbce199573395e77fe` is the head of `origin/feat/pr-5-iphone-platform-probe`, verified with `gh pr view`.
 
 ## Open questions and accepted risks
 
