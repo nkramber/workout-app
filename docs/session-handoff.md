@@ -9,15 +9,17 @@ Date: 2026-09-29. PR-6 of `docs/roadmaps/phase-1-risk-spikes.md` is open on the 
 PR-6 holds the iPhone web platform spike report of work area 1.3:
 
 - the report `docs/research/iphone-platform-spike.md`: go under the bar of D-118,
-- the owner answers Q-136 and Q-137, and the decisions D-118 and D-119,
+- the owner answers Q-136 to Q-139, and the decisions D-118 to D-121,
 - the result line of PR-6 in the focused roadmap, and the dated results in `docs/research/platform-cloud-and-ai.md`,
 - the stage lines of `AGENTS.md` and `README.md`: Phase 1 gave its three reports.
 
 The session deployed the probe by hand from a clean worktree of `main` at `d6e3c54` (D-14). The live page showed `build d6e3c54`. The owner made the probe account in the Firebase console (D-117). The owner ran the checklist in the Home Screen app (D-119), on an iPhone 16 Pro with iOS 27.0 and Chrome 154. Items 1 to 5 passed, and the median first contentful paint of 5 cold starts was 33 ms.
 
-State: Codex reviewed effective head `61d9309a63001f3bdf7c6ec82ad0d0a4db5d4659` and recorded `Changes required` in `docs/reviews/pr-7.md`. Finding P2-1 is open. `make verify` passed.
+The owner saw two display faults of the probe: the layout sat too high, and a pinch zoomed the page. D-120 makes the app of the roadmap fix both, in work area 2.2.
 
-Next action: establish five cold-start samples for D-118 or ask the owner to change the bar. Then revise the report and request a new review.
+State: Codex round 1 reviewed effective head `61d9309a63001f3bdf7c6ec82ad0d0a4db5d4659`, with the verdict `Changes required` and finding P2-1. The owner defined a cold start for the bar (D-121). `docs/reviews/pr-7-response.md` holds the answer. `make verify` passed.
+
+Next action: wait for CI on the answer, then run the Codex round 2 with `make codex-review`.
 
 ## Facts that expire
 
@@ -57,6 +59,7 @@ Completed:
 - The owner approved the milestone before the first edit (D-12), and answered Q-136 and Q-137 (D-118, D-119).
 - Deployed the probe by hand from a clean worktree of `main` at `d6e3c54`, after a check of the branch and the commit (D-14).
 - Wrote the report `docs/research/iphone-platform-spike.md` from the device results of the owner: a go under D-118.
+- Recorded the display faults of the probe (D-120), and answered Codex finding P2-1 with the owner definition of a cold start (D-121).
 - Changed the focused roadmap, the platform research, and the stage lines of `AGENTS.md` and `README.md`.
 
 Open work:

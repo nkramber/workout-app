@@ -96,10 +96,10 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 | Work area | Concerns | Exit evidence |
 |---|---|---|
 | 2.1 Contract and API skeleton | Protobuf contract and generated code. Go API with the Firebase token check and the invite allowlist (D-75). Emulators and fakes for local work. | `make verify` runs contract, Go, and emulator tests for free. |
-| 2.2 Installable web shell | Phone layout only (D-20). Sign-in. Offline store and outbox skeleton (D-62, D-77). | Browser tests pass in the WebKit and Chromium engines. The owner installs and signs in on the iPhone. |
+| 2.2 Installable web shell | Phone layout only (D-20). A shell that fills the whole screen and blocks the pinch zoom (D-120). Sign-in. Offline store and outbox skeleton (D-62, D-77). | Browser tests pass in the WebKit and Chromium engines. The owner installs and signs in on the iPhone, and sees no gap at the bottom edge and no pinch zoom. |
 | 2.3 Development project and deploy | Firestore, Cloud Run, Secret Manager, and a budget alert in `us-central1`, in the project of work area 1.3 (D-99). Cloud Build deploy from `main`. The backup choice of Q-99. | A merge deploys. The live version endpoint names the merged commit. |
 
-**Decisions and questions.** D-17, D-18, D-20, D-62, D-74 to D-77, D-80, D-82, D-84, D-99, Q-99.
+**Decisions and questions.** D-17, D-18, D-20, D-62, D-74 to D-77, D-80, D-82, D-84, D-99, D-120, Q-99.
 
 ### Phase 3 - Workout domain and safety policy
 

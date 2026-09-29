@@ -222,6 +222,8 @@ The owner answered through the answer controls of the session. The first session
 |---|---|---|---|---|
 | Q-136 | Which bar gives a go for the iPhone web platform risk? | Go when items 1 to 5 of the device checklist pass in the Home Screen app, and the median first contentful paint of 5 cold starts in standalone mode is 2500 ms or less. Else no-go. | Answered | D-118 |
 | Q-137 | Where does the owner run the items of the device checklist? | In the Home Screen app only. Item 3 starts in Chrome, because Chrome adds the app to the Home Screen. | Answered | D-119 |
+| Q-138 | The probe showed two display faults on the iPhone: the layout sat too high, and a pinch zoomed the page. What do they mean for the app of the roadmap? | The owner stated on 2026-09-29: the probe can keep them, but the app of the roadmap must fix both. It blocks the pinch zoom as Decktome does. | Answered | D-120 |
+| Q-139 | Codex finding P2-1 of pull request 7: the page can not prove that iOS ended the web view between the five launches. Does the bar of D-118 need a new definition of a cold start? | Yes. A cold start is a new page load of the Home Screen app after an app stop in the app switcher. The report keeps the limit that iOS can keep the web view in memory. | Answered | D-121 |
 
 ## Open questions
 

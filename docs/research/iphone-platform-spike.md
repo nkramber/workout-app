@@ -6,7 +6,7 @@ Date of the device checklist: 2026-09-29. The probe is in `tools/spikes/iphone_p
 
 ## 1. Result
 
-**Go.** The iPhone web platform risk passes each part of the go bar of D-118.
+**Go.** The iPhone web platform risk passes each part of the go bar of D-118. For that bar, a cold start is a new page load of the Home Screen app after an app stop (D-121).
 
 | Item | Result | Go bar (D-118) | Pass |
 |---|---|---|---|
@@ -15,9 +15,11 @@ Date of the device checklist: 2026-09-29. The probe is in `tools/spikes/iphone_p
 | 3. Add to the Home Screen from Chrome | The app opened in the `standalone` display mode | The item passes | Yes |
 | 4. Sign-in in the Home Screen app | Signed in with email and password, with no error | The item passes in the Home Screen app | Yes |
 | 5. Sign-in state after an app stop | Signed in after the stop, and the session read took 358 ms | The item passes in the Home Screen app | Yes |
-| 6. Startup time of the React build | Median first contentful paint of 33 ms over 5 cold starts | 2500 ms or less | Yes |
+| 6. Startup time of the React build | Median first contentful paint of 33 ms over 5 cold starts (D-121) | 2500 ms or less | Yes |
 
 The startup time measures from the start of the navigation. It does not include the time from the tap on the icon to that start. Section 5 gives this limit.
+
+The owner also saw two display faults of the probe: the layout sat too high, and a pinch zoomed the page. They are not items of the bar. Section 3.6 gives them, and D-120 makes the app of the roadmap fix them.
 
 ## 2. Method
 
@@ -57,6 +59,7 @@ Each item ran in the Home Screen app, as D-119 sets. Item 3 started in Chrome, b
 - The Storage page counts the records that an earlier launch wrote.
 - The Startup page takes each time from the start of the navigation. It gives four times: the inline script, the bundle start, the first React render, and the first contentful paint.
 - The Startup page records one launch each time the owner opens it in a new launch. It gives the median paint of the stored launches in each display mode.
+- A cold start is a new page load of the Home Screen app after an app stop in the app switcher (D-121). The page can not see whether iOS ended the web view process.
 
 ## 3. Results for each item
 
@@ -72,7 +75,7 @@ The share button of Chrome gave "Add to Home Screen", and the app opened from th
 | Page controlled by the worker | no, in the first launch |
 | Install prompt available | no |
 
-The first launch of the Home Screen app registered the service worker. The worker did not control that first page, because the worker configuration has no `clientsClaim`. In each launch of section 3.5, the worker served the page.
+The first launch of the Home Screen app registered the service worker. The worker did not control that first page, because the worker configuration has no `clientsClaim`. In the fifth launch of section 3.5, the worker served the page. The screenshots do not show this value for the other launches.
 
 iOS has no install prompt event. So "no" is the expected value of the last row.
 
@@ -109,7 +112,7 @@ The sign-in gave no error. The new launch id shows a new load of the app, and th
 
 ### 3.5 Item 6: startup time of the React build
 
-Five launches between 13:49:12 and 13:49:23 UTC, each in the `standalone` display mode, with the navigation type `navigate`:
+Five cold starts under D-121, between 13:49:12 and 13:49:23 UTC. Each launch was in the `standalone` display mode, with the navigation type `navigate`:
 
 | Launch | First React render (ms) | First contentful paint (ms) |
 |---|---|---|
@@ -129,6 +132,17 @@ The service worker served the page.
 
 The research target of section 4.3 of `docs/research/platform-cloud-and-ai.md` was a first interaction under about 2.5 s on a cold start. The measured paint is far below that target and the bar of D-118.
 
+### 3.6 Display faults of the probe
+
+The owner saw two faults in the Home Screen app. They are not items of the checklist, and they do not change the go.
+
+- The layout sat too high. A gap stayed below the bar of page links, at the bottom edge of the screen.
+- A pinch zoomed the page in and out.
+
+In the screenshots, the gap is about 66 points high. The top safe area of the iPhone 16 Pro has about the same height. The probe uses `height: 100%` for its shell, with the `black-translucent` status bar and `viewport-fit=cover`. So the probable cause is a shell of the screen height minus the status bar, which starts below the status bar (unverified). The viewport meta of the probe does not block the pinch zoom.
+
+The owner decided that the probe can keep both faults, and that the app of the roadmap fixes both (D-120). Decktome solved the same faults with `h-dvh` for the shell and `maximum-scale=1, user-scalable=no` in the viewport meta (decktome:D-624, decktome:D-625). Work area 2.2 of `docs/roadmaps/high-level-roadmap.md` holds the fix.
+
 ## 4. Findings for the app of the roadmap
 
 - Chrome on iPhone can add the app to the Home Screen, and the app opens in the `standalone` display mode. The install screen of the app can give the steps of the Install page.
@@ -136,16 +150,17 @@ The research target of section 4.3 of `docs/research/platform-cloud-and-ai.md` w
 - Firebase Authentication with email and password keeps its session in the Home Screen app after an app stop.
 - Screen Wake Lock works in the Home Screen app. The request again on each return to view, as REC-6 says, works.
 - The React build of D-84 gives a first paint of about 33 ms from the service worker cache on this device.
+- A shell of `height: 100%` with a translucent status bar left a gap at the bottom edge. The shell of the app must fill the whole screen (D-120).
 
 ## 5. Limits
 
 - One device only. The iPhone 16 Pro is a fast phone, so a slower phone can give a longer startup time.
 - The startup time starts at the start of the navigation. The page can not see the time from the tap on the icon to that start, when iOS starts the web view.
-- The five launches came in 11 seconds. After an app stop, iOS can keep parts of the web view in memory. So a launch after a long pause can be slower.
+- The five launches came in 11 seconds. After an app stop, iOS can keep parts of the web view in memory. D-121 counts these launches as cold starts, but a launch after a phone restart or a long pause can be slower.
 - The probe is small. Its main bundle is 236.71 KB before compression. The app of the roadmap will have more code, so its startup time will be longer.
 - The storage test covers an app stop, not seven days with no use or a phone restart (PC-5).
 - The wake lock result comes from the notes of the owner, with no Auto-Lock time and no "Held for" time.
-- The cellular network had no effect on the startup time, because the service worker served the page.
+- The worker served the fifth launch, so the cellular network had no effect on it. The screenshots do not show this value for the other four launches.
 
 ## 6. Recommendations (not owner decisions)
 

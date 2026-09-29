@@ -179,7 +179,7 @@ Acceptance story: the report gives a result for each item and a startup time on 
 
 Checks: `make verify`, free. The owner does the device steps. The report holds no screenshot with personal data.
 
-Result: go under the bar of D-118. Items 1 to 5 passed in the Home Screen app, and the median first contentful paint of 5 cold starts was 33 ms. The owner ran the checklist on an iPhone 16 Pro with iOS 27.0 and Chrome 154, in the Home Screen app only (D-119). The report is `docs/research/iphone-platform-spike.md`.
+Result: go under the bar of D-118. Items 1 to 5 passed in the Home Screen app, and the median first contentful paint of 5 cold starts was 33 ms. D-121 defines a cold start as a new page load after an app stop. The app of the roadmap fixes the two display faults of the probe (D-120). The owner ran the checklist on an iPhone 16 Pro with iOS 27.0 and Chrome 154, in the Home Screen app only (D-119). The report is `docs/research/iphone-platform-spike.md`.
 
 ## 5. Exit of the phase
 
