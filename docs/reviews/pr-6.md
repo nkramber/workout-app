@@ -47,7 +47,7 @@ None.
 - GitHub `verify:lint`, `verify:test`, and `pr-contract` at `a1b6bff31a3eed46c917300c10ee97c5febd08fb`: passed.
 - GitHub `review-gate` at `a1b6bff31a3eed46c917300c10ee97c5febd08fb`: failed because the review record did not yet exist on that head. This review publishes the required record. The new head must pass the gate.
 - `git diff --check abf6a0933bc471cd4827b87b9ff6bfa7227593e0..a1b6bff31a3eed46c917300c10ee97c5febd08fb`: passed.
-- Push: pending.
+- Push: `0e783f71f670612f322bfcb9f6bfc1f0dacc5a8e` was the head of `origin/feat/pr-5-iphone-platform-probe`, verified with `gh pr view`.
 
 ## Open questions and accepted risks
 
