@@ -4,13 +4,13 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-29. Branch `docs/pr-7-phase-2-roadmap`, from base `71b5220`. Its id is PR-7 in `docs/roadmaps/phase-2-platform-skeleton.md`.
+Date: 2026-09-29. GitHub pull request 8 is open on branch `docs/pr-7-phase-2-roadmap`, from base `71b5220`. Its id is PR-7 in `docs/roadmaps/phase-2-platform-skeleton.md`.
 
 The pull request holds the focused roadmap of Phase 2, with PR-8 to PR-11 (D-128). It records the owner answers D-122 to D-128. It also ends the D-4 period (D-125): `OVERRIDE_ENABLED` in `docs/tools/review_gate.py` is `True`, and the rule text changes with it.
 
-State: `make verify` passed. The pull request is not open yet. The Codex review of PR-7 is necessary, because PR-7 changes the review gate (D-125).
+State: `make verify` and `make pr-check` passed. The Codex review of PR-7 is necessary, because PR-7 changes the review gate (D-125).
 
-Next action: open the pull request, wait for green CI, and run `make codex-review`. Then the owner reads the review summary and confirms the merge.
+Next action: wait for green CI, and run `make codex-review PR=8`. Then the owner reads the review summary and confirms the merge.
 
 ## Facts that expire
 
