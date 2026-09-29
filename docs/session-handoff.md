@@ -4,22 +4,18 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-28. Phase 1 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR-4 of `docs/roadmaps/phase-1-risk-spikes.md` is GitHub PR #5, open on `feat/pr-4-recognition-spike`, from the base `8a034c9`.
+Date: 2026-09-28. Phase 1 of `docs/roadmaps/high-level-roadmap.md` is in progress. PR-5 of `docs/roadmaps/phase-1-risk-spikes.md` is open on `feat/pr-5-iphone-platform-probe`, from the base `abf6a09`.
 
-PR-4 holds the recognition spike of work area 1.2:
+PR-5 holds the iPhone web platform probe of work area 1.3:
 
-- the harness, the fake provider, and the tests, in `tools/spikes/recognition/`,
-- the results of the paid run, in `tools/spikes/recognition/results/`,
-- the report `docs/research/recognition-spike.md`: no-go under the bar of D-107,
-- the owner answers Q-125 to Q-130 and the decisions D-107 to D-112.
+- the probe web app, its browser tests, and its configuration tests, in `tools/spikes/iphone_probe/`,
+- the target `make probe` and the CI job `verify:probe` (D-113, D-114),
+- the development project `gym-route-dev` with Firebase Hosting and Firebase Authentication only (D-99, D-116),
+- the owner answers Q-131 to Q-134 and the decisions D-113 to D-116.
 
-The owner approved the paid run at run time (D-25). The smoke call and the run of 174 photos cost 0.0651 USD, under the cap of 2 USD (D-94). One photo costs 0.00037 USD (Q-96).
+State: the probe builds, and its 12 browser tests pass in WebKit and Chromium on the owner machine. The Firebase CLI login of the owner machine gave HTTP 401, so the project does not exist yet. The owner must sign in to the Firebase CLI again.
 
-After the no-go, the owner changed the roadmap. Phase 4 gives manual selection and text entry only (D-110). No phase holds photo recognition (D-111). The iPhone probe of PR-5 has no camera page (D-112).
-
-Review: Codex approves effective head `63fe65df968140dead8aae5f497766fd41d8cb47` as Ready for owner merge. Open findings: none.
-
-Next action: the owner confirms the merge, then the author session turns on auto-merge.
+Next action: after the owner signs in again, create the project with the four approved steps of D-116. Then commit the web configuration and `.firebaserc`, and record the evidence.
 
 ## Facts that expire
 
@@ -32,15 +28,34 @@ Next action: the owner confirms the merge, then the author session turns on auto
 | The OpenAI usage policies page returns HTTP 403. The owner accepted a copy printed on 2025-11-07 (D-93). | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
 | `gpt-6-luna` accepts the strict JSON schema of the plan through the Responses API. 60 of 60 plans passed the schema. | 2026-09-28 | `docs/research/luna-plan-spike.md` |
 | `gpt-6-luna` accepts an image with a strict JSON schema. One photo at 1536 px costs 0.00037 USD. | 2026-09-28 | `docs/research/recognition-spike.md` |
+| WebKit refuses a page on port 4190. The probe uses port 4173. | 2026-09-28 | `tools/spikes/iphone_probe/README.md` |
+| `firebase deploy --only auth` turns on the email and password provider from the `auth` block of `firebase.json` (firebase-tools 15.32.0). | 2026-09-28 | `tools/spikes/iphone_probe/firebase.json` |
 | Commons answers HTTP 429 to a fast client. One request each 2 seconds passes, and it accepts only standard thumbnail widths. | 2026-09-28 | `tools/spikes/recognition_set/download.py` |
 | The Commons API adds a tracking query to each file URL. The manifest holds the URL with no query. | 2026-09-28 | `tools/spikes/recognition_set/sources.py` |
 
 ## Next steps, in order
 
-1. Close PR-4: CI, the Codex review, the owner confirmation, and the merge.
-2. Start PR-5 of `docs/roadmaps/phase-1-risk-spikes.md` in a clean session. The probe has no camera page (D-112).
+1. Create the project `gym-route-dev` after the owner signs in to the Firebase CLI again (D-116).
+2. Close PR-5: CI, the Codex review, the owner confirmation, and the merge.
+3. Start PR-6 of `docs/roadmaps/phase-1-risk-spikes.md` in a clean session. Deploy the probe by hand from `main` first (D-14).
 
 ## Session records
+
+### Session 6 - 2026-09-28
+
+Author provider: Claude Code
+
+Branch: `feat/pr-5-iphone-platform-probe`. Role: author.
+
+Completed:
+
+- The owner approved the milestone before the first edit (D-12), and answered Q-131 to Q-134 (D-113 to D-116).
+- Wrote the probe web app with five pages and no camera page (D-112), 12 browser tests, and 11 configuration tests.
+- Added `make probe` and the CI job `verify:probe`.
+
+Open work:
+
+- The project `gym-route-dev`, the web configuration, the Codex review, the owner confirmation, and the merge of PR-5.
 
 ### Session 5 - 2026-09-28
 
@@ -76,21 +91,3 @@ Completed:
 Open work:
 
 - None. PR #4 merged.
-
-### Session 3 - 2026-09-28
-
-Author provider: Claude Code
-
-Branch: `feat/pr-2-luna-plan-spike`. Role: author.
-
-Completed:
-
-- The owner approved the milestone before the first edit (D-12), and set the go bar (D-101).
-- Wrote the Luna plan harness, the fake provider, the fixtures, the schema, and the draft policy rules table, with 44 unit tests in `make test`.
-- Ran the paid run after the owner approval. All 60 plans passed the schema, 4 plans broke a rule, and the cost was 0.0564 USD.
-- Wrote the report `docs/research/luna-plan-spike.md`.
-- Answered Codex finding P2-1 with full merit: each retry of a paid call now stays inside the cap.
-
-Open work:
-
-- None. PR #3 merged.

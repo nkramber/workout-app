@@ -59,6 +59,7 @@ make pr-check        # the body and the diff of the pull request, free
 make where           # the branch, the tree, and the pull request state
 make hooks           # install the Git hooks once in each checkout
 make ruleset-check   # the live ruleset of main against .github/rulesets
+make probe           # the iPhone probe build and its browser tests, needs Node 22 (D-113)
 ```
 
 Paid targets: `make codex-review` and `make claude-review`. They spend the owner's Codex plan and Claude plan, never the API (D-8, D-88).

@@ -206,6 +206,15 @@ The owner answered through the answer controls of the session. The first session
 | Q-129 | Which phase holds photo recognition after D-110? | No phase. The roadmap records it as deferred, and a later owner decision adds a phase. | Answered | D-111 |
 | Q-130 | The iPhone probe has a camera page. Does it keep the page after D-110? | No. The probe tests only the device items that the manual app needs. | Answered | D-112 |
 
+## Questions of the iPhone probe session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-131 | The probe needs Node 22 and the Playwright browsers. How do its checks connect to `make` and CI? | A separate target `make probe` builds the probe and runs the browser tests. A new CI job `verify:probe` runs it. `make verify` stays Python only. A Python test in the probe folder checks the configuration. | Answered | D-113 |
+| Q-132 | Is the CI job `verify:probe` a required check of the ruleset of `main`? | No. The job runs on each pull request and each push to `main`, and the ruleset does not change. | Answered | D-114 |
+| Q-133 | How do the browser tests check sign-in with no network access to the real project? | The tests use the real Firebase Auth SDK against the local Auth emulator, with a pinned `firebase-tools`. | Answered | D-115 |
+| Q-134 | Which project id and which Google account does the development project of D-76 use? | The id `gym-route-dev`, and the account that the Firebase CLI of the owner machine uses. The account stays out of the repository. | Answered | D-116 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |

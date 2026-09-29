@@ -1,0 +1,35 @@
+{
+  "name": "gym-route-iphone-probe",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0 <23"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "build:e2e": "VITE_AUTH_EMULATOR_HOST=127.0.0.1:9099 vite build --mode e2e --outDir dist-e2e",
+    "preview": "vite preview",
+    "test:e2e": "firebase emulators:exec --only auth --project demo-gym-route \"playwright test\"",
+    "icons": "node scripts/make-icons.mjs"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "4.3.3",
+    "firebase": "12.19.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "tailwindcss": "4.3.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "22.20.4",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.1",
+    "firebase-tools": "15.32.0",
+    "typescript": "5.9.3",
+    "vite": "8.3.1",
+    "vite-plugin-pwa": "1.3.0"
+  }
+}
