@@ -17,9 +17,9 @@ The pull request holds the installable web shell in `web/`:
 - the generated TypeScript code in `web/src/gen`, the target `make web`, and the CI job `verify:web` as a required check (D-126, D-127),
 - the owner answers Q-148 to Q-151 (D-132 to D-135).
 
-State: `make web` passed: 21 unit tests, and 17 browser tests in WebKit and Chromium. The WebKit copy of the pinch test skips, because Playwright can pinch in Chromium alone. `make verify` passed. The pull request, CI, the live ruleset, and the Codex review are pending.
+State: `make web` passed: 21 unit tests, and 17 browser tests in WebKit and Chromium. The WebKit copy of the pinch test skips, because Playwright can pinch in Chromium alone. `make verify` passed. GitHub pull request 10 is open. Each CI job passed at `851a06b`, and `review-gate` waits for the Codex record. The owner approved the change of the live ruleset at run time, and `make ruleset-check` passed (D-127).
 
-Next action: open the pull request, read CI, apply the ruleset after the owner approval, and run `make codex-review`.
+Next action: run `make codex-review PR=10`, then answer each finding.
 
 ## Facts that expire
 
@@ -27,7 +27,7 @@ Next action: open the pull request, read CI, apply the ruleset after the owner a
 |---|---|---|
 | The repository is public. | 2026-09-27 | GitHub repository settings |
 | The owner ended the D-4 period. `OVERRIDE_ENABLED` is `True` on `main`. | 2026-09-29 | D-125, `docs/tools/review_gate.py` |
-| `main` has the live ruleset `review-gate` and the merge settings of `.github/rulesets`. The ruleset requires `verify:contract`, `verify:go`, and `verify:emulator` too. `make ruleset-check` passed. | 2026-09-29 | `make ruleset-check` |
+| `main` has the live ruleset `review-gate` and the merge settings of `.github/rulesets`. The ruleset requires `verify:contract`, `verify:go`, `verify:emulator`, and `verify:web` too. `make ruleset-check` passed. | 2026-09-29 | `make ruleset-check` |
 | The review-gate workflow runs from `main`, so it runs on each pull request. | 2026-09-28 | `.github/workflows/review-gate.yml` |
 | `gpt-6-luna` costs 0.10 USD per million input tokens and 0.50 USD per million output tokens. | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
 | The OpenAI usage policies page returns HTTP 403. The owner accepted a copy printed on 2025-11-07 (D-93). | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
@@ -51,7 +51,7 @@ Next action: open the pull request, read CI, apply the ruleset after the owner a
 
 ## Next steps, in order
 
-1. Close PR-9: CI, the live ruleset, the Codex review, the owner confirmation, and the merge.
+1. Close PR-9: the Codex review, the owner confirmation, and the merge.
 2. After the merge, start PR-10 (work area 2.3) in a clean session. Read the billing state first, then ask Q-142.
 3. In PR-10, check that the browser key allows the Hosting site of the web app (D-117).
 
@@ -69,10 +69,12 @@ Completed:
 - Wrote the web shell in `web/` with the patterns of `decktome:web/apps/web/src/lib/api.ts` and `decktome:web/apps/web/e2e/phone.spec.ts`.
 - Wrote the browser tests of the acceptance story, with a control that proves the pinch block of the viewport meta.
 - Moved the Java 21 lookup of `make emulator-test` into `scripts/java21.sh`, so `make web` uses it too.
+- Changed the pinch test to a touch of two fingers after the first CI run, because Chromium on Linux ignores `Input.synthesizePinchGesture`.
+- Applied `verify:web` as a required check to the live ruleset after the owner approval (D-127). `make ruleset-check` passed.
 
 Open work:
 
-- CI, the live ruleset, the Codex review, the owner confirmation, and the merge of PR-9.
+- The Codex review, the owner confirmation, and the merge of PR-9.
 
 ### Session 9 - 2026-09-29
 
