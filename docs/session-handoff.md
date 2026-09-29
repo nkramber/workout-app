@@ -16,7 +16,7 @@ The pull request holds the contract and the API skeleton:
 - the three jobs as required checks in `.github/rulesets/review-gate.json` (D-127),
 - the owner answers Q-145 to Q-147 (D-129 to D-131).
 
-State: Codex reviewed effective head `3c3db409fdb93178897473a404769cec7a39bd61`. The verdict is `Ready for owner merge`, with no open findings. `make verify`, `make contract`, `make go-test`, `make emulator-test`, and `make ruleset-check` passed on the review machine. Each CI job passed except `review-gate`, which ran before the review record reached the branch.
+State: Codex reviewed effective head `3c3db409fdb93178897473a404769cec7a39bd61`. The verdict is `Ready for owner merge`, with no open findings. `make verify`, `make contract`, `make go-test`, `make emulator-test`, and `make ruleset-check` passed on the review machine. Each GitHub check passed at published head `dd4ff6ccf46bec19a6b2e21045bf7963d9b25838`.
 
 Next action: the owner confirms the merge, then the author session enables auto-merge.
 
