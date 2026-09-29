@@ -62,10 +62,11 @@ None.
 - `python3 docs/tools/review_gate.py --effective-head 7` — returned `0d66365c6efdd34483eb3c3ee9caa3913504d8cf`.
 - `git diff --stat d6e3c5473ab6222c25412d303892f0277b579cfb...0d66365c6efdd34483eb3c3ee9caa3913504d8cf` — inspected all twelve changed paths.
 - `make verify` at `0d66365c6efdd34483eb3c3ee9caa3913504d8cf` — passed. It ran 302 tool tests, 12 probe tests, 44 Luna plan tests, 19 recognition tests (1 skipped), and 45 recognition-set tests (2 skipped).
-- GitHub checks at `0d66365c6efdd34483eb3c3ee9caa3913504d8cf` — `pr-contract`, `verify:lint`, `verify:probe`, and `verify:test` passed. `review-gate` failed because this record still held the earlier verdict.
+- GitHub checks before publication at `0d66365c6efdd34483eb3c3ee9caa3913504d8cf` — `pr-contract`, `verify:lint`, `verify:probe`, and `verify:test` passed. `review-gate` failed because this record still held the earlier verdict.
+- GitHub checks after publication at `8ddc8723d1dbac2668c53d3054c901d31fd68756` — `review-gate`, `pr-contract`, `verify:lint`, `verify:probe`, and `verify:test` passed.
 - Device reproduction — not run. The report and response contain the owner's device evidence, and D-121 changes the reviewed cold-start condition.
 - PR comments and review threads — none. The pull request has no comments, reviews, or threads.
-- Push: pending publication of this record and the hand-off.
+- Push: `8ddc8723d1dbac2668c53d3054c901d31fd68756` became the branch head. `gh pr view` verified it before this metadata refresh.
 
 ## Open questions and accepted risks
 
