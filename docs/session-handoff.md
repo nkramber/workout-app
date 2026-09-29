@@ -15,7 +15,9 @@ PR-5 holds the iPhone web platform probe of work area 1.3:
 
 State: the probe builds, and its 12 browser tests pass in WebKit and Chromium on the owner machine. The project `gym-route-dev` exists on the free plan with no billing account. It has the default Hosting site and the email and password provider. It has no Firestore database, no Storage bucket, no Realtime Database, and no Cloud Functions. No deploy of the probe exists. PR-6 deploys it from `main` (D-14).
 
-Next action: CI of the tip, then `make codex-review PR=6`.
+Review: Codex found no finding and marked head `a1b6bff31a3eed46c917300c10ee97c5febd08fb` Ready for owner merge. The review commit must pass `review-gate`.
+
+Next action: the owner confirms the merge after the review-gate check passes.
 
 ## Facts that expire
 
