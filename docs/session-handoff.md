@@ -4,7 +4,7 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-29. GitHub pull request 9 is open on branch `feat/pr-8-api-skeleton`, from base `7aa7bd4`. Its id is PR-8 in `docs/roadmaps/phase-2-platform-skeleton.md`, work area 2.1.
+Date: 2026-09-29. GitHub pull request 9 is open on branch `feat/pr-8-api-skeleton`, from base `7aa7bd4`. Its roadmap id is PR-8 in `docs/roadmaps/phase-2-platform-skeleton.md`, work area 2.1.
 
 The pull request holds the contract and the API skeleton:
 
@@ -16,9 +16,9 @@ The pull request holds the contract and the API skeleton:
 - the three jobs as required checks in `.github/rulesets/review-gate.json` (D-127),
 - the owner answers Q-145 to Q-147 (D-129 to D-131).
 
-State: `make verify`, `make contract`, `make go-test`, and `make emulator-test` passed on the machine of the owner. Each CI job of the first push passed, except `review-gate`, which waits for the Codex record. The owner approved the change of the live ruleset at run time. The session applied it, and `make ruleset-check` passed.
+State: Codex reviewed effective head `3c3db409fdb93178897473a404769cec7a39bd61`. The verdict is `Ready for owner merge`, with no open findings. `make verify`, `make contract`, `make go-test`, `make emulator-test`, and `make ruleset-check` passed on the review machine. Each CI job passed except `review-gate`, which ran before the review record reached the branch.
 
-Next action: run the Codex review, then answer each finding.
+Next action: the owner confirms the merge, then the author session enables auto-merge.
 
 ## Facts that expire
 
