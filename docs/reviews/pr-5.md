@@ -50,12 +50,13 @@ None.
 - `git diff --stat 8a034c9b18e36ccf6907259cd55a9b8e5448303b...HEAD`: 20 paths, 1,748 insertions, and 68 deletions. I inspected every path.
 - GraphQL export of PR #5 review threads and reviews: passed. It returned zero threads and zero reviews.
 - `gh pr checks 5 --repo nkramber/workout-app` at head `63fe65df968140dead8aae5f497766fd41d8cb47`: `pr-contract`, `verify:lint`, and `verify:test` passed. `review-gate` failed because the branch did not hold `docs/reviews/pr-5.md`. The failed gate log confirms RG 3 only.
+- `gh pr checks 5 --repo nkramber/workout-app --watch --interval 20` after the metadata push: `pr-contract`, `review-gate`, `verify:lint`, and `verify:test` passed.
 - `make verify`: passed. STE, ref, lifecycle, context, 301 documentation tests, 44 plan tests, 19 recognition tests, and 45 recognition-set tests passed. One recognition image test and two recognition-set image tests skipped because Pillow is not installed.
 - `make pr-check`: did not run because this detached review worktree has no pull request association. The `pr-contract` check passed on the PR head.
 - Paid targets: not run, as required by the review skill.
 - `make hooks`: passed. Hooks are installed in this checkout.
-- `make where`: passed before the record commit. It reports detached HEAD. The requested push target is `feat/pr-4-recognition-spike`.
-- Push: pending.
+- `make where`: passed before the record commit and before the push. It reports detached HEAD. The requested push target is `feat/pr-4-recognition-spike`.
+- Push: `6dbd154508c37fbe269110ebf4581f6e47544188` was the head of `origin/feat/pr-4-recognition-spike`, verified with `gh pr view`.
 
 ## Open questions and accepted risks
 
@@ -64,4 +65,4 @@ The image preparation test skips when Pillow is absent. The paid run records the
 ## Verdict
 
 **Ready for owner merge.** This verdict applies to head `63fe65df968140dead8aae5f497766fd41d8cb47`.
-The provider gate passes. The reviewer inspected all changed paths and the acceptance story. Local verification and substantive CI checks pass. The review-gate check awaits this record on the branch.
+The provider gate passes. The reviewer inspected all changed paths and the acceptance story. Local verification and all four CI checks pass.
