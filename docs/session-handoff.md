@@ -8,7 +8,7 @@ Date: 2026-09-29. GitHub pull request 8 is open on branch `docs/pr-7-phase-2-roa
 
 The pull request holds the focused roadmap of Phase 2, with PR-8 to PR-11 (D-128). It records the owner answers D-122 to D-128. It also ends the D-4 period (D-125): `OVERRIDE_ENABLED` in `docs/tools/review_gate.py` is `True`, and the rule text changes with it.
 
-State: Codex round 2 reviewed effective head `6d1db28`, with the verdict `Ready for owner merge`. Finding P2-1 is fixed. `make verify` passed. The review record and this hand-off need publication, then the owner must confirm the merge.
+State: Codex round 2 reviewed effective head `6d1db28`, with the verdict `Ready for owner merge`. Finding P2-1 is fixed. `make verify` and all GitHub checks passed. The owner can read the review record and hand-off on the branch. The owner must confirm the merge.
 
 Next action: verify the published review-gate check, then ask the owner to confirm the merge.
 
