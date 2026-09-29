@@ -4,7 +4,7 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-29. PR-9 of `docs/roadmaps/phase-2-platform-skeleton.md`, work area 2.2, is on branch `feat/pr-9-web-shell`, from base `d9b192e`.
+Date: 2026-09-29. GitHub PR 10 is roadmap PR-9 of `docs/roadmaps/phase-2-platform-skeleton.md`, work area 2.2, on branch `feat/pr-9-web-shell`, from base `d9b192e`.
 
 The pull request holds the installable web shell in `web/`:
 
@@ -17,9 +17,9 @@ The pull request holds the installable web shell in `web/`:
 - the generated TypeScript code in `web/src/gen`, the target `make web`, and the CI job `verify:web` as a required check (D-126, D-127),
 - the owner answers Q-148 to Q-151 (D-132 to D-135).
 
-State: `make web` passed: 21 unit tests, and 17 browser tests in WebKit and Chromium. The WebKit copy of the pinch test skips, because Playwright can pinch in Chromium alone. `make verify` passed. GitHub pull request 10 is open. Each CI job passed at `851a06b`, and `review-gate` waits for the Codex record. The owner approved the change of the live ruleset at run time, and `make ruleset-check` passed (D-127).
+State: Codex verdict: Ready for owner merge at effective head `851a06b`. No open finding ids. `make verify` passed locally. GitHub CI passed each job except `review-gate`, which waits for the published review record. The owner approved the change of the live ruleset at run time, and `make ruleset-check` passed (D-127).
 
-Next action: run `make codex-review PR=10`, then answer each finding.
+Next action: verify the published branch head and the `review-gate` result. Then the owner confirms the merge.
 
 ## Facts that expire
 
