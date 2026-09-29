@@ -17,7 +17,7 @@ The pull request holds the installable web shell in `web/`:
 - the generated TypeScript code in `web/src/gen`, the target `make web`, and the CI job `verify:web` as a required check (D-126, D-127),
 - the owner answers Q-148 to Q-151 (D-132 to D-135).
 
-State: Codex verdict: Ready for owner merge at effective head `851a06b`. No open finding ids. `make verify` passed locally. GitHub CI passed each job except `review-gate`, which waits for the published review record. The owner approved the change of the live ruleset at run time, and `make ruleset-check` passed (D-127).
+State: Codex verdict: Ready for owner merge at effective head `851a06b`. No open finding ids. `make verify` passed locally. GitHub CI passed every job, including `review-gate`, on metadata tip `6bd4ea9`. The owner approved the change of the live ruleset at run time, and `make ruleset-check` passed (D-127).
 
 Next action: verify the published branch head and the `review-gate` result. Then the owner confirms the merge.
 
