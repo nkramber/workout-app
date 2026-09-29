@@ -51,7 +51,7 @@ None.
 - GitHub checks at head `8b7f34709e456e4de71b99f424e1abc70f63c2fa`: `pr-contract`, `verify:contract`, `verify:emulator`, `verify:go`, `verify:lint`, `verify:probe`, and `verify:test` passed. `review-gate` failed because this record was not yet on the branch.
 - The single GitHub query for review threads returned none. The pull request view has no comments or submitted reviews.
 - Inspected all 37 changed paths from base `7aa7bd42382c4978c262fabbfa9f400104e53368` to effective head `3c3db409fdb93178897473a404769cec7a39bd61`.
-- Push: pending.
+- Push: `7ab524bcd36f9c8236f060b7aaf8f7bdb13ac9b7` is the head of `origin/feat/pr-8-api-skeleton`, verified with `gh pr view`.
 
 ## Open questions and accepted risks
 
