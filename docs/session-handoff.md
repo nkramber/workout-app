@@ -16,9 +16,9 @@ The pull request holds these concerns:
 - `PACKAGE_NO_DELETE` and `PACKAGE_SERVICE_NO_DELETE` in `buf.yaml`, with `scripts/package_move_probe.sh` in `make contract` (D-138),
 - the report `docs/research/phase-2-check.md`.
 
-State: the checks and the documents are complete. `make verify`, `make contract`, and `make web` passed. The pull request gets the Codex review, with no `review-override` label (D-144). The live web app gets the header space after the merge, through `deploy-web`.
+State: Codex reviewed effective head `4d643e3b81061535cc69591f568a4a295e04bfe8` and set the verdict to `Ready for owner merge`. No finding remains open. GitHub CI passed all checks except `review-gate`, which failed because this record was absent. The record and this hand-off update await publication.
 
-Next action: CI, the Codex review, the owner confirmation, and the merge of PR-11, pending the owner merge.
+Next action: publish the review record and hand-off, verify the `review-gate` result, and wait for the owner confirmation and merge of PR-11. The live web app gets the header space after the merge, through `deploy-web`.
 
 ## Facts that expire
 
