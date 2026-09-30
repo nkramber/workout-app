@@ -9,6 +9,21 @@
 # 2026-09-29. The firebase-tools version is the version of
 # emulators/package.json.
 steps:
+  # The builds of the triggers run apart, so an older build can reach
+  # this step after a newer build deployed. The guard skips the release
+  # when a newer commit on main changes a watched path, because the build
+  # of that commit deploys it. docs/tools/deploy_order.py holds the rule.
+  - id: guard
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk@sha256:7c2dbc4eeba1e500b788be19cae33599cefe3294949a62c034bd1c2002329f69
+    entrypoint: python3
+    args:
+      - docs/tools/deploy_order.py
+      - --commit=$COMMIT_SHA
+      - --skip-file=/workspace/.deploy-skip
+      - firestore.rules
+      - cloudbuild/rules.yaml
+    allowExitCodes: [3]
+
   - id: release
     name: node:22.23.2@sha256:dd5847a04b0deee391fa145f1f4c6d214196668b6bcc7988ebed67249f226844
     entrypoint: bash
@@ -16,6 +31,7 @@ steps:
       - -c
       - |
         set -euo pipefail
+        if [ -f /workspace/.deploy-skip ]; then echo "a newer build deploys this part"; exit 0; fi
         npx --yes firebase-tools@15.32.0 deploy --only firestore:rules \
           --project "$PROJECT_ID" --non-interactive --message "commit $COMMIT_SHA"
 

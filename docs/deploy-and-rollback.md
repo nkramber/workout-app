@@ -21,7 +21,16 @@ Each check reads the commit of its build:
 - `GET /version` of the API returns `{"commit":"<sha>"}`. The Dockerfile gives the commit to the Go build.
 - `/version.json` of the web app returns the same form. The web build writes it after the Vite build, so the service worker does not keep it.
 
-The three triggers run apart, so the build of an older merge can finish last. The check of that build then fails, and the live part runs the older commit. Run the build of the newer merge again from the Cloud Build history. Decktome has a guard for this case (`decktome:docs/deploy-and-rollback.md`), and this project has none yet.
+The three triggers run apart, so the build of an older merge can reach its deploy step after the build of a newer merge. So each build runs the step `guard` just before its deploy step. `docs/tools/deploy_order.py` holds the rule:
+
+- The guard reads `main`, and it looks for a commit after the commit of the build that changes a path of the trigger.
+- When it finds one, the build of that commit deploys the part. The guard writes `/workspace/.deploy-skip`, and each later step of the build does nothing.
+- A newer commit that changes no path of the trigger starts no build of the trigger. So it never makes a build skip.
+- After the wait of its check, a build passes when a newer change of its paths exists, because a newer build deployed first.
+
+One case stays open. A newer merge can come after the guard of an older build. Then the newer build must do all its steps before the older build ends its deploy step, and both builds pass. The newer build does more steps, so this case is very unlikely. After two quick merges, read `/version` or `/version.json`. If the part names the older commit, run the newer build again.
+
+When the build of the newer merge fails, the part stays at an older commit until a fix merges.
 
 Note: the web build and the API build do not wait for each other. After a merge that changes the contract, the new web app can call the old API for a short time.
 

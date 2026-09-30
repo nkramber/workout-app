@@ -26,6 +26,22 @@ steps:
         npm --prefix web run build
         printf '{"commit":"%s"}\n' "$COMMIT_SHA" > web/dist/version.json
 
+  # The builds of the triggers run apart, so an older build can reach
+  # this step after a newer build deployed. The guard skips the release
+  # when a newer commit on main changes a watched path, because the build
+  # of that commit deploys it. docs/tools/deploy_order.py holds the rule.
+  - id: guard
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk@sha256:7c2dbc4eeba1e500b788be19cae33599cefe3294949a62c034bd1c2002329f69
+    entrypoint: python3
+    args:
+      - docs/tools/deploy_order.py
+      - --commit=$COMMIT_SHA
+      - --skip-file=/workspace/.deploy-skip
+      - web
+      - firebase.json
+      - cloudbuild/web.yaml
+    allowExitCodes: [3]
+
   # firebase-tools reads the credentials of the build from the metadata
   # server, so no token of a person is in the repository. The version is
   # the version of emulators/package.json.
@@ -36,11 +52,13 @@ steps:
       - -c
       - |
         set -euo pipefail
+        if [ -f /workspace/.deploy-skip ]; then echo "a newer build deploys this part"; exit 0; fi
         npx --yes firebase-tools@15.32.0 deploy --only hosting \
           --project "$PROJECT_ID" --non-interactive --message "commit $COMMIT_SHA"
 
   # The rewrite of Hosting answers 200 for each path, so the check reads
-  # the commit of the live web in /version.json.
+  # the commit of the live web in /version.json. A newer build can release
+  # first, so the check then reads main again.
   - id: check
     name: gcr.io/google.com/cloudsdktool/cloud-sdk@sha256:7c2dbc4eeba1e500b788be19cae33599cefe3294949a62c034bd1c2002329f69
     entrypoint: bash
@@ -48,11 +66,14 @@ steps:
       - -c
       - |
         set -euo pipefail
+        if [ -f /workspace/.deploy-skip ]; then echo "a newer build deploys this part"; exit 0; fi
         body=$$(curl -s -m 30 "https://$PROJECT_ID.web.app/version.json?cb=$SHORT_SHA")
         echo "live web: $$body"
         case "$$body" in *'"commit":"'"$COMMIT_SHA"'"'*) exit 0 ;; esac
         echo "the web does not name $COMMIT_SHA"
-        exit 1
+        code=0
+        python3 docs/tools/deploy_order.py --commit=$COMMIT_SHA web firebase.json cloudbuild/web.yaml || code=$$?
+        test "$$code" = "3"
 
 substitutions:
   _API_BASE_URL: https://api-665413986587.us-central1.run.app

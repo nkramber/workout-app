@@ -16,9 +16,9 @@ The pull request holds the project and the deploy:
 - the allowlist entry of the owner in the live project alone,
 - `docs/setup-gcp.md` and `docs/deploy-and-rollback.md`, and the tests `docs/tools/test_deploy_config.py` and `go/cmd/api/rules_emulator_test.go`.
 
-State: the live project is complete, and each part reads back. Codex requires changes at effective head `e5f724b`. Open finding P2-1 covers an older build that replaces a newer deploy.
+State: the live project is complete, and each part reads back. Codex required changes at effective head `e5f724b` for P2-1, an older build that replaces a newer deploy. Round 2 adds the guard `docs/tools/deploy_order.py` before each deploy step, and `docs/reviews/pr-11-response.md` answers the finding.
 
-Next action: correct P2-1 and repeat the review. Then the owner confirms the merge.
+Next action: repeat the Codex review. Then the owner confirms the merge. The merge starts the three builds.
 
 ## Facts that expire
 
@@ -72,6 +72,7 @@ Completed:
 - Made each part of the project with the approval of the owner at run time, and read each part back.
 - Renamed each current file. The past records keep the old name (D-136).
 - Wrote the deploy files, the setup and rollback documents, and the tests. The rules test fails with open rules.
+- Answered P2-1 of the Codex review with a guard before each deploy step.
 
 Open work:
 

@@ -24,23 +24,39 @@ steps:
       - push
       - ${_REGION}-docker.pkg.dev/$PROJECT_ID/workout-app/api:$COMMIT_SHA
 
+  # The builds of the triggers run apart, so an older build can reach
+  # this step after a newer build deployed. The guard skips the deploy
+  # when a newer commit on main changes a watched path, because the build
+  # of that commit deploys it. docs/tools/deploy_order.py holds the rule.
+  - id: guard
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk@sha256:7c2dbc4eeba1e500b788be19cae33599cefe3294949a62c034bd1c2002329f69
+    entrypoint: python3
+    args:
+      - docs/tools/deploy_order.py
+      - --commit=$COMMIT_SHA
+      - --skip-file=/workspace/.deploy-skip
+      - go
+      - docker
+      - cloudbuild/api.yaml
+    allowExitCodes: [3]
+
   # The deploy names the image alone. The service account, the
   # environment, and the scale settings of the revision before it carry
   # over.
   - id: deploy
     name: gcr.io/google.com/cloudsdktool/cloud-sdk@sha256:7c2dbc4eeba1e500b788be19cae33599cefe3294949a62c034bd1c2002329f69
-    entrypoint: gcloud
+    entrypoint: bash
     args:
-      - run
-      - deploy
-      - api
-      - --region=${_REGION}
-      - --image=${_REGION}-docker.pkg.dev/$PROJECT_ID/workout-app/api:$COMMIT_SHA
-      - --quiet
+      - -c
+      - |
+        set -euo pipefail
+        if [ -f /workspace/.deploy-skip ]; then echo "a newer build deploys this part"; exit 0; fi
+        gcloud run deploy api --region "${_REGION}" --quiet \
+          --image "${_REGION}-docker.pkg.dev/$PROJECT_ID/workout-app/api:$COMMIT_SHA"
 
   # The check reads GET /version until it names the commit of this build.
-  # A later merge can deploy first, so the check stops after 5 minutes and
-  # prints the commit that it read.
+  # It stops after 5 minutes. A newer build can deploy during the wait, so
+  # the check then reads main again, and a newer change of the API passes.
   - id: check
     name: gcr.io/google.com/cloudsdktool/cloud-sdk@sha256:7c2dbc4eeba1e500b788be19cae33599cefe3294949a62c034bd1c2002329f69
     entrypoint: bash
@@ -48,6 +64,7 @@ steps:
       - -c
       - |
         set -euo pipefail
+        if [ -f /workspace/.deploy-skip ]; then echo "a newer build deploys this part"; exit 0; fi
         url=$$(gcloud run services describe api --region "${_REGION}" --format='value(status.url)')
         for i in $$(seq 1 30); do
           body=$$(curl -s -m 10 "$$url/version" || true)
@@ -56,7 +73,9 @@ steps:
           sleep 10
         done
         echo "the API does not name $COMMIT_SHA"
-        exit 1
+        code=0
+        python3 docs/tools/deploy_order.py --commit=$COMMIT_SHA go docker cloudbuild/api.yaml || code=$$?
+        test "$$code" = "3"
 
 substitutions:
   _REGION: us-central1

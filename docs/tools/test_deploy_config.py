@@ -72,7 +72,7 @@ class SeparateAccountsTest(unittest.TestCase):
 
     def test_the_api_build_deploys_the_api_alone(self):
         text = read("cloudbuild/api.yaml")
-        self.assertIn("- api\n", text)
+        self.assertIn("gcloud run deploy api ", text)
         self.assertNotIn("firebase", text)
         # The deploy names the image alone, so the account, the
         # environment, and the scale of the service carry over.
@@ -108,6 +108,50 @@ class ProjectTest(unittest.TestCase):
         # D-77: one match of every document, and it refuses each call.
         self.assertEqual(re.findall(r"allow [^;]*;", rules), ["allow read, write: if false;"])
         self.assertIn("match /{document=**}", rules)
+
+
+WATCHED = {
+    "api": ["go", "docker", "cloudbuild/api.yaml"],
+    "web": ["web", "firebase.json", "cloudbuild/web.yaml"],
+    "rules": ["firestore.rules", "cloudbuild/rules.yaml"],
+}
+
+
+def step_ids(text):
+    return re.findall(r"^  - id: (\S+)$", text, re.M)
+
+
+class DeployOrderTest(unittest.TestCase):
+    """Each build skips its deploy when a newer build owns it (P2-1 of the review of PR 11)."""
+
+    def test_the_guard_runs_before_each_deploy_step(self):
+        for name, deploy in (("api", "deploy"), ("web", "release"), ("rules", "release")):
+            ids = step_ids(read(f"cloudbuild/{name}.yaml"))
+            self.assertIn("guard", ids, name)
+            self.assertEqual(ids.index("guard") + 1, ids.index(deploy), name)
+
+    def test_the_guard_watches_the_paths_of_its_trigger(self):
+        # docs/deploy-and-rollback.md gives the paths of each trigger. A
+        # guard with fewer paths can let an old build deploy, and a guard
+        # with more paths can skip a deploy that no newer build makes.
+        table = read("docs/deploy-and-rollback.md")
+        for name, paths in WATCHED.items():
+            text = read(f"cloudbuild/{name}.yaml")
+            guard = text.split("- id: guard", 1)[1].split("\n\n", 1)[0]
+            listed = re.findall(r"^      - (\S+)$", guard, re.M)
+            self.assertEqual(listed[listed.index("--skip-file=/workspace/.deploy-skip") + 1:], paths, name)
+            row = [line for line in table.splitlines() if line.startswith(f"| `deploy-{name}`")][0]
+            cell = row.split("|")[2]
+            globs = re.findall(r"`([^`]+)`", cell)
+            self.assertEqual([g.removesuffix("/**") for g in globs], paths, name)
+            self.assertIn("allowExitCodes: [3]", guard, name)
+
+    def test_each_later_step_reads_the_skip_file(self):
+        for name, later in (("api", ["deploy", "check"]), ("web", ["release", "check"]), ("rules", ["release"])):
+            text = read(f"cloudbuild/{name}.yaml")
+            for step in later:
+                body = text.split(f"- id: {step}\n", 1)[1].split("\n  - id:", 1)[0]
+                self.assertIn("if [ -f /workspace/.deploy-skip ]", body, f"{name} {step}")
 
 
 if __name__ == "__main__":
