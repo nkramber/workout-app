@@ -138,6 +138,30 @@ test.describe("in Chromium", () => {
     expect(await pinchIn("/?control")).toBeGreaterThan(1.5);
     expect(await pinchIn("/")).toBe(1);
   });
+
+  // Since iOS 26, the Home Screen app blurs a band below the status bar,
+  // and the page can not turn it off. On iOS 27.0 with Chrome 154, the
+  // band covered the top half of the title (PR-11). So the header adds
+  // 16 px above its 12 px padding, the least space that keeps the title
+  // out of the band, and no more. Chromium sets the safe area through the
+  // DevTools protocol alone, and it draws no such blur. The owner reads
+  // the blur on the iPhone.
+  test("the title starts 16 px lower below a status bar, and a page with no top safe area gets no extra space", async ({ page, browserName }) => {
+    test.skip(browserName !== "chromium", "Chromium alone sets the safe area through the DevTools protocol");
+
+    const titleTop = async (insetTop: number) => {
+      const cdp = await page.context().newCDPSession(page);
+      await cdp.send("Emulation.setSafeAreaInsetsOverride", { insets: { top: insetTop } });
+      await page.goto("/");
+      await expect(page.getByTestId("shell")).toBeVisible();
+      return page.evaluate(() => document.querySelector("header h1")!.getBoundingClientRect().top);
+    };
+
+    const withStatusBar = await titleTop(59);
+    expect(withStatusBar - 59, "the space above the title below a status bar").toBe(12 + 16);
+    const withNone = await titleTop(0);
+    expect(withNone, "the space above the title with no top safe area").toBe(12);
+  });
 });
 
 test("the shell fills the whole screen, and the main region is the one part that scrolls", async ({ page }) => {
