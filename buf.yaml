@@ -9,7 +9,12 @@ breaking:
   # encoding that a deployed web build reads. The two delete rules refuse
   # the removal of a call or a service that a deployed build still calls.
   # The rules are the rules of decktome:buf.yaml.
+  # The two package rules compare the files by package, not by path. So
+  # they refuse a move of a file to a new package, which hides the removal
+  # of a package or a service from the rules above (D-138).
   use:
     - WIRE_JSON
     - RPC_NO_DELETE
     - SERVICE_NO_DELETE
+    - PACKAGE_NO_DELETE
+    - PACKAGE_SERVICE_NO_DELETE
