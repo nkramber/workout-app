@@ -16,9 +16,9 @@ The pull request holds the project and the deploy:
 - the allowlist entry of the owner in the live project alone,
 - `docs/setup-gcp.md` and `docs/deploy-and-rollback.md`, and the tests `docs/tools/test_deploy_config.py` and `go/cmd/api/rules_emulator_test.go`.
 
-State: the live project is complete, and each part reads back. Codex closed P2-1 at effective head `9ec3819`, with a lock for each part in the bucket `nk-workout-app-prod-deploy-lock` (D-143). Codex opened P2-2 there: the read of `main` had no timeout. Round 4 bounds the read and the whole lock section below the stale limit. `docs/reviews/pr-11-response.md` answers each round.
+State: the live project is complete, and each part reads back. Codex reviewed effective head `360f1db` and set the verdict to `Ready for owner merge`. Findings P2-1 and P2-2 are fixed. The read of `main` stops after five minutes, the deploy command stops after ten minutes, and the stale limit is twenty minutes. `docs/reviews/pr-11-response.md` answers each round.
 
-Next action: repeat the Codex review. Then the owner confirms the merge. The merge starts the three builds.
+Next action: the owner confirms the merge. The merge starts the three builds.
 
 ## Facts that expire
 
