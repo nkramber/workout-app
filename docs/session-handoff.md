@@ -16,9 +16,9 @@ The pull request holds the project and the deploy:
 - the allowlist entry of the owner in the live project alone,
 - `docs/setup-gcp.md` and `docs/deploy-and-rollback.md`, and the tests `docs/tools/test_deploy_config.py` and `go/cmd/api/rules_emulator_test.go`.
 
-State: the live project is complete, and each part reads back. The repeat Codex review at effective head `5f9d991` keeps P2-1 open. The guard does not make the version check and deploy atomic. The verdict is Changes required.
+State: the live project is complete, and each part reads back. Codex kept P2-1 open at effective head `5f9d991`, because the guard ran in a step before the deploy. Round 3 adds a lock for each part in the bucket `nk-workout-app-prod-deploy-lock` (D-143). `docs/reviews/pr-11-response.md` answers both rounds.
 
-Next action: the author resolves P2-1 and requests another review. Then the owner confirms the merge. The merge starts the three builds.
+Next action: repeat the Codex review. A third open round of P2-1 stops the loop, and the owner decides. Then the owner confirms the merge. The merge starts the three builds.
 
 ## Facts that expire
 
@@ -33,6 +33,7 @@ Next action: the author resolves P2-1 and requests another review. Then the owne
 | `gpt-6-luna` accepts the strict JSON schema of the plan through the Responses API. 60 of 60 plans passed the schema. | 2026-09-28 | `docs/research/luna-plan-spike.md` |
 | `gpt-6-luna` accepts an image with a strict JSON schema. One photo at 1536 px costs 0.00037 USD. | 2026-09-28 | `docs/research/recognition-spike.md` |
 | The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` with the `hello` placeholder, three triggers, and the allowlist entry. | 2026-09-29 | `docs/setup-gcp.md`, the read back of each step |
+| The bucket `nk-workout-app-prod-deploy-lock` exists, and each deployer account holds `roles/storage.objectUser` on it alone. | 2026-09-29 | `gcloud storage buckets describe`, `get-iam-policy` |
 | `workout-app-prod` is in use by another Google Cloud project. | 2026-09-29 | `gcloud projects create` |
 | The old project `gym-route-dev` has no billing, and its site serves the probe of build `d6e3c54`. | 2026-09-29 | `gcloud billing projects describe`, `firebase hosting:sites:list` |
 | Chrome 154 on iOS 27.0 adds the probe to the Home Screen, and the app opens in the `standalone` display mode. | 2026-09-29 | `docs/research/iphone-platform-spike.md` |
@@ -72,7 +73,7 @@ Completed:
 - Made each part of the project with the approval of the owner at run time, and read each part back.
 - Renamed each current file. The past records keep the old name (D-136).
 - Wrote the deploy files, the setup and rollback documents, and the tests. The rules test fails with open rules.
-- Answered P2-1 of the Codex review with a guard before each deploy step.
+- Answered P2-1 of the Codex review with a guard, then with a lock for each part (D-143).
 
 Open work:
 

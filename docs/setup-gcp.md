@@ -23,6 +23,7 @@ CAUTION: do not write an account email, a uid, or a secret value into this file.
 | Cloud Run | Service `api` in `us-central1`, request billing, min instances 0, max instances 2, CPU boost | D-141 |
 | Secret Manager | Secret `openai-api-key` with no version. Phase 3 adds the value. | D-24 |
 | Artifact Registry | Docker repository `workout-app` in `us-central1` | - |
+| Deploy lock | Bucket `nk-workout-app-prod-deploy-lock` in `us-central1`, with public access prevention, and a rule that deletes each object after one day | D-143 |
 | Cloud Build | The connection `github` to `nkramber/workout-app`, and the triggers `deploy-api`, `deploy-web`, and `deploy-rules` | D-14, D-142 |
 | Hosting | The site `nk-workout-app-prod`, at `https://nk-workout-app-prod.web.app` | D-18 |
 
@@ -36,6 +37,8 @@ Each account holds the roles of one job, and no account holds a basic role.
 | `api-deployer` | `roles/run.developer`, `roles/artifactregistry.writer`, `roles/logging.logWriter`, and `roles/iam.serviceAccountUser` on `api-runtime` alone | The trigger `deploy-api` |
 | `web-deployer` | `roles/firebasehosting.admin`, `roles/logging.logWriter` | The trigger `deploy-web` |
 | `rules-deployer` | `roles/firebaserules.admin`, `roles/logging.logWriter` | The trigger `deploy-rules` |
+
+Each deployer account also holds `roles/storage.objectUser` on the bucket `nk-workout-app-prod-deploy-lock` alone (D-143).
 
 The web build installs npm code, so `web-deployer` can release Hosting alone. A bad package can not deploy the API, and it can not open the rules (D-142).
 
@@ -88,7 +91,9 @@ CAUTION: the location of a database is permanent. Check `us-central1` before the
 2. Make the four accounts of section 2, and give each account its roles.
 3. Run `gcloud secrets create openai-api-key --replication-policy=user-managed --locations=us-central1`.
 4. Run `gcloud artifacts repositories create workout-app --location=us-central1 --repository-format=docker`.
-5. Make the service `api` with the `hello` image of Google, as the block below gives.
+5. Make the bucket `nk-workout-app-prod-deploy-lock` with `--uniform-bucket-level-access` and `--public-access-prevention`.
+6. Give each deployer account `roles/storage.objectUser` on that bucket.
+7. Make the service `api` with the `hello` image of Google, as the block below gives.
 
 ```
 gcloud run deploy api --project nk-workout-app-prod --region us-central1 \

@@ -25,34 +25,36 @@ steps:
       - ${_REGION}-docker.pkg.dev/$PROJECT_ID/workout-app/api:$COMMIT_SHA
 
   # The builds of the triggers run apart, so an older build can reach
-  # this step after a newer build deployed. The guard skips the deploy
-  # when a newer commit on main changes a watched path, because the build
-  # of that commit deploys it. docs/tools/deploy_order.py holds the rule.
-  - id: guard
-    name: gcr.io/google.com/cloudsdktool/cloud-sdk@sha256:7c2dbc4eeba1e500b788be19cae33599cefe3294949a62c034bd1c2002329f69
-    entrypoint: python3
-    args:
-      - docs/tools/deploy_order.py
-      - --commit=$COMMIT_SHA
-      - --skip-file=/workspace/.deploy-skip
-      - go
-      - docker
-      - cloudbuild/api.yaml
-    allowExitCodes: [3]
-
+  # its deploy after a newer build. docs/tools/deploy_order.py holds the
+  # lock of the part across one critical section: it reads main, and it
+  # runs the deploy only when no newer commit changes a watched path.
+  # Else the build of that commit deploys, and this build skips.
   # The deploy names the image alone. The service account, the
   # environment, and the scale settings of the revision before it carry
   # over.
   - id: deploy
     name: gcr.io/google.com/cloudsdktool/cloud-sdk@sha256:7c2dbc4eeba1e500b788be19cae33599cefe3294949a62c034bd1c2002329f69
-    entrypoint: bash
+    entrypoint: python3
     args:
-      - -c
-      - |
-        set -euo pipefail
-        if [ -f /workspace/.deploy-skip ]; then echo "a newer build deploys this part"; exit 0; fi
-        gcloud run deploy api --region "${_REGION}" --quiet \
-          --image "${_REGION}-docker.pkg.dev/$PROJECT_ID/workout-app/api:$COMMIT_SHA"
+      - docs/tools/deploy_order.py
+      - deploy
+      - --part=api
+      - --commit=$COMMIT_SHA
+      - --bucket=$PROJECT_ID-deploy-lock
+      - --skip-file=/workspace/.deploy-skip
+      - --paths
+      - go
+      - docker
+      - cloudbuild/api.yaml
+      - --
+      - gcloud
+      - run
+      - deploy
+      - api
+      - --region=${_REGION}
+      - --quiet
+      - --image=${_REGION}-docker.pkg.dev/$PROJECT_ID/workout-app/api:$COMMIT_SHA
+    timeout: 1800s
 
   # The check reads GET /version until it names the commit of this build.
   # It stops after 5 minutes. A newer build can deploy during the wait, so
@@ -74,7 +76,7 @@ steps:
         done
         echo "the API does not name $COMMIT_SHA"
         code=0
-        python3 docs/tools/deploy_order.py --commit=$COMMIT_SHA go docker cloudbuild/api.yaml || code=$$?
+        python3 docs/tools/deploy_order.py newer --commit=$COMMIT_SHA go docker cloudbuild/api.yaml || code=$$?
         test "$$code" = "3"
 
 substitutions:
@@ -83,4 +85,4 @@ substitutions:
 options:
   logging: CLOUD_LOGGING_ONLY
 
-timeout: 1200s
+timeout: 3600s

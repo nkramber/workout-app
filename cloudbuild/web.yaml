@@ -26,25 +26,15 @@ steps:
         npm --prefix web run build
         printf '{"commit":"%s"}\n' "$COMMIT_SHA" > web/dist/version.json
 
-  # The builds of the triggers run apart, so an older build can reach
-  # this step after a newer build deployed. The guard skips the release
-  # when a newer commit on main changes a watched path, because the build
-  # of that commit deploys it. docs/tools/deploy_order.py holds the rule.
-  - id: guard
-    name: gcr.io/google.com/cloudsdktool/cloud-sdk@sha256:7c2dbc4eeba1e500b788be19cae33599cefe3294949a62c034bd1c2002329f69
-    entrypoint: python3
-    args:
-      - docs/tools/deploy_order.py
-      - --commit=$COMMIT_SHA
-      - --skip-file=/workspace/.deploy-skip
-      - web
-      - firebase.json
-      - cloudbuild/web.yaml
-    allowExitCodes: [3]
-
   # firebase-tools reads the credentials of the build from the metadata
   # server, so no token of a person is in the repository. The version is
-  # the version of emulators/package.json.
+  # the version of emulators/package.json. The first call fetches it, so
+  # the lock does not wait for the download.
+  # The builds of the triggers run apart, so an older build can reach
+  # its deploy after a newer build. docs/tools/deploy_order.py holds the
+  # lock of the part across one critical section: it reads main, and it
+  # runs the deploy only when no newer commit changes a watched path.
+  # Else the build of that commit deploys, and this build skips.
   - id: release
     name: node:22.23.2@sha256:dd5847a04b0deee391fa145f1f4c6d214196668b6bcc7988ebed67249f226844
     entrypoint: bash
@@ -52,9 +42,13 @@ steps:
       - -c
       - |
         set -euo pipefail
-        if [ -f /workspace/.deploy-skip ]; then echo "a newer build deploys this part"; exit 0; fi
-        npx --yes firebase-tools@15.32.0 deploy --only hosting \
+        npx --yes firebase-tools@15.32.0 --version
+        python3 docs/tools/deploy_order.py deploy --part=web --commit=$COMMIT_SHA \
+          --bucket=$PROJECT_ID-deploy-lock --skip-file=/workspace/.deploy-skip \
+          --paths web firebase.json cloudbuild/web.yaml -- \
+          npx --yes firebase-tools@15.32.0 deploy --only hosting \
           --project "$PROJECT_ID" --non-interactive --message "commit $COMMIT_SHA"
+    timeout: 1800s
 
   # The rewrite of Hosting answers 200 for each path, so the check reads
   # the commit of the live web in /version.json. A newer build can release
@@ -72,7 +66,7 @@ steps:
         case "$$body" in *'"commit":"'"$COMMIT_SHA"'"'*) exit 0 ;; esac
         echo "the web does not name $COMMIT_SHA"
         code=0
-        python3 docs/tools/deploy_order.py --commit=$COMMIT_SHA web firebase.json cloudbuild/web.yaml || code=$$?
+        python3 docs/tools/deploy_order.py newer --commit=$COMMIT_SHA web firebase.json cloudbuild/web.yaml || code=$$?
         test "$$code" = "3"
 
 substitutions:
@@ -81,4 +75,4 @@ substitutions:
 options:
   logging: CLOUD_LOGGING_ONLY
 
-timeout: 1200s
+timeout: 3600s
