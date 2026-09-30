@@ -21,9 +21,9 @@ Checks of the base before the work, on 2026-09-30:
 - The owner opened the Home Screen app again. The title is sharp, with the 16 px space above it (D-145).
 - `gym-route-dev` is still `DELETE_REQUESTED`. Its site still gave HTTP 200 at 04:38:56Z.
 
-State: Codex reviewed effective head `4bf0f925225f2d806e17f7c5a9cdc2bfadbbb567` and found no defect. The record is ready for publication. GitHub CI passed except `review-gate`, which needs this record.
+State: Codex reviewed effective head `4bf0f925225f2d806e17f7c5a9cdc2bfadbbb567` and found no defect. The branch holds the review record, and all required checks pass.
 
-Next action: publish the review record, verify the review-gate result, then wait for the owner confirmation and merge of PR-12.
+Next action: wait for the owner confirmation and merge of PR-12.
 
 ## Facts that expire
 
