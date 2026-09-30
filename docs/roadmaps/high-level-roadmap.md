@@ -2,7 +2,7 @@
 
 This roadmap gives the path from a blank repository to a safe, useful Workout App for its one user, the owner (D-67). It names the phases, their order, the risk work, the outcomes, the work areas of pull request size, and the exit evidence of each phase. It is not a plan of tasks. A focused roadmap turns one phase into tasks later. `docs/roadmaps/README.md` gives the rules for focused roadmaps.
 
-The date of this version is 2026-09-29. `docs/design.md` holds the product design. `docs/decisions.md` and `docs/questions.md` hold every decision and question that this roadmap cites.
+The date of this version is 2026-09-30. `docs/design.md` holds the product design. `docs/decisions.md` and `docs/questions.md` hold every decision and question that this roadmap cites.
 
 ## 1. Rules of this roadmap
 
@@ -113,11 +113,11 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 
 | Work area | Concerns | Exit evidence |
 |---|---|---|
-| 3.1 Domain model and catalog | Machines, exercises, inventory, plan, session, and set log. The catalog of fixed-path and cardio machines (D-45). The cardio log fields of D-123. Machines with pound markings only (D-122). | Table tests for every type and for the catalog lookups. |
-| 3.2 Policy engine and fallback | Rep, reps-in-reserve, rest, and load bounds (D-37). The 5 lb rounding of D-65 and the jump limit of Q-92. The rules fallback. | Golden scenario tests pass, section 5 scenarios included. Property tests prove that no output breaks a bound. |
+| 3.1 Domain model and catalog | Machines, exercises, inventory, plan, session, and set log. The catalog of D-155: machines, two cable exercises, dumbbells, and cardio machines (D-154). The cardio log fields of D-123. Machines with pound markings only (D-122). | Table tests for every type and for the catalog lookups. |
+| 3.2 Policy engine and fallback | Rep, reps-in-reserve, rest, and load bounds (D-37). The 5 lb rounding of D-65, with D-148 and D-149, and the one 5 lb step of D-147. The rules fallback. | Golden scenario tests pass, section 5 scenarios included. Property tests prove that no output breaks a bound. |
 | 3.3 Luna role layer | Planner and reviser roles on `gpt-6-luna` at medium effort. The fake provider. Cost records, cap hooks, and a prompt that keeps text inside the fitness boundary (D-36, Q-95, Q-101). | Fake-provider tests cover a valid proposal, a malformed proposal, an unsafe proposal, and a timeout. |
 
-**Decisions and questions.** D-22 to D-25, D-30, D-32, D-36 to D-38, D-40, D-43, D-45, D-64 to D-66, D-122, D-123, Q-92, Q-95, Q-100 to Q-102, Q-104 to Q-107.
+**Decisions and questions.** D-22 to D-25, D-30, D-32, D-36 to D-38, D-40, D-43, D-45, D-64 to D-66, D-122, D-123, D-147 to D-158, Q-92, Q-95, Q-100 to Q-102, Q-104 to Q-107.
 
 **Gate.** A limited paid evaluation of the planner and the reviser runs only with owner approval (D-25).
 
@@ -131,10 +131,10 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 
 | Work area | Concerns | Exit evidence |
 |---|---|---|
-| 4.1 Selection and text entry | The owner selects each machine from the catalog of D-45, or enters it as text (D-51, D-55). The owner confirms each machine before a plan uses it (D-49). | Browser UI tests add a machine by selection and by text entry. A plan can not use a machine that the owner did not confirm. |
+| 4.1 Selection and text entry | The owner selects each machine from the catalog of D-155, or enters it as text (D-51, D-55). The owner confirms each machine before a plan uses it (D-49). | Browser UI tests add a machine by selection and by text entry. A plan can not use a machine that the owner did not confirm. |
 | 4.2 Machine details | Identity and available weights only (D-54). The load estimate of the owner (D-41). Kilogram markings (Q-91). | An emulator test proves that a stored machine holds only the fields of D-54 and the load estimate. |
 
-**Decisions and questions.** D-41, D-45, D-46, D-49, D-51, D-54, D-55, D-110, Q-91.
+**Decisions and questions.** D-41, D-45, D-46, D-154, D-155, D-49, D-51, D-54, D-55, D-110, Q-91.
 
 ### Phase 5 - Onboarding and plan generation
 
@@ -218,15 +218,15 @@ The deferred work areas:
 
 ## 5. Adaptation scenarios
 
-The policy of Phase 3 must pass these scenarios. The numbers come from the synthesis in `docs/research/exercise-safety.md`. They are recommendations until the Phase 3 focused roadmap fixes them with the owner. Q-92 decides the rule for a rounded jump that exceeds the limit.
+The policy of Phase 3 must pass these scenarios. The numbers come from the synthesis in `docs/research/exercise-safety.md`. The owner fixed the step, the rounding, the calibration, and the break rules in the session of the Phase 3 focused roadmap (D-147 to D-151). The other numbers stay recommendations until a Phase 3 pull request fixes them with the owner.
 
 | Id | Prescribed | Logged | Safe next-session behavior |
 |---|---|---|---|
 | Scenario A | 3 x 12 at 25 lb | 12, 12, 5 | No load increase. If the owner reported pain, the pain rule applies first. If sets 1 and 2 had one rep in reserve or less, keep 25 lb and lower the rep target, or lower the load one 5 lb step. If the same shortfall occurs in two sessions, lower the load. The reason names set 3. |
-| Scenario B | 3 x 12 at a load | 12, 12, 12, each with three or more reps in reserve | Progress. When one 5 lb step is within the jump limit, add 5 lb at the low end of the rep range. When the step exceeds the limit, add reps first up to the top of the range, then add 5 lb with fewer reps. |
-| Scenario C | Any | A pain flag on a set | No progression on that exercise in the next session. The warning of D-40 shows. The text never diagnoses (D-36). |
+| Scenario B | 3 x 12 at a load | 12, 12, 12, each with three or more reps in reserve | Progress with double progression (D-147). Below the top of the rep range, add reps. At the top of the range, add one 5 lb step and reset the reps to the low end of the range. |
+| Scenario C | Any | A pain flag on a set | No progression on that exercise in the next session. The warning of D-40 shows, with the text of D-153. The text never diagnoses (D-36). |
 | Scenario D | Any | The session ended early | Unlogged sets count as skipped work, not as failed reps (D-63, D-64). |
-| Scenario E | Any | No session for the Q-102 break length | Lower the load and raise the reps in reserve for the first sessions back. No failure in those sessions (D-37). |
+| Scenario E | Any | No session for 2 weeks or more (D-151) | Lower the load with the long-break table of D-151, and use 3 reps in reserve with rep progression only for the first sessions back. No failure in those sessions (D-37). |
 | Scenario F | Luna proposes a 50 percent load jump | Any | The policy refuses the proposal, the fallback target applies, and the decision log records the refusal. |
 
 ## 6. Test and evaluation strategy
@@ -265,8 +265,9 @@ The owner confirms every machine (D-49), so a wrong identity costs time, not saf
 The Phase 3 and Phase 7 suites prove these properties for every input:
 
 - No load increase follows a set with missed reps.
-- No output exceeds the jump limit, the rep bounds, or the reps-in-reserve bounds.
-- Every load is a multiple of 5 lb (D-65).
+- No output adds more than one 5 lb step for each exercise in each session (D-147).
+- No output exceeds the rep bounds or the reps-in-reserve bounds.
+- Every load is a multiple of 5 lb (D-65), or the machine weight that D-149 selects. A dumbbell load is the load of one dumbbell (D-155).
 - A pain flag blocks progression on that exercise in the next session.
 - Every Luna proposal outside the bounds becomes a refusal and a fallback, never a displayed target.
 - The same history and the same policy version give the same validated targets.

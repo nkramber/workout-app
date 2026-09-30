@@ -2,13 +2,15 @@
 
 Status: research input for the roadmap. This document holds evidence and synthesis. It holds no owner decision. The owner decisions live in `docs/decisions.md`.
 
-Date of this document: 2026-09-28. Access date of every source: 2026-09-27.
+Date of this document: 2026-09-28. Access date of every source: 2026-09-27. Section 5.14, EV-67 to EV-85, and REC-17 to REC-22 date from 2026-09-30, and their sources have the access date 2026-09-30.
 
 ## 1. Purpose
 
 This document gives the deterministic policy of D-23 a cited base. Luna proposes plans and revisions (D-22). The policy checks every set, load, and change before the owner sees it (D-23). Each policy rule can name the `EV-<n>` ids that support it, and each assumption stays visible as an assumption.
 
-The scope follows the owner decisions. Workout App serves one user, the owner (D-67). The user is an adult (D-26) with intermediate or advanced experience (D-30). The core user is a 180 lb, 32-year-old man who used machines before but did not train for several years (D-31). The engine treats him as intermediate from the first day, with loads from his own estimates (D-32). Equipment is fixed-path resistance machines and cardio machines only (D-45).
+The scope follows the owner decisions. Workout App serves one user, the owner (D-67). The user is an adult (D-26) with intermediate or advanced experience (D-30). The core user is a 180 lb, 32-year-old man who used machines before but did not train for several years (D-31). The engine treats him as intermediate from the first day, with loads from his own estimates (D-32).
+
+Equipment is fixed-path resistance machines and cardio machines only (D-45). D-154 added dumbbells and two cable exercises on 2026-09-30, with section 5.14.
 
 This document gives fitness guidance research only (D-36). It is not medical, legal, or regulatory advice.
 
@@ -111,6 +113,25 @@ Classes in the register:
 | EV-64 | Nevada consumer health data law, NRS 603A.400-603A.550 (SB 370, 2023). [NRS 603A](https://www.leg.state.nv.us/NRS/NRS-603A.html) | Similar definition of consumer health data. Consent and deletion duties. | Effective date and enforcement from secondary sources. | evidence (legal text) |
 | EV-65 | Connecticut Data Privacy Act, CGS 42-515 and 42-526. [Chapter 743jj](https://www.cga.ct.gov/current/pub/chap_743jj.htm) | Consumer health data definition. No sale without consent. Geofencing ban near health facilities. | Applies to products targeted to Connecticut residents. | evidence (legal text) |
 | EV-66 | New York Health Information Privacy Act (S929). No primary text verified. | Secondary reports: veto on 19 Dec 2025, revised bill in 2026. | nysenate.gov returned 403. | unresolved |
+| EV-67 | "Effect of free-weight vs. machine-based strength training on maximal strength, hypertrophy and jump performance - a systematic review and meta-analysis." Haugen ME et al., BMC Sports Sci Med Rehabil 2023;15:103. [DOI 10.1186/s13102-023-00713-4](https://doi.org/10.1186/s13102-023-00713-4) | 13 studies, n=1,016. No difference in direct comparison for dynamic strength, isometric strength, or hypertrophy. Strength gains are specific to the modality of training. Choice can follow preference. | 5 studies for hypertrophy. Mostly men. No injury outcome. | evidence |
+| EV-68 | "Machines and free weight exercises: a systematic review and meta-analysis comparing changes in muscle size, strength, and power." Heidel KA, Novak ZJ, Dankel SJ, J Sports Med Phys Fitness 2022;62:1061-1070. [DOI 10.23736/S0022-4707.21.12929-9](https://doi.org/10.23736/S0022-4707.21.12929-9) | Similar strength on a neutral test, similar power and hypertrophy. Test specificity explains the other differences. | Abstract only. | evidence |
+| EV-69 | "Free-Weight and Machine-Based Training Are Equally Effective on Strength and Hypertrophy." Hernández-Belmonte A et al., Med Sci Sports Exerc 2023;55:2316-2327. [DOI 10.1249/MSS.0000000000003271](https://doi.org/10.1249/MSS.0000000000003271) | RCT, 8 weeks, n=38 trained men. Similar strength and hypertrophy. No rise in joint discomfort with free weights. | Barbells, not dumbbells. Abstract results text truncated. | evidence |
+| EV-70 | "A 10-Year Analysis of Resistance Training-Related Injuries Treated in Emergency Departments." Coffey K et al., J Strength Cond Res 2026;40:e1-e8. [DOI 10.1519/JSC.0000000000005268](https://doi.org/10.1519/JSC.0000000000005268), [PMC12688451](https://europepmc.org/article/PMC/PMC12688451) | NEISS, 15,348 cases, machines and free weights. Trunk 38.5% of injuries. Men: press movements 7.2%, dropped equipment 12.1%, crush 3.1%. | ED only. No exposure denominator. Equipment often not named. | evidence |
+| EV-71 | "Bodyweight and Weightlifting Exercise Injury Burden: National Analysis from 2014 to 2023." Liu J et al., Sports Med Int Open 2026;10. [DOI 10.1055/a-2866-5672](https://doi.org/10.1055/a-2866-5672) | NEISS estimate of 546,655 weightlifting injuries in 10 years. Trunk 70.1%, fingers and toes 13.7%. Dropped weights and crush likely cause the digit injuries. | ED only. No exposure data. No split by equipment. | evidence |
+| EV-72 | "A National Evaluation of Upper Extremity Weightlifting Injury Surveillance." Lee PM et al., Orthop J Sports Med 2026;14. [DOI 10.1177/23259671251387730](https://doi.org/10.1177/23259671251387730) | NEISS 2021-2024, upper extremity. Drop and crush 30.1%, pull movements 10.5%, overhead movements 8.3%. Shoulder 33.8%, finger 28.1%. | ED only. No split by equipment. No exposure data. | evidence |
+| EV-73 | "Weightlifting-Associated Lower Extremity Injuries Among Pediatric and Adult Patients." Nishida C et al., Orthop J Sports Med 2025;13. [DOI 10.1177/23259671251397390](https://doi.org/10.1177/23259671251397390) | NEISS 2014-2023. Lower trunk 37.6%. Young adults: "nonspecific" lifts 35.9%, drop and crush second. | ED only. Age bands from abstract. | evidence |
+| EV-74 | "Bench Pressing Related Traumatic Laryngeal Fracture." Kabaso M et al., Turk Arch Otorhinolaryngol 2026;64:126-131. [DOI 10.4274/tao.2026.2025-12-9](https://doi.org/10.4274/tao.2026.2025-12-9) | A barbell fell on the neck of a man, 42, during a bench press with no assistance. Airway risk. | Single case. Barbell, not dumbbell. | evidence (hazard signal only) |
+| EV-75 | "Factors associated with gym-based fitness injuries: A case-control study." Noteboom L et al., JSAMS Plus 2023;2:100032. [DOI 10.1016/j.jsampl.2023.100032](https://doi.org/10.1016/j.jsampl.2023.100032) | 493 cases, 971 controls. Men under 41 had higher odds of injury. | Retrospective self-report. No equipment comparison. | evidence |
+| EV-76 | "NSCA Strength and Conditioning Professional Standards and Guidelines." NSCA, Strength Cond J 2017;39(6):1-24. [DOI 10.1519/SSC.0000000000000348](https://doi.org/10.1519/SSC.0000000000000348), [PDF](https://www.nsca.com/globalassets/education/nsca_strength_and_conditioning_professional_standards_and_guidelines.pdf) | Standard 3.2: "attentive spotting must be provided" when free weights are "supported on the trunk or moved over the head/face". | Written for supervised facilities, not a solo adult. Gives no RIR value. | recommendation |
+| EV-77 | "Selecting and Effectively Using Free Weights." ACSM Consumer Information Committee, 2011. [PDF, third-party host](https://www.prescriptiontogetactive.com/static/pdfs/selecting-and-effectively-using-free-weights.pdf) | Free weights carry higher injury risk than machines. "Most accidents occur when a weight falls on a body part." General fitness: a spotter is probably not necessary. Heavy loads or a new exercise: use a spotter. | Consumer brochure, 2011. Not on an acsm.org URL. | recommendation |
+| EV-78 | "Estimating Repetitions in Reserve in Four Commonly Used Resistance Exercises." Hughes LJ, Peiffer JJ, Scott B, J Strength Cond Res 2020 (online). [DOI 10.1519/JSC.0000000000003865](https://doi.org/10.1519/JSC.0000000000003865) | n=21 trained men. No clear difference in 2-RIR accuracy between free-weight and Smith machine lifts. Accuracy best at 85% 1RM, worse at 75% and 65%. | Barbell lifts only. Abstract only. | evidence |
+| EV-79 | "Estimating Repetitions in Reserve During the Bench Press Exercise: Should We Consider Sex and the Exercise Equipment?" Ruiz-Alias SA et al., Sports Health 2025;17:1007-1012. [DOI 10.1177/19417381241285891](https://doi.org/10.1177/19417381241285891) | n=26. RIR estimates tend to underestimate reps left at 65% 1RM in free-weight bench press. | Numeric results truncated in the abstract. Full text fetch failed (HTTP 500). | evidence (small study) |
+| EV-80 | "Accuracy of Predicted Intraset Repetitions in Reserve (RIR) in Single- and Multi-Joint Resistance Exercises." Remmert JF, Laurson KR, Zourdos MC, Percept Mot Skills 2023;130:1239-1254. [DOI 10.1177/00315125231169868](https://doi.org/10.1177/00315125231169868) | n=58. Machine curl, triceps pushdown, seated row. Predictions more accurate near failure and in later sets. Sex and experience had no effect. | Abstract only. No free-weight arm. | evidence |
+| EV-81 | "Accuracy in Estimating Repetitions to Failure During Resistance Exercise." Hackett DA et al., J Strength Cond Res 2017;31:2162-2168. [DOI 10.1519/JSC.0000000000001683](https://doi.org/10.1519/JSC.0000000000001683) | n=81. Chest press error of 1 rep or less at 0-5 reps left. Leg press only at 0-3 reps left. Upper body more accurate. | Machines only. | evidence |
+| EV-82 | Paulsen G et al., velocity and perceived RIR, PeerJ 2025;13:e19797. [DOI 10.7717/peerj.19797](https://doi.org/10.7717/peerj.19797) | Exercise type, load, and set number shift perceived RIR. Interpret RIR with caution. | n=19 trained. Squat and bench only. | evidence |
+| EV-83 | Wiedenmann T et al., trainability of RIR estimation, BMC Sports Sci Med Rehabil 2026;18:375. [DOI 10.1186/s13102-026-01997-y](https://doi.org/10.1186/s13102-026-01997-y) | Mean absolute error fell by up to 2.3 reps over 6 sessions. | n=26. Bench and leg press. | evidence (small study) |
+| EV-84 | "Loading Recommendations for Muscle Strength, Hypertrophy, and Local Endurance: A Re-Examination of the Repetition Continuum." Schoenfeld BJ et al., Sports 2021;9:32. [DOI 10.3390/sports9020032](https://doi.org/10.3390/sports9020032) | Hypertrophy occurs across a wide range of loads and reps. | Narrative review. | recommendation |
+| EV-85 | "Fatal accident with weight-lifting equipment: implications for safety standards." George DH et al., CMAJ 1989;140:925-926. [PMC1268894](https://europepmc.org/article/PMC/PMC1268894) | Title shows a fatal event with weight equipment. | No abstract. PDF fetch failed (HTTP 403). Content not read. | unresolved |
 
 ## 5. Synthesis
 
@@ -121,9 +142,9 @@ Everything in this section is synthesis. It is interpretation of the register, n
 - ACSM 2026 is the current position stand for healthy adults. It replaces the 2009 progression-model stand (EV-1, EV-2).
 - Its central message: any resistance program beats none, and adherence and individual fit matter more than exact prescription values (EV-1).
 - Public-health guidance asks for muscle-strengthening work of moderate or greater effort on 2 or more days each week (EV-3, EV-4, EV-5).
-- Four regions cover the major muscle groups: upper push, upper pull, lower push, lower pull (EV-1). A machine-only library (D-45) can cover all four.
+- Four regions cover the major muscle groups: upper push, upper pull, lower push, lower pull (EV-1). A machine-only library (D-45) can cover all four. Note of 2026-09-30: D-154 added dumbbells and two cable exercises (section 5.14).
 - Machines and free weights give similar results (EV-1). The machine-only scope of D-45 does not reduce the expected outcome.
-- Most emergency-department injuries in weight rooms come from weights that drop on the person, and most involve free weights (EV-52). Fixed-path machines (D-45) remove much of that mechanism.
+- Most emergency-department injuries in weight rooms come from weights that drop on the person, and most involve free weights (EV-52). Fixed-path machines (D-45) remove much of that mechanism. Note of 2026-09-30: the dumbbells of D-154 bring this mechanism back (section 5.14).
 - Injury rates in weight-training sports are low against team sports. The shoulder, low back, knee, elbow, and wrist carry most injuries (EV-51).
 - For an intermediate lifter, autoregulation by RIR gives results similar to percentage-based loads (EV-39). An RIR log (D-57) is therefore a sound adaptation input.
 
@@ -159,7 +180,7 @@ Consequences for the policy under D-37:
 - Targets stay at 1 to 3 RIR (D-37).
 - The policy never prescribes a set to failure in the first sessions after a break (D-37). No decision defines "first sessions", so section 7 lists it.
 - A logged RIR of 0 counts as a failure event (assumption). The policy counts these events and holds load progression when they recur.
-- Machines remove the drop hazard of free weights (EV-52). They do not remove the form and vascular concerns of EV-1.
+- Machines remove the drop hazard of free weights (EV-52). They do not remove the form and vascular concerns of EV-1. Note of 2026-09-30: section 5.14 covers the dumbbells of D-154.
 
 ### 5.4 Screening, warning signs, and pain (synthesis)
 
@@ -423,6 +444,22 @@ Property tests check four invariants. No load increase follows a shortfall. No r
 - A supervised pilot with adverse-event records, because no study tests this delivery model.
 - Owner decision: no qualified human review is necessary before broader release (D-39). This document records the decision as an accepted risk in section 5.5.
 
+### 5.14 Free weights and cable stations (synthesis)
+
+- Outcomes: free weights and machines give similar hypertrophy and similar strength on a neutral test (EV-1, EV-67, EV-68, EV-69). Strength gains are specific to the modality. The added exercises give choice, not a better result.
+- Injury mechanism: dropped weights and crush are a main ED mechanism (EV-52, EV-70, EV-72). The trunk is the most frequent region in adults (EV-70, EV-71, EV-73). Press movements cause some injuries (EV-70). A barbell that falls on the neck can block the airway (EV-74). The research found no dumbbell case.
+- Exposure: no source gives injuries per hour for dumbbells against machines or cables. The ED data have no denominator (EV-52, EV-70 to EV-73). ACSM states a higher risk for free weights but gives no rate (EV-77).
+- Spotter help: NSCA requires a spotter for free weights over the face or trunk in supervised facilities (EV-76). ACSM says general fitness does not need a spotter, but heavy loads or a new exercise do (EV-77). No source gives an RIR value for unspotted dumbbell press exercises.
+- Candidate RIR floor: target 2-3 RIR on the flat, incline, and seated dumbbell press. Never target 1 RIR on these (assumption). People underestimate reps left by about 1 (EV-27, EV-79), so a 2 RIR target usually leaves a margin. The spread is 2-3 reps (EV-28), so a margin is necessary.
+- RIR accuracy: free weights and a Smith machine gave similar accuracy (EV-78). Accuracy is worse at light loads and far from failure (EV-27, EV-78, EV-79). Upper-body machine estimates were more accurate than leg press estimates (EV-81). Single-joint machine estimates follow the same pattern (EV-80). The research found no study of dumbbells alone. RIR error fell by up to 2.3 reps over 6 sessions (EV-83).
+- Relative step per dumbbell. 10 to 15 lb +50%, 15 to 20 lb +33%, 20 to 25 lb +25%, 30 to 35 lb +17%, 50 to 55 lb +10%. The 2-10% range of EV-2 fails below 50 lb. So REC-1 stops most dumbbell exercises at their load. The owner declined REC-1 (D-147).
+- Rep progression gives similar adaptations to load progression (EV-38). Wide rep ranges give hypertrophy (EV-20, EV-21, EV-84). So the policy can progress reps to a ceiling, then add one step and reset reps.
+- Candidate rep ranges (assumption): lateral raise, biceps curl, hammer curl, and triceps pulldown 10-20. Dumbbell press, one-arm row, and lat pulldown 8-15. Romanian deadlift and goblet squat 8-15. The range of 10-20 exceeds the limit of 15 of section 5.2, and RIR accuracy falls in sets over 12 (EV-27).
+- Step rule: D-147 applies to each dumbbell. At the top of the range with RIR 3 or more on every set, the policy adds one 5 lb step and resets the reps. Candidate addition (assumption): read RIR on the first set at the new load. When the user can not reach the bottom of the range with 1 RIR or more, return to the last load.
+- Romanian deadlift and goblet squat: the research found no source with policy limits. Trunk injury is frequent in adult ED data (EV-71, EV-73). A 2-3 RIR target for the first sessions is an assumption.
+- Cable stations: the research found no safety data that compare them with machines. A cable stack moves on a guided path like a selectorized machine. Treat both cable exercises like fixed-path machines (assumption). Stack increments can differ from 5 lb.
+- The evidence is thin for injury rates, spotter needs, load steps, the two leg exercises, and cables. Most candidate values are assumptions.
+
 ## 6. Recommendations not yet owner decisions
 
 Every row in this table is a recommendation. No row is an owner decision.
@@ -445,6 +482,12 @@ Every row in this table is a recommendation. No row is an owner decision.
 | REC-14 | Recommendation: set rest timer defaults of 90-120 s for machines and 2-3 min for large multi-joint machines. | EV-36, EV-37 | D-59 |
 | REC-15 | Recommendation: count a logged RIR of 0 as a failure event, and hold progression when such events recur. | EV-23, EV-33, EV-34 | D-37, D-57 |
 | REC-16 | Recommendation: check the privacy notes of section 5.11 again if a later decision changes D-67. | EV-61 to EV-65 | D-67, D-79 |
+| REC-17 | Recommendation: set a 2 RIR floor for the flat, incline, and seated dumbbell press. Count a logged RIR of 0 or 1 on these as an event that holds load. | EV-27, EV-28, EV-76, EV-77, EV-79, assumption | D-37, D-154 |
+| REC-18 | Recommendation: after the one 5 lb step of D-147 on a dumbbell exercise, read RIR on the first set. When the user can not reach the bottom of the range with 1 RIR or more, return to the last load. | EV-2, EV-38, EV-84, assumption | D-65, D-147 |
+| REC-19 | Recommendation: use rep ranges of 10-20 for small single-joint exercises and 8-15 for press, row, pulldown, Romanian deadlift, and goblet squat. | EV-20, EV-21, EV-84, assumption. The range of 10-20 exceeds the limit of 15 of section 5.2. | D-37, D-154 |
+| REC-20 | Recommendation: make no claim that dumbbells or machines give better strength or hypertrophy. | EV-1, EV-67, EV-68, EV-69 | D-154 |
+| REC-21 | Recommendation: treat the cable lat pulldown and cable triceps pulldown like fixed-path machines for RIR and progression. | EV-52, assumption | D-65, D-154 |
+| REC-22 | Recommendation: apply the calibration of D-150 to each new dumbbell and cable exercise, and read RIR on the first sets as practice. | EV-80, EV-81, EV-83 | D-37, D-150 |
 
 ## 7. Unresolved items
 
@@ -469,3 +512,11 @@ Every row in this table is a recommendation. No row is an owner decision.
 - Other state laws on sensitive data, EU GDPR Article 9, the EU AI Act, and UK GDPR: not researched. D-28 limits the market to US English.
 - App-store health policies: not researched. D-17 removes app stores, so this item has no current use.
 - Validation of photo-based machine recognition for safety use: no evidence found. D-49 requires user confirmation of every machine.
+- No exposure-adjusted injury rate compares dumbbells with machines or cables.
+- No source gives an RIR floor for unspotted dumbbell press exercises. The 2 RIR floor is an assumption.
+- No RIR accuracy study uses dumbbells.
+- No policy-level source covers the Romanian deadlift or goblet squat for an unsupervised lifter.
+- No safety data compare cable stations with fixed-path machines.
+- Cable stack increments and gym dumbbell steps can differ from 5 lb. D-149 selects the weight of a machine, and no decision names the dumbbell set for this case.
+- George 1989 content not read (EV-85). The Ruiz-Alias 2025 numeric results are not verified (EV-79).
+- The research did not query the raw NEISS data. The register uses published analyses only.
