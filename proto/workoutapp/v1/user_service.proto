@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package gymroute.v1;
+package workoutapp.v1;
 
-option go_package = "github.com/nkramber/workout-app/go/gen/gymroute/v1;gymroutev1";
+option go_package = "github.com/nkramber/workout-app/go/gen/workoutapp/v1;workoutappv1";
 
 // UserService names the signed-in user (work area 2.1). Every call needs a
 // Firebase ID token of a uid on the invite allowlist (D-75, D-131).

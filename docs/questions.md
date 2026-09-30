@@ -1,4 +1,4 @@
-# Gym Route - questions
+# Workout App - questions
 
 This file is the durable question register. It keeps every question, its answer, its status, and the decision that closes it. Do not delete an answered question. A later answer adds a row or a note, and the earlier answer stays.
 
@@ -12,6 +12,7 @@ The ids have three ranges:
 - Q-125 to Q-130 are questions of the recognition spike session.
 - Q-140 to Q-144 are questions of the Phase 2 roadmap session.
 - Q-145 to Q-147 are questions of the API skeleton session.
+- Q-152 to Q-160 are questions of the deploy session.
 - Q-90 to Q-107 are open questions. Q-90, Q-91, Q-93 to Q-97, Q-99, and Q-100 have an answer. Each open question names the phase of `docs/roadmaps/high-level-roadmap.md` that needs the answer.
 
 The owner answered through the answer controls of the session. The first session asked Q-1 to Q-46 and Q-74 to Q-88 on 2026-09-27. It asked the other questions on 2026-09-28. The column "Rec." tells whether the owner chose the option that the launch prompt marked as recommended. A "No" in that column is an owner decision, not a mistake.
@@ -233,7 +234,7 @@ The owner answered through the answer controls of the session. The first session
 |---|---|---|---|---|
 | Q-140 | The exit evidence of work area 2.1 puts the contract, Go, and emulator tests in `make verify`. D-113 keeps `make verify` Python only. Which rule wins? | D-113. The product checks get their own `make` targets and CI jobs. | Answered | D-126 |
 | Q-141 | The owner ended the D-4 period. Which pull request changes `OVERRIDE_ENABLED` and the rule text? | PR-7. | Answered | D-125 |
-| Q-142 | Work area 2.3 needs a billing account for Cloud Run and for the backups of D-124. D-99 kept the project with no billing account. Which billing account and which budget alert apply? | No answer yet. The owner asked for a check of the billing account first. The session of PR-10 reads the billing state before it asks. | Open | none |
+| Q-142 | Work area 2.3 needs a billing account for Cloud Run and for the backups of D-124. D-99 kept the project with no billing account. Which billing account and which budget alert apply? | The session of PR-10 read the billing state first: one open account. The owner chose that account and an alerts-only budget of 10 USD each month. | Answered | D-139 |
 | Q-143 | Are the CI jobs of the product code required checks of `main`? | Yes. Each pull request that adds a job adds it to the ruleset. | Answered | D-127 |
 | Q-144 | How does Phase 2 split into pull requests? | PR-8 to PR-11, as the focused roadmap gives them. | Answered | D-128 |
 
@@ -253,6 +254,20 @@ The owner answered through the answer controls of the session. The first session
 | Q-149 | How does the service worker apply an update (REC-3)? | The `prompt` mode. The owner applies the update, and never during a workout. | Answered | D-133 |
 | Q-150 | Does the app ask for persistent storage after the first sign-in (REC-5)? | Yes, one time on each device, and the home screen shows the result. | Answered | D-134 |
 | Q-151 | Does `web/` use the pnpm workspace of Decktome? | No. One npm package, with the generated code in `web/src/gen`. | Answered | D-135 |
+
+## Questions of the deploy session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-152 | Why is the project `gym-route-dev`, and what is the name of the app? | The app is "Workout App", and the identifiers use `workout-app`. | Answered | D-136 |
+| Q-153 | Google Cloud gave "already in use" for `workout-app-prod`. Which project id applies? | `nk-workout-app-prod`. | Answered | D-137 |
+| Q-154 | What happens to the old project `gym-route-dev`? | It stays until the new project serves the app and the owner signs in. Then the owner shuts it down. | Answered | D-137 |
+| Q-155 | Do the past records change to the new name? | No. Each current file changes, and the past records keep the old name. | Answered | D-136 |
+| Q-156 | Does the contract package change to `workoutapp.v1`? And does `buf.yaml` get the package rules that see a moved file? | Yes to the package. The package rules come in a later pull request, after this change is on `main`. | Answered | D-138 |
+| Q-157 | Which Firestore edition and mode apply (REC-12)? | Standard, Native mode, `us-central1`. | Answered | D-140 |
+| Q-158 | Which Cloud Run cost settings apply (REC-15)? | Request billing, min 0, max 2, and the CPU boost. The owner skipped the spend cap. | Answered | D-141 |
+| Q-159 | How does a change of `firestore.rules` deploy? | A third trigger with its own service account. | Answered | D-142 |
+| Q-160 | The guard before each deploy leaves a gap before the deploy (P2-1, round 2). How do the builds keep their order? | A lock for each part in a small Cloud Storage bucket. | Answered | D-143 |
 
 ## Open questions
 

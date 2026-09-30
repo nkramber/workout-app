@@ -3,7 +3,7 @@ import { useQuery } from "@connectrpc/connect-query";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useState, type ReactNode } from "react";
 
-import { UserService } from "../gen/gymroute/v1/user_service_pb";
+import { UserService } from "../gen/workoutapp/v1/user_service_pb";
 import { db } from "../lib/db";
 import { megabytes, requestPersistenceOnce, type StorageState } from "../lib/storage";
 

@@ -13,7 +13,7 @@ export const bearerInterceptor: Interceptor = (next) => async (req) => {
 };
 
 // The API is on the default Cloud Run URL, another origin than the web
-// app (D-82). VITE_API_BASE_URL names it at build time. Work area 2.3
+// app (D-82). VITE_API_BASE_URL names it at build time. cloudbuild/web.yaml
 // sets it for the deploy. Empty means the origin of the page.
 export const transport = createConnectTransport({
   baseUrl: import.meta.env.VITE_API_BASE_URL ?? "",

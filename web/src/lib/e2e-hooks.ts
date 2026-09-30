@@ -6,7 +6,7 @@ import { db, pendingOutbox, saveSetting, type OutboxEntry, type Setting } from "
 // of each engine.
 declare global {
   interface Window {
-    gymRouteE2E?: {
+    workoutAppE2E?: {
       saveSetting: (id: string, value: unknown) => Promise<OutboxEntry>;
       pendingOutbox: () => Promise<OutboxEntry[]>;
       settings: () => Promise<Setting[]>;
@@ -15,7 +15,7 @@ declare global {
 }
 
 export function install(): void {
-  window.gymRouteE2E = {
+  window.workoutAppE2E = {
     saveSetting: (id, value) => saveSetting(db, id, value),
     pendingOutbox: () => pendingOutbox(db),
     settings: () => db.settings.toArray(),

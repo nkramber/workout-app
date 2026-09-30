@@ -1,8 +1,8 @@
-# Decktome patterns for Gym Route
+# Decktome patterns for Workout App
 
 ## 1. Purpose, date, and method
 
-This document compares the Decktome repository with the needs of Gym Route. It gives one disposition for each Decktome pattern: Adopt, Adapt, or Decline. It also lists the Decktome rules that must not transfer, the gaps that Decktome does not cover, and the lessons from its drift.
+This document compares the Decktome repository with the needs of Workout App. It gives one disposition for each Decktome pattern: Adopt, Adapt, or Decline. It also lists the Decktome rules that must not transfer, the gaps that Decktome does not cover, and the lessons from its drift.
 
 Date of the research: 2026-09-28.
 
@@ -16,18 +16,18 @@ Method:
 
 ### Citation rule
 
-This document cites a Decktome path in the form `decktome:<path>`, for example `decktome:AGENTS.md` or `decktome:docs/decisions.md`. It cites a Decktome decision id in the form decktome:D-811. The ref-check tool of Gym Route skips each token with the `decktome:` prefix. A bare D- id in this document always names a row of the Gym Route register. A bare Decktome path or a bare Decktome decision id must not occur in this document.
+This document cites a Decktome path in the form `decktome:<path>`, for example `decktome:AGENTS.md` or `decktome:docs/decisions.md`. It cites a Decktome decision id in the form decktome:D-811. The ref-check tool of Workout App skips each token with the `decktome:` prefix. A bare D- id in this document always names a row of the Workout App register. A bare Decktome path or a bare Decktome decision id must not occur in this document.
 
 ## 2. What Decktome is, and its stack and process
 
 Decktome is an agentic deck builder for Magic: The Gathering. A user uploads a card collection and talks to an LLM agent. The agent asks questions and returns a deck. Deterministic Go code owns card data and legality, and every card that the model names goes through the rules engine first (`decktome:README.md`, `decktome:docs/design-roadmap.md`). Decktome runs as an invite-only, installable web app (PWA) for a small group, with one owner. AI agents do almost all of the work.
 
-Gym Route has the same shape: one owner, AI agents, an installable phone-first web app, and an LLM over a strict engine (D-17, D-22, D-23). The table gives the observed Decktome pattern and the disposition for Gym Route.
+Workout App has the same shape: one owner, AI agents, an installable phone-first web app, and an LLM over a strict engine (D-17, D-22, D-23). The table gives the observed Decktome pattern and the disposition for Workout App.
 
 | Pattern | Evidence | Disposition | Reason and governing D- id |
 |---|---|---|---|
 | Go backend in one module, with `cmd/api`, `cmd/worker`, and `internal/*` packages | `decktome:go/go.mod`, `decktome:go/cmd/api`, `decktome:go/cmd/worker` | Adopt | The Decktome stack is the default (D-74, D-17). |
-| One Protobuf contract, buf v2, committed generated code, breaking-change check | `decktome:buf.yaml`, `decktome:buf.gen.yaml`, `decktome:proto/mtg/v1` | Adopt | Default stack (D-74). Package name changes to a Gym Route name. |
+| One Protobuf contract, buf v2, committed generated code, breaking-change check | `decktome:buf.yaml`, `decktome:buf.gen.yaml`, `decktome:proto/mtg/v1` | Adopt | Default stack (D-74). Package name changes to a Workout App name. |
 | Connect-RPC between the web client and the API | `decktome:go/go.mod`, `decktome:web/apps/web/package.json` | Adopt | Default stack (D-74). |
 | Web client: React 19, Vite 7, TypeScript, Tailwind 4, `vite-plugin-pwa` | `decktome:web/apps/web/package.json` | Adapt | The owner chose the Decktome React stack after a comparison, with Vite 8 in place of Vite 7 (D-84). |
 | Firebase Hosting for the web app | `decktome:firebase.json` | Adapt | Default Firebase Hosting URL, no custom domain (D-17, D-82). |
@@ -101,7 +101,7 @@ These patterns transfer with a new project name and no change of rule:
 
 ### 3.2 Adapt for a phone-first health and fitness web app
 
-| Pattern | Change for Gym Route | Governing D- id |
+| Pattern | Change for Workout App | Governing D- id |
 |---|---|---|
 | PWA from `vite-plugin-pwa` | Offline logging is necessary. The app writes each set to device storage first and syncs later. Each write carries a client id, so a retry is safe. | D-62, D-77 |
 | Logging rule | Logs, errors, and metrics carry ids only. No workout text, no photos, no prompts, no health details. | D-80 |
@@ -113,7 +113,7 @@ These patterns transfer with a new project name and no change of rule:
 | Spend cap | A monthly cap for each user and a cap for the project. The owner approves each paid development run. | D-25 |
 | CORS | Allow one origin: the `web.app` URL of the Hosting site. | D-82 |
 | STE checker | Add fitness terms to the allow list of the checker, for example "loaded", "selectorized", "seated", and "warm-up". Add only after a real false finding. | D-83 |
-| Codex review rules | The Decktome review reads its rules from `origin/main`. The first Gym Route pull request adds those rules, so `main` holds none yet. The first round reads the rules from the head, and the record says so. | D-3, D-8 |
+| Codex review rules | The Decktome review reads its rules from `origin/main`. The first Workout App pull request adds those rules, so `main` holds none yet. The first round reads the rules from the head, and the record says so. | D-3, D-8 |
 | Codex review of docs-only pull requests | The `review-override` label exists. The review ran on docs-only pull requests until the owner ended the roadmap period on 2026-09-29. | D-4, D-15, D-125 |
 | Pull request scope | The template and pr-check ask for the concerns of one milestone and one combined acceptance story. | D-10, D-12 |
 | Commit format | Conventional Commits. A commit-msg hook checks the title and refuses an AI attribution trailer. | D-14 |
@@ -124,9 +124,9 @@ These patterns transfer with a new project name and no change of rule:
 
 ### 3.3 Port list for the first pull request
 
-The first pull request ports the process items of D-3 and D-6. The table maps each item to its Decktome source and to the change that Gym Route needs.
+The first pull request ports the process items of D-3 and D-6. The table maps each item to its Decktome source and to the change that Workout App needs.
 
-| Item | Decktome source | Change for Gym Route | Governing D- id |
+| Item | Decktome source | Change for Workout App | Governing D- id |
 |---|---|---|---|
 | Codex review command | `decktome:docs/tools/codex_review.py`, `decktome:Makefile` | Remove the Gitar flag and its steps. Read the rules from the head in the first round only. | D-3, D-8 |
 | AGENTS.md and CLAUDE.md link | `decktome:AGENTS.md`, `decktome:CLAUDE.md` | Move the hard rules into AGENTS.md. CLAUDE.md holds one pointer. | D-7 |
@@ -136,7 +136,7 @@ The first pull request ports the process items of D-3 and D-6. The table maps ea
 | review-gate workflow | `decktome:.github/workflows/review-gate.yml`, `decktome:docs/tools/review_gate.py` | Keep the label path for docs-only pull requests. The owner ended the roadmap period on 2026-09-29. | D-4, D-125 |
 | Pre-commit hook | `decktome:.githooks/pre-commit` | Keep the `main` guard and the STE check. Add a commit-msg hook. | D-6, D-14 |
 | `make where`, `make hooks`, `make verify` | `decktome:Makefile` | Keep the free targets only. Add the paid targets later with a CAUTION line. | D-6, D-25 |
-| Ruleset and ruleset-check | `decktome:.github/rulesets/review-gate.json`, `decktome:docs/tools/ruleset_check.py` | Required checks match the Gym Route CI jobs. | D-6 |
+| Ruleset and ruleset-check | `decktome:.github/rulesets/review-gate.json`, `decktome:docs/tools/ruleset_check.py` | Required checks match the Workout App CI jobs. | D-6 |
 | Session hooks | `decktome:.claude/hooks/session_bind.py`, `decktome:.claude/hooks/context_checkpoint.py`, `decktome:.claude/settings.json` | Rename the `decktome-*` state paths. | D-6 |
 | context-budget | `decktome:docs/tools/context_budget.py` | Limits for AGENTS.md, the hand-off, and the skills. | D-6 |
 | Skills | `decktome:.claude/skills/ste-writing/SKILL.md`, `decktome:.claude/skills/pr-review/SKILL.md`, `decktome:.claude/skills/one-pr-one-session/SKILL.md` | Remove the Gitar steps and the card game examples. | D-6 |
@@ -148,7 +148,7 @@ The first pull request ports the process items of D-3 and D-6. The table maps ea
 |---|---|---|
 | Gitar review and the gitar-review skill | The owner did not approve it. Remove the Gitar steps from each ported skill. | D-3, D-6 |
 | Commit-order deploy guard | Two triggers do not race yet. Add it when evidence shows a race. | D-74 |
-| Paid evaluation gates, autotune, and feedback loops | They measure deck quality for Magic: The Gathering. Gym Route needs its own policy tests, which cost nothing. | D-23, D-25 |
+| Paid evaluation gates, autotune, and feedback loops | They measure deck quality for Magic: The Gathering. Workout App needs its own policy tests, which cost nothing. | D-23, D-25 |
 | Custom domain and its DNS | The app lives on the default Hosting URL, and the API on the default Cloud Run URL. | D-17, D-81, D-82 |
 | Soft-delete account closure | No user data controls apply to a single-user app. The pattern also keeps data after closure, so do not copy it. | D-67, D-78 |
 | Docs-only CI skip | No code exists yet, so CI has no heavy job to skip. | D-74 |
@@ -159,8 +159,8 @@ The first pull request ports the process items of D-3 and D-6. The table maps ea
 
 | Decktome item | Evidence | Why it does not transfer |
 |---|---|---|
-| Guardrails of the card game: rules engine for each card, no ban list in code, exact card names, pool mode, Scryfall image credit | `decktome:docs/design-roadmap.md`, `decktome:AGENTS.md` | Card rules. Gym Route checks sets and loads (D-23). |
-| Hard rules about card names, rules text, and the sources of the card game | `decktome:CLAUDE.md` | Gym Route uses current guidance and systematic evidence, with a date (D-38). |
+| Guardrails of the card game: rules engine for each card, no ban list in code, exact card names, pool mode, Scryfall image credit | `decktome:docs/design-roadmap.md`, `decktome:AGENTS.md` | Card rules. Workout App checks sets and loads (D-23). |
+| Hard rules about card names, rules text, and the sources of the card game | `decktome:CLAUDE.md` | Workout App uses current guidance and systematic evidence, with a date (D-38). |
 | The mtg-corpus skill | `decktome:.claude/skills/mtg-corpus/SKILL.md` | Domain knowledge of the card game. |
 | The live-test skill | `decktome:.claude/skills/live-test/SKILL.md` | It walks the deck screens of the deployed Decktome app. |
 | The dogfood agent | `decktome:.claude/agents/deck-builder-dogfood.md` | It builds decks. |
@@ -169,32 +169,32 @@ The first pull request ports the process items of D-3 and D-6. The table maps ea
 | "A verdict keeps the object it names" and the user record with its counters | decktome:D-635, decktome:D-638 | Product choices of the deck builder. |
 | The contents of the role and price files | `decktome:go/internal/llm/roles.json`, `decktome:go/internal/llm/prices.json` | The layer transfers. The roles and models do not (D-24). |
 | The domain `decktome.com` | decktome:D-556 | No custom domain (D-82). |
-| The mobile and store proposal, with a TWA for Android and a native shell for iOS | `decktome:docs/reference/mobile-and-engagement-2026-09-05.md`, decktome:D-548 | Gym Route never goes to an app store (D-17). |
+| The mobile and store proposal, with a TWA for Android and a native shell for iOS | `decktome:docs/reference/mobile-and-engagement-2026-09-05.md`, decktome:D-548 | Workout App never goes to an app store (D-17). |
 | Pushover notification of the owner | `decktome:go/internal/notify` | No notifications (D-61). |
-| The Decktome port map | `decktome:compose.yaml` | Gym Route needs its own ports on the same Mac. |
+| The Decktome port map | `decktome:compose.yaml` | Workout App needs its own ports on the same Mac. |
 
 ## 5. Gaps that Decktome does not address
 
-Decktome stores no health data, uses no camera, and needs no offline writes. So Gym Route must design these items fresh.
+Decktome stores no health data, uses no camera, and needs no offline writes. So Workout App must design these items fresh.
 
-| Gap | Why it matters for Gym Route | First direction | D- id |
+| Gap | Why it matters for Workout App | First direction | D- id |
 |---|---|---|---|
 | Offline workout logging in a PWA on iOS | The gym has weak signal. iOS keeps the storage of Safari apart from the storage of the Home Screen app, and it can evict web data. | Install to the Home Screen before the first workout. Sync after each set when the network is available. Show the sync state. Test eviction. | D-21, D-29, D-62, D-77 |
 | Camera capture in an iOS web app | The equipment flow starts with one photo. | Use the file input with camera capture. Keep the manual path complete. | D-50, D-51, D-55 |
-| Exercise-safety claims and the wellness boundary | Gym Route gives fitness guidance only. | State the boundary in the app. The policy blocks unsafe loads. Symptom reports warn first. | D-35, D-36, D-40 |
+| Exercise-safety claims and the wellness boundary | Workout App gives fitness guidance only. | State the boundary in the app. The policy blocks unsafe loads. Symptom reports warn first. | D-35, D-36, D-40 |
 | Sensitive fitness data in LLM prompts and logs | Injuries, weight, and pain go to Luna. | Send the minimum fields. Keep prompts out of logs and error reports. | D-24, D-80 |
 | iOS web limits | No vibration, no background sync, and no reliable timer in the background. | Visual cues only. The rest timer runs on the screen. The app syncs when it opens. | D-21, D-58, D-59, D-61 |
-| LLM validation of numeric prescriptions | Decktome checks card legality. Gym Route checks numbers: load steps, rep ranges, reps in reserve, and progression size. | A versioned policy with table tests and a rules fallback. | D-23, D-37, D-64, D-65 |
+| LLM validation of numeric prescriptions | Decktome checks card legality. Workout App checks numbers: load steps, rep ranges, reps in reserve, and progression size. | A versioned policy with table tests and a rules fallback. | D-23, D-37, D-64, D-65 |
 | Photo privacy | A gym photo can hold location data and other people. | Strip EXIF data on the device before upload. Delete source photos after confirmation. Keep no user photo in an evaluation set. | D-52, D-53, D-56 |
-| One development project without production | Decktome never created its planned development project. Gym Route has the reverse case. | Name the project for development, and treat its data as live data of the owner. | D-67, D-76 |
+| One development project without production | Decktome never created its planned development project. Workout App has the reverse case. | Name the project for development, and treat its data as live data of the owner. | D-67, D-76 |
 
-Distribution gaps are NOT APPLICABLE. Gym Route never goes to an app store (D-17). So app store review, signing keys, store privacy forms, and store deletion rules do not apply. User data controls and public policy pages are also out of scope (D-78, D-79, D-81).
+Distribution gaps are NOT APPLICABLE. Workout App never goes to an app store (D-17). So app store review, signing keys, store privacy forms, and store deletion rules do not apply. User data controls and public policy pages are also out of scope (D-78, D-79, D-81).
 
 ## 6. Lessons
 
-Decktome wrote some rules and did not add a machine check. Those rules drifted. For Gym Route, add the small check in the same pull request as the rule.
+Decktome wrote some rules and did not add a machine check. Those rules drifted. For Workout App, add the small check in the same pull request as the rule.
 
-| Rule | Drift in Decktome | Evidence | Small check for Gym Route |
+| Rule | Drift in Decktome | Evidence | Small check for Workout App |
 |---|---|---|---|
 | No AI attribution | 10 squash commits on `main` carry a Claude co-author trailer. | `decktome:CLAUDE.md`, `git log` of Decktome | A commit-msg hook and a CI check refuse the trailer (D-14). |
 | One concern for each pull request | Many pull requests hold a deploy read and a fix, or a batch of findings. | `decktome:AGENTS.md`, `git log` of Decktome | pr-check asks for the concerns and one milestone story (D-10, D-12). |

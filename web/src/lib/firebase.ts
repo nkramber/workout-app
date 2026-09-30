@@ -13,7 +13,7 @@ type AuthModule = typeof import("firebase/auth");
 // prefix tells the emulator that no real project exists, and the Go API
 // of the tests reads the same project id.
 const emulatorHost = import.meta.env.VITE_AUTH_EMULATOR_HOST ?? (import.meta.env.DEV ? "127.0.0.1:9299" : "");
-const emulatorConfig = { apiKey: "demo-key", projectId: "demo-gym-route", authDomain: "localhost" };
+const emulatorConfig = { apiKey: "demo-key", projectId: "demo-workout-app", authDomain: "localhost" };
 
 let pending: Promise<{ auth: Auth; mod: AuthModule }> | null = null;
 

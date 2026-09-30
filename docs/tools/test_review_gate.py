@@ -17,7 +17,7 @@ N = 212
 HEAD = "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678"
 CODE = [(HEAD, ["go/internal/policy/load.go"])]
 SESSION = "session@example.com"
-REPO = "owner/gym-route"
+REPO = "owner/workout-app"
 
 
 def record(head=HEAD[:7], verdict=f"**{rg.APPROVED}.** This verdict applies to head `x`.", identity=True):
@@ -128,7 +128,7 @@ class RecordCommit(unittest.TestCase):
 
 class Fork(unittest.TestCase):
     def test_a_record_from_a_fork_fails(self):
-        rules, results = run(text=record(), fork="someone/gym-route")
+        rules, results = run(text=record(), fork="someone/workout-app")
         self.assertIn(("RG 3", "FAULT"), rules)
         self.assertNotIn(("RG 5", "PASS"), rules)
 
@@ -342,10 +342,10 @@ class GitFacts(unittest.TestCase):
     def test_the_command_fails_an_approved_record_from_a_fork(self):
         code = self.commit({"go/a.go": "package a\n"}, "code")
         self.commit({rg.record_path(N): record(head=code)}, "review")
-        status, out = self.gate(head_repo="someone/gym-route")
+        status, out = self.gate(head_repo="someone/workout-app")
         self.assertEqual(status, 1, out)
         self.assertIn("RG 3: FAULT", out)
-        self.assertIn("`someone/gym-route`", out)
+        self.assertIn("`someone/workout-app`", out)
 
     def test_the_command_fails_a_record_whose_head_repository_is_gone(self):
         code = self.commit({"go/a.go": "package a\n"}, "code")
@@ -356,9 +356,9 @@ class GitFacts(unittest.TestCase):
 
     def test_the_label_passes_documents_from_a_fork_after_the_period_alone(self):
         self.commit({"docs/decisions.md": "| D-1 |\n"}, "docs")
-        status, out = self.gate(labels=[rg.LABEL], head_repo="someone/gym-route", enabled=False)
+        status, out = self.gate(labels=[rg.LABEL], head_repo="someone/workout-app", enabled=False)
         self.assertEqual(status, 1, out)
-        status, out = self.gate(labels=[rg.LABEL], head_repo="someone/gym-route", enabled=True)
+        status, out = self.gate(labels=[rg.LABEL], head_repo="someone/workout-app", enabled=True)
         self.assertEqual(status, 0, out)
 
     def test_the_command_fails_a_code_push_after_the_review(self):

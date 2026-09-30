@@ -1,16 +1,16 @@
-# Gym Route - design
+# Workout App - design
 
-This document holds the product thesis, the target experience, the system context, the safety boundaries, and the privacy posture of Gym Route. It is the design reference for `docs/roadmaps/high-level-roadmap.md`. The date of this version is 2026-09-28.
+This document holds the product thesis, the target experience, the system context, the safety boundaries, and the privacy posture of Workout App. It is the design reference for `docs/roadmaps/high-level-roadmap.md`. The date of this version is 2026-09-28.
 
 Each statement has a label. **Fact** means a verified fact with a source in `docs/research/`. **Decision** means an owner decision in `docs/decisions.md`. **Recommendation** means a proposal that the owner did not accept yet. **Assumption** means a belief that nobody verified yet. **Open** means a question in `docs/questions.md`.
 
 ## 1. Product thesis
 
-Gym Route is a personal workout app for one person, the owner (Decision, D-67). The owner tells the app the muscles to train, the schedule, the experience, the injuries, and the goals. The owner selects each machine of the gym from a catalog, or enters it as text, and confirms it (Decision, D-49, D-110). No phase of the roadmap holds photo recognition now (Decision, D-111). The app builds a workout plan, guides each workout, records each set, and adapts the next targets from the history.
+Workout App is a personal workout app for one person, the owner (Decision, D-67). The owner tells the app the muscles to train, the schedule, the experience, the injuries, and the goals. The owner selects each machine of the gym from a catalog, or enters it as text, and confirms it (Decision, D-49, D-110). No phase of the roadmap holds photo recognition now (Decision, D-111). The app builds a workout plan, guides each workout, records each set, and adapts the next targets from the history.
 
 The core of the app is **a thin LLM over a strict policy** (Decision, D-22, D-23). OpenAI `gpt-6-luna` at medium effort proposes each plan and each revision (Decision, D-24). A deterministic, versioned policy checks every set, load, and change before the owner sees it. When Luna fails or proposes a value that the policy refuses, a rules fallback gives a safe target. This thesis copies the Decktome thesis, where deterministic code checks every card that the model names.
 
-Gym Route is an installable, phone-first web app on a default Firebase Hosting URL (Decision, D-17). It never goes to an app store, and no native app exists. It has one phone layout, and nobody designs or tests a desktop layout (Decision, D-20).
+Workout App is an installable, phone-first web app on a default Firebase Hosting URL (Decision, D-17). It never goes to an app store, and no native app exists. It has one phone layout, and nobody designs or tests a desktop layout (Decision, D-20).
 
 ## 2. Target user and scope
 
@@ -91,7 +91,7 @@ Targets use one to three reps in reserve. Failure is rare, and it never occurs i
 | Role layer | Model choice, cost records, fake provider | Sends profile and workout data to OpenAI | Decision, D-24 |
 | Firestore | Source of record after sync | Injuries, body data, workout history | Decision, D-77 |
 | Firebase Auth | Email and password, and an invite allowlist of uids in Firestore | Email address | Decision, D-75, D-131 |
-| GCP project | One development project in `us-central1` | All of the above | Decision, D-76 |
+| GCP project | One project, `nk-workout-app-prod`, in `us-central1` | All of the above | Decision, D-76, D-137 |
 
 The deferred photo work adds camera input, Cloud Storage for short-lived photos, and a photo purge job (Decision, D-52, D-111).
 
@@ -101,7 +101,7 @@ The web client stack follows Decktome by default (Decision, D-74). After researc
 
 The owner accepted these limits (Decision, D-21). The facts come from `docs/research/platform-cloud-and-ai.md`.
 
-| Limit | Effect on Gym Route | Label |
+| Limit | Effect on Workout App | Label |
 |---|---|---|
 | No Vibration API in Safari on iOS | No haptic cues. D-58 chose visual cues only. | Fact |
 | No Background Sync on iOS | The app syncs when it is open, visible, and online. | Fact |
@@ -149,7 +149,7 @@ The app states that it gives fitness guidance only (Decision, D-36). The FDA gen
 
 ## 6. Privacy posture
 
-Gym Route stores data about one person, the owner (Decision, D-67). The owner chose the minimum compliance posture (Decision, D-79) and no user data controls (Decision, D-78). The project hosts no public policy pages (Decision, D-81). These rules still hold:
+Workout App stores data about one person, the owner (Decision, D-67). The owner chose the minimum compliance posture (Decision, D-79) and no user data controls (Decision, D-78). The project hosts no public policy pages (Decision, D-81). These rules still hold:
 
 - The repository is public. No personal data, email address, photo, or workout log goes into it. The author credit that the license of a test image requires is the one exception (Decision, D-106).
 - Telemetry holds ids only (Decision, D-80).

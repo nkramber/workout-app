@@ -1,4 +1,4 @@
-# Gym Route - platform, cloud, and AI research
+# Workout App - platform, cloud, and AI research
 
 Status: research input for the roadmap. This document holds evidence and synthesis. It holds no owner decision. The owner decisions live in `docs/decisions.md`, and the design lives in `docs/design.md`.
 
@@ -8,7 +8,7 @@ Date of this document: 2026-09-28. Access dates of the sources: 2026-09-27 and 2
 
 ### 1.1 Purpose
 
-This document gives the platform, cloud, and AI choices of Gym Route a cited base. Gym Route is an installable, phone-first web app on a default Firebase Hosting URL. It never goes to an app store, and no native app exists (D-17). A desktop browser shows the one phone layout (D-20). The owner accepted the limits of a web app on iOS (D-21). The app serves the owner alone (D-67).
+This document gives the platform, cloud, and AI choices of Workout App a cited base. Workout App is an installable, phone-first web app on a default Firebase Hosting URL. It never goes to an app store, and no native app exists (D-17). A desktop browser shows the one phone layout (D-20). The owner accepted the limits of a web app on iOS (D-21). The app serves the owner alone (D-67).
 
 Chrome on iPhone leads, and it uses the WebKit engine (D-29). The web client uses React 19.3, Vite 8, vite-plugin-pwa, TanStack Query with connect-query, and Tailwind 4 (D-84). Luna, the OpenAI model `gpt-6-luna` at medium effort, plans, revises, and reads equipment photos through a role layer with a fake provider (D-22, D-24). A deterministic policy checks every output (D-23). Google Cloud holds one development project in `us-central1` (D-18, D-76).
 
@@ -146,7 +146,7 @@ Chrome on iPhone leads, and it uses the WebKit engine (D-29). The web client use
 
 Chrome on iOS uses the WebKit engine (D-29). So each iOS limit below applies to Chrome on iPhone as it applies to Safari. Android Chrome matters less, because the owner uses an iPhone (D-29, D-67). The table keeps the Android data for comparison.
 
-| Capability | iOS (Safari and Chrome, WebKit) | Android Chrome | Effect on Gym Route | Sources |
+| Capability | iOS (Safari and Chrome, WebKit) | Android Chrome | Effect on Workout App | Sources |
 |---|---|---|---|---|
 | Install flow | No beforeinstallprompt. The user taps Share, then Add to Home Screen. Safari 26 needs no manifest. | beforeinstallprompt, then an install button. Needs name, 192 and 512 px icons, start_url, a standalone display, and HTTPS. | A short instruction screen on iOS. A stable manifest with apple-touch-icon. | PC-11, PC-1, PC-15, PC-16 |
 | iOS 26 Home Screen default | Every site that the user adds to the Home Screen opens as a web app. The user can turn off "Open as Web App". | Not applicable | Tell the owner to keep the default. | PC-1 |
@@ -330,7 +330,7 @@ D-24 assigns equipment photos to Luna. D-49 makes the owner confirm or correct e
 
 ### 6.1 Approaches compared
 
-| Approach | Facts | Fit for Gym Route | Sources |
+| Approach | Facts | Fit for Workout App | Sources |
 |---|---|---|---|
 | On-device OCR and detection in the browser | Safari ships no FaceDetector, and BarcodeDetector sits behind a flag. The research found no shipped text detection API. WASM OCR libraries were not researched. The native OCR of the first research (Apple Vision, ML Kit) is not available to a web app. | Not available in the same way as native. Optional MediaPipe face blur is the only on-device model. | PC-11, PC-60 |
 | Server-side Luna with a catalog list | Luna takes image input and strict structured outputs. The output schema holds an enum of catalog machine ids plus none_of_these. | Recommended. It matches D-24. | PC-61, PC-63 |
@@ -407,7 +407,7 @@ One owner with one gym takes tens of photos in total (assumption). So the recogn
 | Zero data retention | Needs prior approval from OpenAI. Not requested. | PC-65 |
 | Region | US data residency on us.api.openai.com needs no approval and adds 10%. | PC-65 |
 | Training | API data does not train OpenAI models unless the customer opts in. | PC-65 |
-| Retention at Gym Route | Delete the photo after the confirmation (D-52). No user photo in an evaluation set (D-53). | D-52, D-53 |
+| Retention at Workout App | Delete the photo after the confirmation (D-52). No user photo in an evaluation set (D-53). | D-52, D-53 |
 | Telemetry | Ids only, with no photos or prompts (D-80). | D-80 |
 
 ### 6.6 Evaluation on licensed images
@@ -536,7 +536,7 @@ The app never goes to a store (D-17), and it serves the owner alone (D-67). The 
 | Apple privacy labels | Likely data types: Health, Fitness, Photos or Videos, Email Address, User ID. | PC-91 |
 | TestFlight | A build runs for up to 90 days. 100 internal testers. Up to 10,000 external testers after a review of the first build. | PC-92 |
 | Play account deletion | An in-app path and a web link resource that works without the app. | PC-94 |
-| Play health declaration | Every app completes it, testing tracks too. Gym Route fits "Activity and Fitness". | PC-93 |
+| Play health declaration | Every app completes it, testing tracks too. Workout App fits "Activity and Fitness". | PC-93 |
 | Play disclaimer | Other health apps state "not a medical device and does not diagnose, treat, cure, or prevent any medical condition". | PC-93 |
 | Play Data safety | Required for closed, open, and production tracks. Not for internal testing alone. | PC-94 |
 | Play new personal accounts | A closed test with at least 12 testers opted in for 14 days before production. | PC-95 |

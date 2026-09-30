@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: gymroute/v1/user_service.proto
+// source: workoutapp/v1/user_service.proto
 
-package gymroutev1
+package workoutappv1
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -29,7 +29,7 @@ type GetMeRequest struct {
 
 func (x *GetMeRequest) Reset() {
 	*x = GetMeRequest{}
-	mi := &file_gymroute_v1_user_service_proto_msgTypes[0]
+	mi := &file_workoutapp_v1_user_service_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -41,7 +41,7 @@ func (x *GetMeRequest) String() string {
 func (*GetMeRequest) ProtoMessage() {}
 
 func (x *GetMeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_gymroute_v1_user_service_proto_msgTypes[0]
+	mi := &file_workoutapp_v1_user_service_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -54,7 +54,7 @@ func (x *GetMeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMeRequest.ProtoReflect.Descriptor instead.
 func (*GetMeRequest) Descriptor() ([]byte, []int) {
-	return file_gymroute_v1_user_service_proto_rawDescGZIP(), []int{0}
+	return file_workoutapp_v1_user_service_proto_rawDescGZIP(), []int{0}
 }
 
 type GetMeResponse struct {
@@ -67,7 +67,7 @@ type GetMeResponse struct {
 
 func (x *GetMeResponse) Reset() {
 	*x = GetMeResponse{}
-	mi := &file_gymroute_v1_user_service_proto_msgTypes[1]
+	mi := &file_workoutapp_v1_user_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -79,7 +79,7 @@ func (x *GetMeResponse) String() string {
 func (*GetMeResponse) ProtoMessage() {}
 
 func (x *GetMeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_gymroute_v1_user_service_proto_msgTypes[1]
+	mi := &file_workoutapp_v1_user_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -92,7 +92,7 @@ func (x *GetMeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMeResponse.ProtoReflect.Descriptor instead.
 func (*GetMeResponse) Descriptor() ([]byte, []int) {
-	return file_gymroute_v1_user_service_proto_rawDescGZIP(), []int{1}
+	return file_workoutapp_v1_user_service_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *GetMeResponse) GetUid() string {
@@ -102,37 +102,37 @@ func (x *GetMeResponse) GetUid() string {
 	return ""
 }
 
-var File_gymroute_v1_user_service_proto protoreflect.FileDescriptor
+var File_workoutapp_v1_user_service_proto protoreflect.FileDescriptor
 
-const file_gymroute_v1_user_service_proto_rawDesc = "" +
+const file_workoutapp_v1_user_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1egymroute/v1/user_service.proto\x12\vgymroute.v1\"\x0e\n" +
+	" workoutapp/v1/user_service.proto\x12\rworkoutapp.v1\"\x0e\n" +
 	"\fGetMeRequest\"!\n" +
 	"\rGetMeResponse\x12\x10\n" +
-	"\x03uid\x18\x01 \x01(\tR\x03uid2O\n" +
-	"\vUserService\x12@\n" +
-	"\x05GetMe\x12\x19.gymroute.v1.GetMeRequest\x1a\x1a.gymroute.v1.GetMeResponse\"\x00B?Z=github.com/nkramber/workout-app/go/gen/gymroute/v1;gymroutev1b\x06proto3"
+	"\x03uid\x18\x01 \x01(\tR\x03uid2S\n" +
+	"\vUserService\x12D\n" +
+	"\x05GetMe\x12\x1b.workoutapp.v1.GetMeRequest\x1a\x1c.workoutapp.v1.GetMeResponse\"\x00BCZAgithub.com/nkramber/workout-app/go/gen/workoutapp/v1;workoutappv1b\x06proto3"
 
 var (
-	file_gymroute_v1_user_service_proto_rawDescOnce sync.Once
-	file_gymroute_v1_user_service_proto_rawDescData []byte
+	file_workoutapp_v1_user_service_proto_rawDescOnce sync.Once
+	file_workoutapp_v1_user_service_proto_rawDescData []byte
 )
 
-func file_gymroute_v1_user_service_proto_rawDescGZIP() []byte {
-	file_gymroute_v1_user_service_proto_rawDescOnce.Do(func() {
-		file_gymroute_v1_user_service_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_gymroute_v1_user_service_proto_rawDesc), len(file_gymroute_v1_user_service_proto_rawDesc)))
+func file_workoutapp_v1_user_service_proto_rawDescGZIP() []byte {
+	file_workoutapp_v1_user_service_proto_rawDescOnce.Do(func() {
+		file_workoutapp_v1_user_service_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_workoutapp_v1_user_service_proto_rawDesc), len(file_workoutapp_v1_user_service_proto_rawDesc)))
 	})
-	return file_gymroute_v1_user_service_proto_rawDescData
+	return file_workoutapp_v1_user_service_proto_rawDescData
 }
 
-var file_gymroute_v1_user_service_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_gymroute_v1_user_service_proto_goTypes = []any{
-	(*GetMeRequest)(nil),  // 0: gymroute.v1.GetMeRequest
-	(*GetMeResponse)(nil), // 1: gymroute.v1.GetMeResponse
+var file_workoutapp_v1_user_service_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_workoutapp_v1_user_service_proto_goTypes = []any{
+	(*GetMeRequest)(nil),  // 0: workoutapp.v1.GetMeRequest
+	(*GetMeResponse)(nil), // 1: workoutapp.v1.GetMeResponse
 }
-var file_gymroute_v1_user_service_proto_depIdxs = []int32{
-	0, // 0: gymroute.v1.UserService.GetMe:input_type -> gymroute.v1.GetMeRequest
-	1, // 1: gymroute.v1.UserService.GetMe:output_type -> gymroute.v1.GetMeResponse
+var file_workoutapp_v1_user_service_proto_depIdxs = []int32{
+	0, // 0: workoutapp.v1.UserService.GetMe:input_type -> workoutapp.v1.GetMeRequest
+	1, // 1: workoutapp.v1.UserService.GetMe:output_type -> workoutapp.v1.GetMeResponse
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -140,26 +140,26 @@ var file_gymroute_v1_user_service_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_gymroute_v1_user_service_proto_init() }
-func file_gymroute_v1_user_service_proto_init() {
-	if File_gymroute_v1_user_service_proto != nil {
+func init() { file_workoutapp_v1_user_service_proto_init() }
+func file_workoutapp_v1_user_service_proto_init() {
+	if File_workoutapp_v1_user_service_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_gymroute_v1_user_service_proto_rawDesc), len(file_gymroute_v1_user_service_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_workoutapp_v1_user_service_proto_rawDesc), len(file_workoutapp_v1_user_service_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_gymroute_v1_user_service_proto_goTypes,
-		DependencyIndexes: file_gymroute_v1_user_service_proto_depIdxs,
-		MessageInfos:      file_gymroute_v1_user_service_proto_msgTypes,
+		GoTypes:           file_workoutapp_v1_user_service_proto_goTypes,
+		DependencyIndexes: file_workoutapp_v1_user_service_proto_depIdxs,
+		MessageInfos:      file_workoutapp_v1_user_service_proto_msgTypes,
 	}.Build()
-	File_gymroute_v1_user_service_proto = out.File
-	file_gymroute_v1_user_service_proto_goTypes = nil
-	file_gymroute_v1_user_service_proto_depIdxs = nil
+	File_workoutapp_v1_user_service_proto = out.File
+	file_workoutapp_v1_user_service_proto_goTypes = nil
+	file_workoutapp_v1_user_service_proto_depIdxs = nil
 }

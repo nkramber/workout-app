@@ -1,4 +1,4 @@
-# Gym Route - the web client
+# Workout App - the web client
 
 This folder holds the installable web shell of work area 2.2. The stack is the Decktome React stack (D-84): React, Vite, `vite-plugin-pwa`, TanStack Query with Connect Query, and Tailwind. The folder is one npm package (D-135). The app has the phone layout alone (D-20).
 
@@ -35,8 +35,8 @@ The service worker waits after an update, and the app shows "Update ready" (D-13
 
 | Variable | Use |
 |---|---|
-| `VITE_API_BASE_URL` | The origin of the API at build time, such as the Cloud Run URL of work area 2.3. Empty means the origin of the page. |
-| `VITE_AUTH_EMULATOR_HOST` | The local Auth emulator. The browser tests set it. `npm run dev` uses `127.0.0.1:9299`. A build with no value uses the project `gym-route-dev`. |
+| `VITE_API_BASE_URL` | The origin of the API at build time, such as the Cloud Run URL that `cloudbuild/web.yaml` names. Empty means the origin of the page. |
+| `VITE_AUTH_EMULATOR_HOST` | The local Auth emulator. The browser tests set it. `npm run dev` uses `127.0.0.1:9299`. A build with no value uses the project `nk-workout-app-prod`. |
 
 ## Checks
 

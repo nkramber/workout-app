@@ -60,6 +60,8 @@ The browser key is in `src/lib/firebase-config.ts`. GitHub secret scanning flags
 
 ## Deploy
 
+CAUTION: do not deploy the probe again. The project `gym-route-dev` retires after the app runs on `nk-workout-app-prod` (D-137). The Hosting site of the new project serves the app, and a deploy of the probe there removes the app. This folder stays as the record of work area 1.3.
+
 PR-6 deploys the probe by hand from a clean checkout of `main` (D-14, D-99). Do these steps in this folder:
 
 1. Run `make where`, and make sure that the branch is `main` and that the tree is clean.

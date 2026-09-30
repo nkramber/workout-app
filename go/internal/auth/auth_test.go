@@ -24,13 +24,13 @@ func TestBearer(t *testing.T) {
 }
 
 func TestParseOrigin(t *testing.T) {
-	good := []string{"", "https://gym-route-dev.web.app", "http://127.0.0.1:5173"}
+	good := []string{"", "https://nk-workout-app-prod.web.app", "http://127.0.0.1:5173"}
 	for _, v := range good {
 		if got, err := ParseOrigin(v); err != nil || got != v {
 			t.Errorf("ParseOrigin(%q) = %q, %v, want the value", v, got, err)
 		}
 	}
-	bad := []string{"*", "gym-route-dev.web.app", "https://a.web.app/", "https://a.web.app,https://b.web.app",
+	bad := []string{"*", "nk-workout-app-prod.web.app", "https://a.web.app/", "https://a.web.app,https://b.web.app",
 		"https://a.web.app?x=1", "https://user@a.web.app", "ftp://a.web.app"}
 	for _, v := range bad {
 		if _, err := ParseOrigin(v); err == nil {

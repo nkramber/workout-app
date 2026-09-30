@@ -14,7 +14,7 @@ export function Shell({ children }: { children: ReactNode }) {
       className="flex h-dvh flex-col bg-[#0b1220] pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]"
     >
       <header className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
-        <h1 className="text-lg font-semibold text-slate-100">Gym Route</h1>
+        <h1 className="text-lg font-semibold text-slate-100">Workout App</h1>
       </header>
       <UpdateBanner />
       <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4">{children}</main>

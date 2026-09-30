@@ -21,7 +21,7 @@ with open(os.path.join(ROOT, rc.SETTINGS), encoding="utf-8") as handle:
 def live():
     """The file as GitHub gives it: other key order, extra fields, and new defaults."""
     body = copy.deepcopy(FILE)
-    body.update({"id": 42, "source": "owner/gym-route", "_links": {}})
+    body.update({"id": 42, "source": "owner/workout-app", "_links": {}})
     for rule in body["rules"]:
         if rule["type"] == "required_status_checks":
             rule["parameters"]["required_status_checks"].reverse()

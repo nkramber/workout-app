@@ -1,6 +1,6 @@
 import type { FirebaseOptions } from "firebase/app";
 
-// The web configuration of the development project `gym-route-dev` (D-76,
+// The web configuration of the development project `nk-workout-app-prod` (D-76,
 // D-99, D-116). Firebase publishes these values to each browser that
 // loads the app, so they are not a secret. The access rules of the
 // project and the allowlist of the API protect the data, not these
@@ -11,8 +11,8 @@ import type { FirebaseOptions } from "firebase/app";
 // the two Auth APIs and to the Hosting sites of the project, and self
 // sign-up is off, so the key can make no account (D-117).
 export const projectConfig: FirebaseOptions = {
-  apiKey: "AIzaSyAlu62ipBFG_lUiOApvQ6gAcOKxqZpH_Ac",
-  authDomain: "gym-route-dev.firebaseapp.com",
-  projectId: "gym-route-dev",
-  appId: "1:338650836774:web:c0f99e8e111c007df29be7",
+  apiKey: "AIzaSyDNxjmwERIIku4hl7NafoOe9fJZSMGhr8U",
+  authDomain: "nk-workout-app-prod.firebaseapp.com",
+  projectId: "nk-workout-app-prod",
+  appId: "1:665413986587:web:148feb08e3bd5cf8cacbbe",
 };

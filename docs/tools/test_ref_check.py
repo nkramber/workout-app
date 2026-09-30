@@ -110,6 +110,11 @@ class Paths(unittest.TestCase):
     def test_a_scratch_path_takes_no_rule(self):
         self.assertEqual(run("The run wrote `docs/.local/codex-review/pr-1.jsonl`."), [])
 
+    def test_a_review_record_reads_no_path_rule(self):
+        text = "The record read `docs/moved.md` under D-9."
+        self.assertEqual(run(text, doc="docs/reviews/pr-9.md"), [(1, "REF 1", "no register defines D-9")])
+        self.assertEqual(len(run(text, doc="docs/review-notes.md")), 2)
+
     def test_a_dated_record_is_exempt(self):
         self.assertTrue(rc.DATED.search("docs/research/note-2026-09-17.md"))
         self.assertTrue(rc.DATED.search("docs/session-handoff-archive.md"))

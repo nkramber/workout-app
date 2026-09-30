@@ -2,14 +2,14 @@ import "fake-indexeddb/auto";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { GymRouteDB } from "./db";
+import { WorkoutAppDB } from "./db";
 import { PERSIST_KEY, megabytes, requestPersistenceOnce } from "./storage";
 
-let store: GymRouteDB;
+let store: WorkoutAppDB;
 let n = 0;
 
 beforeEach(async () => {
-  store = new GymRouteDB(`storage-${n++}`);
+  store = new WorkoutAppDB(`storage-${n++}`);
   await store.open();
 });
 

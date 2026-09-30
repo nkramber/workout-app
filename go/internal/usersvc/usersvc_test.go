@@ -6,12 +6,12 @@ import (
 
 	"connectrpc.com/connect"
 
-	gymroutev1 "github.com/nkramber/workout-app/go/gen/gymroute/v1"
+	workoutappv1 "github.com/nkramber/workout-app/go/gen/workoutapp/v1"
 	"github.com/nkramber/workout-app/go/internal/auth"
 )
 
 func TestGetMe(t *testing.T) {
-	req := connect.NewRequest(&gymroutev1.GetMeRequest{})
+	req := connect.NewRequest(&workoutappv1.GetMeRequest{})
 	res, err := Server{}.GetMe(auth.WithUserID(context.Background(), "uid-a"), req)
 	if err != nil || res.Msg.GetUid() != "uid-a" {
 		t.Fatalf("GetMe = %v, %v, want uid-a", res, err)

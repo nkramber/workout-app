@@ -1,0 +1,88 @@
+# The deploy of the Go API from main (D-14, D-18), after
+# decktome:cloudbuild/api.yaml. The trigger deploy-api fires on a push to
+# main whose diff touches go/, docker/, or this file. It runs as
+# api-deployer. docs/deploy-and-rollback.md holds the triggers and the
+# accounts.
+#
+# Each image names its digest, so a new release of an image changes no
+# build. The digests were read from the registries on 2026-09-29.
+steps:
+  - id: build
+    name: gcr.io/cloud-builders/docker@sha256:bbb3d633c5c2813b2ce5245852979e1d637768f4acfc504d8ece288f91e9b60f
+    args:
+      - build
+      - -f
+      - docker/api.Dockerfile
+      - --build-arg=COMMIT=$COMMIT_SHA
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/workout-app/api:$COMMIT_SHA
+      - .
+
+  - id: push
+    name: gcr.io/cloud-builders/docker@sha256:bbb3d633c5c2813b2ce5245852979e1d637768f4acfc504d8ece288f91e9b60f
+    args:
+      - push
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/workout-app/api:$COMMIT_SHA
+
+  # The builds of the triggers run apart, so an older build can reach
+  # its deploy after a newer build. docs/tools/deploy_order.py holds the
+  # lock of the part across one critical section: it reads main, and it
+  # runs the deploy only when no newer commit changes a watched path.
+  # Else the build of that commit deploys, and this build skips.
+  # The deploy names the image alone. The service account, the
+  # environment, and the scale settings of the revision before it carry
+  # over.
+  - id: deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk@sha256:7c2dbc4eeba1e500b788be19cae33599cefe3294949a62c034bd1c2002329f69
+    entrypoint: python3
+    args:
+      - docs/tools/deploy_order.py
+      - deploy
+      - --part=api
+      - --commit=$COMMIT_SHA
+      - --bucket=$PROJECT_ID-deploy-lock
+      - --skip-file=/workspace/.deploy-skip
+      - --paths
+      - go
+      - docker
+      - cloudbuild/api.yaml
+      - --
+      - gcloud
+      - run
+      - deploy
+      - api
+      - --region=${_REGION}
+      - --quiet
+      - --image=${_REGION}-docker.pkg.dev/$PROJECT_ID/workout-app/api:$COMMIT_SHA
+    timeout: 2400s
+
+  # The check reads GET /version until it names the commit of this build.
+  # It stops after 5 minutes. A newer build can deploy during the wait, so
+  # the check then reads main again, and a newer change of the API passes.
+  - id: check
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk@sha256:7c2dbc4eeba1e500b788be19cae33599cefe3294949a62c034bd1c2002329f69
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        if [ -f /workspace/.deploy-skip ]; then echo "a newer build deploys this part"; exit 0; fi
+        url=$$(gcloud run services describe api --region "${_REGION}" --format='value(status.url)')
+        for i in $$(seq 1 30); do
+          body=$$(curl -s -m 10 "$$url/version" || true)
+          echo "try $$i: $$body"
+          case "$$body" in *'"commit":"'"$COMMIT_SHA"'"'*) exit 0 ;; esac
+          sleep 10
+        done
+        echo "the API does not name $COMMIT_SHA"
+        code=0
+        python3 docs/tools/deploy_order.py newer --commit=$COMMIT_SHA go docker cloudbuild/api.yaml || code=$$?
+        test "$$code" = "3"
+
+substitutions:
+  _REGION: us-central1
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: 3600s

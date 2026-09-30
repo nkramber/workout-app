@@ -1,4 +1,4 @@
-# Gym Route - the Go API
+# Workout App - the Go API
 
 This folder holds the API of work area 2.1. The API serves the contract of `proto/` on Connect-RPC. The layout follows Decktome (D-74).
 
@@ -32,7 +32,7 @@ The refusals:
 - A uid with no document: `permission_denied`.
 - A failed read of the list: `unavailable`.
 
-The owner writes the entry of the owner uid in the live project (work area 2.3). No uid goes into the repository.
+The live project holds the entry of the owner uid. `docs/setup-gcp.md` gives the step. No uid goes into the repository.
 
 ## Emulators
 
@@ -48,4 +48,4 @@ The owner writes the entry of the owner uid in the live project (work area 2.3).
 
 The browser tests of `web/` start the API on port 8480, with `ALLOWED_ORIGIN` set to the origin of the test build (`web/README.md`).
 
-The UI of the emulators stays off. `make emulator-test` starts the emulators with the pinned `firebase-tools` of `emulators/package.json`, and runs the Go tests with the build tag `emulator`. The project id is `demo-gym-route`, so no call reaches a real project (D-115). The Firestore emulator needs Java 21.
+The UI of the emulators stays off. `make emulator-test` starts the emulators with the pinned `firebase-tools` of `emulators/package.json`, and runs the Go tests with the build tag `emulator`. The project id is `demo-workout-app`, so no call reaches a real project (D-115). The Firestore emulator needs Java 21.
