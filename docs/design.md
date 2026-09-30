@@ -110,6 +110,7 @@ The owner accepted these limits (Decision, D-21). The facts come from `docs/rese
 | The OS can evict web storage under storage pressure | The server copy stays the durable record. | Fact |
 | No HealthKit, Health Connect, watch, or Live Activities | Q-49 is not applicable. | Fact |
 | A Home Screen app with a translucent status bar can end short of the bottom edge, and a pinch can zoom the page | The shell fills the whole screen, and the viewport meta blocks the pinch zoom (D-120). | Fact, from `docs/research/iphone-platform-spike.md` |
+| Since iOS 26, a Home Screen app blurs a band of the page below the status bar | The header adds 16 px above the title when a status bar covers the page (D-145). | Fact, from `docs/research/phase-2-check.md` |
 
 ## 5. Safety boundaries
 

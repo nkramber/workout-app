@@ -72,6 +72,14 @@ A deploy by hand is for a repair only. Obey these rules (D-14):
 2. Run `git status`, and make sure that the tree is clean.
 3. Run the build of the part again from the Cloud Build history, if you can.
 
+The "Rebuild" button of the console and the `builds/{id}:retry` call of the Cloud Build API do the same step. On 2026-09-30, Google Cloud SDK 533.0.0 had no `gcloud builds retry` command. So PR-11 used the API call:
+
+```
+T=$(gcloud auth print-access-token)
+curl -s -X POST -H "Authorization: Bearer $T" -H 'Content-Type: application/json' -d '{}' \
+  "https://cloudbuild.googleapis.com/v1/projects/nk-workout-app-prod/locations/us-central1/builds/<build id>:retry"
+```
+
 ## 4. Roll back
 
 ### 4.1 The API

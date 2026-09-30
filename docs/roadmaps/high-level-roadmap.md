@@ -96,10 +96,10 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 | Work area | Concerns | Exit evidence |
 |---|---|---|
 | 2.1 Contract and API skeleton | Protobuf contract and generated code. Go API with the Firebase token check and the invite allowlist (D-75). Emulators and fakes for local work. | Product `make` targets run contract, Go, and emulator tests for free. `make verify` stays Python only (D-113, D-126). |
-| 2.2 Installable web shell | Phone layout only (D-20). A shell that fills the whole screen and blocks the pinch zoom (D-120). Sign-in. Offline store and outbox skeleton (D-62, D-77). | Browser tests pass in the WebKit and Chromium engines. The owner installs and signs in on the iPhone, and sees no gap at the bottom edge and no pinch zoom. |
+| 2.2 Installable web shell | Phone layout only (D-20). A shell that fills the whole screen and blocks the pinch zoom (D-120), with the title out of the iOS blur band (D-145). Sign-in. Offline store and outbox skeleton (D-62, D-77). | Browser tests pass in the WebKit and Chromium engines. The owner installs and signs in on the iPhone, and sees no gap at the bottom edge and no pinch zoom. |
 | 2.3 Development project and deploy | Firestore, Cloud Run, Secret Manager, and a budget alert in `us-central1`, in the one project of D-137, which replaced the project of work area 1.3. Cloud Build deploy from `main`. Point-in-time recovery and a daily backup (D-124). The billing link of Q-142. | A merge deploys. The live version endpoint names the merged commit. |
 
-**Decisions and questions.** D-17, D-18, D-20, D-62, D-74 to D-77, D-80, D-82, D-84, D-99, D-120, D-124 to D-128, Q-99, Q-142.
+**Decisions and questions.** D-17, D-18, D-20, D-62, D-74 to D-77, D-80, D-82, D-84, D-99, D-120, D-124 to D-128, D-137, D-138, D-144 to D-146, Q-99, Q-142.
 
 **Focused roadmap.** `docs/roadmaps/phase-2-platform-skeleton.md`.
 

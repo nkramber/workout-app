@@ -19,6 +19,8 @@ This folder holds the installable web shell of work area 2.2. The stack is the D
 
 The viewport meta holds `maximum-scale=1, user-scalable=no`, so a pinch does not zoom the page, as in Decktome (D-120). This fails the WCAG 1.4.4 rule for text resize. The meta also holds `viewport-fit=cover`. The shell uses the dynamic viewport height and pads itself with the safe areas. The main region is the one part that scrolls.
 
+Since iOS 26, the Home Screen app blurs a band below the status bar, and the page can not turn it off. So the header adds 16 px above the title when a status bar covers the page (D-145).
+
 The app has no form that makes an account. The owner makes the one account in the Firebase console, and self sign-up is off (D-117).
 
 ## The offline store
@@ -49,4 +51,4 @@ The service worker waits after an update, and the app shows "Update ready" (D-13
 
 The browser tests start the Auth and Firestore emulators of `firebase.json`. They also start the API of `go/` on port 8480, and a build of the app on port 4273. No call reaches a real project (D-115). The tests make each account on the Auth emulator and write its allowlist document on the Firestore emulator.
 
-Playwright can make a pinch in Chromium alone. So the pinch test runs in Chromium, and WebKit reads the viewport meta. A headless browser has no Home Screen and no status bar. So the device check of PR-11 reads the bottom edge on the iPhone.
+Playwright can make a pinch in Chromium alone. So the pinch test runs in Chromium, and WebKit reads the viewport meta. A headless browser has no Home Screen and no status bar. So the device check of PR-11 read the bottom edge and the blur band on the iPhone. A Chromium test sets the safe area through the DevTools protocol, and it reads the space above the title.

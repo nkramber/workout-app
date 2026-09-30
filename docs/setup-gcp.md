@@ -36,9 +36,11 @@ Each account holds the roles of one job, and no account holds a basic role.
 | `api-runtime` | `roles/datastore.viewer`, and the accessor role on `openai-api-key` alone | The Cloud Run service `api` runs as this account. |
 | `api-deployer` | `roles/run.developer`, `roles/artifactregistry.writer`, `roles/logging.logWriter`, and `roles/iam.serviceAccountUser` on `api-runtime` alone | The trigger `deploy-api` |
 | `web-deployer` | `roles/firebasehosting.admin`, `roles/logging.logWriter` | The trigger `deploy-web` |
-| `rules-deployer` | `roles/firebaserules.admin`, `roles/logging.logWriter` | The trigger `deploy-rules` |
+| `rules-deployer` | `roles/firebaserules.admin`, `roles/serviceusage.serviceUsageViewer`, `roles/logging.logWriter` | The trigger `deploy-rules` |
 
 Each deployer account also holds `roles/storage.objectUser` on the bucket `nk-workout-app-prod-deploy-lock` alone (D-143).
+
+Before a release of the rules, `firebase-tools` reads the state of the Firestore API. So `rules-deployer` holds the viewer role of Service Usage, which can not change a service (D-146).
 
 The web build installs npm code, so `web-deployer` can release Hosting alone. A bad package can not deploy the API, and it can not open the rules (D-142).
 
@@ -131,4 +133,4 @@ The budget sends an email to the billing admins, and it does not stop spend (PC-
 
 ## 6. The old project
 
-The project `gym-route-dev` of D-116 still exists, with Hosting and Auth alone and no billing. Its site serves the probe of work area 1.3. The owner shuts it down after the new project serves the app and the owner signs in (D-137).
+The owner signed in on the new project, so the session shut down the project `gym-route-dev` of D-116 on 2026-09-30 (D-137). Its state is `DELETE_REQUESTED`. Google Cloud keeps it for 30 days, and `gcloud projects undelete gym-route-dev` can restore it in that time. `docs/research/phase-2-check.md` section 5 gives the read back.
