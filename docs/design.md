@@ -21,7 +21,7 @@ Workout App is an installable, phone-first web app on a default Firebase Hosting
 | Experience level | Intermediate to advanced. Similar path for each, with more weight for advanced lifters. The core user starts as intermediate with his own load estimates. | Decision, D-30, D-32 |
 | Out of scope | People under 18, people with no weight training | Decision, D-26, D-33 |
 | Goals | General fitness and strength | Decision, D-31 |
-| Equipment | Fixed-path resistance machines and cardio machines. No cable stations, free weights, bodyweight exercises, or bands. | Decision, D-45 |
+| Equipment | Fixed-path resistance machines, dumbbells with an adjustable bench, the cable lat pulldown and triceps pulldown, and cardio machines. No other cable exercise, no barbell, no bodyweight exercise, and no band. D-155 gives the first catalog. | Decision, D-154, D-155 |
 | Locale | US English, pounds only | Decision, D-28 |
 | Lead platform | Chrome on iPhone. It uses the WebKit engine. | Decision, D-29 |
 | Business model | Free, no ads, no sale of data | Decision, D-27 |

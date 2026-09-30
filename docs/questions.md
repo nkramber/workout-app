@@ -14,7 +14,8 @@ The ids have three ranges:
 - Q-145 to Q-147 are questions of the API skeleton session.
 - Q-152 to Q-160 are questions of the deploy session.
 - Q-161 to Q-164 are questions of the Phase 2 check session.
-- Q-90 to Q-107 are open questions. Q-90, Q-91, Q-93 to Q-97, Q-99, and Q-100 have an answer. Each open question names the phase of `docs/roadmaps/high-level-roadmap.md` that needs the answer.
+- Q-165 to Q-171 are questions of the Phase 3 roadmap session.
+- Q-90 to Q-107 are open questions. Q-90 to Q-97, Q-99 to Q-102, and Q-104 to Q-107 have an answer. Each open question names the phase of `docs/roadmaps/high-level-roadmap.md` that needs the answer.
 
 The owner answered through the answer controls of the session. The first session asked Q-1 to Q-46 and Q-74 to Q-88 on 2026-09-27. It asked the other questions on 2026-09-28. The column "Rec." tells whether the owner chose the option that the launch prompt marked as recommended. A "No" in that column is an owner decision, not a mistake.
 
@@ -279,13 +280,25 @@ The owner answered through the answer controls of the session. The first session
 | Q-163 | How does the app handle the iOS blur below the status bar? | The header adds 16 px above the title, and no more. | Answered | D-145 |
 | Q-164 | Can `rules-deployer` get `roles/serviceusage.serviceUsageViewer`, and can the failed rules build run again? | Yes, at run time. | Answered | D-146 |
 
+## Questions of the Phase 3 roadmap session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-165 | Which machine types does the first product catalog hold? | 12 selectorized machines, 2 cable exercises, dumbbells, and 6 cardio machines. | Answered | D-155 |
+| Q-166 | D-45 excludes free weights. Do dumbbells come into scope? | Yes. D-45 changes. | Answered | D-154 |
+| Q-167 | Is the triceps pulldown a cable exercise or a fixed-path machine? | A cable exercise, and the lat pulldown too. | Answered | D-154 |
+| Q-168 | Which dumbbell exercises does the catalog hold? | 9 exercises with an adjustable bench. | Answered | D-155 |
+| Q-169 | Where does the safety research for free weights go? | Into PR-12. | Answered | D-156 |
+| Q-170 | Where do the domain types live in Phase 3? | Go types alone. Proto messages come in Phase 4. | Answered | D-157 |
+| Q-171 | How does Phase 3 split, and does it end with a check pull request? | PR-12 to PR-17, with a paid evaluation in PR-17. | Answered | D-158 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |
 |---|---|---|---|---|
 | Q-90 | Which web client stack does the app use? | Q-52 asked for research first. Answer on 2026-09-28: the Decktome React stack (D-84). | Before this PR closes | Answered |
 | Q-91 | How does the app handle equipment with kilogram markings under pounds only (D-28)? | A wrong conversion gives a wrong load. Answer on 2026-09-29: such a machine is out of scope, and the app makes no conversion (D-122). | Phase 2 | Answered |
-| Q-92 | When nearest-5-lb rounding (D-65) makes a load jump larger than the policy limit, does the policy hold the load or add reps instead? | On a 25 lb stack, one 5 lb step is a 20 percent jump. | Phase 3 | Open |
+| Q-92 | When nearest-5-lb rounding (D-65) makes a load jump larger than the policy limit, does the policy hold the load or add reps instead? | On a 25 lb stack, one 5 lb step is a 20 percent jump. Answer on 2026-09-30: no percent limit. At the top of the rep range, the policy adds one 5 lb step and resets the reps (D-147). | Phase 3 | Answered |
 | Q-93 | When does the D-4 period end, and which focused roadmaps must exist first? | The `review-override` label stays off until then. Answer on 2026-09-29: the period ends now, and PR-7 turns on the label (D-125). | After the first focused roadmaps merge | Answered |
 | Q-94 | Does the owner apply the committed ruleset of `main` on GitHub after this PR merges? | The ruleset makes the review gate and the contract check mandatory. It changes live GitHub settings. Answer on 2026-09-28: yes. The session applied both files, and `make ruleset-check` passed (D-91). | Right after this PR merges | Answered |
 | Q-95 | What do the current OpenAI usage policies say about fitness and health advice? | The research could not read the policy page. The prompts of Luna must obey it. Answer on 2026-09-28: use the dated copy of the policy page (D-93). | Phase 1 | Answered |
@@ -294,10 +307,10 @@ The owner answered through the answer controls of the session. The first session
 | Q-98 | What are the monthly AI caps for the one user and for the project (D-25)? | A cap stops a runaway loop from a large bill. | Phase 4 | Open |
 | Q-99 | Does the one development project get Firestore backups and point-in-time recovery? | D-76 leaves one project. It holds the only copy of the workout history. Answer on 2026-09-29: yes, point-in-time recovery and a daily backup from work area 2.3 (D-124). | Phase 4 | Answered |
 | Q-100 | Which fields does a cardio machine log hold? | D-57 defines the set log for resistance machines only. D-45 adds cardio machines. Answer on 2026-09-29: duration and an effort rating, with optional distance, level, pain, and note (D-123). | Phase 2 | Answered |
-| Q-101 | Where does mobility and recovery guidance come from, as text only (D-73) and inside the fitness boundary (D-36)? | Luna can write this text, and the policy can not check prose for medical claims as easily as numbers. | Phase 3 | Open |
-| Q-102 | How long a gap counts as a long break (D-66)? | The re-entry rule needs a threshold. | Phase 3 | Open |
+| Q-101 | Where does mobility and recovery guidance come from, as text only (D-73) and inside the fitness boundary (D-36)? | Luna can write this text, and the policy can not check prose for medical claims as easily as numbers. Answer on 2026-09-30: a versioned catalog of texts in the repository, which Luna selects by id (D-152). | Phase 3 | Answered |
+| Q-102 | How long a gap counts as a long break (D-66)? | The re-entry rule needs a threshold. Answer on 2026-09-30: a gap of 2 weeks or more, with the long-break table and the first 3 sessions or 14 days at 3 reps in reserve (D-151). | Phase 3 | Answered |
 | Q-103 | Where do the photos that a user chooses to keep (D-52) live, and for how long? | Retention needs a place and a limit. | The deferred photo work (D-111) | Open |
-| Q-104 | Which way does D-65 round a value exactly halfway between two 5 lb steps, such as 22.5 lb? | "Nearest" does not decide a tie, and the policy needs one answer. | Phase 3 | Open |
-| Q-105 | What happens when a rounded load does not exist on the machine? | D-54 stores the available weights, and D-65 rounds to a global 5 lb step. The two can disagree. | Phase 3 | Open |
-| Q-106 | Do calibration sets for a new machine use three to four reps in reserve, when D-37 sets targets at one to three? | The research recommends more reserve for the first sets on an unknown machine. | Phase 3 | Open |
-| Q-107 | Where does the D-40 warning end and emergency advice, which D-36 excludes, begin? | A warning for chest pain needs text that stays inside the fitness boundary. | Phase 3 | Open |
+| Q-104 | Which way does D-65 round a value exactly halfway between two 5 lb steps, such as 22.5 lb? | "Nearest" does not decide a tie, and the policy needs one answer. Answer on 2026-09-30: down on an increase and on a return after a break, up in other cases (D-148). | Phase 3 | Answered |
+| Q-105 | What happens when a rounded load does not exist on the machine? | D-54 stores the available weights, and D-65 rounds to a global 5 lb step. The two can disagree. Answer on 2026-09-30: the heaviest available weight at or below the rounded load, or the lightest weight (D-149). | Phase 3 | Answered |
+| Q-106 | Do calibration sets for a new machine use three to four reps in reserve, when D-37 sets targets at one to three? | The research recommends more reserve for the first sets on an unknown machine. Answer on 2026-09-30: 3 to 4 reps in reserve, with the calibration table of REC-5 (D-150). | Phase 3 | Answered |
+| Q-107 | Where does the D-40 warning end and emergency advice, which D-36 excludes, begin? | A warning for chest pain needs text that stays inside the fitness boundary. Answer on 2026-09-30: the warning names the symptom and tells the user to stop the exercise, with no referral text (D-153). | Phase 3 | Answered |

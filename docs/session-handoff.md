@@ -4,21 +4,26 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-30. GitHub PR 12 is roadmap PR-11 of `docs/roadmaps/phase-2-platform-skeleton.md`, work areas 2.2 and 2.3, on branch `docs/pr-11-phase-2-check`, from base `df79c16`. It holds the exit evidence of Phase 2.
+Date: 2026-09-30. Roadmap PR-12 of `docs/roadmaps/phase-3-workout-domain.md`, all work areas of Phase 3, on branch `docs/pr-12-phase-3-roadmap`, from base `73b1964`. It holds the Phase 3 focused roadmap.
 
 The pull request holds these concerns:
 
-- the deploy check: `/version` and `/version.json` name `df79c16`, the merge commit of PR-10,
-- the repair of `deploy-rules`: `rules-deployer` got the viewer role of Service Usage, and the build of `df79c16` passed on a retry (D-146),
-- the device check on the iPhone: items 1 to 5 pass,
-- the header space of 16 px that keeps the title out of the iOS blur band, with a Chromium test (D-145),
-- the shutdown of `gym-route-dev` (D-137),
-- `PACKAGE_NO_DELETE` and `PACKAGE_SERVICE_NO_DELETE` in `buf.yaml`, with `scripts/package_move_probe.sh` in `make contract` (D-138),
-- the report `docs/research/phase-2-check.md`.
+- the focused roadmap `docs/roadmaps/phase-3-workout-domain.md`, with PR-12 to PR-17 (D-158),
+- the owner answers to Q-92, Q-101, Q-102, Q-104 to Q-107, and Q-165 to Q-171 (D-147 to D-158),
+- the change of scope of D-154: dumbbells and two cable exercises, in `docs/design.md` and `docs/roadmaps/high-level-roadmap.md`,
+- the free-weight research in `docs/research/exercise-safety.md` (D-156),
+- the row of the roadmap in `docs/roadmaps/README.md`, and the Phase 3 stage in `AGENTS.md`.
 
-State: Codex reviewed effective head `4d643e3b81061535cc69591f568a4a295e04bfe8` and set the verdict to `Ready for owner merge`. No finding remains open. All GitHub checks passed after publication of the review record.
+Checks of the base before the work, on 2026-09-30:
 
-Next action: wait for the owner confirmation and merge of PR-11. The live web app gets the header space after the merge, through `deploy-web`.
+- The build `deploy-web` `c5ac0f62-7d38-46b5-8f68-6f04da88f5a4` of `73b1964` passed at 04:30:24Z. `/version.json` names `73b1964340ebc2a14f93b75f1be19aba024918f5`.
+- `deploy-api` and `deploy-rules` did not run for `73b1964`. `/version` still names `df79c169ae38326c0a876ac678a5465f80103d13`.
+- The owner opened the Home Screen app again. The title is sharp, with the 16 px space above it (D-145).
+- `gym-route-dev` is still `DELETE_REQUESTED`. Its site still gave HTTP 200 at 04:38:56Z.
+
+State: the documents are ready for CI and the Codex review.
+
+Next action: CI, the Codex review, the owner confirmation, and the merge of PR-12.
 
 ## Facts that expire
 
@@ -35,10 +40,10 @@ Next action: wait for the owner confirmation and merge of PR-11. The live web ap
 | The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `df79c16`, three triggers, and the allowlist entry. | 2026-09-30 | `docs/setup-gcp.md`, `/version` |
 | The bucket `nk-workout-app-prod-deploy-lock` exists, and each deployer account holds `roles/storage.objectUser` on it alone. | 2026-09-29 | `gcloud storage buckets describe`, `get-iam-policy` |
 | `workout-app-prod` is in use by another Google Cloud project. | 2026-09-29 | `gcloud projects create` |
-| The old project `gym-route-dev` is `DELETE_REQUESTED` since 2026-09-30T03:19:47Z. `gcloud projects undelete` can restore it for 30 days. Its site still gave HTTP 200 at 03:54:47Z. | 2026-09-30 | `gcloud projects describe`, `curl` |
-| The live `/version` and `/version.json` name `df79c169ae38326c0a876ac678a5465f80103d13`. The rules release of `df79c16` has the update time 02:33:00Z. | 2026-09-30 | `docs/research/phase-2-check.md` |
+| The old project `gym-route-dev` is `DELETE_REQUESTED` since 2026-09-30T03:19:47Z. `gcloud projects undelete` can restore it for 30 days. Its site still gave HTTP 200 at 04:38:56Z. | 2026-09-30 | `gcloud projects describe`, `curl` |
+| The live `/version` names `df79c169ae38326c0a876ac678a5465f80103d13`. The live `/version.json` names `73b1964340ebc2a14f93b75f1be19aba024918f5`, from the build `deploy-web` `c5ac0f62`. The rules release of `df79c16` has the update time 02:33:00Z. | 2026-09-30 | `curl`, `gcloud builds list` |
 | `rules-deployer` holds `roles/firebaserules.admin`, `roles/serviceusage.serviceUsageViewer`, and `roles/logging.logWriter`. | 2026-09-30 | `gcloud projects get-iam-policy` |
-| Since iOS 26, a Home Screen app blurs a band below the status bar, and a page can not turn it off. On iOS 27.0 with Chrome 154, 16 px above the title keeps it sharp. | 2026-09-30 | `docs/research/phase-2-check.md` |
+| Since iOS 26, a Home Screen app blurs a band below the status bar, and a page can not turn it off. On iOS 27.0 with Chrome 154, 16 px above the title keeps it sharp. The owner saw the fix in the live app of `73b1964`. | 2026-09-30 | `docs/research/phase-2-check.md`, the owner |
 | Google Cloud SDK 533.0.0 has no `gcloud builds retry`. The Cloud Build API call `builds/{id}:retry` works. | 2026-09-30 | `docs/deploy-and-rollback.md` |
 | Chrome 154 on iOS 27.0 adds the probe to the Home Screen, and the app opens in the `standalone` display mode. | 2026-09-29 | `docs/research/iphone-platform-spike.md` |
 | The browser key of `nk-workout-app-prod` allows only the Auth APIs and the sites of the project and the local ports. GitHub secret scanning flagged the old key (alert 1). | 2026-09-29 | `gcloud services api-keys describe` |
@@ -58,11 +63,28 @@ Next action: wait for the owner confirmation and merge of PR-11. The live web ap
 
 ## Next steps, in order
 
-1. Close PR-11: CI, the Codex review, the owner confirmation, and the merge.
-2. After the merge, read `deploy-web` for the merge commit, and read `/version.json` again.
-3. Start the first work area of Phase 3 of `docs/roadmaps/high-level-roadmap.md` in a clean session.
+1. Close PR-12: CI, the Codex review, the owner confirmation, and the merge.
+2. Start PR-13 of `docs/roadmaps/phase-3-workout-domain.md` in a clean session.
 
 ## Session records
+
+### Session 13 - 2026-09-30
+
+Author provider: Claude Code
+
+Branch: `docs/pr-12-phase-3-roadmap`. Role: author.
+
+Completed:
+
+- The owner approved the milestone before the first edit (D-12). Then the owner approved the change of scope and the research as more concerns.
+- Read the deploy of `73b1964` and the state of `gym-route-dev`. The owner confirmed the title fix in the live app.
+- Asked the seven open questions of Phase 3 and Q-165 to Q-171 (D-147 to D-158).
+- Wrote the focused roadmap, and changed the high-level roadmap, the design, `AGENTS.md`, and the roadmap list.
+- Added the free-weight research to `docs/research/exercise-safety.md` (D-156).
+
+Open work:
+
+- CI, the Codex review, the owner confirmation, and the merge of PR-12.
 
 ### Session 12 - 2026-09-30
 
@@ -81,7 +103,7 @@ Completed:
 
 Open work:
 
-- CI, the Codex review, the owner confirmation, and the merge of PR-11.
+- None. GitHub PR 12 merged as `73b1964`.
 
 ### Session 11 - 2026-09-29
 
@@ -101,22 +123,3 @@ Completed:
 Open work:
 
 - None. PR #11 merged.
-
-### Session 10 - 2026-09-29
-
-Author provider: Claude Code
-
-Branch: `feat/pr-9-web-shell`. Role: author.
-
-Completed:
-
-- The owner approved the milestone before the first edit (D-12), and answered Q-148 to Q-151 (D-132 to D-135).
-- Wrote the web shell in `web/` with the patterns of `decktome:web/apps/web/src/lib/api.ts` and `decktome:web/apps/web/e2e/phone.spec.ts`.
-- Wrote the browser tests of the acceptance story, with a control that proves the pinch block of the viewport meta.
-- Moved the Java 21 lookup of `make emulator-test` into `scripts/java21.sh`, so `make web` uses it too.
-- Changed the pinch test to a touch of two fingers after the first CI run, because Chromium on Linux ignores `Input.synthesizePinchGesture`.
-- Applied `verify:web` as a required check to the live ruleset after the owner approval (D-127). `make ruleset-check` passed.
-
-Open work:
-
-- None. PR #10 merged.
