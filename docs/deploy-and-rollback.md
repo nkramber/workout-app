@@ -30,7 +30,12 @@ The three triggers run apart, so the build of an older merge can reach its deplo
 
 A skipped build writes `/workspace/.deploy-skip`, and its check step does nothing. The build of the newer commit deploys the part. A newer commit that changes no path of the trigger starts no build of the trigger, so it never makes a build skip.
 
-A build waits up to 15 minutes for the lock, and then it fails. The deploy command stops after 10 minutes. A lock older than 20 minutes is stale, and the next build removes it. The bucket deletes each object after one day.
+A build waits up to 15 minutes for the lock, and then it fails. A live build holds the lock for 15 minutes at most:
+
+- The read of `main` stops after 5 minutes. A read that ends later makes the build stop with no deploy.
+- The deploy command stops after 10 minutes.
+
+A lock older than 20 minutes is stale, and the next build removes it. The 5 minutes between the two limits give a deploy on the server side time to end after its command stops. The bucket deletes each object after one day.
 
 When the build of the newer merge fails, the part stays at an older commit until a fix merges.
 

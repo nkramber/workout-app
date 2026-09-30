@@ -54,7 +54,7 @@ steps:
       - --region=${_REGION}
       - --quiet
       - --image=${_REGION}-docker.pkg.dev/$PROJECT_ID/workout-app/api:$COMMIT_SHA
-    timeout: 1800s
+    timeout: 2400s
 
   # The check reads GET /version until it names the commit of this build.
   # It stops after 5 minutes. A newer build can deploy during the wait, so

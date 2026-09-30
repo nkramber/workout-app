@@ -27,7 +27,7 @@ steps:
           --paths firestore.rules cloudbuild/rules.yaml -- \
           npx --yes firebase-tools@15.32.0 deploy --only firestore:rules \
           --project "$PROJECT_ID" --non-interactive --message "commit $COMMIT_SHA"
-    timeout: 1800s
+    timeout: 2400s
 
 options:
   logging: CLOUD_LOGGING_ONLY

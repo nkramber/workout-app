@@ -16,9 +16,9 @@ The pull request holds the project and the deploy:
 - the allowlist entry of the owner in the live project alone,
 - `docs/setup-gcp.md` and `docs/deploy-and-rollback.md`, and the tests `docs/tools/test_deploy_config.py` and `go/cmd/api/rules_emulator_test.go`.
 
-State: the live project is complete, and each part reads back. The repeat review fixed P2-1 at effective head `9ec3819`, because each part now uses a lock. The review found P2-2: a slow history read can outlive the stale-lock limit. `docs/reviews/pr-11-response.md` answers the earlier rounds.
+State: the live project is complete, and each part reads back. Codex closed P2-1 at effective head `9ec3819`, with a lock for each part in the bucket `nk-workout-app-prod-deploy-lock` (D-143). Codex opened P2-2 there: the read of `main` had no timeout. Round 4 bounds the read and the whole lock section below the stale limit. `docs/reviews/pr-11-response.md` answers each round.
 
-Next action: correct P2-2, then repeat the Codex review. The owner confirms the merge after the review and current checks pass. The merge starts the three builds.
+Next action: repeat the Codex review. Then the owner confirms the merge. The merge starts the three builds.
 
 ## Facts that expire
 
@@ -73,7 +73,7 @@ Completed:
 - Made each part of the project with the approval of the owner at run time, and read each part back.
 - Renamed each current file. The past records keep the old name (D-136).
 - Wrote the deploy files, the setup and rollback documents, and the tests. The rules test fails with open rules.
-- Answered P2-1 of the Codex review with a guard, then with a lock for each part (D-143).
+- Answered P2-1 of the Codex review with a guard, then with a lock for each part (D-143). Answered P2-2 with a time limit on the read of `main`.
 
 Open work:
 

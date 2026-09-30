@@ -155,7 +155,7 @@ class DeployOrderTest(unittest.TestCase):
                       "rules": "deploy --only firestore:rules"}[name]
             self.assertIn(deploy, command, name)
             self.assertEqual(" ".join(words).count(deploy), 1, name)
-            self.assertIn("timeout: 1800s", body, name)
+            self.assertIn("timeout: 2400s", body, name)
 
     def test_the_lock_watches_the_paths_of_its_trigger(self):
         # docs/deploy-and-rollback.md gives the paths of each trigger. A
@@ -181,11 +181,11 @@ class DeployOrderTest(unittest.TestCase):
         spec = importlib.util.spec_from_file_location("deploy_order", os.path.join(ROOT, "docs/tools/deploy_order.py"))
         order = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(order)
-        # A live build holds the lock for less than STALE, so no build
-        # removes the lock of a live build. The wait and the deploy end
-        # before the step timeout of 1800 s.
-        self.assertLess(order.DEPLOY_TIMEOUT + 60, order.STALE)
-        self.assertLess(order.WAIT + order.DEPLOY_TIMEOUT + 120, 1800)
+        # A live build holds the lock for HOLD at most, and HOLD is less
+        # than STALE, so no build removes the lock of a live build. The
+        # wait and the hold end before the step timeout of 2400 s.
+        self.assertLess(order.HOLD, order.STALE)
+        self.assertLess(order.WAIT + order.HOLD + 120, 2400)
 
 
 if __name__ == "__main__":

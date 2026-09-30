@@ -10,6 +10,7 @@ import tempfile
 import threading
 import time
 import unittest
+from unittest import mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 spec = importlib.util.spec_from_file_location("deploy_order", os.path.join(HERE, "deploy_order.py"))
@@ -119,18 +120,18 @@ class Lock(unittest.TestCase):
     def test_a_free_lock_is_taken_and_given_back(self):
         store = FakeBucket()
         ran = []
-        code = do.deploy(store, "api", "c1", API, lambda: ran.append("c1") or 0, newer=lambda: [], log=lambda _: None)
+        code = do.deploy(store, "api", "c1", API, lambda _t: ran.append("c1") or 0, newer=lambda _t: [], log=lambda _: None)
         self.assertEqual((code, ran, store.objects), (0, ["c1"], {}))
 
     def test_the_lock_goes_back_when_the_deploy_fails(self):
         store = FakeBucket()
-        code = do.deploy(store, "api", "c1", API, lambda: 7, newer=lambda: [], log=lambda _: None)
+        code = do.deploy(store, "api", "c1", API, lambda _t: 7, newer=lambda _t: [], log=lambda _: None)
         self.assertEqual((code, store.objects), (7, {}))
 
-        def boom():
+        def boom(_t):
             raise ValueError("not on main")
         with self.assertRaises(ValueError):
-            do.deploy(store, "api", "c1", API, lambda: 0, newer=boom, log=lambda _: None)
+            do.deploy(store, "api", "c1", API, lambda _t: 0, newer=boom, log=lambda _: None)
         self.assertEqual(store.objects, {})
 
     def test_a_held_lock_stops_the_deploy_after_the_wait(self):
@@ -139,7 +140,7 @@ class Lock(unittest.TestCase):
         clock = iter(range(0, 10_000, 100))
         ran = []
         with self.assertRaises(do.LockTimeout):
-            do.deploy(store, "web", "c1", ["web"], lambda: ran.append(1) or 0, newer=lambda: [],
+            do.deploy(store, "web", "c1", ["web"], lambda _t: ran.append(1) or 0, newer=lambda _t: [],
                       log=lambda _: None, clock=lambda: next(clock), sleep=lambda _: None, wait=500)
         self.assertEqual(ran, [])
         self.assertIn("web.lock", store.objects)
@@ -148,16 +149,81 @@ class Lock(unittest.TestCase):
         store = FakeBucket()
         store.create("rules.lock", "c9")
         store.now = do.STALE + 1
-        code = do.deploy(store, "rules", "c1", ["firestore.rules"], lambda: 0, newer=lambda: [], log=lambda _: None)
+        code = do.deploy(store, "rules", "c1", ["firestore.rules"], lambda _t: 0, newer=lambda _t: [], log=lambda _: None)
         self.assertEqual((code, store.objects), (0, {}))
 
     def test_each_part_has_its_own_lock(self):
         store = FakeBucket()
         store.create("api.lock", "c9")
-        code = do.deploy(store, "web", "c1", ["web"], lambda: 0, newer=lambda: [], log=lambda _: None)
+        code = do.deploy(store, "web", "c1", ["web"], lambda _t: 0, newer=lambda _t: [], log=lambda _: None)
         self.assertEqual(code, 0)
         self.assertIn("api.lock", store.objects)
 
+
+class Bounds(unittest.TestCase):
+    """A live build holds its lock for HOLD at most, and HOLD < STALE (P2-2 of the review of PR 11)."""
+
+    def test_the_hold_limit_is_below_the_stale_limit(self):
+        self.assertEqual(do.HOLD, do.READ_TIMEOUT + do.DEPLOY_TIMEOUT)
+        # The margin is time for a deploy on the server side to end after
+        # its command stops.
+        self.assertGreaterEqual(do.STALE - do.HOLD, 5 * 60)
+
+    def test_the_read_and_the_deploy_get_their_limits(self):
+        seen = {}
+        store = FakeBucket()
+        do.deploy(store, "api", "c1", API, lambda t: seen.setdefault("deploy", t) and 0,
+                  newer=lambda t: seen.setdefault("read", t) and [], log=lambda _: None)
+        self.assertEqual(seen, {"read": do.READ_TIMEOUT, "deploy": do.DEPLOY_TIMEOUT})
+
+    def test_a_read_past_its_limit_deploys_nothing_and_frees_the_lock(self):
+        # The history read holds the live lock past its limit. The build
+        # must not deploy, because the rest of HOLD is too short, and a
+        # newer build then gets the lock.
+        store = FakeBucket()
+        now = [0.0]
+        ran = []
+
+        def slow_read(_t):
+            now[0] += do.READ_TIMEOUT + 1
+            return []
+        with self.assertRaises(do.LockTimeout):
+            do.deploy(store, "api", "c1", API, lambda _t: ran.append("c1") or 0, newer=slow_read,
+                      log=lambda _: None, clock=lambda: now[0])
+        self.assertEqual((ran, store.objects), ([], {}))
+        self.assertEqual(do.deploy(store, "api", "c2", API, lambda _t: ran.append("c2") or 0,
+                                   newer=lambda _t: [], log=lambda _: None), 0)
+        self.assertEqual(ran, ["c2"])
+
+    def test_a_timed_out_read_frees_the_lock(self):
+        store = FakeBucket()
+
+        def hung_read(_t):
+            raise subprocess.TimeoutExpired("git", 1)
+        with self.assertRaises(subprocess.TimeoutExpired):
+            do.deploy(store, "api", "c1", API, lambda _t: 0, newer=hung_read, log=lambda _: None)
+        self.assertEqual(store.objects, {})
+
+    def test_read_main_stops_at_its_timeout(self):
+        # Each git process of the read gets the rest of one deadline, so
+        # the read never holds the lock past READ_TIMEOUT.
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Repo(os.path.join(tmp, "src"))
+            first = repo.merge("go/main.go", "1")
+            real = subprocess.run
+            calls = []
+
+            def record(argv, *args, **kwargs):
+                calls.append((argv[1] if argv[1] != "-C" else argv[3], kwargs.get("timeout")))
+                return real(argv, *args, **kwargs)
+            with mock.patch.object(do.subprocess, "run", record):
+                self.assertEqual(do.read_main(repo.root, first, API, timeout=60), [])
+            self.assertEqual([name for name, _ in calls], ["clone", "merge-base", "rev-list"])
+            for name, limit in calls:
+                self.assertIsNotNone(limit, name)
+                self.assertLessEqual(limit, 60, name)
+            with self.assertRaises(subprocess.TimeoutExpired):
+                do.read_main(repo.root, first, API, timeout=0)
 
 class TwoBuilds(unittest.TestCase):
     """The regression check of P2-1: two builds of one trigger out of order."""
@@ -172,11 +238,11 @@ class TwoBuilds(unittest.TestCase):
         self.tmp.cleanup()
 
     def build(self, commit, command=None, skip=None):
-        def deploy_now():
+        def deploy_now(_t):
             self.live.append(commit)
             return 0
         return do.deploy(self.store, "api", commit, API, command or deploy_now,
-                         newer=lambda: do.newer_changes(self.repo.root, commit, "main", API),
+                         newer=lambda _t: do.newer_changes(self.repo.root, commit, "main", API),
                          skip_file=skip, log=lambda _: None, sleep=lambda _: time.sleep(0.01))
 
     def test_an_older_build_paused_after_its_guard_can_not_move_the_part_back(self):
@@ -187,7 +253,7 @@ class TwoBuilds(unittest.TestCase):
         resume = threading.Event()
         results = {}
 
-        def older_deploy():
+        def older_deploy(_t):
             paused.set()
             resume.wait(5)
             self.live.append(older)

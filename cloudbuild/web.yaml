@@ -48,7 +48,7 @@ steps:
           --paths web firebase.json cloudbuild/web.yaml -- \
           npx --yes firebase-tools@15.32.0 deploy --only hosting \
           --project "$PROJECT_ID" --non-interactive --message "commit $COMMIT_SHA"
-    timeout: 1800s
+    timeout: 2400s
 
   # The rewrite of Hosting answers 200 for each path, so the check reads
   # the commit of the live web in /version.json. A newer build can release

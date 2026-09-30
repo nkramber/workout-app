@@ -19,9 +19,17 @@ trigger, so it never makes a build skip. The repository is public, so a
 build reads the history of `main` with no credential.
 
 A build that stops while it holds the lock leaves the object. A lock older
-than STALE is stale, and the next build removes it. The deploy command
-stops after DEPLOY_TIMEOUT, so a live build holds the lock for less than
-STALE. The bucket also deletes each object after one day.
+than STALE is stale, and the next build removes it. So a live build must
+end its critical section before STALE (P2-2 of the review of PR 11):
+
+- The read of `main` stops after READ_TIMEOUT, from the clone to the last
+  git call. A read that ends later makes the build stop with no deploy.
+- The deploy command stops after DEPLOY_TIMEOUT.
+- So a live build holds the lock for HOLD at most, and HOLD is less than
+  STALE. The difference is time for a deploy on the server side to end
+  after its command stops.
+
+The bucket also deletes each object after one day.
 
 The command `newer` reads `main` alone, with no lock. The check step of a
 build uses it after its wait.
@@ -51,7 +59,9 @@ REPO = "https://github.com/nkramber/workout-app.git"
 NEWER = 3
 WAIT = 15 * 60
 POLL = 10
+READ_TIMEOUT = 5 * 60
 DEPLOY_TIMEOUT = 10 * 60
+HOLD = READ_TIMEOUT + DEPLOY_TIMEOUT
 STALE = 20 * 60
 
 
@@ -59,27 +69,46 @@ class LockTimeout(Exception):
     pass
 
 
-def git(repo, *args):
-    return subprocess.run(["git", "-C", repo, *args], capture_output=True, text=True, check=True).stdout
+def left(deadline):
+    """Return the seconds before the deadline, or None for no deadline."""
+    if deadline is None:
+        return None
+    rest = deadline - time.monotonic()
+    if rest <= 0:
+        raise subprocess.TimeoutExpired("git", 0)
+    return rest
 
 
-def newer_changes(repo, commit, main, paths):
+def git(repo, *args, deadline=None):
+    return subprocess.run(["git", "-C", repo, *args], capture_output=True, text=True, check=True,
+                          timeout=left(deadline)).stdout
+
+
+def newer_changes(repo, commit, main, paths, deadline=None):
     """Return the commits of `main` after `commit` that change one of the paths, newest first.
 
     `commit` must be on `main`, because the triggers read `main` alone.
     """
-    if subprocess.run(["git", "-C", repo, "merge-base", "--is-ancestor", commit, main]).returncode != 0:
+    ancestor = subprocess.run(["git", "-C", repo, "merge-base", "--is-ancestor", commit, main],
+                              timeout=left(deadline))
+    if ancestor.returncode != 0:
         raise ValueError(f"{commit} is not on {main}")
-    return git(repo, "rev-list", f"{commit}..{main}", "--", *paths).split()
+    return git(repo, "rev-list", f"{commit}..{main}", "--", *paths, deadline=deadline).split()
 
 
-def read_main(url, commit, paths):
-    """Clone the history of `main` with no file content, and return the newer changes."""
+def read_main(url, commit, paths, timeout=None):
+    """Clone the history of `main` with no file content, and return the newer changes.
+
+    With a timeout, the clone and each git call end before it, or the read
+    raises TimeoutExpired.
+    """
+    deadline = None if timeout is None else time.monotonic() + timeout
     with tempfile.TemporaryDirectory() as tmp:
         repo = os.path.join(tmp, "main")
         subprocess.run(["git", "clone", "--quiet", "--filter=blob:none", "--no-checkout",
-                        "--single-branch", "--branch", "main", url, repo], check=True)
-        return newer_changes(repo, commit, "origin/main", paths)
+                        "--single-branch", "--branch", "main", url, repo], check=True,
+                       timeout=left(deadline))
+        return newer_changes(repo, commit, "origin/main", paths, deadline=deadline)
 
 
 class Bucket:
@@ -164,13 +193,21 @@ def acquire(store, name, holder, clock=time.monotonic, sleep=time.sleep, wait=WA
         sleep(POLL)
 
 
-def deploy(store, part, commit, paths, command, newer=None, skip_file=None, log=print, **lock):
-    """Hold the lock of the part, read main, and run the deploy command. Return the exit code."""
-    newer = newer or (lambda: read_main(REPO, commit, paths))
+def deploy(store, part, commit, paths, command, newer=None, skip_file=None, log=print,
+           clock=time.monotonic, **lock):
+    """Hold the lock of the part, read main, and run the deploy command. Return the exit code.
+
+    `newer(timeout)` reads main, and `command(timeout)` deploys. Each one
+    gets its limit, so the lock stays for HOLD at most.
+    """
+    newer = newer or (lambda timeout: read_main(REPO, commit, paths, timeout))
     name = f"{part}.lock"
-    generation = acquire(store, name, commit, log=log, **lock)
+    generation = acquire(store, name, commit, log=log, clock=clock, **lock)
+    start = clock()
     try:
-        found = newer()
+        found = newer(READ_TIMEOUT)
+        if clock() - start > READ_TIMEOUT:
+            raise LockTimeout(f"the read of main took more than {READ_TIMEOUT} s, so this build does not deploy")
         if found:
             log(f"deploy_order: {found[0]} on main changes {' '.join(paths)} after {commit}."
                 " Its build deploys, so this build skips.")
@@ -179,14 +216,14 @@ def deploy(store, part, commit, paths, command, newer=None, skip_file=None, log=
                     handle.write(found[0] + "\n")
             return 0
         log(f"deploy_order: {commit} is the newest change of {' '.join(paths)}. Deploy it.")
-        return command()
+        return command(DEPLOY_TIMEOUT)
     finally:
         store.delete(name, generation)
 
 
 def run_command(argv):
-    def command():
-        return subprocess.run(argv, timeout=DEPLOY_TIMEOUT).returncode
+    def command(timeout):
+        return subprocess.run(argv, timeout=timeout).returncode
     return command
 
 
