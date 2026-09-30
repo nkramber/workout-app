@@ -16,9 +16,9 @@ The pull request holds the project and the deploy:
 - the allowlist entry of the owner in the live project alone,
 - `docs/setup-gcp.md` and `docs/deploy-and-rollback.md`, and the tests `docs/tools/test_deploy_config.py` and `go/cmd/api/rules_emulator_test.go`.
 
-State: the live project is complete, and each part reads back. Codex kept P2-1 open at effective head `5f9d991`, because the guard ran in a step before the deploy. Round 3 adds a lock for each part in the bucket `nk-workout-app-prod-deploy-lock` (D-143). `docs/reviews/pr-11-response.md` answers both rounds.
+State: the live project is complete, and each part reads back. The repeat review fixed P2-1 at effective head `9ec3819`, because each part now uses a lock. The review found P2-2: a slow history read can outlive the stale-lock limit. `docs/reviews/pr-11-response.md` answers the earlier rounds.
 
-Next action: repeat the Codex review. A third open round of P2-1 stops the loop, and the owner decides. Then the owner confirms the merge. The merge starts the three builds.
+Next action: correct P2-2, then repeat the Codex review. The owner confirms the merge after the review and current checks pass. The merge starts the three builds.
 
 ## Facts that expire
 
