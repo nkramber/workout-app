@@ -16,9 +16,9 @@ The pull request holds the project and the deploy:
 - the allowlist entry of the owner in the live project alone,
 - `docs/setup-gcp.md` and `docs/deploy-and-rollback.md`, and the tests `docs/tools/test_deploy_config.py` and `go/cmd/api/rules_emulator_test.go`.
 
-State: the live project is complete, and each part reads back. Codex required changes at effective head `e5f724b` for P2-1, an older build that replaces a newer deploy. Round 2 adds the guard `docs/tools/deploy_order.py` before each deploy step, and `docs/reviews/pr-11-response.md` answers the finding.
+State: the live project is complete, and each part reads back. The repeat Codex review at effective head `5f9d991` keeps P2-1 open. The guard does not make the version check and deploy atomic. The verdict is Changes required.
 
-Next action: repeat the Codex review. Then the owner confirms the merge. The merge starts the three builds.
+Next action: the author resolves P2-1 and requests another review. Then the owner confirms the merge. The merge starts the three builds.
 
 ## Facts that expire
 
