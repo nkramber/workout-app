@@ -1,4 +1,4 @@
-# Gym Route - the single human entry point.
+# Workout App - the single human entry point.
 # Each target prints what it does. `make help` lists each target. Each
 # target is free, except each target whose help text says CAUTION.
 
@@ -137,7 +137,7 @@ go-test: ## Check the Go code: gofmt, go mod tidy, go vet, and the unit tests, f
 # do not collide with Decktome or the probe. The project id starts with
 # demo-, so no call reaches a real project (D-115). The Firestore
 # emulator needs Java 21, and scripts/java21.sh finds it.
-EMULATOR_PROJECT := demo-gym-route
+EMULATOR_PROJECT := demo-workout-app
 EMULATORS := env -u FIREBASE_AUTH_EMULATOR_HOST -u FIRESTORE_EMULATOR_HOST GOOGLE_CLOUD_PROJECT=$(EMULATOR_PROJECT) \
   emulators/node_modules/.bin/firebase emulators:exec --config firebase.json --only auth,firestore --project $(EMULATOR_PROJECT)
 

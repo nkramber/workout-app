@@ -2,14 +2,14 @@ import "fake-indexeddb/auto";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { GymRouteDB, OUTBOX_SCHEMA_VERSION, pendingOutbox, saveSetting } from "./db";
+import { WorkoutAppDB, OUTBOX_SCHEMA_VERSION, pendingOutbox, saveSetting } from "./db";
 import * as ids from "./uuidv7";
 
-let store: GymRouteDB;
+let store: WorkoutAppDB;
 let n = 0;
 
 beforeEach(async () => {
-  store = new GymRouteDB(`test-${n++}`);
+  store = new WorkoutAppDB(`test-${n++}`);
   await store.open();
 });
 

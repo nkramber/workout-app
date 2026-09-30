@@ -1,12 +1,12 @@
-# Gym Route
+# Workout App
 
-Gym Route is a personal workout app for one person, its owner. The owner describes the muscles to train, the schedule, and the experience. The owner selects the machines of the gym from a catalog, or enters them as text, and confirms each one. The app builds a workout plan, guides each workout, records each set, and adapts the next targets.
+Workout App is a personal workout app for one person, its owner. The owner describes the muscles to train, the schedule, and the experience. The owner selects the machines of the gym from a catalog, or enters them as text, and confirms each one. The app builds a workout plan, guides each workout, records each set, and adapts the next targets.
 
-OpenAI `gpt-6-luna` proposes each plan and each revision. A deterministic, versioned policy checks every set and load before the owner sees it. Gym Route is an installable, phone-first web app on Google Cloud. It never goes to an app store.
+OpenAI `gpt-6-luna` proposes each plan and each revision. A deterministic, versioned policy checks every set and load before the owner sees it. Workout App is an installable, phone-first web app on Google Cloud. It never goes to an app store.
 
 ## Status
 
-**The workout app does not exist yet.** The contract in `proto/`, the Go API skeleton in `go/`, and the web shell in `web/` exist, and they run only on the local emulators. The development project `gym-route-dev` exists, with Firebase Hosting and Firebase Authentication only. The repository holds the foundation documents, the research, the roadmaps, and the process tooling. Phase 0 is complete. Phase 1 (risk spikes) gave its three reports. The Luna plan and the iPhone web platform got a go, and photo recognition got a no-go. Phase 2 (platform skeleton) has its focused roadmap, `docs/roadmaps/phase-2-platform-skeleton.md`.
+**The workout app does not exist yet.** The contract in `proto/`, the Go API skeleton in `go/`, and the web shell in `web/` exist. The project `nk-workout-app-prod` on Google Cloud holds Firestore, the Cloud Run service of the API, Firebase Hosting, and Firebase Authentication. Cloud Build deploys each merge to `main`. `docs/setup-gcp.md` describes the project. The repository holds the foundation documents, the research, the roadmaps, and the process tooling. Phase 0 is complete. Phase 1 (risk spikes) gave its three reports. The Luna plan and the iPhone web platform got a go, and photo recognition got a no-go. Phase 2 (platform skeleton) has its focused roadmap, `docs/roadmaps/phase-2-platform-skeleton.md`.
 
 ## Repository map
 

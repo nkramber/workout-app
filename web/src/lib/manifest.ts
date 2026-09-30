@@ -1,12 +1,12 @@
-// The web manifest of Gym Route. A browser installs a web app when the
+// The web manifest of Workout App. A browser installs a web app when the
 // manifest has a name, a start URL, a display mode other than `browser`,
 // and an icon of 192 pixels or more. Keep the manifest stable: on
 // Android, each change makes a new WebAPK (REC-3, D-133).
 export const pageBackground = "#0b1220";
 
 export const webManifest = {
-  name: "Gym Route",
-  short_name: "Gym Route",
+  name: "Workout App",
+  short_name: "Workout App",
   description: "A personal workout app.",
   start_url: "/",
   scope: "/",

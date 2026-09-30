@@ -29,7 +29,9 @@ that ends with it.
 
 A dated record is history, and a rewrite of it falsifies the record. So the
 checker reads no rule in a file that ends with a date, and none in the
-hand-off archive.
+hand-off archive. A review record names the paths of the tree at its own
+head, so a later move of a file does not falsify it. The checker reads no
+path rule in a review record, and it still reads the id rule there.
 
 Usage: python3 docs/tools/ref_check.py FILE [FILE ...]
 """
@@ -47,6 +49,9 @@ SCRATCH = "/.local/"
 
 # A dated record is history. A rewrite of it falsifies the record.
 DATED = re.compile(r"-\d{4}-\d{2}-\d{2}\.md$|session-handoff-archive\.md$")
+
+# A review record names the tree at its own head (D-136).
+REVIEW_RECORD = re.compile(r"(?:^|/)docs/reviews/[^/]+\.md$")
 
 # A reference to the other repository. It takes no rule.
 # The three role-model repositories of the owner (D-86, D-87).
@@ -115,6 +120,8 @@ def check(doc, text, known, top, paths, folders):
             if name in known:
                 continue
             findings.append((number, "REF 1", f"no register defines {name}"))
+        if REVIEW_RECORD.search(doc):
+            continue
         for match in CODE.finditer(line):
             token = match.group(1).strip().rstrip("/")
             if "/" not in token or not PATH.match(token):

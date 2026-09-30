@@ -25,12 +25,12 @@ import (
 	"cloud.google.com/go/firestore"
 	"connectrpc.com/connect"
 
-	gymroutev1 "github.com/nkramber/workout-app/go/gen/gymroute/v1"
-	"github.com/nkramber/workout-app/go/gen/gymroute/v1/gymroutev1connect"
+	workoutappv1 "github.com/nkramber/workout-app/go/gen/workoutapp/v1"
+	"github.com/nkramber/workout-app/go/gen/workoutapp/v1/workoutappv1connect"
 	"github.com/nkramber/workout-app/go/internal/allowlist"
 )
 
-const emulatorProject = "demo-gym-route"
+const emulatorProject = "demo-workout-app"
 
 func requireEmulators(t *testing.T) (authHost string) {
 	t.Helper()
@@ -142,7 +142,7 @@ func TestAcceptanceStory(t *testing.T) {
 	}
 
 	base := startAPI(t)
-	client := gymroutev1connect.NewUserServiceClient(http.DefaultClient, base)
+	client := workoutappv1connect.NewUserServiceClient(http.DefaultClient, base)
 	cases := []struct {
 		name  string
 		token string
@@ -157,7 +157,7 @@ func TestAcceptanceStory(t *testing.T) {
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			req := connect.NewRequest(&gymroutev1.GetMeRequest{})
+			req := connect.NewRequest(&workoutappv1.GetMeRequest{})
 			if c.token != "" {
 				req.Header().Set("Authorization", "Bearer "+c.token)
 			}

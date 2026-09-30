@@ -1,4 +1,4 @@
-// Command api is the Gym Route API on Connect-RPC (work area 2.1). The
+// Command api is the Workout App API on Connect-RPC (work area 2.1). The
 // routes follow decktome:go/cmd/api/main.go.
 //
 // Environment:
@@ -26,7 +26,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"connectrpc.com/connect"
 
-	"github.com/nkramber/workout-app/go/gen/gymroute/v1/gymroutev1connect"
+	"github.com/nkramber/workout-app/go/gen/workoutapp/v1/workoutappv1connect"
 	"github.com/nkramber/workout-app/go/internal/allowlist"
 	"github.com/nkramber/workout-app/go/internal/auth"
 	"github.com/nkramber/workout-app/go/internal/envguard"
@@ -117,7 +117,7 @@ func run(ctx context.Context, logger *slog.Logger, environ []string, getenv func
 // gives the commit alone.
 func newHandler(v auth.Verifier, a auth.Allowlist, origin, buildCommit string) http.Handler {
 	mux := http.NewServeMux()
-	path, h := gymroutev1connect.NewUserServiceHandler(usersvc.Server{},
+	path, h := workoutappv1connect.NewUserServiceHandler(usersvc.Server{},
 		connect.WithInterceptors(auth.Interceptor(v, a)))
 	mux.Handle(path, h)
 	body, _ := json.Marshal(map[string]string{"commit": buildCommit})

@@ -1,5 +1,5 @@
 {
-  "name": "gym-route-emulators",
+  "name": "workout-app-emulators",
   "private": true,
   "description": "The pinned firebase-tools of the local emulators. See firebase.json at the root.",
   "engines": {

@@ -1,0 +1,67 @@
+# The deploy of the Go API from main (D-14, D-18), after
+# decktome:cloudbuild/api.yaml. The trigger deploy-api fires on a push to
+# main whose diff touches go/, docker/, or this file. It runs as
+# api-deployer. docs/deploy-and-rollback.md holds the triggers and the
+# accounts.
+#
+# Each image names its digest, so a new release of an image changes no
+# build. The digests were read from the registries on 2026-09-29.
+steps:
+  - id: build
+    name: gcr.io/cloud-builders/docker@sha256:bbb3d633c5c2813b2ce5245852979e1d637768f4acfc504d8ece288f91e9b60f
+    args:
+      - build
+      - -f
+      - docker/api.Dockerfile
+      - --build-arg=COMMIT=$COMMIT_SHA
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/workout-app/api:$COMMIT_SHA
+      - .
+
+  - id: push
+    name: gcr.io/cloud-builders/docker@sha256:bbb3d633c5c2813b2ce5245852979e1d637768f4acfc504d8ece288f91e9b60f
+    args:
+      - push
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/workout-app/api:$COMMIT_SHA
+
+  # The deploy names the image alone. The service account, the
+  # environment, and the scale settings of the revision before it carry
+  # over.
+  - id: deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk@sha256:7c2dbc4eeba1e500b788be19cae33599cefe3294949a62c034bd1c2002329f69
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - api
+      - --region=${_REGION}
+      - --image=${_REGION}-docker.pkg.dev/$PROJECT_ID/workout-app/api:$COMMIT_SHA
+      - --quiet
+
+  # The check reads GET /version until it names the commit of this build.
+  # A later merge can deploy first, so the check stops after 5 minutes and
+  # prints the commit that it read.
+  - id: check
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk@sha256:7c2dbc4eeba1e500b788be19cae33599cefe3294949a62c034bd1c2002329f69
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        url=$$(gcloud run services describe api --region "${_REGION}" --format='value(status.url)')
+        for i in $$(seq 1 30); do
+          body=$$(curl -s -m 10 "$$url/version" || true)
+          echo "try $$i: $$body"
+          case "$$body" in *'"commit":"'"$COMMIT_SHA"'"'*) exit 0 ;; esac
+          sleep 10
+        done
+        echo "the API does not name $COMMIT_SHA"
+        exit 1
+
+substitutions:
+  _REGION: us-central1
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: 1200s

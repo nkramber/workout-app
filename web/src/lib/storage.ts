@@ -1,4 +1,4 @@
-import type { GymRouteDB } from "./db";
+import type { WorkoutAppDB } from "./db";
 
 // The persistent storage request (REC-5, D-134). Without it, the browser
 // can remove the offline store when the phone needs space. The app asks
@@ -19,7 +19,7 @@ type StorageApi = Pick<StorageManager, "persist" | "persisted" | "estimate">;
 // requestPersistenceOnce asks for persistent storage on the first call on
 // this device. A later call reads the state and asks again never.
 export async function requestPersistenceOnce(
-  store: GymRouteDB,
+  store: WorkoutAppDB,
   api: StorageApi | undefined = navigator.storage,
   now: Date = new Date(),
 ): Promise<StorageState> {

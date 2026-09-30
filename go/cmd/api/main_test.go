@@ -13,13 +13,13 @@ import (
 
 	"connectrpc.com/connect"
 
-	gymroutev1 "github.com/nkramber/workout-app/go/gen/gymroute/v1"
-	"github.com/nkramber/workout-app/go/gen/gymroute/v1/gymroutev1connect"
+	workoutappv1 "github.com/nkramber/workout-app/go/gen/workoutapp/v1"
+	"github.com/nkramber/workout-app/go/gen/workoutapp/v1/workoutappv1connect"
 	"github.com/nkramber/workout-app/go/internal/auth"
 	"github.com/nkramber/workout-app/go/internal/envguard"
 )
 
-const webOrigin = "https://gym-route-dev.web.app"
+const webOrigin = "https://nk-workout-app-prod.web.app"
 
 // fakeVerifier accepts the tokens of its map, and refuses each other.
 type fakeVerifier map[string]string
@@ -48,10 +48,10 @@ func server(t *testing.T, list auth.Allowlist) *httptest.Server {
 	return srv
 }
 
-func getMe(t *testing.T, srv *httptest.Server, authorization string) (*connect.Response[gymroutev1.GetMeResponse], error) {
+func getMe(t *testing.T, srv *httptest.Server, authorization string) (*connect.Response[workoutappv1.GetMeResponse], error) {
 	t.Helper()
-	client := gymroutev1connect.NewUserServiceClient(srv.Client(), srv.URL)
-	req := connect.NewRequest(&gymroutev1.GetMeRequest{})
+	client := workoutappv1connect.NewUserServiceClient(srv.Client(), srv.URL)
+	req := connect.NewRequest(&workoutappv1.GetMeRequest{})
 	if authorization != "" {
 		req.Header().Set("Authorization", authorization)
 	}
@@ -130,7 +130,7 @@ func TestVersion(t *testing.T) {
 
 func TestCORS(t *testing.T) {
 	srv := server(t, fakeList{uids: map[string]bool{"uid-a": true}})
-	procedure := srv.URL + gymroutev1connect.UserServiceGetMeProcedure
+	procedure := srv.URL + workoutappv1connect.UserServiceGetMeProcedure
 	do := func(method, origin string) *http.Response {
 		t.Helper()
 		req, err := http.NewRequest(method, procedure, strings.NewReader("{}"))

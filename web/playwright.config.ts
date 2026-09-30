@@ -37,7 +37,7 @@ export default defineConfig({
       // through the environment of this process.
       command: "../.bin/api",
       url: `http://127.0.0.1:${apiPort}/version`,
-      env: { PORT: String(apiPort), GOOGLE_CLOUD_PROJECT: "demo-gym-route", ALLOWED_ORIGIN: webOrigin },
+      env: { PORT: String(apiPort), GOOGLE_CLOUD_PROJECT: "demo-workout-app", ALLOWED_ORIGIN: webOrigin },
       reuseExistingServer: false,
       timeout: 60_000,
     },

@@ -1,4 +1,4 @@
-# Gym Route - exercise safety research
+# Workout App - exercise safety research
 
 Status: research input for the roadmap. This document holds evidence and synthesis. It holds no owner decision. The owner decisions live in `docs/decisions.md`.
 
@@ -8,7 +8,7 @@ Date of this document: 2026-09-28. Access date of every source: 2026-09-27.
 
 This document gives the deterministic policy of D-23 a cited base. Luna proposes plans and revisions (D-22). The policy checks every set, load, and change before the owner sees it (D-23). Each policy rule can name the `EV-<n>` ids that support it, and each assumption stays visible as an assumption.
 
-The scope follows the owner decisions. Gym Route serves one user, the owner (D-67). The user is an adult (D-26) with intermediate or advanced experience (D-30). The core user is a 180 lb, 32-year-old man who used machines before but did not train for several years (D-31). The engine treats him as intermediate from the first day, with loads from his own estimates (D-32). Equipment is fixed-path resistance machines and cardio machines only (D-45).
+The scope follows the owner decisions. Workout App serves one user, the owner (D-67). The user is an adult (D-26) with intermediate or advanced experience (D-30). The core user is a 180 lb, 32-year-old man who used machines before but did not train for several years (D-31). The engine treats him as intermediate from the first day, with loads from his own estimates (D-32). Equipment is fixed-path resistance machines and cardio machines only (D-45).
 
 This document gives fitness guidance research only (D-36). It is not medical, legal, or regulatory advice.
 
@@ -129,7 +129,7 @@ Everything in this section is synthesis. It is interpretation of the register, n
 
 ### 5.2 Prescription variables (synthesis)
 
-| Variable | What the evidence says | Candidate policy value for Gym Route | Basis and class |
+| Variable | What the evidence says | Candidate policy value for Workout App | Basis and class |
 |---|---|---|---|
 | Frequency | 2+ days/week for all major groups. Volume-equated frequency has little effect on hypertrophy but helps strength. | 2-3 sessions/week. Each of the four regions at least 2 times/week. | EV-1, EV-3, EV-16, EV-17, EV-19. Recommendation. |
 | Weekly volume | Dose-response to 10+ sets/muscle/week, with diminishing returns. Indirect sets count as 0.5. | After a long break, start at about 6-8 direct sets per region per week. Build toward 10+ over 4-8 weeks. | EV-1, EV-18, EV-19. The ramp is an assumption. |
@@ -171,7 +171,7 @@ What the evidence recommends:
 - WHO says clearance is generally unnecessary for light or moderate activity without contraindications. It says new symptoms need a provider (EV-5).
 - Vigorous activity in unfit people can acutely raise cardiac risk in susceptible people (EV-53). Cardiac events often follow warning signs (EV-7).
 
-| Sign group | Examples | What the evidence recommends | Gym Route behavior |
+| Sign group | Examples | What the evidence recommends | Workout App behavior |
 |---|---|---|---|
 | Cardiorespiratory or neurological | Chest pain or pressure, unusual breathlessness, dizziness or fainting, palpitations, sudden severe headache, confusion | Stop exercise, seek medical clearance before a return (EV-8, EV-5, EV-53). Full GETP12 list not verified (EV-6). | Warn. The user can continue after a confirmation (D-40). No emergency advice (D-36). |
 | Musculoskeletal | Sharp or stabbing pain, joint pain, pain that builds through a set, pop or snap, numbness, tingling, instability | Stop the movement. Pain-tolerant loading belongs to clinical care (EV-54, EV-55). | Warn and continue (D-40). The policy holds load progression for that exercise (section 5.8). |

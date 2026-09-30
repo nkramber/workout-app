@@ -37,12 +37,12 @@ export type Setting = {
 // storage request (REC-5, D-134). It never syncs.
 export type Meta = { key: string; value: unknown };
 
-export class GymRouteDB extends Dexie {
+export class WorkoutAppDB extends Dexie {
   settings!: EntityTable<Setting, "id">;
   outbox!: EntityTable<OutboxEntry, "opId">;
   meta!: EntityTable<Meta, "key">;
 
-  constructor(name = "gym-route") {
+  constructor(name = "workout-app") {
     super(name);
     this.version(1).stores({
       settings: "id",
@@ -52,14 +52,14 @@ export class GymRouteDB extends Dexie {
   }
 }
 
-export const db = new GymRouteDB();
+export const db = new WorkoutAppDB();
 
 // Safari on iOS can close the database when the app goes to the
 // background. withReopen opens it again and tries the work one more time
 // (platform research, section 5.1).
 const reopenErrors = new Set(["DatabaseClosedError", "InvalidStateError"]);
 
-export async function withReopen<T>(store: GymRouteDB, work: () => Promise<T>): Promise<T> {
+export async function withReopen<T>(store: WorkoutAppDB, work: () => Promise<T>): Promise<T> {
   try {
     return await work();
   } catch (err) {
@@ -72,7 +72,7 @@ export async function withReopen<T>(store: GymRouteDB, work: () => Promise<T>): 
 
 // saveSetting writes a setting and its outbox entry in one transaction.
 // When one write fails, Dexie rolls back both.
-export function saveSetting(store: GymRouteDB, id: string, value: unknown, now: Date = new Date()): Promise<OutboxEntry> {
+export function saveSetting(store: WorkoutAppDB, id: string, value: unknown, now: Date = new Date()): Promise<OutboxEntry> {
   return withReopen(store, () =>
     store.transaction("rw", store.settings, store.outbox, async () => {
       const at = now.toISOString();
@@ -94,6 +94,6 @@ export function saveSetting(store: GymRouteDB, id: string, value: unknown, now: 
   );
 }
 
-export function pendingOutbox(store: GymRouteDB): Promise<OutboxEntry[]> {
+export function pendingOutbox(store: WorkoutAppDB): Promise<OutboxEntry[]> {
   return withReopen(store, () => store.outbox.orderBy("at").toArray());
 }

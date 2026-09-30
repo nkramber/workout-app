@@ -1,0 +1,12 @@
+rules_version = '2';
+
+// The web app never reads or writes Firestore itself (D-77). The Go API
+// reads and writes it with its own service account, and the Admin SDK
+// does not read these rules. So each client read and write is refused.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

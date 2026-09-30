@@ -1,6 +1,6 @@
 # Roadmaps
 
-This folder holds the roadmaps of Gym Route. The date of this version is 2026-09-29.
+This folder holds the roadmaps of Workout App. The date of this version is 2026-09-29.
 
 ## Files
 

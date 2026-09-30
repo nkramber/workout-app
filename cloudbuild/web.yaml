@@ -1,0 +1,63 @@
+# The deploy of the web app from main (D-14, D-18), after
+# decktome:cloudbuild/web.yaml. The trigger deploy-web fires on a push to
+# main whose diff touches web/, firebase.json, or this file.
+#
+# The install runs npm code, so the trigger runs as web-deployer. That
+# account can release Hosting alone. It can not deploy the API, and it
+# can not write a Firestore rule. docs/deploy-and-rollback.md holds the
+# triggers and the accounts.
+#
+# The Firebase web values are in web/src/lib/firebase-config.ts (D-117).
+# _API_BASE_URL is the fixed URL of the Cloud Run service api (D-82).
+#
+# Each image names its digest. The digests were read from the registries
+# on 2026-09-29. The Node version is the version of web/.nvmrc.
+steps:
+  - id: build
+    name: node:22.23.2@sha256:dd5847a04b0deee391fa145f1f4c6d214196668b6bcc7988ebed67249f226844
+    entrypoint: bash
+    env:
+      - VITE_API_BASE_URL=${_API_BASE_URL}
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        npm --prefix web ci
+        npm --prefix web run build
+        printf '{"commit":"%s"}\n' "$COMMIT_SHA" > web/dist/version.json
+
+  # firebase-tools reads the credentials of the build from the metadata
+  # server, so no token of a person is in the repository. The version is
+  # the version of emulators/package.json.
+  - id: release
+    name: node:22.23.2@sha256:dd5847a04b0deee391fa145f1f4c6d214196668b6bcc7988ebed67249f226844
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        npx --yes firebase-tools@15.32.0 deploy --only hosting \
+          --project "$PROJECT_ID" --non-interactive --message "commit $COMMIT_SHA"
+
+  # The rewrite of Hosting answers 200 for each path, so the check reads
+  # the commit of the live web in /version.json.
+  - id: check
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk@sha256:7c2dbc4eeba1e500b788be19cae33599cefe3294949a62c034bd1c2002329f69
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -euo pipefail
+        body=$$(curl -s -m 30 "https://$PROJECT_ID.web.app/version.json?cb=$SHORT_SHA")
+        echo "live web: $$body"
+        case "$$body" in *'"commit":"'"$COMMIT_SHA"'"'*) exit 0 ;; esac
+        echo "the web does not name $COMMIT_SHA"
+        exit 1
+
+substitutions:
+  _API_BASE_URL: https://api-665413986587.us-central1.run.app
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: 1200s

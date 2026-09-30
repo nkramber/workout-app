@@ -1,25 +1,24 @@
-# Gym Route - session hand-off
+# Workout App - session hand-off
 
 This file is the resume point of the next session. Read `AGENTS.md` first, then this file.
 
 ## Resume here
 
-Date: 2026-09-29. GitHub PR 10 is roadmap PR-9 of `docs/roadmaps/phase-2-platform-skeleton.md`, work area 2.2, on branch `feat/pr-9-web-shell`, from base `d9b192e`.
+Date: 2026-09-29. GitHub PR 11 is roadmap PR-10 of `docs/roadmaps/phase-2-platform-skeleton.md`, work area 2.3, on branch `feat/pr-10-deploy`, from base `6117952`.
 
-The pull request holds the installable web shell in `web/`:
+The pull request holds the project and the deploy:
 
-- a React and Vite client on the stack of D-84, with the phone layout alone (D-20), as one npm package (D-135),
-- a shell of the dynamic viewport height with the safe areas, and a viewport meta that blocks the pinch zoom (D-120),
-- sign-in with email and password on Firebase Authentication, with no form that makes an account (D-75, D-117),
-- an empty home screen that calls `GetMe` through the API and shows the uid,
-- the Dexie store and the outbox, with one transaction for a change and its outbox entry (D-132),
-- the service worker in the `prompt` mode (D-133), and the persistent storage request (D-134),
-- the generated TypeScript code in `web/src/gen`, the target `make web`, and the CI job `verify:web` as a required check (D-126, D-127),
-- the owner answers Q-148 to Q-151 (D-132 to D-135).
+- the new app name "Workout App", the project `nk-workout-app-prod`, and the contract package `workoutapp.v1` (D-136 to D-138),
+- the billing link and an alerts-only budget of 10 USD (D-139),
+- Firestore Standard in `us-central1`, deny-all rules, PITR, daily backups of 10 days, and delete protection (D-140, D-124),
+- the service `api` on Cloud Run with `api-runtime`, and the secret `openai-api-key` with no value (D-141),
+- the triggers `deploy-api`, `deploy-web`, and `deploy-rules` on `main`, each with its own account (D-142),
+- the allowlist entry of the owner in the live project alone,
+- `docs/setup-gcp.md` and `docs/deploy-and-rollback.md`, and the tests `docs/tools/test_deploy_config.py` and `go/cmd/api/rules_emulator_test.go`.
 
-State: Codex verdict: Ready for owner merge at effective head `851a06b`. No open finding ids. `make verify` passed locally. GitHub CI passed every job, including `review-gate`, on metadata tip `6bd4ea9`. The owner approved the change of the live ruleset at run time, and `make ruleset-check` passed (D-127).
+State: the live project is complete, and each part reads back. The pull request waits for CI, the Codex review, and the owner merge.
 
-Next action: verify the published branch head and the `review-gate` result. Then the owner confirms the merge.
+Next action: finish the review loop. Then the owner confirms the merge. The merge starts the three builds.
 
 ## Facts that expire
 
@@ -33,12 +32,15 @@ Next action: verify the published branch head and the `review-gate` result. Then
 | The OpenAI usage policies page returns HTTP 403. The owner accepted a copy printed on 2025-11-07 (D-93). | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
 | `gpt-6-luna` accepts the strict JSON schema of the plan through the Responses API. 60 of 60 plans passed the schema. | 2026-09-28 | `docs/research/luna-plan-spike.md` |
 | `gpt-6-luna` accepts an image with a strict JSON schema. One photo at 1536 px costs 0.00037 USD. | 2026-09-28 | `docs/research/recognition-spike.md` |
-| The project `gym-route-dev` exists. Billing is off, and the project has no Storage bucket, no Firestore database, and no Realtime Database. | 2026-09-28 | `gcloud billing projects describe`, `gcloud storage buckets list`, `firebase database:instances:list` |
-| The Hosting site `gym-route-dev` at `https://gym-route-dev.web.app` serves the probe of build `d6e3c54`, from a hand deploy of `main`. | 2026-09-29 | `firebase deploy --only hosting`, the header of the live page |
+| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` with the `hello` placeholder, three triggers, and the allowlist entry. | 2026-09-29 | `docs/setup-gcp.md`, the read back of each step |
+| `workout-app-prod` is in use by another Google Cloud project. | 2026-09-29 | `gcloud projects create` |
+| The old project `gym-route-dev` has no billing, and its site serves the probe of build `d6e3c54`. | 2026-09-29 | `gcloud billing projects describe`, `firebase hosting:sites:list` |
 | Chrome 154 on iOS 27.0 adds the probe to the Home Screen, and the app opens in the `standalone` display mode. | 2026-09-29 | `docs/research/iphone-platform-spike.md` |
-| GitHub secret scanning flags the Firebase browser key (alert 1). The key allows only the Auth APIs and the probe sites. | 2026-09-29 | `gcloud services api-keys describe`, secret scanning of the repository |
+| The browser key of `nk-workout-app-prod` allows only the Auth APIs and the sites of the project and the local ports. GitHub secret scanning flagged the old key (alert 1). | 2026-09-29 | `gcloud services api-keys describe` |
 | WebKit refuses a page on port 4190. The probe uses port 4173. | 2026-09-28 | `tools/spikes/iphone_probe/README.md` |
 | Go 1.27.1, buf v1.73.0, connect v1.21.0, and firebase-admin-go v4.22.0 are the newest releases. | 2026-09-29 | go.dev and proxy.golang.org, `go/go.mod` |
+| The spend cap of Cloud Run is Preview, and the console alone sets it. | 2026-09-29 | Google Cloud, "Spend cap budgets" |
+| `buf breaking` with the rules of `buf.yaml` passes a move of the package `gymroute.v1` to `workoutapp.v1`. | 2026-09-29 | `make contract` |
 | `firebase-tools` 15.32.0 refuses a Java version before 21. The Firestore emulator is v1.22.0. | 2026-09-29 | `make emulator-test` |
 | The newest npm releases: React 19.3.0, Vite 8.3.1, `vite-plugin-pwa` 1.3.0, Dexie 4.4.6, Connect Query 2.3.1, `@bufbuild/protobuf` 2.16.0, and Playwright 1.63.0. TypeScript 7.0.2 exists, and `web/` keeps 5.9.3, as in Decktome. | 2026-09-29 | `npm view`, `web/package.json` |
 | In Chromium, a new service worker controls a navigation about 300 ms after it shows the `activated` state. | 2026-09-29 | `web/e2e/shell.spec.ts` |
@@ -51,11 +53,29 @@ Next action: verify the published branch head and the `review-gate` result. Then
 
 ## Next steps, in order
 
-1. Close PR-9: the Codex review, the owner confirmation, and the merge.
-2. After the merge, start PR-10 (work area 2.3) in a clean session. Read the billing state first, then ask Q-142.
-3. In PR-10, check that the browser key allows the Hosting site of the web app (D-117).
+1. Close PR-10: the Codex review, the owner confirmation, and the merge.
+2. After the merge, read the three builds with `gcloud builds list --region=us-central1 --project nk-workout-app-prod`.
+3. Start PR-11 (work areas 2.2 and 2.3) in a clean session. It reads `/version` and `/version.json`, runs the device check, shuts down `gym-route-dev`, and adds the package rules of D-138.
 
 ## Session records
+
+### Session 11 - 2026-09-29
+
+Author provider: Claude Code
+
+Branch: `feat/pr-10-deploy`. Role: author.
+
+Completed:
+
+- The owner approved the milestone before the first edit (D-12). Then the owner added the new name and the new project, and approved the changed milestone.
+- Read the billing state, then asked Q-142 and Q-152 to Q-159 (D-136 to D-142).
+- Made each part of the project with the approval of the owner at run time, and read each part back.
+- Renamed each current file. The past records keep the old name (D-136).
+- Wrote the deploy files, the setup and rollback documents, and the tests. The rules test fails with open rules.
+
+Open work:
+
+- The Codex review, the owner confirmation, and the merge of PR-10.
 
 ### Session 10 - 2026-09-29
 
@@ -74,7 +94,7 @@ Completed:
 
 Open work:
 
-- The Codex review, the owner confirmation, and the merge of PR-9.
+- None. PR #10 merged.
 
 ### Session 9 - 2026-09-29
 
@@ -94,21 +114,3 @@ Completed:
 Open work:
 
 - None. PR #9 merged.
-
-### Session 8 - 2026-09-29
-
-Author provider: Claude Code
-
-Branch: `docs/pr-7-phase-2-roadmap`. Role: author.
-
-Completed:
-
-- The owner approved the milestone before the first edit (D-12), and answered Q-91, Q-93, Q-99, Q-100, and Q-140 to Q-144 (D-122 to D-128).
-- Wrote the focused roadmap `docs/roadmaps/phase-2-platform-skeleton.md`.
-- Set `OVERRIDE_ENABLED` to `True`, with the tests of the gate, and changed the rule text of the D-4 period (D-125).
-- Changed the high-level roadmap: the exit evidence of work area 2.1 (D-126), the backups of work area 2.3 (D-124), and the cited ids.
-
-Open work:
-
-- Q-142, the billing account of work area 2.3. The session of PR-10 reads the billing state, then asks.
-- None for PR-7. PR #8 merged.

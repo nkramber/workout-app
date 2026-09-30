@@ -9,7 +9,7 @@ import { expect, test, type APIRequestContext, type BrowserContext, type Page } 
 
 const authHost = process.env.FIREBASE_AUTH_EMULATOR_HOST;
 const firestoreHost = process.env.FIRESTORE_EMULATOR_HOST;
-const project = "demo-gym-route";
+const project = "demo-workout-app";
 const password = "emulator-only-1";
 
 // The Auth emulator makes the account, so the app needs no form for it.
@@ -174,7 +174,7 @@ test("a change and its outbox entry go into the offline store together, and stay
   await signIn(page, email);
   await expect(page.getByTestId("outbox-count")).toHaveText("0");
 
-  const entry = await page.evaluate(() => window.gymRouteE2E!.saveSetting("rest-seconds", 90));
+  const entry = await page.evaluate(() => window.workoutAppE2E!.saveSetting("rest-seconds", 90));
   expect(entry).toMatchObject({ entity: "setting", entityId: "rest-seconds", baseVersion: 0, payload: 90, attempts: 0, schemaVersion: 1 });
   expect(entry.opId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
   await expect(page.getByTestId("outbox-count")).toHaveText("1");
@@ -182,8 +182,8 @@ test("a change and its outbox entry go into the offline store together, and stay
   const again = await stopAndOpen(context);
   await expect(again.getByTestId("outbox-count")).toHaveText("1");
   const stored = await again.evaluate(async () => ({
-    outbox: await window.gymRouteE2E!.pendingOutbox(),
-    settings: await window.gymRouteE2E!.settings(),
+    outbox: await window.workoutAppE2E!.pendingOutbox(),
+    settings: await window.workoutAppE2E!.settings(),
   }));
   expect(stored.outbox).toEqual([entry]);
   expect(stored.settings).toEqual([{ id: "rest-seconds", value: 90, version: 0, updatedAt: entry.at }]);
@@ -202,7 +202,7 @@ test("the app is installable: a manifest and a service worker that controls the 
   await page.goto("/");
   const href = await page.locator('link[rel="manifest"]').getAttribute("href");
   const manifest = await (await page.request.get(href!)).json();
-  expect(manifest).toMatchObject({ name: "Gym Route", display: "standalone", start_url: "/" });
+  expect(manifest).toMatchObject({ name: "Workout App", display: "standalone", start_url: "/" });
   expect(manifest.icons).toHaveLength(3);
 
   await page.waitForFunction(async () => (await navigator.serviceWorker.getRegistration())?.active?.state === "activated");

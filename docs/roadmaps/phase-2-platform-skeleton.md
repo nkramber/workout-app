@@ -1,4 +1,4 @@
-# Gym Route - Phase 2 focused roadmap: platform skeleton
+# Workout App - Phase 2 focused roadmap: platform skeleton
 
 This roadmap splits Phase 2 of `docs/roadmaps/high-level-roadmap.md` into pull requests. `docs/roadmaps/README.md` gives the rules. The high-level roadmap keeps the objective, the order, and the exit evidence of the phase.
 
@@ -14,7 +14,7 @@ The exit of Phase 1 holds:
 - The recognition spike gave a no-go (D-107). The owner then moved photo recognition out of the phases (D-110, D-111).
 - The iPhone web platform spike gave a go (D-118, D-121). The report is `docs/research/iphone-platform-spike.md`.
 
-The repository holds no product code yet. The project `gym-route-dev` exists with Firebase Hosting and Firebase Authentication only, and it has no billing account (D-99, D-116). Its Hosting site serves the probe of work area 1.3.
+The repository holds no product code yet. The project `gym-route-dev` exists with Firebase Hosting and Firebase Authentication only, and it has no billing account (D-99, D-116). Its Hosting site serves the probe of work area 1.3. Work area 2.3 moved the app to the project `nk-workout-app-prod`, and the app name to "Workout App" (D-136, D-137).
 
 ## 2. Owner answers for this phase
 
@@ -29,9 +29,7 @@ The repository holds no product code yet. The project `gym-route-dev` exists wit
 | Q-143, required checks | Each CI job of the product code is a required check of `main`. | D-127 |
 | Q-144, the split | PR-8 to PR-11, in section 4. | D-128 |
 
-One question of this phase stays open:
-
-- Q-142, the billing account and the budget alert of work area 2.3. The owner asked for a check of the account first. The session of PR-10 reads the billing state before it asks the question.
+The session of PR-10 read the billing state, and then the owner answered Q-142 (D-139). No question of this phase stays open.
 
 Phase 3 needs D-122 and D-123 for the domain model. Phase 2 records them because the owner answered them in this session.
 
@@ -80,7 +78,7 @@ Branch: `feat/pr-8-api-skeleton`. Work area 2.1.
 
 Concerns:
 
-- a buf v2 contract in `proto/` with a Gym Route package name, and the generated Go code in Git,
+- a buf v2 contract in `proto/` with a Workout App package name, and the generated Go code in Git,
 - the lint of the contract, and a breaking-change check against `main`,
 - one call `GetMe` that returns the uid of the signed-in owner, so the web shell can prove the whole path,
 - a Go API on Connect-RPC with the Firebase ID token check and the invite allowlist (D-75),
@@ -139,7 +137,8 @@ Before the work, read the billing state of the owner account. Then ask Q-142. `g
 
 Concerns:
 
-- **Paid:** the billing link of `gym-route-dev` and an alerts-only budget, after the answer to Q-142 (D-99 names this step),
+- the new name of the app and the new project `nk-workout-app-prod`, with Hosting, Auth, the owner account, and the key limits of D-117 (D-136 to D-138). The owner added this concern in the session,
+- **Paid:** the billing link of `nk-workout-app-prod` and an alerts-only budget, after the answer to Q-142 (D-99 names this step),
 - Firestore in `us-central1` (D-76), with rules that refuse each client read and write (D-77), deployed from the repository,
 - **Paid:** point-in-time recovery and a daily backup schedule with a retention of 10 days, read back after the change (D-124),
 - the Cloud Run service of the API, with its own service account, and Secret Manager with no secret value yet,
@@ -147,7 +146,7 @@ Concerns:
 - the allowlist entry of the owner in the live project, with no uid in the repository (D-75),
 - the setup and rollback documents, as `decktome:docs/setup-gcp.md` and `decktome:docs/deploy-and-rollback.md` give them.
 
-The deploy replaces the probe on the Hosting site. The key limits of D-117 name that site, so they stay correct.
+The Hosting site of `nk-workout-app-prod` serves the app. The key limits of D-117 name the sites of the new project (D-137). The probe stays on `gym-route-dev` until the owner shuts that project down.
 
 CAUTION: the Firestore location is permanent. Check `us-central1` before the create step.
 
@@ -159,7 +158,7 @@ Checks:
 - Each change of the live project runs after the owner approves it at run time.
 - **Paid:** the backups and point-in-time recovery cost a few cents a month for one user (assumption, `docs/research/platform-cloud-and-ai.md` section 8.2).
 
-Questions for the session: Q-142, the Firestore edition and mode (REC-12), and the Cloud Run cost settings (REC-15).
+Questions for the session: Q-142, the Firestore edition and mode (REC-12), and the Cloud Run cost settings (REC-15). The owner answered them and Q-152 to Q-159 (D-136 to D-142).
 
 ### PR-11 - The Phase 2 device and deploy check
 
@@ -171,7 +170,9 @@ Concerns:
 
 - the deploy check: the live version endpoint names the merge commit of PR-10,
 - the device check on the iPhone of the owner, in the Home Screen app from Chrome (D-29, D-119),
-- a short report in `docs/research/`.
+- a short report in `docs/research/`,
+- the shutdown of the old project `gym-route-dev`, after the owner signs in to the app on the new project (D-137),
+- the package rules `PACKAGE_NO_DELETE` and `PACKAGE_SERVICE_NO_DELETE` in `buf.yaml` (D-138). This concern changes code, so it needs the review of the other provider (D-15).
 
 The device check holds these items:
 

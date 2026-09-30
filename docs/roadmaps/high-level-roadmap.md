@@ -1,6 +1,6 @@
-# Gym Route - high-level roadmap
+# Workout App - high-level roadmap
 
-This roadmap gives the path from a blank repository to a safe, useful Gym Route for its one user, the owner (D-67). It names the phases, their order, the risk work, the outcomes, the work areas of pull request size, and the exit evidence of each phase. It is not a plan of tasks. A focused roadmap turns one phase into tasks later. `docs/roadmaps/README.md` gives the rules for focused roadmaps.
+This roadmap gives the path from a blank repository to a safe, useful Workout App for its one user, the owner (D-67). It names the phases, their order, the risk work, the outcomes, the work areas of pull request size, and the exit evidence of each phase. It is not a plan of tasks. A focused roadmap turns one phase into tasks later. `docs/roadmaps/README.md` gives the rules for focused roadmaps.
 
 The date of this version is 2026-09-29. `docs/design.md` holds the product design. `docs/decisions.md` and `docs/questions.md` hold every decision and question that this roadmap cites.
 
@@ -97,7 +97,7 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 |---|---|---|
 | 2.1 Contract and API skeleton | Protobuf contract and generated code. Go API with the Firebase token check and the invite allowlist (D-75). Emulators and fakes for local work. | Product `make` targets run contract, Go, and emulator tests for free. `make verify` stays Python only (D-113, D-126). |
 | 2.2 Installable web shell | Phone layout only (D-20). A shell that fills the whole screen and blocks the pinch zoom (D-120). Sign-in. Offline store and outbox skeleton (D-62, D-77). | Browser tests pass in the WebKit and Chromium engines. The owner installs and signs in on the iPhone, and sees no gap at the bottom edge and no pinch zoom. |
-| 2.3 Development project and deploy | Firestore, Cloud Run, Secret Manager, and a budget alert in `us-central1`, in the project of work area 1.3 (D-99). Cloud Build deploy from `main`. Point-in-time recovery and a daily backup (D-124). The billing link of Q-142. | A merge deploys. The live version endpoint names the merged commit. |
+| 2.3 Development project and deploy | Firestore, Cloud Run, Secret Manager, and a budget alert in `us-central1`, in the one project of D-137, which replaced the project of work area 1.3. Cloud Build deploy from `main`. Point-in-time recovery and a daily backup (D-124). The billing link of Q-142. | A merge deploys. The live version endpoint names the merged commit. |
 
 **Decisions and questions.** D-17, D-18, D-20, D-62, D-74 to D-77, D-80, D-82, D-84, D-99, D-120, D-124 to D-128, Q-99, Q-142.
 
