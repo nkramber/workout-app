@@ -16,9 +16,9 @@ The pull request holds the project and the deploy:
 - the allowlist entry of the owner in the live project alone,
 - `docs/setup-gcp.md` and `docs/deploy-and-rollback.md`, and the tests `docs/tools/test_deploy_config.py` and `go/cmd/api/rules_emulator_test.go`.
 
-State: the live project is complete, and each part reads back. The pull request waits for CI, the Codex review, and the owner merge.
+State: the live project is complete, and each part reads back. Codex requires changes at effective head `e5f724b`. Open finding P2-1 covers an older build that replaces a newer deploy.
 
-Next action: finish the review loop. Then the owner confirms the merge. The merge starts the three builds.
+Next action: correct P2-1 and repeat the review. Then the owner confirms the merge.
 
 ## Facts that expire
 
