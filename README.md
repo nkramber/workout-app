@@ -8,6 +8,8 @@ OpenAI `gpt-6-luna` proposes each plan and each revision. A deterministic, versi
 
 **The workout app does not exist yet.** The contract in `proto/`, the Go API skeleton in `go/`, and the web shell in `web/` exist. The project `nk-workout-app-prod` on Google Cloud holds Firestore, the Cloud Run service of the API, Firebase Hosting, and Firebase Authentication. Cloud Build deploys each merge to `main`. `docs/setup-gcp.md` describes the project. The repository holds the foundation documents, the research, the roadmaps, and the process tooling. Phase 0 is complete. Phase 1 (risk spikes) gave its three reports. The Luna plan and the iPhone web platform got a go, and photo recognition got a no-go. Phase 2 (platform skeleton) has its focused roadmap, `docs/roadmaps/phase-2-platform-skeleton.md`.
 
+The owner installed the app on the iPhone, signed in, and saw the home screen with the answer of the live API. `docs/research/phase-2-check.md` holds this exit evidence of Phase 2.
+
 ## Repository map
 
 | Path | Content |
@@ -40,7 +42,7 @@ make hooks    # install the Git hooks once in each checkout
 make verify   # run the free checks of the verify:lint and verify:test jobs
 make where    # print the branch, the tree, and the pull request state
 make probe    # build the iPhone probe and run its browser tests, needs Node 22
-make contract       # buf lint, the generated code in Git, and buf breaking against main
+make contract       # buf lint, the generated code in Git, buf breaking against main, and the package move probe
 make go-test        # gofmt, go mod tidy, go vet, and the Go unit tests
 make emulator-test  # the Go tests over the Auth and Firestore emulators
 make web            # the web client: types, unit tests, build, and browser tests
