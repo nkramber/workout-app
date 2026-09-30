@@ -2,7 +2,7 @@
 
 This roadmap splits Phase 2 of `docs/roadmaps/high-level-roadmap.md` into pull requests. `docs/roadmaps/README.md` gives the rules. The high-level roadmap keeps the objective, the order, and the exit evidence of the phase.
 
-The date of this version is 2026-09-29.
+The date of this version is 2026-09-30.
 
 ## 1. Scope and start state
 
@@ -172,7 +172,9 @@ Concerns:
 - the device check on the iPhone of the owner, in the Home Screen app from Chrome (D-29, D-119),
 - a short report in `docs/research/`,
 - the shutdown of the old project `gym-route-dev`, after the owner signs in to the app on the new project (D-137),
-- the package rules `PACKAGE_NO_DELETE` and `PACKAGE_SERVICE_NO_DELETE` in `buf.yaml` (D-138). This concern changes code, so it needs the review of the other provider (D-15).
+- the package rules `PACKAGE_NO_DELETE` and `PACKAGE_SERVICE_NO_DELETE` in `buf.yaml` (D-138). This concern changes code, so it needs the review of the other provider (D-15, D-144),
+- the repair of the build `deploy-rules`, which needed the viewer role of Service Usage (D-146),
+- the space above the title that keeps it out of the iOS blur band (D-145). The owner added this concern after the device check.
 
 The device check holds these items:
 
@@ -184,7 +186,9 @@ The device check holds these items:
 
 Acceptance story: the report gives a result for each item and the commit that the live version endpoint names. Items 1 to 3 pass, and items 4 and 5 show no gap and no zoom.
 
-Checks: `make verify`, free. The owner does the device steps. The report holds no screenshot with personal data. The pull request can use the `review-override` label (D-125).
+Checks: `make verify`, `make contract`, and `make web`, free. The owner does the device steps. The report holds no screenshot with personal data. The pull request gets the review of the other provider, with no `review-override` label (D-144).
+
+State: the report is `docs/research/phase-2-check.md`. Each item of the device check passes, and the live endpoints name `df79c16`. The session shut down `gym-route-dev` on 2026-09-30.
 
 ## 5. Exit of the phase
 

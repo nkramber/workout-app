@@ -4,21 +4,21 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-29. GitHub PR 11 is roadmap PR-10 of `docs/roadmaps/phase-2-platform-skeleton.md`, work area 2.3, on branch `feat/pr-10-deploy`, from base `6117952`.
+Date: 2026-09-30. GitHub PR 12 is roadmap PR-11 of `docs/roadmaps/phase-2-platform-skeleton.md`, work areas 2.2 and 2.3, on branch `docs/pr-11-phase-2-check`, from base `df79c16`. It holds the exit evidence of Phase 2.
 
-The pull request holds the project and the deploy:
+The pull request holds these concerns:
 
-- the new app name "Workout App", the project `nk-workout-app-prod`, and the contract package `workoutapp.v1` (D-136 to D-138),
-- the billing link and an alerts-only budget of 10 USD (D-139),
-- Firestore Standard in `us-central1`, deny-all rules, PITR, daily backups of 10 days, and delete protection (D-140, D-124),
-- the service `api` on Cloud Run with `api-runtime`, and the secret `openai-api-key` with no value (D-141),
-- the triggers `deploy-api`, `deploy-web`, and `deploy-rules` on `main`, each with its own account (D-142),
-- the allowlist entry of the owner in the live project alone,
-- `docs/setup-gcp.md` and `docs/deploy-and-rollback.md`, and the tests `docs/tools/test_deploy_config.py` and `go/cmd/api/rules_emulator_test.go`.
+- the deploy check: `/version` and `/version.json` name `df79c16`, the merge commit of PR-10,
+- the repair of `deploy-rules`: `rules-deployer` got the viewer role of Service Usage, and the build of `df79c16` passed on a retry (D-146),
+- the device check on the iPhone: items 1 to 5 pass,
+- the header space of 16 px that keeps the title out of the iOS blur band, with a Chromium test (D-145),
+- the shutdown of `gym-route-dev` (D-137),
+- `PACKAGE_NO_DELETE` and `PACKAGE_SERVICE_NO_DELETE` in `buf.yaml`, with `scripts/package_move_probe.sh` in `make contract` (D-138),
+- the report `docs/research/phase-2-check.md`.
 
-State: the live project is complete, and each part reads back. Codex reviewed effective head `360f1db` and set the verdict to `Ready for owner merge`. Findings P2-1 and P2-2 are fixed. The read of `main` stops after five minutes, the deploy command stops after ten minutes, and the stale limit is twenty minutes. `docs/reviews/pr-11-response.md` answers each round.
+State: Codex reviewed effective head `4d643e3b81061535cc69591f568a4a295e04bfe8` and set the verdict to `Ready for owner merge`. No finding remains open. All GitHub checks passed after publication of the review record.
 
-Next action: the owner confirms the merge. The merge starts the three builds.
+Next action: wait for the owner confirmation and merge of PR-11. The live web app gets the header space after the merge, through `deploy-web`.
 
 ## Facts that expire
 
@@ -32,10 +32,14 @@ Next action: the owner confirms the merge. The merge starts the three builds.
 | The OpenAI usage policies page returns HTTP 403. The owner accepted a copy printed on 2025-11-07 (D-93). | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
 | `gpt-6-luna` accepts the strict JSON schema of the plan through the Responses API. 60 of 60 plans passed the schema. | 2026-09-28 | `docs/research/luna-plan-spike.md` |
 | `gpt-6-luna` accepts an image with a strict JSON schema. One photo at 1536 px costs 0.00037 USD. | 2026-09-28 | `docs/research/recognition-spike.md` |
-| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` with the `hello` placeholder, three triggers, and the allowlist entry. | 2026-09-29 | `docs/setup-gcp.md`, the read back of each step |
+| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `df79c16`, three triggers, and the allowlist entry. | 2026-09-30 | `docs/setup-gcp.md`, `/version` |
 | The bucket `nk-workout-app-prod-deploy-lock` exists, and each deployer account holds `roles/storage.objectUser` on it alone. | 2026-09-29 | `gcloud storage buckets describe`, `get-iam-policy` |
 | `workout-app-prod` is in use by another Google Cloud project. | 2026-09-29 | `gcloud projects create` |
-| The old project `gym-route-dev` has no billing, and its site serves the probe of build `d6e3c54`. | 2026-09-29 | `gcloud billing projects describe`, `firebase hosting:sites:list` |
+| The old project `gym-route-dev` is `DELETE_REQUESTED` since 2026-09-30T03:19:47Z. `gcloud projects undelete` can restore it for 30 days. Its site still gave HTTP 200 at 03:54:47Z. | 2026-09-30 | `gcloud projects describe`, `curl` |
+| The live `/version` and `/version.json` name `df79c169ae38326c0a876ac678a5465f80103d13`. The rules release of `df79c16` has the update time 02:33:00Z. | 2026-09-30 | `docs/research/phase-2-check.md` |
+| `rules-deployer` holds `roles/firebaserules.admin`, `roles/serviceusage.serviceUsageViewer`, and `roles/logging.logWriter`. | 2026-09-30 | `gcloud projects get-iam-policy` |
+| Since iOS 26, a Home Screen app blurs a band below the status bar, and a page can not turn it off. On iOS 27.0 with Chrome 154, 16 px above the title keeps it sharp. | 2026-09-30 | `docs/research/phase-2-check.md` |
+| Google Cloud SDK 533.0.0 has no `gcloud builds retry`. The Cloud Build API call `builds/{id}:retry` works. | 2026-09-30 | `docs/deploy-and-rollback.md` |
 | Chrome 154 on iOS 27.0 adds the probe to the Home Screen, and the app opens in the `standalone` display mode. | 2026-09-29 | `docs/research/iphone-platform-spike.md` |
 | The browser key of `nk-workout-app-prod` allows only the Auth APIs and the sites of the project and the local ports. GitHub secret scanning flagged the old key (alert 1). | 2026-09-29 | `gcloud services api-keys describe` |
 | WebKit refuses a page on port 4190. The probe uses port 4173. | 2026-09-28 | `tools/spikes/iphone_probe/README.md` |
@@ -54,11 +58,30 @@ Next action: the owner confirms the merge. The merge starts the three builds.
 
 ## Next steps, in order
 
-1. Close PR-10: the Codex review, the owner confirmation, and the merge.
-2. After the merge, read the three builds with `gcloud builds list --region=us-central1 --project nk-workout-app-prod`.
-3. Start PR-11 (work areas 2.2 and 2.3) in a clean session. It reads `/version` and `/version.json`, runs the device check, shuts down `gym-route-dev`, and adds the package rules of D-138.
+1. Close PR-11: CI, the Codex review, the owner confirmation, and the merge.
+2. After the merge, read `deploy-web` for the merge commit, and read `/version.json` again.
+3. Start the first work area of Phase 3 of `docs/roadmaps/high-level-roadmap.md` in a clean session.
 
 ## Session records
+
+### Session 12 - 2026-09-30
+
+Author provider: Claude Code
+
+Branch: `docs/pr-11-phase-2-check`. Role: author.
+
+Completed:
+
+- The owner approved the milestone before the first edit (D-12), and answered Q-161 to Q-164 (D-144 to D-146).
+- Read the live endpoints and the builds. Repaired `deploy-rules` after the owner approval, and read the live rules release back.
+- The owner ran the device check on the iPhone. Items 1 to 5 pass.
+- Tested four fixes of the iOS blur band on the iPhone, from the Mac on the local network. The 16 px header space works (D-145).
+- Shut down `gym-route-dev` after the owner approval (D-137).
+- Added the package rules and their probe to `make contract` (D-138).
+
+Open work:
+
+- CI, the Codex review, the owner confirmation, and the merge of PR-11.
 
 ### Session 11 - 2026-09-29
 
@@ -77,7 +100,7 @@ Completed:
 
 Open work:
 
-- The Codex review, the owner confirmation, and the merge of PR-10.
+- None. PR #11 merged.
 
 ### Session 10 - 2026-09-29
 
@@ -97,22 +120,3 @@ Completed:
 Open work:
 
 - None. PR #10 merged.
-
-### Session 9 - 2026-09-29
-
-Author provider: Claude Code
-
-Branch: `feat/pr-8-api-skeleton`. Role: author.
-
-Completed:
-
-- The owner approved the milestone before the first edit (D-12), and answered Q-145 to Q-147 (D-129 to D-131).
-- Wrote the contract, the Go API skeleton, and its unit tests, with the patterns of `decktome:go/internal/auth/auth.go` and `decktome:go/cmd/api/main.go`.
-- Wrote the emulator test of the acceptance story: no token, a bad token, and a token of another project give `unauthenticated`. A uid outside the allowlist gives `permission_denied`. An allowed uid gets its uid back.
-- Proved that `make contract` refuses a changed field number, with a copy of the tree as the base.
-- Installed the Homebrew keg `openjdk@21` on the machine of the owner, because the Firestore emulator needs Java 21.
-- Applied the three new required checks to the live ruleset after the owner approval (D-127). `make ruleset-check` passed.
-
-Open work:
-
-- None. PR #9 merged.

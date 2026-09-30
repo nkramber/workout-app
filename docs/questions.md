@@ -13,6 +13,7 @@ The ids have three ranges:
 - Q-140 to Q-144 are questions of the Phase 2 roadmap session.
 - Q-145 to Q-147 are questions of the API skeleton session.
 - Q-152 to Q-160 are questions of the deploy session.
+- Q-161 to Q-164 are questions of the Phase 2 check session.
 - Q-90 to Q-107 are open questions. Q-90, Q-91, Q-93 to Q-97, Q-99, and Q-100 have an answer. Each open question names the phase of `docs/roadmaps/high-level-roadmap.md` that needs the answer.
 
 The owner answered through the answer controls of the session. The first session asked Q-1 to Q-46 and Q-74 to Q-88 on 2026-09-27. It asked the other questions on 2026-09-28. The column "Rec." tells whether the owner chose the option that the launch prompt marked as recommended. A "No" in that column is an owner decision, not a mistake.
@@ -268,6 +269,15 @@ The owner answered through the answer controls of the session. The first session
 | Q-158 | Which Cloud Run cost settings apply (REC-15)? | Request billing, min 0, max 2, and the CPU boost. The owner skipped the spend cap. | Answered | D-141 |
 | Q-159 | How does a change of `firestore.rules` deploy? | A third trigger with its own service account. | Answered | D-142 |
 | Q-160 | The guard before each deploy leaves a gap before the deploy (P2-1, round 2). How do the builds keep their order? | A lock for each part in a small Cloud Storage bucket. | Answered | D-143 |
+
+## Questions of the Phase 2 check session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-161 | PR-11 adds the package rules to `buf.yaml`. Does the type stay `docs`? | Yes. | Answered | D-144 |
+| Q-162 | The roadmap gives PR-11 both the review of the other provider and the `review-override` label. Which one applies? | The review of the other provider, with no label. | Answered | D-144 |
+| Q-163 | How does the app handle the iOS blur below the status bar? | The header adds 16 px above the title, and no more. | Answered | D-145 |
+| Q-164 | Can `rules-deployer` get `roles/serviceusage.serviceUsageViewer`, and can the failed rules build run again? | Yes, at run time. | Answered | D-146 |
 
 ## Open questions
 

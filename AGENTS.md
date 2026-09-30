@@ -6,7 +6,9 @@ This file holds the rules for every agent and every session in this repository. 
 
 Workout App is a personal workout app for one user, the owner (D-67). It is an installable, phone-first web app on Google Cloud, and it never goes to an app store (D-17). OpenAI `gpt-6-luna` proposes plans and revisions. A deterministic, versioned policy checks every set and load before the owner sees it (D-22, D-23).
 
-Stage: Phase 2 of `docs/roadmaps/high-level-roadmap.md`, with the pull requests of `docs/roadmaps/phase-2-platform-skeleton.md`. The three reports of Phase 1 exist. The contract is in `proto/`, the Go API skeleton is in `go/`, and the web shell is in `web/`. The project `nk-workout-app-prod` holds Firestore, the Cloud Run service `api`, Hosting, and Auth, and Cloud Build deploys each merge to `main` (D-137). `docs/setup-gcp.md` and `docs/deploy-and-rollback.md` describe it. `docs/design.md` holds the design.
+Stage: Phase 2 of `docs/roadmaps/high-level-roadmap.md`, with the pull requests of `docs/roadmaps/phase-2-platform-skeleton.md`. The three reports of Phase 1 exist. The contract is in `proto/`, the Go API skeleton is in `go/`, and the web shell is in `web/`.
+
+The project `nk-workout-app-prod` holds Firestore, the Cloud Run service `api`, Hosting, and Auth, and Cloud Build deploys each merge to `main` (D-137). `docs/setup-gcp.md` and `docs/deploy-and-rollback.md` describe it. `docs/research/phase-2-check.md` holds the exit evidence of Phase 2. `docs/design.md` holds the design.
 
 **The repository is public.** Write no email address, no personal data, no photo, no workout log, and no secret into a file, an issue, or a pull request. The one exception is the author credit that the license of a test image requires (D-106).
 

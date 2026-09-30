@@ -110,7 +110,7 @@ proto: $(BUF) $(PROTOC_GEN_ES) ## Lint the contract in proto/ and write the gene
 # The breaking check reads the contract of the base from a copy of its
 # tree, so it works in a worktree and in a shallow CI checkout. A base
 # with no proto/ folder has no contract to break.
-contract: proto ## Check the contract: buf lint, the generated code in Git, and buf breaking against main, free
+contract: proto ## Check the contract: buf lint, the generated code in Git, buf breaking against main, and the package move probe, free
 	@echo "==> generated code in Git"
 	@git diff --exit-code --stat -- go/gen web/src/gen && test -z "$$(git ls-files --others --exclude-standard -- go/gen web/src/gen)" \
 	  || { echo "contract: the generated code is stale. Run make proto, then commit go/gen and web/src/gen."; exit 1; }
@@ -120,6 +120,8 @@ contract: proto ## Check the contract: buf lint, the generated code in Git, and 
 	  git archive "$(PROTO_BASE)" proto buf.yaml | tar -x -C "$$base" && \
 	  $(BUF) breaking --against "$$base"; \
 	else echo "contract: $(PROTO_BASE) has no proto/ folder, so no change can break it"; fi
+	@echo "==> the package rules refuse a package move (D-138)"
+	@scripts/package_move_probe.sh $(BUF)
 
 go-test: ## Check the Go code: gofmt, go mod tidy, go vet, and the unit tests, free
 	@echo "==> gofmt"
