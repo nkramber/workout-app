@@ -327,6 +327,13 @@ The owner answered through the answer controls of the session. The first session
 | Q-193 | How many working sets does the start of a new exercise from the rules alone have? | 3. | Answered | D-180 |
 | Q-195 | Codex round 3 of PR 16: does the full contract of a calibration set in a proposal go in PR-15? | Yes. One set in a calibration session alone, at the reps and the load of the first working set. | Answered | D-181 |
 
+## Questions of the Luna role layer session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-196 | Which shown text does Luna write, and which text comes from templates? | Luna writes one plan summary and one short reason for each exercise. Templates and the guidance catalog give the other texts. | Answered | D-182 |
+| Q-197 | Does the role layer apply the blocked-claims filter of REC-11? | Yes. A versioned filter reads each text of Luna, and a template text replaces a blocked text. | Answered | D-183 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |
