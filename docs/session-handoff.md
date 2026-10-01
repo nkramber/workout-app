@@ -16,9 +16,11 @@ The pull request holds these concerns, all in `go/internal/policy`, at policy ve
 
 The owner approved the milestone before the first edit, and answered Q-188 to Q-193 (D-175 to D-180). Q-194 holds REC-7 for Phase 7. The deploy of `0b80066` passed: the build `deploy-api` `bef45ff1` gave SUCCESS, and the live `/version` names `0b80066`.
 
-State: GitHub PR 16 is open. Codex round 1 found P2-1 at `f4ebf8f`, and round 2 found P2-2 at `e42982b` (`docs/reviews/pr-16.md`). The author found full merit in each. `Check` now accepts a calibration set only in a calibration session, as one set at the reps of the first working set (`docs/reviews/pr-16-response.md`). `make go-test` and `make verify` pass.
+State: GitHub PR 16 is open. Codex found P2-1 at `f4ebf8f` and P2-2 at `e42982b`. The current correction closes P2-2 at `4273bab`. The review is blocked after the third assessment of P2-2. The owner must decide if the full calibration-set contract belongs in this pull request or a later work area (`docs/reviews/pr-16.md`).
 
-Next action: wait for green CI, then run `make codex-review PR=16` for round 3 (D-8).
+`make go-test` and `make verify` pass. CI is green except `review-gate`, which reads the prior verdict.
+
+Next action: ask the owner to decide the scope of the calibration-set contract. Then update the review record and continue the review gate.
 
 ## Facts that expire
 
