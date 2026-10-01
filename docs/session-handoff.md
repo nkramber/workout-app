@@ -4,13 +4,23 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-30. GitHub PR 15 is PR-14 of `docs/roadmaps/phase-3-workout-domain.md`, work area 3.2, on branch `feat/pr-14-policy-progression`.
+Date: 2026-09-30. Roadmap PR-14 of `docs/roadmaps/phase-3-workout-domain.md`, work area 3.2, on branch `feat/pr-14-policy-progression`, from base `c3ab54c`. It holds the policy bounds and progression.
 
-The Codex review covers effective head `c6fbf78c345a6c544e2f6b93a92843c255600d2b`. The verdict is `Ready for owner merge`. The review found no open findings. The record is `docs/reviews/pr-15.md`.
+The pull request holds these concerns:
 
-The local Go tests and `make verify` pass. The remote contract and product checks pass. Before publication, `review-gate` failed because the branch lacked the review record. Detached `HEAD` blocks local `make pr-check`. The remote `pr-contract` check passed.
+- the policy package in `go/internal/policy`, with one version and a rule id and sources for each rule (D-38),
+- the bounds of reps, reps in reserve, rest, and load (D-37, D-54, D-167, D-171, D-172),
+- the rounding of D-65 with the halfway rule of D-148 and the machine weight of D-149, for each dumbbell too (D-166),
+- double progression with one 5 lb step (D-147), and missed reps (D-168),
+- a pain report with the warning text of D-153 (D-169), and sets with no log (D-170),
+- the free-weight rule of REC-17 (D-171), a lighter weight (D-173), and the reps of a load drop (D-174).
 
-Next action: read the review record and confirm the merge under D-13.
+The owner approved the milestone before the first edit, and answered Q-180 to Q-187 (D-167 to D-174). The deploy of `c3ab54c` passed: the build `deploy-api` `f54e3728` gave SUCCESS, and the live `/version` names `c3ab54c`.
+
+State: GitHub PR 15 is open, pending the owner merge. Codex round 1 reviewed effective head `c6fbf78` with the verdict `Ready for owner merge` and no finding (`docs/reviews/pr-15.md`). `make go-test` and `make verify` pass, and each product check passes on `c6fbf78`.
+
+Next action: ask the owner to confirm the merge with the summary of four sections, then turn on the auto-merge (D-13).
+
 ## Facts that expire
 
 | Fact | Date read | Source |
@@ -49,7 +59,7 @@ Next action: read the review record and confirm the merge under D-13.
 
 ## Next steps, in order
 
-1. Close PR-14: CI, the Codex review, the owner confirmation, and the merge.
+1. Close PR-14: the owner confirmation and the merge.
 2. Start PR-15 of `docs/roadmaps/phase-3-workout-domain.md` in a clean session.
 
 ## Session records
@@ -69,7 +79,7 @@ Completed:
 
 Open work:
 
-- CI, the Codex review, the owner confirmation, and the merge of PR-14.
+- The owner confirmation and the merge of PR-14.
 
 ### Session 14 - 2026-09-30
 
