@@ -16,9 +16,9 @@ The pull request adds the Luna role layer in `go/internal/ai`:
 
 The owner approved the milestone before the first edit, and answered Q-196 and Q-197 (D-182, D-183). Q-98 stays open for Phase 4. The deploy of `454c141` passed: the build `deploy-api` `0a2829eb` gave SUCCESS, and the live `/version` names `454c141`.
 
-State: GitHub PR 17 is open. Codex round 2 found P2-1 fixed at `0bd93c3`. The review record says `Ready for owner merge`. Each build check passed at that head. The `review-gate` check needs the new review record on the branch.
+State: GitHub PR 17 is open. Codex round 2 found P2-1 fixed at `0bd93c3`. The record says `Blocked` because `verify:web` stayed in progress for more than eight minutes on metadata tip `b733330`, with no final result. Each other check passed on that tip.
 
-Next action: verify the new `review-gate` check. Then ask the owner to confirm the merge (D-13).
+Next action: wait for `verify:web` to finish. If it passes, update the verdict and verify the new `review-gate` check. Then ask the owner to confirm the merge (D-13).
 
 ## Facts that expire
 
