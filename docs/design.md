@@ -44,6 +44,8 @@ No phase of the roadmap holds photo recognition now (Decision, D-111). The recog
 
 The equipment record holds the identity and the available weights of each machine (Decision, D-54). The owner has one active inventory (Decision, D-46).
 
+The catalog of D-155 gives each machine and each exercise a stable id, a kind, and a region. A machine with two movements gives two exercises (Decision, D-159). The six regions are the four regions of EV-1, core, and cardio (Decision, D-161). The adjustable bench is part of the dumbbell set (Decision, D-163). A load is in pounds, as a count of tenths of a pound, so 12.5 lb stays exact (Decision, D-122, D-160).
+
 ### 3.3 Plan
 
 The plan adapts after each session and has no fixed block (Decision, D-43). It holds warm-up, resistance work, rest periods, cooldown, optional cardio, and mobility and recovery guidance (Decision, D-44). The guidance stays inside the fitness boundary (Decision, D-36). Instructions are text only (Decision, D-73). The owner can exclude an exercise with an optional reason, and Luna plans again under the policy (Decision, D-48).
@@ -52,7 +54,7 @@ The plan adapts after each session and has no fixed block (Decision, D-43). It h
 
 The workout screen shows one machine at a time. The design targets one-handed use: large targets, few taps, little typing, and tolerance of interruptions (Decision, D-71). The visual style is calm, focused, high-contrast, and minimal (Decision, D-70). Cues are visual only, with no audio and no vibration (Decision, D-58).
 
-1. The owner logs reps, weight, and reps in reserve for each set. Pain and a note are optional (Decision, D-57).
+1. The owner logs reps, weight, and reps in reserve for each set. Pain (0 to 10) and a note are optional (Decision, D-57, D-162).
 2. The rest timer starts when the owner logs a set. The owner can adjust or dismiss it (Decision, D-59).
 3. After the last set of an exercise, a brief preview names the next machine. Then the app advances automatically (Decision, D-60).
 4. The owner can edit a prior set or skip an exercise (Decision, D-63).
@@ -65,7 +67,7 @@ The rest timer shows on the screen only, because the app sends no notifications 
 
 After a session, Luna proposes the next targets from reps, load, reps in reserve, pain, skipped work, and gaps in the history (Decision, D-64). The policy checks the proposal. The app shows a concise reason that names the logged evidence (Decision, D-68). The owner can override a target, and the app keeps the recommendation, the override, and the reason as separate records (Decision, D-69). The engine handles missed sessions and long breaks (Decision, D-66).
 
-Targets use one to three reps in reserve. Failure is rare, and it never occurs in the first sessions after a break (Decision, D-37). Loads round to the nearest 5 lb, up or down (Decision, D-65). A rounded jump can exceed a validated target, and Q-92 asks how the policy bounds it (Open).
+Targets use one to three reps in reserve. Failure is rare, and it never occurs in the first sessions after a break (Decision, D-37). Loads round to the nearest 5 lb, up or down (Decision, D-65). A rounded jump can exceed a validated target, so the policy adds at most one 5 lb step for each exercise in each session (Decision, D-147).
 
 ## 4. System context
 

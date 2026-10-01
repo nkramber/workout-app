@@ -4,26 +4,20 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-30. Roadmap PR-12 of `docs/roadmaps/phase-3-workout-domain.md`, all work areas of Phase 3, on branch `docs/pr-12-phase-3-roadmap`, from base `73b1964`. It holds the Phase 3 focused roadmap.
+Date: 2026-09-30. Roadmap PR-13 of `docs/roadmaps/phase-3-workout-domain.md`, work area 3.1, on branch `feat/pr-13-domain-model`, from base `173b430`. It holds the workout domain model and the catalog.
 
 The pull request holds these concerns:
 
-- the focused roadmap `docs/roadmaps/phase-3-workout-domain.md`, with PR-12 to PR-17 (D-158),
-- the owner answers to Q-92, Q-101, Q-102, Q-104 to Q-107, and Q-165 to Q-171 (D-147 to D-158),
-- the change of scope of D-154: dumbbells and two cable exercises, in `docs/design.md` and `docs/roadmaps/high-level-roadmap.md`,
-- the free-weight research in `docs/research/exercise-safety.md` (D-156),
-- the row of the roadmap in `docs/roadmaps/README.md`, and the Phase 3 stage in `AGENTS.md`.
+- the Go types of the domain in `go/internal/domain` (D-157): machine, exercise, inventory entry, dumbbell set, plan, session, working set, calibration set, set log, and cardio log,
+- the catalog of D-155 as data, with a stable id, a kind, and a region for each exercise (D-159, D-161, D-163),
+- the lookups of the catalog by id, by kind, by region, and by machine,
+- the check of each type, with loads in tenths of a pound (D-160) and the log bounds of D-162, D-164, and D-165.
 
-Checks of the base before the work, on 2026-09-30:
+The owner answered Q-172 to Q-178 (D-159 to D-165). No check of the base needs `main` or a deploy, because PR-12 changed documents alone.
 
-- The build `deploy-web` `c5ac0f62-7d38-46b5-8f68-6f04da88f5a4` of `73b1964` passed at 04:30:24Z. `/version.json` names `73b1964340ebc2a14f93b75f1be19aba024918f5`.
-- `deploy-api` and `deploy-rules` did not run for `73b1964`. `/version` still names `df79c169ae38326c0a876ac678a5465f80103d13`.
-- The owner opened the Home Screen app again. The title is sharp, with the 16 px space above it (D-145).
-- `gym-route-dev` is still `DELETE_REQUESTED`. Its site still gave HTTP 200 at 04:38:56Z.
+State: `make go-test` and `make verify` pass. The coverage of `go/internal/domain` is 100%. The Codex review did not start.
 
-State: Codex reviewed effective head `4bf0f925225f2d806e17f7c5a9cdc2bfadbbb567` and found no defect. The branch holds the review record, and all required checks pass.
-
-Next action: wait for the owner confirmation and merge of PR-12.
+Next action: push the branch, open the pull request, wait for green CI, and run `make codex-review`.
 
 ## Facts that expire
 
@@ -63,10 +57,26 @@ Next action: wait for the owner confirmation and merge of PR-12.
 
 ## Next steps, in order
 
-1. Close PR-12: CI, the Codex review, the owner confirmation, and the merge.
-2. Start PR-13 of `docs/roadmaps/phase-3-workout-domain.md` in a clean session.
+1. Close PR-13: CI, the Codex review, the owner confirmation, and the merge.
+2. Start PR-14 of `docs/roadmaps/phase-3-workout-domain.md` in a clean session.
 
 ## Session records
+
+### Session 14 - 2026-09-30
+
+Author provider: Claude Code
+
+Branch: `feat/pr-13-domain-model`. Role: author.
+
+Completed:
+
+- The owner approved the milestone before the first edit (D-12), and answered Q-172 to Q-178 (D-159 to D-165).
+- Wrote `go/internal/domain`: the types, the catalog of D-155, the lookups, and the checks, with table tests.
+- Changed the design, the Phase 3 roadmap, and `go/README.md` for the new decisions.
+
+Open work:
+
+- CI, the Codex review, the owner confirmation, and the merge of PR-13.
 
 ### Session 13 - 2026-09-30
 
@@ -84,7 +94,7 @@ Completed:
 
 Open work:
 
-- CI, the Codex review, the owner confirmation, and the merge of PR-12.
+- None. GitHub PR 13 merged as `173b430`.
 
 ### Session 12 - 2026-09-30
 
@@ -104,22 +114,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 12 merged as `73b1964`.
-
-### Session 11 - 2026-09-29
-
-Author provider: Claude Code
-
-Branch: `feat/pr-10-deploy`. Role: author.
-
-Completed:
-
-- The owner approved the milestone before the first edit (D-12). Then the owner added the new name and the new project, and approved the changed milestone.
-- Read the billing state, then asked Q-142 and Q-152 to Q-159 (D-136 to D-142).
-- Made each part of the project with the approval of the owner at run time, and read each part back.
-- Renamed each current file. The past records keep the old name (D-136).
-- Wrote the deploy files, the setup and rollback documents, and the tests. The rules test fails with open rules.
-- Answered P2-1 of the Codex review with a guard, then with a lock for each part (D-143). Answered P2-2 with a time limit on the read of `main`.
-
-Open work:
-
-- None. PR #11 merged.

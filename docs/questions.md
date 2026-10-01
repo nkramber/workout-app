@@ -292,6 +292,18 @@ The owner answered through the answer controls of the session. The first session
 | Q-170 | Where do the domain types live in Phase 3? | Go types alone. Proto messages come in Phase 4. | Answered | D-157 |
 | Q-171 | How does Phase 3 split, and does it end with a check pull request? | PR-12 to PR-17, with a paid evaluation in PR-17. | Answered | D-158 |
 
+## Questions of the domain model session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-172 | How does the catalog hold one machine with two movements? | One machine and two exercises. | Answered | D-159 |
+| Q-173 | Which form holds a load such as 12.5 lb exactly? | Integer tenths of a pound. | Answered | D-160 |
+| Q-174 | Which regions does the catalog use? | The four regions of EV-1, core, and cardio. | Answered | D-161 |
+| Q-175 | Which form does the optional pain value have? | An optional rating from 0 to 10. | Answered | D-162 |
+| Q-176 | How does the model hold the adjustable bench? | As part of the dumbbell set. | Answered | D-163 |
+| Q-177 | Which bounds does the check of a set log apply? | Reps and reps in reserve of 0 or more, and a weight above 0. | Answered | D-164 |
+| Q-178 | Which unit holds the distance of a cardio log? | Tenths of a mile. | Answered | D-165 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |
