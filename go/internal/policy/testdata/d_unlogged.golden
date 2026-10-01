@@ -1,0 +1,7 @@
+policy version: 1
+rules: progress.incomplete
+target: biceps_curl, rest 120 s
+  working[0]: 12 reps at 25 lb, 2 RIR
+  working[1]: 12 reps at 25 lb, 2 RIR
+  working[2]: 12 reps at 25 lb, 2 RIR
+reason: The session ended early. You logged 2 of 3 sets. The target stays the same.

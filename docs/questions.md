@@ -15,6 +15,8 @@ The ids have three ranges:
 - Q-152 to Q-160 are questions of the deploy session.
 - Q-161 to Q-164 are questions of the Phase 2 check session.
 - Q-165 to Q-171 are questions of the Phase 3 roadmap session.
+- Q-172 to Q-179 are questions of the domain model session.
+- Q-180 to Q-187 are questions of the policy session.
 - Q-90 to Q-107 are open questions. Q-90 to Q-97, Q-99 to Q-102, and Q-104 to Q-107 have an answer. Each open question names the phase of `docs/roadmaps/high-level-roadmap.md` that needs the answer.
 
 The owner answered through the answer controls of the session. The first session asked Q-1 to Q-46 and Q-74 to Q-88 on 2026-09-27. It asked the other questions on 2026-09-28. The column "Rec." tells whether the owner chose the option that the launch prompt marked as recommended. A "No" in that column is an owner decision, not a mistake.
@@ -304,6 +306,14 @@ The owner answered through the answer controls of the session. The first session
 | Q-177 | Which bounds does the check of a set log apply? | Reps and reps in reserve of 0 or more, and a weight above 0. | Answered | D-164 |
 | Q-178 | Which unit holds the distance of a cardio log? | Tenths of a mile. | Answered | D-165 |
 | Q-179 | Codex finding P2-2 of PR 14: which upper bound does the dumbbell set have? | At most 100 lb for each dumbbell. | Answered | D-166 |
+| Q-180 | Which rep ranges does the policy use? | 8 to 12 on a machine, REC-19 for dumbbells and cables, and limits of 6 to 20. | Answered | D-167 |
+| Q-181 | How does the policy handle missed reps and progression? | REC-6 and REC-15, with the thresholds of section 5.8. | Answered | D-168 |
+| Q-182 | What is a pain report, and how long does it hold progression? | A rating of 1 or more, and a hold of one session. | Answered | D-169 |
+| Q-183 | How does the policy read an exercise with sets that have no log? | It reads the logged sets. Progression needs a log of each planned set. | Answered | D-170 |
+| Q-184 | Which free-weight rules of section 5.14 does the policy adopt? | REC-17 alone. | Answered | D-171 |
+| Q-185 | Which rest does the policy permit? | 60 to 180 seconds, with a default of 120 seconds. | Answered | D-172 |
+| Q-186 | What does the policy do when a logged weight is not the target load? | A lighter weight gives no progression. | Answered | D-173 |
+| Q-187 | Which reps go with the lower load of a shortfall in 2 sessions in a row? | The same rep target. | Answered | D-174 |
 
 ## Open questions
 

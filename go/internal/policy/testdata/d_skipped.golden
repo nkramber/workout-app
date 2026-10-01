@@ -1,0 +1,7 @@
+policy version: 1
+rules: progress.skipped
+target: biceps_curl, rest 120 s
+  working[0]: 12 reps at 25 lb, 2 RIR
+  working[1]: 12 reps at 25 lb, 2 RIR
+  working[2]: 12 reps at 25 lb, 2 RIR
+reason: You skipped this exercise. The target stays the same.

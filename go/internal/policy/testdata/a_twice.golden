@@ -1,0 +1,7 @@
+policy version: 1
+rules: progress.shortfall-twice
+target: biceps_curl, rest 120 s
+  working[0]: 12 reps at 20 lb, 2 RIR
+  working[1]: 12 reps at 20 lb, 2 RIR
+  working[2]: 12 reps at 20 lb, 2 RIR
+reason: Two sessions in a row ended more than 2 reps short. The load goes down to 20 lb.

@@ -131,7 +131,15 @@ These rules hold for every phase. The label names the source of each rule.
 9. When a later phase adds photos, the app strips photo metadata and deletes each photo after the confirmation (Decision, D-52, D-111).
 10. A logged set survives a lost connection and an app restart (Decision, D-62).
 
-The first draft of the policy rules table is in `tools/spikes/luna_plan/policy.py`, with an id and a version for each rule (Recommendation, draft). The owner approved no rule of it yet. `docs/research/luna-plan-spike.md` gives the results of the draft on 60 Luna plans.
+The policy is in `go/internal/policy` (Decision, D-157). It has one version, and each rule has an id and the decisions and evidence that support it (Decision, D-38). It holds these rules:
+
+- The bounds of a target: the reps, the reps in reserve, the rest, and a weight of the machine (Decision, D-37, D-54, D-167, D-171, D-172).
+- The rounding of a load to 5 lb, with the halfway rule and the weight of the machine (Decision, D-65, D-148, D-149).
+- The next target: double progression with one 5 lb step, missed reps, pain, a lighter weight, and sets with no log (Decision, D-147, D-168 to D-170, D-173, D-174).
+- The fixed warning text of a pain report (Decision, D-153, D-169).
+- The check of a proposal. The policy refuses a proposal outside a bound (Decision, D-23).
+
+The rules fallback, the calibration, and the return after a long break come later in Phase 3. The draft in `tools/spikes/luna_plan/policy.py` is the spike record alone.
 
 ### 5.2 Accepted risks
 
@@ -145,6 +153,8 @@ The owner chose these options against the launch prompt recommendations. The res
 | D-40 | Stop the workout for chest pain, fainting, or severe breathlessness | Warns, and the owner can continue after a confirmation |
 | D-65 | Load steps that match each machine | Rounds to the nearest 5 lb, up or down |
 | D-72 | Accessibility from the start | Accessibility work is deferred |
+| D-169 | A hold of 2 sessions after a pain report (REC-9) | Holds progression for the next session alone |
+| D-171 | A return to the last load when the first set after a dumbbell step is too hard (REC-18) | Keeps the new load, and the rules of D-168 apply |
 
 ### 5.3 Medical boundary
 

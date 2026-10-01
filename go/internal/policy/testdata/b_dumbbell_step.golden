@@ -1,0 +1,7 @@
+policy version: 1
+rules: progress.load-step
+target: db_biceps_curl, rest 120 s
+  working[0]: 10 reps at 20 lb, 2 RIR
+  working[1]: 10 reps at 20 lb, 2 RIR
+  working[2]: 10 reps at 20 lb, 2 RIR
+reason: You reached the top of the range with reps to spare. The load goes up to 20 lb, and the target is 3 x 10.
