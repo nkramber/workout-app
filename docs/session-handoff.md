@@ -4,7 +4,7 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-01. Roadmap PR-16 of `docs/roadmaps/phase-3-workout-domain.md`, work area 3.3, on branch `feat/pr-16-luna-role-layer`, from base `454c141`.
+Date: 2026-10-01. Review of GitHub PR 17, roadmap PR-16 of `docs/roadmaps/phase-3-workout-domain.md`, work area 3.3, on branch `feat/pr-16-luna-role-layer`, from base `454c141`.
 
 The pull request adds the Luna role layer in `go/internal/ai`:
 
@@ -16,9 +16,9 @@ The pull request adds the Luna role layer in `go/internal/ai`:
 
 The owner approved the milestone before the first edit, and answered Q-196 and Q-197 (D-182, D-183). Q-98 stays open for Phase 4. The deploy of `454c141` passed: the build `deploy-api` `0a2829eb` gave SUCCESS, and the live `/version` names `454c141`.
 
-State: the author pushed the branch and opened the pull request. `make go-test` and `make verify` pass.
+State: Codex reviewed head `21ed998` and found P2-1 open. The cache-write cost is not in the cost record or the cap reserve. `make go-test`, `make verify`, and `go test -race ./internal/ai` pass.
 
-Next action: the author session waits for green CI, then runs `make codex-review` (D-8).
+Next action: correct P2-1, push a new round, and rerun the checks and Codex review (D-8).
 
 ## Facts that expire
 
