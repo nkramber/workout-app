@@ -16,9 +16,9 @@ The pull request adds the Luna role layer in `go/internal/ai`:
 
 The owner approved the milestone before the first edit, and answered Q-196 and Q-197 (D-182, D-183). Q-98 stays open for Phase 4. The deploy of `454c141` passed: the build `deploy-api` `0a2829eb` gave SUCCESS, and the live `/version` names `454c141`.
 
-State: GitHub PR 17 is open. Codex round 1 found P2-1 at `21ed998`: the cost and the cap left out the cache-write rate. The author found full merit (`docs/reviews/pr-17-response.md`). The cost now uses the cache-write rate, and the cap reserves each input token at the highest input rate. The layer refuses a request over the short context. `make go-test` and `make verify` pass.
+State: GitHub PR 17 is open. Codex round 2 found P2-1 fixed at `0bd93c3`. The review record says `Ready for owner merge`. Each build check passed at that head. The `review-gate` check needs the new review record on the branch.
 
-Next action: the author session waits for green CI, then runs `make codex-review PR=17` for round 2 (D-8).
+Next action: verify the new `review-gate` check. Then ask the owner to confirm the merge (D-13).
 
 ## Facts that expire
 
