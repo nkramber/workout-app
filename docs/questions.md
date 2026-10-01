@@ -325,6 +325,7 @@ The owner answered through the answer controls of the session. The first session
 | Q-191 | Which fallback target does an exercise with no history and no estimate get? | A calibration from the lightest weight. | Answered | D-178 |
 | Q-192 | Which values does the long-break table of D-151 use? | 10 and 20 percent less load with one set fewer, and 70 percent after 91 days. | Answered | D-179 |
 | Q-193 | How many working sets does the start of a new exercise from the rules alone have? | 3. | Answered | D-180 |
+| Q-195 | Codex round 3 of PR 16: does the full contract of a calibration set in a proposal go in PR-15? | Yes. One set in a calibration session alone, at the reps and the load of the first working set. | Answered | D-181 |
 
 ## Open questions
 

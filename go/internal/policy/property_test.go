@@ -441,7 +441,7 @@ func outside(p, ceiling domain.PlannedExercise, in Input) bool {
 		if bad(s.Reps, s.Load) || (len(ceiling.Calibration) > 0 && s.Load > ceiling.Calibration[0].Load) {
 			return true
 		}
-		if len(p.Working) > 0 && s.Reps != p.Working[0].Reps {
+		if len(p.Working) > 0 && (s.Reps != p.Working[0].Reps || s.Load != p.Working[0].Load) {
 			return true
 		}
 	}

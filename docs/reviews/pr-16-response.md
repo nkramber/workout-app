@@ -44,3 +44,20 @@ The trigger reproduces at `e42982b`. In a session that is not a calibration sess
 
 - `go test ./internal/policy -run TestCheck` on the old code: the two new cases failed with no violation. After the correction, each gives `RuleCalibrationSet`.
 - `make go-test` and `make verify` pass.
+
+## Round 3: the scope of the calibration set
+
+Review round 3 recorded effective head `4273bab`, with the verdict "Blocked". P2-1 and P2-2 are fixed, and no finding is open. The record asks the owner whether the full contract of a calibration set goes in this pull request or in a later work area.
+
+**Owner answer (Q-195, D-181).** The full contract goes in PR-15. A proposal holds a calibration set only in a calibration session. Then it holds exactly one, at the reps and the load of its first working set, at no more than the load of the policy.
+
+**Correction.** One gap stayed at `4273bab`. `Check` accepted a calibration set at a load below the first working set of the proposal.
+
+- `go/internal/policy/bounds.go`: `Check` refuses a calibration set at a load that is not the load of the first working set, with a violation of `RuleCalibrationSet`.
+- `go/internal/policy/rules.go`: the text of `RuleCalibrationSet` states the load, and the rule cites D-181.
+- `go/internal/policy/property_test.go`: the oracle holds the same load limit.
+
+**Regression checks.**
+
+- `go test ./internal/policy -run TestCheck` on the old code: the case "start light calibration set" failed with no violation. After the correction, it gives `RuleCalibrationSet`.
+- `make go-test` and `make verify` pass.

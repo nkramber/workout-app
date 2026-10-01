@@ -99,8 +99,8 @@ func (v Violation) String() string {
 // The load of each set is at most the load of the next target of the
 // policy (RuleLoadCeiling). With no history, that target is the start of
 // D-150. A proposal has a calibration set only when the target of the
-// policy has one, and then it has exactly one, at the reps of its first
-// working set (RuleCalibrationSet). In the
+// policy has one, and then it has exactly one, at the reps and the load
+// of its first working set (RuleCalibrationSet, D-181). In the
 // first sessions
 // after a break, each working set stops at 3 reps in reserve, and the
 // proposal has no more sets than the target (RuleBreakFirst).
@@ -165,6 +165,9 @@ func Check(p domain.PlannedExercise, in Input) ([]Violation, error) {
 		checkLoad(where, s.Load)
 		if len(d.Target.Calibration) > 0 && s.Load > d.Target.Calibration[0].Load {
 			add(RuleLoadCeiling, where, "load %s: want %s or less", s.Load, d.Target.Calibration[0].Load)
+		}
+		if len(p.Working) > 0 && s.Load != p.Working[0].Load {
+			add(RuleCalibrationSet, where, "load %s: want %s, the load of the first working set", s.Load, p.Working[0].Load)
 		}
 	}
 	for i, s := range p.Working {

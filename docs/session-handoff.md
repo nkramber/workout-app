@@ -14,13 +14,13 @@ The pull request holds these concerns, all in `go/internal/policy`, at policy ve
 - the decision record of D-176, with a SHA-256 hash of the input,
 - the golden tests of scenarios E and F, and the property tests of the fallback, the first sessions, the start, and the calibration.
 
-The owner approved the milestone before the first edit, and answered Q-188 to Q-193 (D-175 to D-180). Q-194 holds REC-7 for Phase 7. The deploy of `0b80066` passed: the build `deploy-api` `bef45ff1` gave SUCCESS, and the live `/version` names `0b80066`.
+The owner approved the milestone before the first edit, and answered Q-188 to Q-193 and Q-195 (D-175 to D-181). Q-194 holds REC-7 for Phase 7. The deploy of `0b80066` passed: the build `deploy-api` `bef45ff1` gave SUCCESS, and the live `/version` names `0b80066`.
 
-State: GitHub PR 16 is open. Codex found P2-1 at `f4ebf8f` and P2-2 at `e42982b`. The current correction closes P2-2 at `4273bab`. The review is blocked after the third assessment of P2-2. The owner must decide if the full calibration-set contract belongs in this pull request or a later work area (`docs/reviews/pr-16.md`).
+State: GitHub PR 16 is open. Codex round 1 found P2-1 at `f4ebf8f`, and round 2 found P2-2 at `e42982b`. The author found full merit in each.
 
-`make go-test` and `make verify` pass. CI is green except `review-gate`, which reads the prior verdict.
+Round 3 at `4273bab` gave `Blocked` with no open finding, and asked the owner about the scope of the calibration set. The owner put the full contract in PR-15 (Q-195, D-181). `Check` now accepts one calibration set in a calibration session alone, at the reps and the load of the first working set (`docs/reviews/pr-16-response.md`). `make go-test` and `make verify` pass.
 
-Next action: ask the owner to decide the scope of the calibration-set contract. Then update the review record and continue the review gate.
+Next action: wait for green CI, then run `make codex-review PR=16` for round 4 (D-8).
 
 ## Facts that expire
 
@@ -78,6 +78,7 @@ Completed:
 - Wrote the golden tests of scenarios E and F, and the property tests of the fallback half of the Luna property of section 6.3.
 - Changed the design, both roadmaps, the registers, and `go/README.md`.
 - Answered Codex findings P2-1 and P2-2 with full merit. A proposal holds one calibration set in a calibration session alone.
+- Asked Q-195 after the round 3 verdict `Blocked`, and recorded D-181.
 
 Open work:
 

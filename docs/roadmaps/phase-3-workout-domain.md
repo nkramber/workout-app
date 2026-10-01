@@ -36,7 +36,7 @@ The owner changed the scope in the session of PR-12 (D-154). Dumbbells and two e
 | Q-171, the split | PR-12 to PR-17, in section 4. | D-158 |
 | Q-172 to Q-179, the domain model | Two exercises for one machine, loads in tenths of a pound, six regions, pain from 0 to 10, the bench in the dumbbell set, set log bounds, distance in tenths of a mile, and a 100 lb dumbbell at most. | D-159 to D-166 |
 | Q-180 to Q-187, the policy | Rep ranges by exercise, the missed-rep rules, a pain hold of one session, sets with no log, the dumbbell press floor, rest, a lighter weight, and the reps of a load drop. | D-167 to D-174 |
-| Q-188 to Q-193, the fallback | No reactive deload in Phase 3, the record fields of REC-12 and more, REC-22 with 3 calibration sessions, a start at the lightest weight with no estimate, the values of the long-break table, and 3 working sets at a start. | D-175 to D-180 |
+| Q-188 to Q-193 and Q-195, the fallback | No reactive deload in Phase 3, the record fields of REC-12 and more, REC-22 with 3 calibration sessions, a start at the lightest weight with no estimate, the values of the long-break table, 3 working sets at a start, and one calibration set in a proposal at the reps and the load of its first working set. | D-175 to D-181 |
 
 Q-95 and Q-100 have an answer from earlier phases (D-93, D-123). No question of the phase stays open. Q-194 holds REC-7 for Phase 7. Section 4 names each recommendation that a later pull request of the phase asks the owner about.
 
