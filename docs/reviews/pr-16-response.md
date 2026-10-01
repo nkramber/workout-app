@@ -24,3 +24,23 @@ Each target of `Next` already holds one calibration set at the reps of the first
 
 - `go test ./internal/policy -run TestCheck` on the old code: the three new cases failed with no violation. After the correction, each case gives `RuleCalibrationSet`, and a calibration set at the target reps gives no violation.
 - `make go-test` and `make verify` pass.
+
+## P2-2: Check accepts an unexpected calibration set
+
+Review round 2 recorded effective head `e42982b`, with the verdict "Changes required".
+
+**Result: full merit.**
+
+The trigger reproduces at `e42982b`. In a session that is not a calibration session, `Check` accepted a calibration set and applied no load ceiling to it. The case "history heavy calibration set" of `TestCheck` gave no violation for a calibration set at 30 lb, when the policy target holds 25 lb. D-177 gives calibration sets to the calibration sessions alone. The correction of P2-1 kept this gap on purpose, and that choice was wrong.
+
+**Correction.**
+
+- `go/internal/policy/bounds.go`: `Check` refuses a calibration set when the target of the policy has none, with a violation of `RuleCalibrationSet`.
+- `go/internal/policy/rules.go`: the text of `RuleCalibrationSet` states that a proposal for another session has no calibration set.
+- `go/internal/policy/bounds_test.go`: the cases "history calibration set" and "history heavy calibration set" expect `RuleCalibrationSet`. Two older cases expect the new violation too.
+- `go/internal/policy/property_test.go`: the oracle refuses a proposal when the presence of its calibration set differs from the target of the policy.
+
+**Regression checks.**
+
+- `go test ./internal/policy -run TestCheck` on the old code: the two new cases failed with no violation. After the correction, each gives `RuleCalibrationSet`.
+- `make go-test` and `make verify` pass.

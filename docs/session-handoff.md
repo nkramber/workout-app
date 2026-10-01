@@ -16,11 +16,9 @@ The pull request holds these concerns, all in `go/internal/policy`, at policy ve
 
 The owner approved the milestone before the first edit, and answered Q-188 to Q-193 (D-175 to D-180). Q-194 holds REC-7 for Phase 7. The deploy of `0b80066` passed: the build `deploy-api` `bef45ff1` gave SUCCESS, and the live `/version` names `0b80066`.
 
-State: GitHub PR 16 is open. Codex round 2 reviewed effective head `e42982b` with the verdict `Changes required`. P2-1 is fixed. P2-2 remains open because `Check` accepts an extra calibration set when the policy target has none (`docs/reviews/pr-16.md`). The author response records the correction for P2-1 (`docs/reviews/pr-16-response.md`).
+State: GitHub PR 16 is open. Codex round 1 found P2-1 at `f4ebf8f`, and round 2 found P2-2 at `e42982b` (`docs/reviews/pr-16.md`). The author found full merit in each. `Check` now accepts a calibration set only in a calibration session, as one set at the reps of the first working set (`docs/reviews/pr-16-response.md`). `make go-test` and `make verify` pass.
 
-`make go-test` and `make verify` pass. At effective head `e42982b`, all product checks passed and `review-gate` failed on the earlier verdict. On metadata tip `36125c7`, `review-gate` failed on `Changes required`, `pr-contract` and the product checks passed except `verify:web`, which remained pending at the last poll.
-
-Next action: answer P2-2, then push a new round and wait for CI and the Codex review (D-8).
+Next action: wait for green CI, then run `make codex-review PR=16` for round 3 (D-8).
 
 ## Facts that expire
 
@@ -77,7 +75,7 @@ Completed:
 - Added to `go/internal/policy` the start, the calibration, the long-break table, the first sessions after a break, the rules fallback, and the decision record.
 - Wrote the golden tests of scenarios E and F, and the property tests of the fallback half of the Luna property of section 6.3.
 - Changed the design, both roadmaps, the registers, and `go/README.md`.
-- Answered Codex finding P2-1 with full merit: one calibration set at the reps of the first working set.
+- Answered Codex findings P2-1 and P2-2 with full merit. A proposal holds one calibration set in a calibration session alone.
 
 Open work:
 

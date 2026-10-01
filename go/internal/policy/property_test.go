@@ -434,7 +434,7 @@ func outside(p, ceiling domain.PlannedExercise, in Input) bool {
 	bad := func(reps int, l domain.Load) bool {
 		return reps < 6 || reps > 20 || !slices.Contains(available, l) || (l%Step != 0 && !selected(l, available))
 	}
-	if (len(ceiling.Calibration) > 0 && len(p.Calibration) == 0) || len(p.Calibration) > 1 {
+	if (len(ceiling.Calibration) > 0) != (len(p.Calibration) > 0) || len(p.Calibration) > 1 {
 		return true
 	}
 	for _, s := range p.Calibration {
