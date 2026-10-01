@@ -15,9 +15,9 @@ The pull request holds these concerns:
 
 The owner answered Q-172 to Q-179 (D-159 to D-166). No check of the base needs `main` or a deploy, because PR-12 changed documents alone.
 
-State: GitHub PR 14 is open. Codex round 1 reviewed effective head `6da346c` with the verdict `Changes required`, with P2-1 and P2-2 in `docs/reviews/pr-14.md`. The author found full merit in each, and corrected both. The owner set the 100 lb dumbbell cap for P2-2 (D-166). `docs/reviews/pr-14-response.md` holds the answer. `make go-test` and `make verify` pass, and the coverage of `go/internal/domain` stays 100%.
+State: GitHub PR 14 is open. Codex round 2 reviewed effective head `15cb791` with the verdict `Ready for owner merge`. Findings P2-1 and P2-2 from round 1 are fixed in `docs/reviews/pr-14.md`, with regression tests. `make go-test` and `make verify` pass. Each product check passes on the tip. The earlier `review-gate` result fails because it read the round 1 verdict.
 
-Next action: wait for green CI, then run `make codex-review PR=14` for round 2.
+Next action: confirm the merge after review of the four-section summary, then enable auto-merge as D-13 requires.
 
 ## Facts that expire
 
