@@ -1,4 +1,4 @@
-policy version: 1
+policy version: 2
 rules: progress.press-hold
 target: db_flat_bench_press, rest 120 s
   working[0]: 10 reps at 30 lb, 2 RIR

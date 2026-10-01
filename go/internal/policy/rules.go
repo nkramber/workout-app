@@ -34,6 +34,30 @@ const (
 	RuleNoHeavier       RuleID = "progress.no-heavier"
 )
 
+// The rules of the start and the calibration of a new exercise.
+const (
+	RuleStartEstimate    RuleID = "start.estimate"
+	RuleStartLightest    RuleID = "start.lightest"
+	RuleCalibrationSet   RuleID = "calibration.set"
+	RuleCalibrationTable RuleID = "calibration.table"
+	RuleCalibrationHold  RuleID = "calibration.reps-only"
+)
+
+// The rules of a return after a break.
+const (
+	RuleBreakShort       RuleID = "break.short"
+	RuleBreakLong        RuleID = "break.long"
+	RuleBreakRecalibrate RuleID = "break.recalibrate"
+	RuleBreakFirst       RuleID = "break.first-sessions"
+	RuleBreakSets        RuleID = "break.sets-restored"
+)
+
+// The rules of a proposal and of the rules fallback.
+const (
+	RuleProposalExercise RuleID = "proposal.exercise"
+	RuleFallback         RuleID = "fallback.rules"
+)
+
 // The rule of the warning of a pain report.
 const RulePainWarning RuleID = "warning.pain"
 
@@ -68,6 +92,18 @@ var rules = []Rule{
 	{RuleAddReps, "Each target set below the top of the rep range adds 2 reps, up to the top of the range.", []string{"D-147", "D-168", "EV-38"}},
 	{RuleLoadStep, "At the top of the rep range, the load adds one 5 lb step and the reps go to the bottom of the range. The load rounds to the nearest 5 lb, down at a halfway value, and never more than 5 lb above the last load.", []string{"D-147", "D-148", "D-149", "EV-2"}},
 	{RuleNoHeavier, "At the top of the rep range with no heavier weight inside one 5 lb step, the target repeats.", []string{"D-147", "D-149"}},
+	{RuleStartEstimate, "A new exercise starts with one calibration set and 3 working sets at the bottom of the rep range, at 3 reps in reserve. The load is the estimate of the owner, rounded to the nearest 5 lb, with the weight that D-149 selects. After a break of 91 days or more before the estimate, the load is 70 percent of the estimate, and a halfway value rounds down. The input refuses an estimate outside the weights of the machine.", []string{"D-41", "D-148", "D-149", "D-150", "D-179", "D-180", "EV-22", "EV-48"}},
+	{RuleStartLightest, "A new exercise with no estimate starts at the lightest weight of the machine, with one calibration set and 3 working sets at the bottom of the rep range, at 3 reps in reserve.", []string{"D-150", "D-178", "D-180"}},
+	{RuleCalibrationSet, "The first 3 sessions of an exercise, and the first 3 sessions after a new calibration, start with one calibration set at the reps and the load of the first working set. A proposal for such a session needs a calibration set, at a load that is not more than the load of the policy.", []string{"D-150", "D-177", "EV-27", "EV-83"}},
+	{RuleCalibrationTable, "After a calibration set, 6 or more reps in reserve adds two 5 lb steps, 5 adds one step, 3 or 4 keeps the load, and 2 or less or a pain report removes one step. After a change, the next set is another calibration set. After 3 changes in a session, or when the load stays, the working sets use the load.", []string{"D-149", "D-150", "D-177", "EV-22", "EV-27", "EV-48"}},
+	{RuleCalibrationHold, "In a calibration session, the reps can go up to the top of the range, but the load does not go up. The reps in reserve of these sessions are practice.", []string{"D-177", "EV-83"}},
+	{RuleBreakShort, "After 14 to 27 days with no logged set of the exercise, the load goes down 10 percent and the target has one set fewer, at 3 reps in reserve. A halfway value rounds down.", []string{"D-148", "D-151", "D-179", "EV-43", "EV-46"}},
+	{RuleBreakLong, "After 28 to 90 days with no logged set of the exercise, the load goes down 20 percent and the target has one set fewer, at 3 reps in reserve. A halfway value rounds down.", []string{"D-148", "D-151", "D-179", "EV-43", "EV-44"}},
+	{RuleBreakRecalibrate, "After 91 days or more with no logged set of the exercise, the load goes down to 70 percent of the last load, at 3 reps in reserve, and the calibration starts again. A halfway value rounds down.", []string{"D-148", "D-150", "D-151", "D-179", "EV-43", "EV-44", "EV-47", "EV-53"}},
+	{RuleBreakFirst, "The first sessions after a break of 14 days or more are the first 3 sessions or the first 14 days, the longer of the two. In them, each working set stops at 3 reps in reserve, the load does not go up, and the target keeps the sets of the return. The policy refuses a proposal with fewer reps in reserve or more sets.", []string{"D-37", "D-151", "D-179", "EV-43", "EV-53"}},
+	{RuleBreakSets, "After the first sessions after a break, the target gets back the number of sets of the target before the break.", []string{"D-151", "D-179"}},
+	{RuleProposalExercise, "A proposal is for the exercise of the decision.", []string{"D-23"}},
+	{RuleFallback, "When Luna gives no proposal, or the policy refuses its proposal, the target is the next target of the rules alone. The decision record names the cause and each violation.", []string{"D-23", "D-176", "D-178"}},
 	{RulePainWarning, "A pain report shows the fixed warning text. It names the symptom and tells the user to stop the exercise, with no diagnosis and no referral.", []string{"D-36", "D-40", "D-153"}},
 }
 

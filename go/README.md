@@ -10,7 +10,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `go/internal/envguard` | The start guard against an emulator variable on Cloud Run (D-129) |
 | `go/internal/usersvc` | The `GetMe` call |
 | `go/internal/domain` | The types of the workout domain, the catalog of D-155, and the check of each type (D-157) |
-| `go/internal/policy` | The versioned safety policy: the bounds of a target, the rounding of a load, the next target, and the check of a proposal (D-23, D-38) |
+| `go/internal/policy` | The versioned safety policy: the bounds of a target, the rounding of a load, the start and the calibration of a new exercise, the return after a break, the next target, the check of a proposal, the rules fallback, and the decision record (D-23, D-38, D-176) |
 | `go/gen` | The generated code. `make proto` writes it, and Git keeps it. |
 
 ## Environment

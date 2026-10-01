@@ -218,7 +218,7 @@ The deferred work areas:
 
 ## 5. Adaptation scenarios
 
-The policy of Phase 3 must pass these scenarios. The numbers come from the synthesis in `docs/research/exercise-safety.md`. The owner fixed the step, the rounding, the calibration, and the break rules in the session of the Phase 3 focused roadmap (D-147 to D-151). In work area 3.2, the owner fixed the numbers of scenarios A to D (D-167 to D-174). The other numbers stay recommendations until a Phase 3 pull request fixes them with the owner.
+The policy of Phase 3 must pass these scenarios. The numbers come from the synthesis in `docs/research/exercise-safety.md`. The owner fixed the step, the rounding, the calibration, and the break rules in the session of the Phase 3 focused roadmap (D-147 to D-151). In work area 3.2, the owner fixed the numbers of scenarios A to D (D-167 to D-174), and of scenarios E and F (D-175 to D-180). The other numbers stay recommendations until a later pull request fixes them with the owner.
 
 | Id | Prescribed | Logged | Safe next-session behavior |
 |---|---|---|---|

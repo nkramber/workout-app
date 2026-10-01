@@ -1,0 +1,7 @@
+policy version: 2
+rules: break.sets-restored, progress.load-step
+target: chest_press, rest 120 s
+  working[0]: 8 reps at 95 lb, 3 RIR
+  working[1]: 8 reps at 95 lb, 3 RIR
+  working[2]: 8 reps at 95 lb, 3 RIR
+reason: The first sessions after your break ended, so the target is back to 3 sets. You reached the top of the range with reps to spare. The load goes up to 95 lb, and the target is 3 x 8.

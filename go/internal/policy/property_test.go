@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"slices"
 	"testing"
+	"time"
 
 	"github.com/nkramber/workout-app/go/internal/domain"
 )
@@ -75,6 +76,9 @@ func (g *gen) target(e domain.Exercise, loads []domain.Load, wild bool) domain.P
 		}
 		p.Working = append(p.Working, s)
 	}
+	if g.pick(10) == 0 {
+		p.Calibration = []domain.CalibrationSet{{Reps: p.Working[0].Reps, Load: load}}
+	}
 	if wild {
 		p.RestSeconds = g.pick(400)
 		if g.pick(4) == 0 {
@@ -95,8 +99,19 @@ func (g *gen) log(p domain.PlannedExercise, available []domain.Load) (domain.Exe
 		l.Skipped = true
 		return l, g.pick(2) == 0
 	}
-	if g.pick(8) == 0 {
-		l.Sets = append(l.Sets, domain.SetLog{Kind: domain.SetCalibration, Reps: 1 + g.pick(12), Weight: available[0], RIR: 3})
+	if len(p.Calibration) > 0 || g.pick(8) == 0 {
+		w := available[0]
+		if len(p.Calibration) > 0 {
+			w = p.Calibration[0].Load
+		}
+		for range g.pick(5) {
+			s := domain.SetLog{Kind: domain.SetCalibration, Reps: 1 + g.pick(12), Weight: w, RIR: g.pick(8)}
+			if g.pick(8) == 0 {
+				p := domain.Pain(1 + g.pick(10))
+				s.Pain = &p
+			}
+			l.Sets = append(l.Sets, s)
+		}
 	}
 	n := len(p.Working)
 	early := g.pick(4) == 0
@@ -129,20 +144,43 @@ func (g *gen) log(p domain.PlannedExercise, available []domain.Load) (domain.Exe
 	return l, early
 }
 
-// input gives an exercise with 1 to 4 sessions. Each target after the
-// first is the target that the policy gave, as in the product.
+// gap gives the days between two sessions: most often a few days, and
+// sometimes each row of the long-break table (D-151, D-179).
+func (g *gen) gap() int {
+	switch g.pick(40) {
+	case 0:
+		return BreakDays + g.pick(LongBreakDays-BreakDays)
+	case 1:
+		return LongBreakDays + g.pick(RecalibrateDays-LongBreakDays)
+	case 2:
+		return RecalibrateDays + g.pick(1500)
+	case 3:
+		return 10 + g.pick(8) // near the limit of 14 days
+	}
+	return g.pick(5)
+}
+
+func dateOf(d int) string {
+	return time.Unix(int64(d)*86400, 0).UTC().Format(domain.DateLayout)
+}
+
+// input gives an exercise with 1 to 7 sessions. Most targets after the
+// first are the targets that the policy gave, as in the product.
 func (g *gen) input(wild bool) Input {
 	e := g.exercises[g.pick(len(g.exercises))]
-	in := Input{Exercise: e, Entry: g.entry(e)}
+	in := Input{Exercise: e, Entry: g.entry(e), Returning: g.pick(12) == 0}
 	available := in.Entry.Available()
 	loads := validLoads(available)
 	p := g.target(e, loads, wild)
-	for range 1 + g.pick(4) {
+	d := 20000 + g.pick(1000)
+	for range 1 + g.pick(7) {
 		l, early := g.log(p, available)
-		in.History = append(in.History, Outcome{Target: p, Log: l, EndedEarly: early})
-		if g.pick(3) == 0 {
-			if d, err := Next(in); err == nil {
-				p = d.Target
+		in.History = append(in.History, Outcome{Date: dateOf(d), Target: p, Log: l, EndedEarly: early})
+		d += g.gap()
+		in.Today = dateOf(d)
+		if g.pick(3) != 0 {
+			if next, err := Next(in); err == nil {
+				p = next.Target
 				continue
 			}
 		}
@@ -167,7 +205,18 @@ func forInputs(t *testing.T, seed uint64, wild bool, f func(t *testing.T, in Inp
 	}
 }
 
-func last(in Input) Outcome { return in.History[len(in.History)-1] }
+// last gives the last outcome with the load that its calibration set,
+// as the rules read it.
+func last(in Input) Outcome {
+	h := in.effective()
+	return h[len(h)-1]
+}
+
+// lastSet gives the set of the last target at the index of a set of the
+// next target. A next target after a break can have more sets.
+func lastSet(o Outcome, i int) domain.WorkingSet {
+	return o.Target.Working[min(i, len(o.Target.Working)-1)]
+}
 
 func missedReps(o Outcome) bool {
 	total, _ := o.shortfall()
@@ -182,8 +231,8 @@ func TestPropertyNoIncreaseAfterMissedReps(t *testing.T) {
 			return
 		}
 		for i, s := range d.Target.Working {
-			if s.Load > o.Target.Working[i].Load {
-				t.Errorf("working[%d]: load %s after missed reps, last load %s", i, s.Load, o.Target.Working[i].Load)
+			if s.Load > lastSet(o, i).Load {
+				t.Errorf("working[%d]: load %s after missed reps, last load %s", i, s.Load, lastSet(o, i).Load)
 			}
 		}
 	})
@@ -195,8 +244,8 @@ func TestPropertyOneStep(t *testing.T) {
 	forInputs(t, 2, false, func(t *testing.T, in Input, d Decision) {
 		o := last(in)
 		for i, s := range d.Target.Working {
-			if s.Load > o.Target.Working[i].Load+Step {
-				t.Errorf("working[%d]: load %s, last load %s: more than one 5 lb step", i, s.Load, o.Target.Working[i].Load)
+			if s.Load > lastSet(o, i).Load+Step {
+				t.Errorf("working[%d]: load %s, last load %s: more than one 5 lb step", i, s.Load, lastSet(o, i).Load)
 			}
 		}
 	})
@@ -270,7 +319,7 @@ func TestPropertyPainHold(t *testing.T) {
 		}
 		reps := RepRange(in.Exercise)
 		for i, s := range d.Target.Working {
-			was := o.Target.Working[i]
+			was := lastSet(o, i)
 			if s.Load > was.Load || s.Reps > reps.clamp(was.Reps) {
 				t.Errorf("working[%d]: %d reps at %s after pain, last %d reps at %s", i, s.Reps, s.Load, was.Reps, was.Load)
 			}
@@ -279,16 +328,18 @@ func TestPropertyPainHold(t *testing.T) {
 }
 
 // An unlogged set is skipped work, not a missed rep: with no missed rep
-// on a logged set, no load goes down (D-63, D-64, D-170).
+// on a logged set, no load goes down (D-63, D-64, D-170). A break of 14
+// days or more lowers the load by the long-break table, so this
+// property reads the sessions with no such gap.
 func TestPropertyUnloggedIsNotMissed(t *testing.T) {
 	forInputs(t, 6, false, func(t *testing.T, in Input, d Decision) {
 		o := last(in)
-		if missedReps(o) {
+		if missedReps(o) || in.pause().gap >= BreakDays {
 			return
 		}
 		for i, s := range d.Target.Working {
-			if s.Load < o.Target.Working[i].Load {
-				t.Errorf("working[%d]: load %s below last load %s with no missed rep", i, s.Load, o.Target.Working[i].Load)
+			if s.Load < lastSet(o, i).Load {
+				t.Errorf("working[%d]: load %s below last load %s with no missed rep", i, s.Load, lastSet(o, i).Load)
 			}
 		}
 	})
@@ -313,8 +364,8 @@ func TestPropertyDeterministic(t *testing.T) {
 }
 
 // Every proposal outside the bounds is refused: Check gives a
-// violation. A proposal inside the bounds gets none. The fallback
-// target of a refusal is PR-15 of the Phase 3 roadmap.
+// violation. A proposal inside the bounds gets none.
+// TestPropertyFallback proves the fallback of each refusal.
 func TestPropertyRefusal(t *testing.T) {
 	g := newGen(8)
 	for i := range propertyRuns {
@@ -338,9 +389,10 @@ func TestPropertyRefusal(t *testing.T) {
 func (g *gen) mutate(t domain.PlannedExercise, in Input) domain.PlannedExercise {
 	p := t
 	p.Working = slices.Clone(t.Working)
+	p.Calibration = slices.Clone(t.Calibration)
 	i := g.pick(len(p.Working))
 	available := in.Entry.Available()
-	switch g.pick(7) {
+	switch g.pick(11) {
 	case 0:
 		p.Working[i].Reps = g.pick(30)
 	case 1:
@@ -353,6 +405,16 @@ func (g *gen) mutate(t domain.PlannedExercise, in Input) domain.PlannedExercise 
 		p.Working[i].Load += domain.Load(g.pick(200) - 100)
 	case 5:
 		p.Working[i].Load = p.Working[i].Load * 3 / 2 // a 50 percent jump, scenario F
+	case 6:
+		p.Calibration = nil
+	case 7:
+		if len(p.Calibration) > 0 {
+			p.Calibration[0].Load = available[g.pick(len(available))]
+		}
+	case 8:
+		p.Working = append(p.Working, p.Working[i])
+	case 9:
+		p.Working[i].RIR = 2
 	}
 	return p
 }
@@ -363,18 +425,69 @@ func outside(p, ceiling domain.PlannedExercise, in Input) bool {
 		return true
 	}
 	available := in.Entry.Available()
+	bad := func(reps int, l domain.Load) bool {
+		return reps < 6 || reps > 20 || !slices.Contains(available, l) || (l%Step != 0 && !selected(l, available))
+	}
+	if len(ceiling.Calibration) > 0 && len(p.Calibration) == 0 {
+		return true
+	}
+	for _, s := range p.Calibration {
+		if bad(s.Reps, s.Load) || (len(ceiling.Calibration) > 0 && s.Load > ceiling.Calibration[0].Load) {
+			return true
+		}
+	}
+	first := afterBreak(in)
+	if first && len(p.Working) > len(ceiling.Working) {
+		return true
+	}
 	rir := RIRRange(in.Exercise)
 	for i, s := range p.Working {
 		switch {
-		case s.Reps < 6 || s.Reps > 20,
+		case bad(s.Reps, s.Load),
 			s.RIR < rir.Min || s.RIR > 3,
-			!slices.Contains(available, s.Load),
-			s.Load%Step != 0 && !selected(s.Load, available),
-			s.Load > ceiling.Working[i].Load:
+			first && s.RIR < 3,
+			s.Load > ceiling.Working[min(i, len(ceiling.Working)-1)].Load:
 			return true
 		}
 	}
 	return false
+}
+
+// afterBreak is the oracle of the first sessions after a break (D-151),
+// written apart from pause. It reads the dates of the sessions with a
+// logged working set.
+func afterBreak(in Input) bool {
+	var days []int
+	for _, o := range in.History {
+		for _, s := range o.Log.Sets {
+			if s.Kind == domain.SetWorking {
+				t, _ := time.Parse(domain.DateLayout, o.Date)
+				days = append(days, int(t.Unix()/86400))
+				break
+			}
+		}
+	}
+	if len(days) == 0 {
+		return in.Returning
+	}
+	t, _ := time.Parse(domain.DateLayout, in.Today)
+	today := int(t.Unix() / 86400)
+	if today-days[len(days)-1] >= 14 {
+		return true
+	}
+	from := -1
+	for i := len(days) - 1; i > 0 && from < 0; i-- {
+		if days[i]-days[i-1] >= 14 {
+			from = i
+		}
+	}
+	if from < 0 {
+		if !in.Returning {
+			return false
+		}
+		from = 0
+	}
+	return len(days)-from+1 <= 3 || today-days[from] < 14
 }
 
 // A last load that the machine does not have becomes the weight that
@@ -393,7 +506,7 @@ func TestLoadRepair(t *testing.T) {
 		in := machineInput(t, "chest_press", weights)
 		p := target("chest_press", 2, 10, tc.last)
 		in.History = []Outcome{outcome(p, set(10, tc.last, 2), set(10, tc.last, 2))}
-		d, err := Next(in)
+		d, err := Next(dated(in))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -408,6 +521,7 @@ func TestRefuseLargeJump(t *testing.T) {
 	lb := domain.Pounds
 	in := machineInput(t, "biceps_curl", stack(10, 150, 5))
 	in.History = []Outcome{outcome(target("biceps_curl", 3, 12, lb(40)), set(12, lb(40), 3), set(12, lb(40), 3), set(12, lb(40), 3))}
+	in = dated(in)
 	p := target("biceps_curl", 3, 8, lb(60))
 	v, err := Check(p, in)
 	if err != nil {
@@ -419,5 +533,158 @@ func TestRefuseLargeJump(t *testing.T) {
 	p = target("biceps_curl", 3, 8, lb(45))
 	if v, _ := Check(p, in); len(v) > 0 {
 		t.Fatalf("Check of one 5 lb step = %v, want none", v)
+	}
+}
+
+// Every Luna proposal outside the bounds becomes a refusal and a
+// fallback, never a displayed target (section 6.3 of the high-level
+// roadmap, D-23). A proposal inside the bounds is the target. No
+// proposal gives the fallback too. Each final target is inside the
+// bounds, and the record names the refusal.
+func TestPropertyFallback(t *testing.T) {
+	g := newGen(9)
+	for i := range propertyRuns {
+		in := g.input(false)
+		next, err := Next(in)
+		if err != nil {
+			t.Fatalf("run %d: Next: %v", i, err)
+		}
+		var p Proposal
+		if g.pick(10) != 0 {
+			prop := g.mutate(next.Target, in)
+			p = Proposal{Model: "fake-model", Effort: "medium", PromptHash: "prompt-hash", Target: &prop}
+		}
+		r, err := Decide(in, p)
+		if err != nil {
+			t.Fatalf("run %d: Decide: %v", i, err)
+		}
+		if v, err := Check(r.Target, in); err != nil || len(v) > 0 {
+			t.Fatalf("run %d: Check of the final target = %v, %v", i, v, err)
+		}
+		switch {
+		case p.Target == nil:
+			if r.Source != SourceRules || r.Cause != CauseNoProposal || r.Proposal != nil {
+				t.Fatalf("run %d: no proposal gave %+v", i, r)
+			}
+		case outside(*p.Target, next.Target, in):
+			if r.Source != SourceRules || r.Cause != CauseRefused || len(r.Violations) == 0 {
+				t.Fatalf("run %d: a proposal outside the bounds gave source %q, cause %q, violations %v", i, r.Source, r.Cause, r.Violations)
+			}
+		default:
+			if r.Source != SourceLuna || r.Cause != CauseNone || len(r.Violations) > 0 || !reflect.DeepEqual(r.Target, *p.Target) {
+				t.Fatalf("run %d: a proposal inside the bounds gave %+v", i, r)
+			}
+		}
+		if r.Source == SourceRules {
+			if !reflect.DeepEqual(r.Target, next.Target) || r.Rules[0] != RuleFallback || !slices.Equal(r.Rules[1:], next.Rules) || r.Reason != next.Reason {
+				t.Fatalf("run %d: fallback %+v, want the decision of Next %+v", i, r, next)
+			}
+		}
+		if len(r.Loads) != len(r.Target.Calibration)+len(r.Target.Working) || r.PolicyVersion != Version || r.InputHash == "" {
+			t.Fatalf("run %d: record %+v: want each load, the version, and the hash", i, r)
+		}
+		again, _ := Decide(in, p)
+		if !reflect.DeepEqual(r, again) {
+			t.Fatalf("run %d: Decide gave %+v, then %+v", i, r, again)
+		}
+	}
+}
+
+// No failure target appears in the first sessions after a break: each
+// working set stops at 3 reps in reserve, and the load does not go up
+// (D-37, D-151). The return session has no more sets than the last
+// target, and a lower or equal load.
+func TestPropertyFirstSessions(t *testing.T) {
+	n := 0
+	forInputs(t, 10, false, func(t *testing.T, in Input, d Decision) {
+		if !afterBreak(in) {
+			return
+		}
+		n++
+		o := last(in)
+		for i, s := range d.Target.Working {
+			if s.RIR != 3 {
+				t.Errorf("working[%d]: rir %d in the first sessions after a break", i, s.RIR)
+			}
+			if s.Load > lastSet(o, i).Load {
+				t.Errorf("working[%d]: load %s above the last load %s in the first sessions after a break", i, s.Load, lastSet(o, i).Load)
+			}
+		}
+		if in.pause().gap >= BreakDays && len(d.Target.Working) > len(o.Target.Working) {
+			t.Errorf("return: %d sets, last target %d", len(d.Target.Working), len(o.Target.Working))
+		}
+	})
+	if n < propertyRuns/10 {
+		t.Errorf("%d inputs in the first sessions after a break: want more", n)
+	}
+}
+
+// Each start of a new exercise is inside the bounds, with one
+// calibration set and 3 working sets at 3 reps in reserve, and no load
+// above the estimate or the lightest weight (D-150, D-178, D-180).
+func TestPropertyStart(t *testing.T) {
+	g := newGen(11)
+	for i := range propertyRuns {
+		e := g.exercises[g.pick(len(g.exercises))]
+		in := Input{Exercise: e, Entry: g.entry(e), Returning: g.pick(3) == 0}
+		available := in.Entry.Available()
+		if g.pick(4) != 0 {
+			in.Estimate = available[0] + domain.Load(g.pick(int(available[len(available)-1]-available[0])+1))
+		}
+		d, err := Next(in)
+		if err != nil {
+			t.Fatalf("run %d: Next: %v", i, err)
+		}
+		p := d.Target
+		top := available[0]
+		if in.Estimate > 0 {
+			top = max(Round(in.Estimate, Other), available[0])
+		}
+		if len(p.Calibration) != 1 || len(p.Working) != StartSets || p.Calibration[0].Load != p.Working[0].Load {
+			t.Fatalf("run %d: start %+v", i, p)
+		}
+		for j, s := range p.Working {
+			if s.RIR != 3 || s.Reps != RepRange(e).Min || s.Load > top {
+				t.Fatalf("run %d: working[%d] %+v, estimate %s", i, j, s, in.Estimate)
+			}
+		}
+		if v, err := Check(p, in); err != nil || len(v) > 0 {
+			t.Fatalf("run %d: Check of the start = %v, %v", i, v, err)
+		}
+	}
+}
+
+// Each step of a calibration is an available weight that D-149 selects,
+// at most 3 changes of at most two 5 lb steps each (D-150).
+func TestPropertyCalibrate(t *testing.T) {
+	g := newGen(12)
+	for i := range propertyRuns {
+		e := g.exercises[g.pick(len(g.exercises))]
+		in := Input{Exercise: e, Entry: g.entry(e)}
+		available := in.Entry.Available()
+		loads := validLoads(available)
+		first := loads[g.pick(len(loads))]
+		var sets []domain.SetLog
+		for range g.pick(6) {
+			s := domain.SetLog{Kind: domain.SetCalibration, Reps: 8, Weight: first, RIR: g.pick(9)}
+			if g.pick(6) == 0 {
+				p := domain.Pain(g.pick(11))
+				s.Pain = &p
+			}
+			sets = append(sets, s)
+		}
+		c, err := Calibrate(in, first, sets)
+		if err != nil {
+			t.Fatalf("run %d: Calibrate: %v", i, err)
+		}
+		if !slices.Contains(available, c.Load) || !Valid(c.Load, available) {
+			t.Fatalf("run %d: load %s is not a valid weight", i, c.Load)
+		}
+		if c.Changes > CalibrationChanges || c.Changes > len(sets) || c.Load > first+2*Step*domain.Load(c.Changes) {
+			t.Fatalf("run %d: %d changes from %s to %s with %d sets", i, c.Changes, first, c.Load, len(sets))
+		}
+		if c.Again && c.Changes == CalibrationChanges {
+			t.Fatalf("run %d: one more set after %d changes", i, c.Changes)
+		}
 	}
 }

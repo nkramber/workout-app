@@ -1,7 +1,10 @@
-policy version: 1
+policy version: 2
 rules: progress.load-step, load.available
 target: chest_press, rest 120 s
   working[0]: 8 reps at 14 lb, 2 RIR
   working[1]: 8 reps at 14 lb, 2 RIR
   working[2]: 8 reps at 14 lb, 2 RIR
+  load working[0]: 15 lb before the rounding, 14 lb after
+  load working[1]: 15 lb before the rounding, 14 lb after
+  load working[2]: 15 lb before the rounding, 14 lb after
 reason: You reached the top of the range with reps to spare. The load goes up to 14 lb, and the target is 3 x 8. The machine has no 15 lb weight, so the load is 14 lb.

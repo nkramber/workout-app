@@ -2,37 +2,65 @@ package policy
 
 import (
 	"fmt"
+	"slices"
 	"strings"
+	"time"
 
 	"github.com/nkramber/workout-app/go/internal/domain"
 )
 
-// Outcome is one past session of one exercise: the target that the
-// owner saw, and the log of the exercise. EndedEarly tells that the
-// session ended with "finish now" (D-63).
+// Outcome is one past session of one exercise: its date in the form
+// of domain.DateLayout, the target that the owner saw, and the log of
+// the exercise. EndedEarly tells that the session ended with "finish
+// now" (D-63).
 type Outcome struct {
+	Date       string
 	Target     domain.PlannedExercise
 	Log        domain.ExerciseLog
 	EndedEarly bool
 }
 
 // Input is the history of one exercise, oldest first, with the
-// exercise and the inventory entry of its machine.
+// exercise and the inventory entry of its machine. History holds each
+// session of the exercise, because the first sessions after a break
+// count from the return (D-151). Today is the date of the next session,
+// in the form of domain.DateLayout. An input with a history needs it.
+//
+// Estimate is the load estimate of the owner for a new exercise (D-41),
+// or 0 for no estimate. Returning tells that the owner had a break of
+// 91 days or more before the first session of the exercise (D-150).
+// The policy reads both only for an exercise with no history.
 type Input struct {
-	Exercise domain.Exercise
-	Entry    domain.InventoryEntry
-	History  []Outcome
+	Exercise  domain.Exercise
+	Entry     domain.InventoryEntry
+	History   []Outcome
+	Today     string
+	Estimate  domain.Load
+	Returning bool
 }
 
 // Decision is the next target of one exercise. Rules names each rule
-// that set it, in order. Reason is the concise text for the owner that
-// names the logged evidence (D-68). Reason is shown to the owner and
-// never goes into a log, because it can hold loads and reps (D-80).
+// that set it, in order. Loads holds each load of the target before
+// and after the rounding (D-176). Reason is the concise text for the
+// owner that names the logged evidence (D-68). Reason is shown to the
+// owner and never goes into a log, because it can hold loads and reps
+// (D-80).
 type Decision struct {
 	Version int
 	Target  domain.PlannedExercise
 	Rules   []RuleID
+	Loads   []LoadChange
 	Reason  string
+}
+
+// LoadChange is one load of a target before and after the rounding of
+// D-65 and the weight selection of D-149. Where names the set, such as
+// "working[0]" or "calibration[0]". A load that no rule computed has
+// the same value before and after.
+type LoadChange struct {
+	Where  string
+	Before domain.Load
+	After  domain.Load
 }
 
 func inputError(format string, args ...any) error {
@@ -68,7 +96,27 @@ func (in Input) check() error {
 			}
 		}
 	}
+	available := in.Entry.Available()
+	if in.Estimate < 0 {
+		return inputError("exercise %q: estimate below 0", e.ID)
+	}
+	if len(in.History) == 0 && in.Estimate > 0 && (in.Estimate < available[0] || in.Estimate > available[len(available)-1]) {
+		return inputError("exercise %q: estimate outside the weights of machine %q", e.ID, in.Entry.Machine)
+	}
+	if len(in.History) > 0 {
+		if _, err := time.Parse(domain.DateLayout, in.Today); err != nil {
+			return inputError("today: want the form %s", domain.DateLayout)
+		}
+	}
 	for i, o := range in.History {
+		// An error holds no date, because a date is data of the log
+		// (D-80).
+		if _, err := time.Parse(domain.DateLayout, o.Date); err != nil {
+			return inputError("history[%d] date: want the form %s", i, domain.DateLayout)
+		}
+		if (i > 0 && day(o.Date) < day(in.History[i-1].Date)) || day(o.Date) > day(in.Today) {
+			return inputError("history[%d] date: want dates in order, not after today", i)
+		}
 		if o.Target.Exercise != e.ID || o.Log.Exercise != e.ID {
 			return inputError("history[%d]: exercise %q and %q, want %q", i, o.Target.Exercise, o.Log.Exercise, e.ID)
 		}
@@ -78,6 +126,11 @@ func (in Input) check() error {
 		for j, s := range o.Target.Working {
 			if err := s.Check(); err != nil {
 				return inputError("history[%d] working[%d]: %v", i, j, err)
+			}
+		}
+		for j, s := range o.Target.Calibration {
+			if err := s.Check(); err != nil {
+				return inputError("history[%d] calibration[%d]: %v", i, j, err)
 			}
 		}
 		if o.Log.Skipped && len(o.Log.Sets) > 0 {
@@ -120,6 +173,11 @@ func (o Outcome) shortfall() (total, first int) {
 	return total, first
 }
 
+// trained tells that the owner logged a working set of the outcome. A
+// skipped exercise, or a log of calibration sets alone, does not end a
+// break.
+func (o Outcome) trained() bool { return len(o.working()) > 0 }
+
 func (o Outcome) pain() bool {
 	for _, s := range o.Log.Sets {
 		if s.Pain != nil && *s.Pain >= 1 {
@@ -139,15 +197,21 @@ func (o Outcome) failure() bool {
 }
 
 // Next gives the next target of an exercise from its history (D-23,
-// D-64). The rules apply in a fixed order, and the first rule that
+// D-64). An exercise with no history gets its start (D-150). A gap of
+// 14 days or more gives the return of the long-break table (D-151).
+// Otherwise the rules apply in a fixed order, and the first rule that
 // decides gives the target. The target is inside each bound of Check.
+// Next is also the rules fallback: its target needs no proposal.
 func Next(in Input) (Decision, error) {
 	if err := in.check(); err != nil {
 		return Decision{}, err
 	}
 	if len(in.History) == 0 {
-		return Decision{}, ErrNoHistory
+		return start(in), nil
 	}
+	in.History = in.effective()
+	ps := in.pause()
+	calibrating := in.calibrating()
 	last := in.History[len(in.History)-1]
 	var prev *Outcome
 	if len(in.History) > 1 {
@@ -159,7 +223,13 @@ func Next(in Input) (Decision, error) {
 	logs := last.working()
 	total, first := last.shortfall()
 
+	if ps.ended {
+		b.restore(ps.before)
+	}
+
 	switch {
+	case ps.gap >= BreakDays:
+		b.resume(ps.gap)
 	case last.Log.Skipped:
 		b.hold(RuleSkipped, "You skipped this exercise. The target stays the same.")
 	case last.pain():
@@ -195,11 +265,22 @@ func Next(in Input) (Decision, error) {
 	case !b.allAtTop(reps.Max):
 		b.addReps(2, reps.Max)
 		b.rule(RuleAddReps, fmt.Sprintf("You completed every set with reps to spare. The target is %s.", b.repsText()))
+	case calibrating:
+		b.hold(RuleCalibrationHold, "This exercise is still in calibration, so the load stays the same.")
+	case ps.first:
+		b.hold(RuleBreakFirst, "These are your first sessions after a break, so the load stays the same.")
 	case b.stepUp():
 		b.setReps(reps.Min)
 		b.rule(RuleLoadStep, fmt.Sprintf("You reached the top of the range with reps to spare. The load goes up to %s, and the target is %s.", b.loadText(), b.repsText()))
 	default:
 		b.hold(RuleNoHeavier, "The machine has no heavier weight within one 5 lb step. The target stays the same.")
+	}
+
+	if in.firstSessions(ps) && b.setRIR(3) && ps.gap < BreakDays && !slices.Contains(b.rules, RuleBreakFirst) {
+		b.rule(RuleBreakFirst, "These are your first sessions after a break, so each set stops at 3 reps in reserve.")
+	}
+	if ps.gap >= RecalibrateDays || calibrating {
+		b.calibration()
 	}
 	return b.decision(), nil
 }
@@ -246,11 +327,15 @@ func repText(n int) string {
 	return fmt.Sprintf("%d reps", n)
 }
 
-// builder holds the next target while the rules change it.
+// builder holds the next target while the rules change it. before
+// holds the load of each working set before the rounding, and
+// calBefore the load of the calibration set.
 type builder struct {
 	in        Input
 	available []domain.Load
 	target    domain.PlannedExercise
+	before    []domain.Load
+	calBefore domain.Load
 	rules     []RuleID
 	reason    []string
 	note      string
@@ -278,6 +363,7 @@ func newBuilder(in Input, last domain.PlannedExercise) *builder {
 			Load: l,
 			RIR:  rir.clamp(s.RIR),
 		})
+		b.before = append(b.before, s.Load)
 	}
 	if repaired {
 		b.rule(RuleLoadRepair, fmt.Sprintf("The machine does not have the last load, so the load is %s.", b.loadText()))
@@ -325,6 +411,7 @@ func (b *builder) stepUp() bool {
 			r -= Step
 		}
 		if l := Select(r, b.available); l > s.Load {
+			b.before[i] = s.Load + Step
 			b.target.Working[i].Load = l
 			b.machineWeight(i, r, l)
 			rose = true
@@ -341,6 +428,7 @@ func (b *builder) stepDown() bool {
 	for i, s := range b.target.Working {
 		r := Round(s.Load-Step, Other)
 		if l := Select(r, b.available); l < s.Load {
+			b.before[i] = s.Load - Step
 			b.target.Working[i].Load = l
 			b.machineWeight(i, r, l)
 			fell = true
@@ -379,14 +467,35 @@ func (b *builder) repsText() string {
 	return strings.Join(parts, ", ") + " reps"
 }
 
+// setRIR sets the reps in reserve of each working set, and tells
+// whether a value changed.
+func (b *builder) setRIR(n int) bool {
+	changed := false
+	for i := range b.target.Working {
+		if b.target.Working[i].RIR != n {
+			b.target.Working[i].RIR = n
+			changed = true
+		}
+	}
+	return changed
+}
+
 func (b *builder) decision() Decision {
 	if b.note != "" {
 		b.rule(RuleLoadAvailable, b.note)
+	}
+	var loads []LoadChange
+	for i, s := range b.target.Calibration {
+		loads = append(loads, LoadChange{fmt.Sprintf("calibration[%d]", i), b.calBefore, s.Load})
+	}
+	for i, s := range b.target.Working {
+		loads = append(loads, LoadChange{fmt.Sprintf("working[%d]", i), b.before[i], s.Load})
 	}
 	return Decision{
 		Version: Version,
 		Target:  b.target,
 		Rules:   b.rules,
+		Loads:   loads,
 		Reason:  strings.Join(b.reason, " "),
 	}
 }

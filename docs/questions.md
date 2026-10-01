@@ -315,6 +315,17 @@ The owner answered through the answer controls of the session. The first session
 | Q-186 | What does the policy do when a logged weight is not the target load? | A lighter weight gives no progression. | Answered | D-173 |
 | Q-187 | Which reps go with the lower load of a shortfall in 2 sessions in a row? | The same rep target. | Answered | D-174 |
 
+## Questions of the policy fallback session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-188 | Does the policy of work area 3.2 adopt the reactive deload triggers of REC-7? | No. Phase 7 reads REC-7 again. | Answered | D-175 |
+| Q-189 | Which fields does the record of each plan decision hold (REC-12)? | REC-12, with the proposal, the violations, the source, the cause, the target, and an input hash. | Answered | D-176 |
+| Q-190 | How does the calibration of D-150 apply to each new exercise (REC-22)? | REC-22 for each kind, with 3 calibration sessions. | Answered | D-177 |
+| Q-191 | Which fallback target does an exercise with no history and no estimate get? | A calibration from the lightest weight. | Answered | D-178 |
+| Q-192 | Which values does the long-break table of D-151 use? | 10 and 20 percent less load with one set fewer, and 70 percent after 91 days. | Answered | D-179 |
+| Q-193 | How many working sets does the start of a new exercise from the rules alone have? | 3. | Answered | D-180 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |
@@ -337,3 +348,4 @@ The owner answered through the answer controls of the session. The first session
 | Q-105 | What happens when a rounded load does not exist on the machine? | D-54 stores the available weights, and D-65 rounds to a global 5 lb step. The two can disagree. Answer on 2026-09-30: the heaviest available weight at or below the rounded load, or the lightest weight (D-149). | Phase 3 | Answered |
 | Q-106 | Do calibration sets for a new machine use three to four reps in reserve, when D-37 sets targets at one to three? | The research recommends more reserve for the first sets on an unknown machine. Answer on 2026-09-30: 3 to 4 reps in reserve, with the calibration table of REC-5 (D-150). | Phase 3 | Answered |
 | Q-107 | Where does the D-40 warning end and emergency advice, which D-36 excludes, begin? | A warning for chest pain needs text that stays inside the fitness boundary. Answer on 2026-09-30: the warning names the symptom and tells the user to stop the exercise, with no referral text (D-153). | Phase 3 | Answered |
+| Q-194 | Does the policy adopt the reactive deload triggers of REC-7 (D-175)? | A decline on 2 or more exercises in 2 or more sessions can need a deload of the full day. The rules of D-168 read one exercise at a time. | Phase 7 | Open |

@@ -67,8 +67,11 @@ func TestCheck(t *testing.T) {
 	lb := domain.Pounds
 	in := machineInput(t, "chest_press", []domain.Load{lb(10), lb(14), lb(20), lb(25), lb(30)})
 	in.History = []Outcome{outcome(target("chest_press", 2, 10, lb(25)), set(10, lb(25), 2), set(10, lb(25), 2))}
+	in = dated(in)
 	good := target("chest_press", 2, 10, lb(25))
 	db := dumbbellInput(t, "db_incline_bench_press")
+	db.Estimate = lb(20)
+	cal := []domain.CalibrationSet{{Reps: 10, Load: lb(20)}}
 	for _, tc := range []struct {
 		name string
 		in   Input
@@ -92,11 +95,20 @@ func TestCheck(t *testing.T) {
 		}, []RuleID{RuleRepBounds, RuleLoadAvailable}},
 		{"press rir 1", db, func(p *domain.PlannedExercise) {
 			*p = target("db_incline_bench_press", 2, 10, lb(20))
+			p.Calibration = cal
 			p.Working[0].RIR = 1
 		}, []RuleID{RuleRIRPress}},
-		{"press no history", db, func(p *domain.PlannedExercise) {
-			*p = target("db_incline_bench_press", 2, 10, lb(50))
+		{"start", db, func(p *domain.PlannedExercise) {
+			*p = target("db_incline_bench_press", 3, 10, lb(15))
+			p.Calibration = cal
 		}, nil},
+		{"start no calibration set", db, func(p *domain.PlannedExercise) {
+			*p = target("db_incline_bench_press", 2, 10, lb(20))
+		}, []RuleID{RuleCalibrationSet}},
+		{"start above the estimate", db, func(p *domain.PlannedExercise) {
+			*p = target("db_incline_bench_press", 2, 10, lb(50))
+			p.Calibration = []domain.CalibrationSet{{Reps: 10, Load: lb(25)}}
+		}, []RuleID{RuleLoadCeiling, RuleLoadCeiling, RuleLoadCeiling}},
 	} {
 		p := good
 		p.Working = append([]domain.WorkingSet(nil), good.Working...)
@@ -122,7 +134,8 @@ func TestCheck(t *testing.T) {
 	// The rounding rule: 12 lb is on the stack, but D-149 selects it for
 	// no multiple of 5 lb.
 	odd := machineInput(t, "chest_press", []domain.Load{lb(10), lb(12), lb(14)})
-	v, _ := Check(target("chest_press", 2, 10, lb(12)), odd)
+	odd.History = []Outcome{outcome(target("chest_press", 2, 10, lb(14)), set(10, lb(14), 2), set(10, lb(14), 2))}
+	v, _ := Check(target("chest_press", 2, 10, lb(12)), dated(odd))
 	if len(v) != 2 || v[0].Rule != RuleLoadRounding {
 		t.Errorf("Check of 12 lb = %v, want %s", v, RuleLoadRounding)
 	}
@@ -146,12 +159,26 @@ func TestInputErrors(t *testing.T) {
 	lb := domain.Pounds
 	good := machineInput(t, "chest_press", stack(10, 100, 5))
 	good.History = []Outcome{outcome(target("chest_press", 2, 10, lb(25)), set(10, lb(25), 2))}
+	good = dated(good)
 	for _, tc := range []struct {
 		name string
 		edit func(in *Input)
 		want error
 	}{
-		{"no history", func(in *Input) { in.History = nil }, ErrNoHistory},
+		{"no today", func(in *Input) { in.Today = "" }, ErrInput},
+		{"bad today", func(in *Input) { in.Today = "2026-13-01" }, ErrInput},
+		{"no date", func(in *Input) { in.History[0].Date = "" }, ErrInput},
+		{"date after today", func(in *Input) { in.Today = "2026-08-31" }, ErrInput},
+		{"dates out of order", func(in *Input) {
+			in.History = append(in.History, in.History[0])
+			in.History[0].Date = "2026-09-02"
+		}, ErrInput},
+		{"bad calibration set", func(in *Input) {
+			in.History[0].Target.Calibration = []domain.CalibrationSet{{Reps: 0, Load: lb(25)}}
+		}, ErrInput},
+		{"estimate below 0", func(in *Input) { in.Estimate = -1 }, ErrInput},
+		{"estimate above the stack", func(in *Input) { in.History = nil; in.Estimate = lb(105) }, ErrInput},
+		{"estimate below the stack", func(in *Input) { in.History = nil; in.Estimate = lb(5) }, ErrInput},
 		{"no exercise", func(in *Input) { in.Exercise = domain.Exercise{} }, ErrInput},
 		{"cardio", func(in *Input) { in.Exercise = exercise(t, "treadmill"); in.Entry.Machine = "treadmill" }, ErrInput},
 		{"other machine", func(in *Input) { in.Entry.Machine = "leg_press" }, ErrInput},

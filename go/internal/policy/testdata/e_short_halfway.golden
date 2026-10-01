@@ -1,0 +1,8 @@
+policy version: 2
+rules: break.short
+target: biceps_curl, rest 120 s
+  working[0]: 12 reps at 20 lb, 3 RIR
+  working[1]: 12 reps at 20 lb, 3 RIR
+  load working[0]: 22.5 lb before the rounding, 20 lb after
+  load working[1]: 22.5 lb before the rounding, 20 lb after
+reason: Your last logged set of this exercise was 14 days ago. The target is 2 x 12 at 20 lb, at 3 reps in reserve.

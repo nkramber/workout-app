@@ -96,10 +96,12 @@ func (v Violation) String() string {
 // policy accepts the proposal. A proposal with a violation is refused,
 // and the owner never sees it (D-23).
 //
-// With a history, the load of each working set is at most the load of
-// the next target of the policy (RuleLoadCeiling). With no history, the
-// calibration of D-150 sets the start, and this check reads the bounds
-// alone.
+// The load of each set is at most the load of the next target of the
+// policy (RuleLoadCeiling). With no history, that target is the start of
+// D-150. When the target of the policy has a calibration set, the
+// proposal needs one too (RuleCalibrationSet). In the first sessions
+// after a break, each working set stops at 3 reps in reserve, and the
+// proposal has no more sets than the target (RuleBreakFirst).
 func Check(p domain.PlannedExercise, in Input) ([]Violation, error) {
 	if err := in.check(); err != nil {
 		return nil, err
@@ -107,16 +109,15 @@ func Check(p domain.PlannedExercise, in Input) ([]Violation, error) {
 	if p.Exercise != in.Exercise.ID {
 		return nil, inputError("proposal exercise %q: want %q", p.Exercise, in.Exercise.ID)
 	}
-	var ceiling []domain.Load
-	if len(in.History) > 0 {
-		d, err := Next(in)
-		if err != nil {
-			return nil, err
-		}
-		for _, s := range d.Target.Working {
-			ceiling = append(ceiling, s.Load)
-		}
+	d, err := Next(in)
+	if err != nil {
+		return nil, err
 	}
+	var ceiling []domain.Load
+	for _, s := range d.Target.Working {
+		ceiling = append(ceiling, s.Load)
+	}
+	first := in.firstSessions(in.pause())
 
 	var out []Violation
 	add := func(r RuleID, where, format string, args ...any) {
@@ -138,6 +139,12 @@ func Check(p domain.PlannedExercise, in Input) ([]Violation, error) {
 	if len(p.Working) == 0 {
 		add(RuleRepBounds, "working", "no working set")
 	}
+	if first && len(p.Working) > len(d.Target.Working) {
+		add(RuleBreakFirst, "working", "%d sets: want %d or fewer in the first sessions after a break", len(p.Working), len(d.Target.Working))
+	}
+	if len(d.Target.Calibration) > 0 && len(p.Calibration) == 0 {
+		add(RuleCalibrationSet, "calibration", "no calibration set in a calibration session")
+	}
 	rir := RIRRange(in.Exercise)
 	for i, s := range p.Calibration {
 		where := fmt.Sprintf("calibration[%d]", i)
@@ -145,25 +152,28 @@ func Check(p domain.PlannedExercise, in Input) ([]Violation, error) {
 			add(RuleRepBounds, where, "reps %d: want %d to %d", s.Reps, RepLimits.Min, RepLimits.Max)
 		}
 		checkLoad(where, s.Load)
+		if len(d.Target.Calibration) > 0 && s.Load > d.Target.Calibration[0].Load {
+			add(RuleLoadCeiling, where, "load %s: want %s or less", s.Load, d.Target.Calibration[0].Load)
+		}
 	}
 	for i, s := range p.Working {
 		where := fmt.Sprintf("working[%d]", i)
 		if !RepLimits.Has(s.Reps) {
 			add(RuleRepBounds, where, "reps %d: want %d to %d", s.Reps, RepLimits.Min, RepLimits.Max)
 		}
-		if !rir.Has(s.RIR) {
+		switch {
+		case !rir.Has(s.RIR):
 			r := RuleRIRBounds
 			if isPress(in.Exercise) {
 				r = RuleRIRPress
 			}
 			add(r, where, "rir %d: want %d to %d", s.RIR, rir.Min, rir.Max)
+		case first && s.RIR < 3:
+			add(RuleBreakFirst, where, "rir %d: want 3 in the first sessions after a break", s.RIR)
 		}
 		checkLoad(where, s.Load)
-		if ceiling != nil {
-			c := ceiling[min(i, len(ceiling)-1)]
-			if s.Load > c {
-				add(RuleLoadCeiling, where, "load %s: want %s or less", s.Load, c)
-			}
+		if c := ceiling[min(i, len(ceiling)-1)]; s.Load > c {
+			add(RuleLoadCeiling, where, "load %s: want %s or less", s.Load, c)
 		}
 	}
 	return out, nil
