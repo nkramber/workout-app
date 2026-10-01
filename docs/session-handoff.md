@@ -15,9 +15,9 @@ The pull request holds these concerns:
 
 The owner answered Q-172 to Q-179 (D-159 to D-166). No check of the base needs `main` or a deploy, because PR-12 changed documents alone.
 
-State: GitHub PR 14 is open. Codex round 2 reviewed effective head `15cb791` with the verdict `Ready for owner merge`. Findings P2-1 and P2-2 from round 1 are fixed in `docs/reviews/pr-14.md`, with regression tests. `make go-test` and `make verify` pass. Each product check passes on the tip. The earlier `review-gate` result fails because it read the round 1 verdict.
+State: GitHub PR 14 is open, pending the owner merge. Codex round 2 reviewed effective head `15cb791` with the verdict `Ready for owner merge`. The round 1 findings P2-1 and P2-2 are fixed, with regression tests (`docs/reviews/pr-14-response.md`). `make go-test` and `make verify` pass, and each product check passes on `15cb791`.
 
-Next action: confirm the merge after review of the four-section summary, then enable auto-merge as D-13 requires.
+Next action: ask the owner to confirm the merge with the summary of four sections, then turn on the auto-merge (D-13).
 
 ## Facts that expire
 
@@ -77,7 +77,7 @@ Completed:
 
 Open work:
 
-- CI, the Codex review, the owner confirmation, and the merge of PR-13.
+- The owner confirmation and the merge of PR-13.
 
 ### Session 13 - 2026-09-30
 
