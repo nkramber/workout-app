@@ -1,0 +1,11 @@
+policy version: 2
+exercise: chest_press
+model: "", effort: "", prompt hash: ""
+source: rules, cause: "no-proposal"
+rules: fallback.rules, start.lightest, calibration.set
+target: chest_press, rest 120 s
+  calibration[0]: 8 reps at 10 lb
+  working[0]: 8 reps at 10 lb, 3 RIR
+  working[1]: 8 reps at 10 lb, 3 RIR
+  working[2]: 8 reps at 10 lb, 3 RIR
+reason: This exercise is new, and it has no load estimate. It starts at the lightest weight, 10 lb. The session starts with one calibration set of 8 reps at 10 lb. Stop it at 3 to 4 reps in reserve.

@@ -1,0 +1,8 @@
+policy version: 2
+rules: calibration.reps-only, calibration.set
+target: chest_press, rest 120 s
+  calibration[0]: 12 reps at 75 lb
+  working[0]: 12 reps at 75 lb, 3 RIR
+  working[1]: 12 reps at 75 lb, 3 RIR
+  working[2]: 12 reps at 75 lb, 3 RIR
+reason: This exercise is still in calibration, so the load stays the same. The session starts with one calibration set of 12 reps at 75 lb. Stop it at 3 to 4 reps in reserve.

@@ -36,8 +36,9 @@ The owner changed the scope in the session of PR-12 (D-154). Dumbbells and two e
 | Q-171, the split | PR-12 to PR-17, in section 4. | D-158 |
 | Q-172 to Q-179, the domain model | Two exercises for one machine, loads in tenths of a pound, six regions, pain from 0 to 10, the bench in the dumbbell set, set log bounds, distance in tenths of a mile, and a 100 lb dumbbell at most. | D-159 to D-166 |
 | Q-180 to Q-187, the policy | Rep ranges by exercise, the missed-rep rules, a pain hold of one session, sets with no log, the dumbbell press floor, rest, a lighter weight, and the reps of a load drop. | D-167 to D-174 |
+| Q-188 to Q-193 and Q-195, the fallback | No reactive deload in Phase 3, the record fields of REC-12 and more, REC-22 with 3 calibration sessions, a start at the lightest weight with no estimate, the values of the long-break table, 3 working sets at a start, and one calibration set in a proposal at the reps and the load of its first working set. | D-175 to D-181 |
 
-Q-95 and Q-100 have an answer from earlier phases (D-93, D-123). No question of the phase stays open. Section 4 names each recommendation that a later pull request of the phase asks the owner about.
+Q-95 and Q-100 have an answer from earlier phases (D-93, D-123). No question of the phase stays open. Q-194 holds REC-7 for Phase 7. Section 4 names each recommendation that a later pull request of the phase asks the owner about.
 
 ## 3. Rules for each pull request of this phase
 
@@ -142,6 +143,8 @@ Acceptance story: the golden tests of scenarios E and F pass. A proposal with a 
 Checks: `make go-test` and `make verify`, free. Codex reviews PR-15.
 
 Questions for the session: the reactive deload triggers (REC-7), the fields of the decision record (REC-12), and the calibration of REC-22. The session also asks about the fallback target for an exercise with no history.
+
+The owner answered these points in the session of PR-15 (D-175 to D-180). The policy adopts REC-12 with more fields, and REC-22 with 3 calibration sessions. An exercise with no history and no estimate starts at the lightest weight, and a start from the rules has 3 working sets. The long-break table uses 10 percent, 20 percent, and 70 percent, with one set fewer in the first two rows. REC-7 is not a rule in Phase 3, and the Phase 7 evaluation reads it again (Q-194).
 
 ### PR-16 - The Luna role layer
 

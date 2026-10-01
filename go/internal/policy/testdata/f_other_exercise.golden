@@ -1,0 +1,16 @@
+policy version: 2
+exercise: chest_press
+model: "fake-model", effort: "medium", prompt hash: "prompt-hash"
+proposal:
+  target: leg_press, rest 120 s
+    working[0]: 8 reps at 105 lb, 2 RIR
+    working[1]: 8 reps at 105 lb, 2 RIR
+    working[2]: 8 reps at 105 lb, 2 RIR
+violation: proposal.exercise exercise: exercise "leg_press": want "chest_press"
+source: rules, cause: "refused"
+rules: fallback.rules, progress.load-step
+target: chest_press, rest 120 s
+  working[0]: 8 reps at 105 lb, 2 RIR
+  working[1]: 8 reps at 105 lb, 2 RIR
+  working[2]: 8 reps at 105 lb, 2 RIR
+reason: You reached the top of the range with reps to spare. The load goes up to 105 lb, and the target is 3 x 8.

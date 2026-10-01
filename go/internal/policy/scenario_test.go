@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/nkramber/workout-app/go/internal/domain"
 )
@@ -66,19 +68,64 @@ func outcome(p domain.PlannedExercise, sets ...domain.SetLog) Outcome {
 	return Outcome{Target: p, Log: domain.ExerciseLog{Exercise: p.Exercise, Sets: sets}}
 }
 
+// dates gives the dates of a history. The first session is on
+// 2026-09-01, and each gap is a count of days: the gap before each
+// later session, then the gap before today.
+func dates(in Input, gaps ...int) Input {
+	d := time.Date(2026, 9, 1, 0, 0, 0, 0, time.UTC)
+	h := slices.Clone(in.History)
+	for i := range h {
+		if i > 0 {
+			d = d.AddDate(0, 0, gaps[i-1])
+		}
+		h[i].Date = d.Format(domain.DateLayout)
+	}
+	in.History = h
+	in.Today = d.AddDate(0, 0, gaps[len(h)-1]).Format(domain.DateLayout)
+	return in
+}
+
+// dated gives each history a session each 2 days, with today 2 days
+// after the last session, so no break applies.
+func dated(in Input) Input {
+	gaps := make([]int, len(in.History)+1)
+	for i := range gaps {
+		gaps[i] = 2
+	}
+	return dates(in, gaps...)
+}
+
+func ruleList(rs []RuleID) string {
+	out := make([]string, len(rs))
+	for i, r := range rs {
+		out[i] = string(r)
+	}
+	return strings.Join(out, ", ")
+}
+
+// renderTarget gives the text of a target. A load line shows each load
+// that the rounding changed.
+func renderTarget(b *strings.Builder, p domain.PlannedExercise, loads []LoadChange) {
+	fmt.Fprintf(b, "target: %s, rest %d s\n", p.Exercise, p.RestSeconds)
+	for i, s := range p.Calibration {
+		fmt.Fprintf(b, "  calibration[%d]: %d reps at %s\n", i, s.Reps, s.Load)
+	}
+	for i, s := range p.Working {
+		fmt.Fprintf(b, "  working[%d]: %d reps at %s, %d RIR\n", i, s.Reps, s.Load, s.RIR)
+	}
+	for _, l := range loads {
+		if l.Before != l.After {
+			fmt.Fprintf(b, "  load %s: %s before the rounding, %s after\n", l.Where, l.Before, l.After)
+		}
+	}
+}
+
 // render gives the text of a decision that a golden file holds.
 func render(d Decision) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "policy version: %d\n", d.Version)
-	rules := make([]string, len(d.Rules))
-	for i, r := range d.Rules {
-		rules[i] = string(r)
-	}
-	fmt.Fprintf(&b, "rules: %s\n", strings.Join(rules, ", "))
-	fmt.Fprintf(&b, "target: %s, rest %d s\n", d.Target.Exercise, d.Target.RestSeconds)
-	for i, s := range d.Target.Working {
-		fmt.Fprintf(&b, "  working[%d]: %d reps at %s, %d RIR\n", i, s.Reps, s.Load, s.RIR)
-	}
+	fmt.Fprintf(&b, "rules: %s\n", ruleList(d.Rules))
+	renderTarget(&b, d.Target, d.Loads)
 	fmt.Fprintf(&b, "reason: %s\n", d.Reason)
 	return b.String()
 }
@@ -166,6 +213,7 @@ func TestScenarios(t *testing.T) {
 		{"d_skipped", machine(skipped)},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
+			tc.in = dated(tc.in)
 			d, err := Next(tc.in)
 			if err != nil {
 				t.Fatalf("Next: %v", err)

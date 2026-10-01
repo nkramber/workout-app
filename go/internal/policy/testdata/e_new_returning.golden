@@ -1,0 +1,8 @@
+policy version: 2
+rules: start.estimate, calibration.set
+target: chest_press, rest 120 s
+  calibration[0]: 8 reps at 70 lb
+  working[0]: 8 reps at 70 lb, 3 RIR
+  working[1]: 8 reps at 70 lb, 3 RIR
+  working[2]: 8 reps at 70 lb, 3 RIR
+reason: This exercise is new, and you return after a long break. It starts at 70 percent of your estimate of 100 lb: 70 lb. The session starts with one calibration set of 8 reps at 70 lb. Stop it at 3 to 4 reps in reserve.

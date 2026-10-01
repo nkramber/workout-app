@@ -1,0 +1,15 @@
+policy version: 2
+exercise: chest_press
+model: "fake-model", effort: "medium", prompt hash: "prompt-hash"
+proposal:
+  target: chest_press, rest 120 s
+    working[0]: 8 reps at 105 lb, 3 RIR
+    working[1]: 8 reps at 105 lb, 3 RIR
+    working[2]: 8 reps at 105 lb, 3 RIR
+source: luna, cause: ""
+rules: 
+target: chest_press, rest 120 s
+  working[0]: 8 reps at 105 lb, 3 RIR
+  working[1]: 8 reps at 105 lb, 3 RIR
+  working[2]: 8 reps at 105 lb, 3 RIR
+reason: 

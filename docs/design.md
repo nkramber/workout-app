@@ -67,6 +67,8 @@ The rest timer shows on the screen only, because the app sends no notifications 
 
 After a session, Luna proposes the next targets from reps, load, reps in reserve, pain, skipped work, and gaps in the history (Decision, D-64). The policy checks the proposal. The app shows a concise reason that names the logged evidence (Decision, D-68). The owner can override a target, and the app keeps the recommendation, the override, and the reason as separate records (Decision, D-69). The engine handles missed sessions and long breaks (Decision, D-66).
 
+After a gap of 14 days or more, the load goes down by the long-break table (Decision, D-151, D-179). The first sessions back stop at 3 reps in reserve, with rep progression only. A new exercise starts with a calibration set from the estimate of the owner, or from the lightest weight (Decision, D-150, D-177, D-178).
+
 Targets use one to three reps in reserve. Failure is rare, and it never occurs in the first sessions after a break (Decision, D-37). Loads round to the nearest 5 lb, up or down (Decision, D-65). A rounded jump can exceed a validated target, so the policy adds at most one 5 lb step for each exercise in each session (Decision, D-147).
 
 ## 4. System context
@@ -138,8 +140,12 @@ The policy is in `go/internal/policy` (Decision, D-157). It has one version, and
 - The next target: double progression with one 5 lb step, missed reps, pain, a lighter weight, and sets with no log (Decision, D-147, D-168 to D-170, D-173, D-174).
 - The fixed warning text of a pain report (Decision, D-153, D-169).
 - The check of a proposal. The policy refuses a proposal outside a bound (Decision, D-23).
+- The start of a new exercise with 3 working sets, and the calibration of its first 3 sessions (Decision, D-150, D-177, D-178, D-180).
+- The return after a break of 14 days or more, and the first sessions after it (Decision, D-37, D-151, D-179).
+- The rules fallback. When Luna gives no proposal, or the policy refuses its proposal, the target comes from the rules alone (Decision, D-23).
+- The decision record of each plan decision, with the fields of D-176. The record is workout data, so it never goes into a log (Decision, D-80, D-176).
 
-The rules fallback, the calibration, and the return after a long break come later in Phase 3. The draft in `tools/spikes/luna_plan/policy.py` is the spike record alone.
+The policy has no reactive deload (Decision, D-175). The draft in `tools/spikes/luna_plan/policy.py` is the spike record alone.
 
 ### 5.2 Accepted risks
 

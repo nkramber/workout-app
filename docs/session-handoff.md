@@ -4,22 +4,23 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-30. Roadmap PR-14 of `docs/roadmaps/phase-3-workout-domain.md`, work area 3.2, on branch `feat/pr-14-policy-progression`, from base `c3ab54c`. It holds the policy bounds and progression.
+Date: 2026-10-01. Roadmap PR-15 of `docs/roadmaps/phase-3-workout-domain.md`, work area 3.2, on branch `feat/pr-15-policy-fallback`, from base `0b80066`. The review covers GitHub PR 16 at effective head `04d3d1b`.
 
-The pull request holds these concerns:
+The pull request holds these concerns, all in `go/internal/policy`, at policy version 2:
 
-- the policy package in `go/internal/policy`, with one version and a rule id and sources for each rule (D-38),
-- the bounds of reps, reps in reserve, rest, and load (D-37, D-54, D-167, D-171, D-172),
-- the rounding of D-65 with the halfway rule of D-148 and the machine weight of D-149, for each dumbbell too (D-166),
-- double progression with one 5 lb step (D-147), and missed reps (D-168),
-- a pain report with the warning text of D-153 (D-169), and sets with no log (D-170),
-- the free-weight rule of REC-17 (D-171), a lighter weight (D-173), and the reps of a load drop (D-174).
+- the long-break table and the first sessions after a break (D-151, D-179), with 3 reps in reserve and rep progression only (D-37),
+- the start of a new exercise and the calibration of its first 3 sessions (D-150, D-177, D-178, D-180),
+- the rules fallback when Luna gives no proposal or the policy refuses it (D-23),
+- the decision record of D-176, with a SHA-256 hash of the input,
+- the golden tests of scenarios E and F, and the property tests of the fallback, the first sessions, the start, and the calibration.
 
-The owner approved the milestone before the first edit, and answered Q-180 to Q-187 (D-167 to D-174). The deploy of `c3ab54c` passed: the build `deploy-api` `f54e3728` gave SUCCESS, and the live `/version` names `c3ab54c`.
+The owner approved the milestone before the first edit, and answered Q-188 to Q-193 and Q-195 (D-175 to D-181). Q-194 holds REC-7 for Phase 7. The deploy of `0b80066` passed: the build `deploy-api` `bef45ff1` gave SUCCESS, and the live `/version` names `0b80066`.
 
-State: GitHub PR 15 is open, pending the owner merge. Codex round 1 reviewed effective head `c6fbf78` with the verdict `Ready for owner merge` and no finding (`docs/reviews/pr-15.md`). `make go-test` and `make verify` pass, and each product check passes on `c6fbf78`.
+State: GitHub PR 16 is open. Codex round 1 found P2-1 at `f4ebf8f`, and round 2 found P2-2 at `e42982b`. The author found full merit in each.
 
-Next action: ask the owner to confirm the merge with the summary of four sections, then turn on the auto-merge (D-13).
+Round 3 at `4273bab` gave `Blocked` with no open finding. The owner set the full calibration-set contract in D-181, and `Check` now enforces it. Codex round 4 records `Ready for owner merge` at `04d3d1b`. P3-1 records trailing spaces in one golden fixture. `make go-test` and `make verify` pass. All required GitHub checks pass at the published metadata head.
+
+Next action: the author session waits for green CI, then asks the owner to confirm the merge (D-13).
 
 ## Facts that expire
 
@@ -33,11 +34,11 @@ Next action: ask the owner to confirm the merge with the summary of four section
 | The OpenAI usage policies page returns HTTP 403. The owner accepted a copy printed on 2025-11-07 (D-93). | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
 | `gpt-6-luna` accepts the strict JSON schema of the plan through the Responses API. 60 of 60 plans passed the schema. | 2026-09-28 | `docs/research/luna-plan-spike.md` |
 | `gpt-6-luna` accepts an image with a strict JSON schema. One photo at 1536 px costs 0.00037 USD. | 2026-09-28 | `docs/research/recognition-spike.md` |
-| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `c3ab54c`, three triggers, and the allowlist entry. | 2026-09-30 | `docs/setup-gcp.md`, `/version` |
+| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `0b80066`, three triggers, and the allowlist entry. | 2026-09-30 | `docs/setup-gcp.md`, `/version` |
 | The bucket `nk-workout-app-prod-deploy-lock` exists, and each deployer account holds `roles/storage.objectUser` on it alone. | 2026-09-29 | `gcloud storage buckets describe`, `get-iam-policy` |
 | `workout-app-prod` is in use by another Google Cloud project. | 2026-09-29 | `gcloud projects create` |
 | The old project `gym-route-dev` is `DELETE_REQUESTED` since 2026-09-30T03:19:47Z. `gcloud projects undelete` can restore it for 30 days. Its site still gave HTTP 200 at 04:38:56Z. | 2026-09-30 | `gcloud projects describe`, `curl` |
-| The live `/version` names `c3ab54cd3d9b58c1b1a0cea413123f1b25b17ada`, from the build `deploy-api` `f54e3728`. The live `/version.json` names `73b1964340ebc2a14f93b75f1be19aba024918f5`, from the build `deploy-web` `c5ac0f62`. The rules release of `df79c16` has the update time 02:33:00Z. | 2026-09-30 | `curl`, `gcloud builds list` |
+| The live `/version` names `0b8006641dd58996d45bc23eeebd3ccdcaa65520`, from the build `deploy-api` `bef45ff1`. The live `/version.json` names `73b1964340ebc2a14f93b75f1be19aba024918f5`, from the build `deploy-web` `c5ac0f62`. The rules release of `df79c16` has the update time 02:33:00Z. | 2026-09-30 | `curl`, `gcloud builds list` |
 | `rules-deployer` holds `roles/firebaserules.admin`, `roles/serviceusage.serviceUsageViewer`, and `roles/logging.logWriter`. | 2026-09-30 | `gcloud projects get-iam-policy` |
 | Since iOS 26, a Home Screen app blurs a band below the status bar, and a page can not turn it off. On iOS 27.0 with Chrome 154, 16 px above the title keeps it sharp. The owner saw the fix in the live app of `73b1964`. | 2026-09-30 | `docs/research/phase-2-check.md`, the owner |
 | Google Cloud SDK 533.0.0 has no `gcloud builds retry`. The Cloud Build API call `builds/{id}:retry` works. | 2026-09-30 | `docs/deploy-and-rollback.md` |
@@ -59,10 +60,29 @@ Next action: ask the owner to confirm the merge with the summary of four section
 
 ## Next steps, in order
 
-1. Close PR-14: the owner confirmation and the merge.
-2. Start PR-15 of `docs/roadmaps/phase-3-workout-domain.md` in a clean session.
+1. Close PR-15: CI, the Codex review, the owner confirmation, and the merge.
+2. Start PR-16 of `docs/roadmaps/phase-3-workout-domain.md` in a clean session.
 
 ## Session records
+
+### Session 16 - 2026-09-30
+
+Author provider: Claude Code
+
+Branch: `feat/pr-15-policy-fallback`. Role: author.
+
+Completed:
+
+- Read the deploy of `0b80066`. The owner approved the milestone before the first edit (D-12), and answered Q-188 to Q-193 (D-175 to D-180).
+- Added to `go/internal/policy` the start, the calibration, the long-break table, the first sessions after a break, the rules fallback, and the decision record.
+- Wrote the golden tests of scenarios E and F, and the property tests of the fallback half of the Luna property of section 6.3.
+- Changed the design, both roadmaps, the registers, and `go/README.md`.
+- Answered Codex findings P2-1 and P2-2 with full merit. A proposal holds one calibration set in a calibration session alone.
+- Asked Q-195 after the round 3 verdict `Blocked`, and recorded D-181.
+
+Open work:
+
+- CI, the Codex review, the owner confirmation, and the merge of PR-15.
 
 ### Session 15 - 2026-09-30
 
@@ -79,7 +99,7 @@ Completed:
 
 Open work:
 
-- The owner confirmation and the merge of PR-14.
+- None. GitHub PR 15 merged as `0b80066`.
 
 ### Session 14 - 2026-09-30
 
@@ -97,21 +117,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 14 merged as `c3ab54c`.
-
-### Session 13 - 2026-09-30
-
-Author provider: Claude Code
-
-Branch: `docs/pr-12-phase-3-roadmap`. Role: author.
-
-Completed:
-
-- The owner approved the milestone before the first edit (D-12). Then the owner approved the change of scope and the research as more concerns.
-- Read the deploy of `73b1964` and the state of `gym-route-dev`. The owner confirmed the title fix in the live app.
-- Asked the seven open questions of Phase 3 and Q-165 to Q-171 (D-147 to D-158).
-- Wrote the focused roadmap, and changed the high-level roadmap, the design, `AGENTS.md`, and the roadmap list.
-- Added the free-weight research to `docs/research/exercise-safety.md` (D-156).
-
-Open work:
-
-- None. GitHub PR 13 merged as `173b430`.
