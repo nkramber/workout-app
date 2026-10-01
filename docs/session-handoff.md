@@ -18,7 +18,7 @@ The owner approved the milestone before the first edit, and answered Q-188 to Q-
 
 State: GitHub PR 16 is open. Codex round 2 reviewed effective head `e42982b` with the verdict `Changes required`. P2-1 is fixed. P2-2 remains open because `Check` accepts an extra calibration set when the policy target has none (`docs/reviews/pr-16.md`). The author response records the correction for P2-1 (`docs/reviews/pr-16-response.md`).
 
-`make go-test` and `make verify` pass. All current CI checks pass except `review-gate`. That check reads the earlier verdict until this record reaches the branch.
+`make go-test` and `make verify` pass. At effective head `e42982b`, all product checks passed and `review-gate` failed on the earlier verdict. On metadata tip `36125c7`, `review-gate` failed on `Changes required`, `pr-contract` and the product checks passed except `verify:web`, which remained pending at the last poll.
 
 Next action: answer P2-2, then push a new round and wait for CI and the Codex review (D-8).
 
