@@ -392,7 +392,7 @@ func (g *gen) mutate(t domain.PlannedExercise, in Input) domain.PlannedExercise 
 	p.Calibration = slices.Clone(t.Calibration)
 	i := g.pick(len(p.Working))
 	available := in.Entry.Available()
-	switch g.pick(11) {
+	switch g.pick(13) {
 	case 0:
 		p.Working[i].Reps = g.pick(30)
 	case 1:
@@ -415,6 +415,12 @@ func (g *gen) mutate(t domain.PlannedExercise, in Input) domain.PlannedExercise 
 		p.Working = append(p.Working, p.Working[i])
 	case 9:
 		p.Working[i].RIR = 2
+	case 10:
+		if len(p.Calibration) > 0 {
+			p.Calibration[0].Reps = 6 + g.pick(15)
+		}
+	case 11:
+		p.Calibration = append(p.Calibration, domain.CalibrationSet{Reps: p.Working[0].Reps, Load: p.Working[0].Load})
 	}
 	return p
 }
@@ -428,11 +434,14 @@ func outside(p, ceiling domain.PlannedExercise, in Input) bool {
 	bad := func(reps int, l domain.Load) bool {
 		return reps < 6 || reps > 20 || !slices.Contains(available, l) || (l%Step != 0 && !selected(l, available))
 	}
-	if len(ceiling.Calibration) > 0 && len(p.Calibration) == 0 {
+	if (len(ceiling.Calibration) > 0 && len(p.Calibration) == 0) || len(p.Calibration) > 1 {
 		return true
 	}
 	for _, s := range p.Calibration {
 		if bad(s.Reps, s.Load) || (len(ceiling.Calibration) > 0 && s.Load > ceiling.Calibration[0].Load) {
+			return true
+		}
+		if len(p.Working) > 0 && s.Reps != p.Working[0].Reps {
 			return true
 		}
 	}

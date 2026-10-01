@@ -16,9 +16,9 @@ The pull request holds these concerns, all in `go/internal/policy`, at policy ve
 
 The owner approved the milestone before the first edit, and answered Q-188 to Q-193 (D-175 to D-180). Q-194 holds REC-7 for Phase 7. The deploy of `0b80066` passed: the build `deploy-api` `bef45ff1` gave SUCCESS, and the live `/version` names `0b80066`.
 
-State: GitHub PR 16 is open. CI product and contract checks pass. The Codex review found P2-1 in `docs/reviews/pr-16.md`. The owner merge waits for a correction and a new review.
+State: GitHub PR 16 is open. Codex round 1 reviewed effective head `f4ebf8f` with the verdict `Changes required` and finding P2-1 (`docs/reviews/pr-16.md`). The author found full merit. `Check` now refuses more than one calibration set, and a calibration set at other reps (`docs/reviews/pr-16-response.md`). `make go-test` and `make verify` pass.
 
-Next action: correct P2-1 and request a new Codex review.
+Next action: wait for green CI, then run `make codex-review PR=16` for round 2 (D-8).
 
 ## Facts that expire
 
@@ -75,6 +75,7 @@ Completed:
 - Added to `go/internal/policy` the start, the calibration, the long-break table, the first sessions after a break, the rules fallback, and the decision record.
 - Wrote the golden tests of scenarios E and F, and the property tests of the fallback half of the Luna property of section 6.3.
 - Changed the design, both roadmaps, the registers, and `go/README.md`.
+- Answered Codex finding P2-1 with full merit: one calibration set at the reps of the first working set.
 
 Open work:
 

@@ -102,6 +102,20 @@ func TestCheck(t *testing.T) {
 			*p = target("db_incline_bench_press", 3, 10, lb(15))
 			p.Calibration = cal
 		}, nil},
+		{"start two calibration sets", db, func(p *domain.PlannedExercise) {
+			*p = target("db_incline_bench_press", 2, 10, lb(20))
+			p.Calibration = []domain.CalibrationSet{{Reps: 10, Load: lb(15)}, {Reps: 10, Load: lb(20)}}
+		}, []RuleID{RuleCalibrationSet}},
+		{"start calibration reps", db, func(p *domain.PlannedExercise) {
+			*p = target("db_incline_bench_press", 2, 10, lb(20))
+			p.Calibration = []domain.CalibrationSet{{Reps: 12, Load: lb(20)}}
+		}, []RuleID{RuleCalibrationSet}},
+		{"history calibration reps", in, func(p *domain.PlannedExercise) {
+			p.Calibration = []domain.CalibrationSet{{Reps: 8, Load: lb(25)}}
+		}, []RuleID{RuleCalibrationSet}},
+		{"history calibration set", in, func(p *domain.PlannedExercise) {
+			p.Calibration = []domain.CalibrationSet{{Reps: 10, Load: lb(25)}}
+		}, nil},
 		{"start no calibration set", db, func(p *domain.PlannedExercise) {
 			*p = target("db_incline_bench_press", 2, 10, lb(20))
 		}, []RuleID{RuleCalibrationSet}},

@@ -99,7 +99,9 @@ func (v Violation) String() string {
 // The load of each set is at most the load of the next target of the
 // policy (RuleLoadCeiling). With no history, that target is the start of
 // D-150. When the target of the policy has a calibration set, the
-// proposal needs one too (RuleCalibrationSet). In the first sessions
+// proposal needs one too. A proposal holds at most one calibration set,
+// at the reps of its first working set (RuleCalibrationSet). In the
+// first sessions
 // after a break, each working set stops at 3 reps in reserve, and the
 // proposal has no more sets than the target (RuleBreakFirst).
 func Check(p domain.PlannedExercise, in Input) ([]Violation, error) {
@@ -145,11 +147,17 @@ func Check(p domain.PlannedExercise, in Input) ([]Violation, error) {
 	if len(d.Target.Calibration) > 0 && len(p.Calibration) == 0 {
 		add(RuleCalibrationSet, "calibration", "no calibration set in a calibration session")
 	}
+	if len(p.Calibration) > 1 {
+		add(RuleCalibrationSet, "calibration", "%d calibration sets: want 1", len(p.Calibration))
+	}
 	rir := RIRRange(in.Exercise)
 	for i, s := range p.Calibration {
 		where := fmt.Sprintf("calibration[%d]", i)
-		if !RepLimits.Has(s.Reps) {
+		switch {
+		case !RepLimits.Has(s.Reps):
 			add(RuleRepBounds, where, "reps %d: want %d to %d", s.Reps, RepLimits.Min, RepLimits.Max)
+		case len(p.Working) > 0 && s.Reps != p.Working[0].Reps:
+			add(RuleCalibrationSet, where, "reps %d: want %d, the reps of the first working set", s.Reps, p.Working[0].Reps)
 		}
 		checkLoad(where, s.Load)
 		if len(d.Target.Calibration) > 0 && s.Load > d.Target.Calibration[0].Load {
