@@ -9,6 +9,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `go/internal/allowlist` | The invite allowlist of uids in Firestore (D-131) |
 | `go/internal/envguard` | The start guard against an emulator variable on Cloud Run (D-129) |
 | `go/internal/usersvc` | The `GetMe` call |
+| `go/internal/domain` | The types of the workout domain, the catalog of D-155, and the check of each type (D-157) |
 | `go/gen` | The generated code. `make proto` writes it, and Git keeps it. |
 
 ## Environment

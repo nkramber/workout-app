@@ -34,6 +34,7 @@ The owner changed the scope in the session of PR-12 (D-154). Dumbbells and two e
 | Q-169, the free-weight research | In PR-12. | D-156 |
 | Q-170, the place of the types | Go types alone in Phase 3. | D-157 |
 | Q-171, the split | PR-12 to PR-17, in section 4. | D-158 |
+| Q-172 to Q-179, the domain model | Two exercises for one machine, loads in tenths of a pound, six regions, pain from 0 to 10, the bench in the dumbbell set, set log bounds, distance in tenths of a mile, and a 100 lb dumbbell at most. | D-159 to D-166 |
 
 Q-95 and Q-100 have an answer from earlier phases (D-93, D-123). No question of the phase stays open. Section 4 names each recommendation that a later pull request of the phase asks the owner about.
 
@@ -91,7 +92,9 @@ Concerns:
 - the lookups of the catalog: by id, by kind, and by region,
 - the checks of each type, such as reps in a set log and weights of a stack.
 
-Recommendation: one machine type with two movements, such as hip abduction or adduction, gives two exercises. The load type holds 12.5 lb exactly, because a stack can have a 12.5 lb step.
+The owner answered the open points in the session of PR-13. One machine with two movements gives two exercises (D-159). A load is a count of tenths of a pound (D-160). The catalog has six regions (D-161), and the adjustable bench is part of the dumbbell set (D-163). Pain is a rating from 0 to 10 (D-162). A set log has reps and reps in reserve of 0 or more (D-164), and a cardio distance is in tenths of a mile (D-165).
+
+The heaviest dumbbell of a set is at most 100 lb (D-166).
 
 Acceptance story: `make go-test` runs table tests for every type and for each lookup of the catalog. The catalog holds each item of D-155. A value outside the rules of its type fails its check.
 
