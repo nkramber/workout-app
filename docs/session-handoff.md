@@ -16,7 +16,7 @@ The pull request holds these concerns, all in `go/internal/policy`, at policy ve
 
 The owner approved the milestone before the first edit, and answered Q-188 to Q-193 (D-175 to D-180). Q-194 holds REC-7 for Phase 7. The deploy of `0b80066` passed: the build `deploy-api` `bef45ff1` gave SUCCESS, and the live `/version` names `0b80066`.
 
-State: the pull request is open, pending CI, the Codex review, and the owner merge. `make go-test` and `make verify` pass.
+State: GitHub PR 16 is open, pending CI, the Codex review, and the owner merge. `make go-test` and `make verify` pass.
 
 Next action: wait for green CI, then run `make codex-review` (D-8).
 
