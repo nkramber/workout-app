@@ -16,9 +16,11 @@ The pull request holds these concerns, all in `go/internal/policy`, at policy ve
 
 The owner approved the milestone before the first edit, and answered Q-188 to Q-193 (D-175 to D-180). Q-194 holds REC-7 for Phase 7. The deploy of `0b80066` passed: the build `deploy-api` `bef45ff1` gave SUCCESS, and the live `/version` names `0b80066`.
 
-State: GitHub PR 16 is open. Codex round 1 reviewed effective head `f4ebf8f` with the verdict `Changes required` and finding P2-1 (`docs/reviews/pr-16.md`). The author found full merit. `Check` now refuses more than one calibration set, and a calibration set at other reps (`docs/reviews/pr-16-response.md`). `make go-test` and `make verify` pass.
+State: GitHub PR 16 is open. Codex round 2 reviewed effective head `e42982b` with the verdict `Changes required`. P2-1 is fixed. P2-2 remains open because `Check` accepts an extra calibration set when the policy target has none (`docs/reviews/pr-16.md`). The author response records the correction for P2-1 (`docs/reviews/pr-16-response.md`).
 
-Next action: wait for green CI, then run `make codex-review PR=16` for round 2 (D-8).
+`make go-test` and `make verify` pass. All current CI checks pass except `review-gate`. That check reads the earlier verdict until this record reaches the branch.
+
+Next action: answer P2-2, then push a new round and wait for CI and the Codex review (D-8).
 
 ## Facts that expire
 
