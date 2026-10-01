@@ -1,4 +1,4 @@
-policy version: 2
+policy version: 3
 rules: progress.add-reps, break.first-sessions
 target: chest_press, rest 120 s
   working[0]: 12 reps at 90 lb, 3 RIR

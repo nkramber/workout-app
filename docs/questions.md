@@ -334,6 +334,15 @@ The owner answered through the answer controls of the session. The first session
 | Q-196 | Which shown text does Luna write, and which text comes from templates? | Luna writes one plan summary and one short reason for each exercise. Templates and the guidance catalog give the other texts. | Answered | D-182 |
 | Q-197 | Does the role layer apply the blocked-claims filter of REC-11? | Yes. A versioned filter reads each text of Luna, and a template text replaces a blocked text. | Answered | D-183 |
 
+## Questions of the Luna evaluation session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-198 | How many profiles and calls does the paid run of the Phase 3 Luna evaluation have? | 20 planner calls and 5 reviser calls for each of the 6 scenarios. | Answered | D-184 |
+| Q-199 | Which cap does the paid run get? | 2 USD. | Answered | D-185 |
+| Q-200 | The policy accepts more reps or fewer reps in reserve at the load of its target. Does it refuse such a proposal? | Yes. A new rule goes in before the paid run. | Answered | D-186 |
+| Q-201 | How does the OpenAI key reach Secret Manager? | The owner adds the version in a local terminal. | Answered | D-187 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |

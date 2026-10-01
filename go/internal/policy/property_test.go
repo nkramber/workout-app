@@ -449,13 +449,20 @@ func outside(p, ceiling domain.PlannedExercise, in Input) bool {
 	if first && len(p.Working) > len(ceiling.Working) {
 		return true
 	}
+	// The effort ceiling of D-186 applies outside a calibration session.
+	effort := len(ceiling.Calibration) == 0
+	if effort && len(p.Working) > len(ceiling.Working) {
+		return true
+	}
 	rir := RIRRange(in.Exercise)
 	for i, s := range p.Working {
+		c := ceiling.Working[min(i, len(ceiling.Working)-1)]
 		switch {
 		case bad(s.Reps, s.Load),
 			s.RIR < rir.Min || s.RIR > 3,
 			first && s.RIR < 3,
-			s.Load > ceiling.Working[min(i, len(ceiling.Working)-1)].Load:
+			s.Load > c.Load,
+			effort && s.Load == c.Load && (s.Reps > c.Reps || s.RIR < c.RIR):
 			return true
 		}
 	}

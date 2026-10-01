@@ -13,7 +13,7 @@ import (
 
 // PromptVersion is the version of the prompt template. Change it with
 // each change of the text.
-const PromptVersion = "luna-prompt-v1"
+const PromptVersion = "luna-prompt-v2"
 
 // The dated copy of the OpenAI usage policies that the owner accepted
 // (D-93). The live page returned HTTP 403, so a change after the print
@@ -45,7 +45,7 @@ var tasks = map[RoleName]string{
 const rules = `Rules for each output:
 - Use only the exercises of the input, and each exercise one time in a session at most.
 - Use only the available weights of each exercise. Loads are in lb. A dumbbell load is the load of one dumbbell.
-- policy_target is the target of the rules for the next session. Propose no more load than it, and keep its calibration set when it has one.
+- policy_target is the target of the rules for the next session. Propose no more load than it, and keep its calibration set when it has one. Outside a calibration session, propose no more sets than it, and at its load no more reps and no fewer reps in reserve.
 - summary: one or two sentences about the plan, %d characters at most.
 - reason: one sentence for each exercise, %d characters at most. Name the logged evidence that it uses: reps, load, reps in reserve, pain, or a gap.
 - Write no other text. Select the warm-up, the cool-down, and the mobility and recovery items by id from the catalog below.
