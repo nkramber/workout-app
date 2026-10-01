@@ -15,9 +15,9 @@ The pull request holds these concerns:
 
 The owner answered Q-172 to Q-178 (D-159 to D-165). No check of the base needs `main` or a deploy, because PR-12 changed documents alone.
 
-State: GitHub PR 14 is open. `make go-test` and `make verify` pass. The coverage of `go/internal/domain` is 100%. The Codex review did not start.
+State: GitHub PR 14 is open. The Codex review of effective head `6da346c` found P2-1 and P2-2. `make go-test` and `make verify` pass. The `review-gate` check failed because the review record was absent.
 
-Next action: wait for green CI, then run `make codex-review PR=14`.
+Next action: the author fixes P2-1 and P2-2, pushes the correction, then runs a new Codex review after CI.
 
 ## Facts that expire
 
