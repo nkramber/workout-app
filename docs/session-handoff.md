@@ -15,9 +15,9 @@ The pull request holds these concerns:
 
 The owner answered Q-172 to Q-178 (D-159 to D-165). No check of the base needs `main` or a deploy, because PR-12 changed documents alone.
 
-State: `make go-test` and `make verify` pass. The coverage of `go/internal/domain` is 100%. The Codex review did not start.
+State: GitHub PR 14 is open. `make go-test` and `make verify` pass. The coverage of `go/internal/domain` is 100%. The Codex review did not start.
 
-Next action: push the branch, open the pull request, wait for green CI, and run `make codex-review`.
+Next action: wait for green CI, then run `make codex-review PR=14`.
 
 ## Facts that expire
 
