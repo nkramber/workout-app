@@ -11,6 +11,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `go/internal/usersvc` | The `GetMe` call |
 | `go/internal/domain` | The types of the workout domain, the catalog of D-155, and the check of each type (D-157) |
 | `go/internal/policy` | The versioned safety policy: the bounds of a target, the rounding of a load, the start and the calibration of a new exercise, the return after a break, the next target, the check of a proposal, the rules fallback, and the decision record (D-23, D-38, D-176) |
+| `go/internal/ai` | The Luna role layer: the planner and reviser roles, the plan schema, the prompt, the guidance catalog, the filter of blocked claims, the cost records, the cap hook, the OpenAI provider, and the fake provider (D-24, D-25, D-152, D-183) |
 | `go/gen` | The generated code. `make proto` writes it, and Git keeps it. |
 
 ## Environment
@@ -21,6 +22,8 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `GOOGLE_CLOUD_PROJECT` | The Firebase project of the tokens and of Firestore. The API does not start without it. |
 | `ALLOWED_ORIGIN` | The one origin of the web app (D-82). Empty means no cross-origin call. |
 | `FIREBASE_AUTH_EMULATOR_HOST`, `FIRESTORE_EMULATOR_HOST` | The local emulators. On Cloud Run, the API refuses each variable with a name that ends in `_EMULATOR_HOST` (D-129). |
+
+`go/internal/ai` reads the caps of D-25 from `LUNA_CAP_USER_USD` and `LUNA_CAP_PROJECT_USD`, in US dollars, such as `0.25`. A value that is not set stops the start, and 0 refuses each call. The API does not call Luna yet, so it reads neither variable. Q-98 gives the values in Phase 4.
 
 The build writes the commit into the binary with `-ldflags "-X main.commit=<sha>"`. The route `GET /version` gives it as `{"commit": "<sha>"}`, with no sign-in. The route does not use `/healthz`, because that path does not answer on a `run.app` URL (`decktome:cloudbuild/api.yaml`).
 

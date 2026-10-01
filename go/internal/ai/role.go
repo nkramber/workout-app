@@ -1,0 +1,67 @@
+package ai
+
+import "time"
+
+// RoleName names one role of the layer.
+type RoleName string
+
+const (
+	// RolePlanner plans the next sessions of the owner (D-22).
+	RolePlanner RoleName = "planner"
+	// RoleReviser gives the targets of the next session after the owner
+	// logs a session (D-22, D-64).
+	RoleReviser RoleName = "reviser"
+)
+
+// Role is the model configuration of one role. This file holds the one
+// model id of the module (D-24). A test fails when another Go file of
+// the module names a model.
+type Role struct {
+	Name            RoleName
+	Model           string
+	Effort          string
+	MaxOutputTokens int
+	// MaxSessions is the largest number of sessions in one call.
+	MaxSessions int
+	// MaxRequestBytes is the largest request. It keeps each call in
+	// the short context of the model, so the prices of Prices apply.
+	MaxRequestBytes int
+	Timeout         time.Duration
+	Prices          Prices
+}
+
+// The configuration of `gpt-6-luna` (D-24). The prices come from
+// "docs/research/platform-cloud-and-ai.md", read 2026-10-01: 0.10 USD,
+// 0.01 USD, 0.125 USD, and 0.50 USD for each million input, cached
+// input, cache-write, and output tokens. These are the prices of the
+// short context, 272,000 input tokens or fewer. A longer request bills
+// at higher prices, so the layer refuses a request of more than
+// 272,000 bytes, because one token holds one byte or more. The output
+// limit is the limit of the plan spike, and one plan of the spike used
+// 2,579 output tokens at most. One call of
+// the spike took 29.7 seconds at most, so the time limit is 3 times
+// that, rounded up (assumption).
+const (
+	lunaModel       = "gpt-6-luna"
+	lunaEffort      = "medium"
+	lunaMaxOutput   = 32000
+	lunaTimeout     = 90 * time.Second
+	lunaMaxRequest  = 272_000
+	plannerSessions = 7
+)
+
+var lunaPrices = Prices{Input: 100, CachedInput: 10, CacheWrite: 125, Output: 500}
+
+// Planner gives the role that plans the next sessions, at most one week
+// of them.
+func Planner() Role {
+	return Role{RolePlanner, lunaModel, lunaEffort, lunaMaxOutput, plannerSessions, lunaMaxRequest, lunaTimeout, lunaPrices}
+}
+
+// Reviser gives the role that gives the targets of the next session.
+func Reviser() Role {
+	return Role{RoleReviser, lunaModel, lunaEffort, lunaMaxOutput, 1, lunaMaxRequest, lunaTimeout, lunaPrices}
+}
+
+// Roles gives each role, in a fixed order.
+func Roles() []Role { return []Role{Planner(), Reviser()} }

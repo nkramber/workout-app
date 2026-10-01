@@ -50,6 +50,8 @@ The catalog of D-155 gives each machine and each exercise a stable id, a kind, a
 
 The plan adapts after each session and has no fixed block (Decision, D-43). It holds warm-up, resistance work, rest periods, cooldown, optional cardio, and mobility and recovery guidance (Decision, D-44). The guidance stays inside the fitness boundary (Decision, D-36). Instructions are text only (Decision, D-73). The owner can exclude an exercise with an optional reason, and Luna plans again under the policy (Decision, D-48).
 
+Luna writes one plan summary and one short reason for each exercise, with a length limit (Decision, D-182). Session titles come from a template. The warm-up, the cool-down, and the mobility and recovery texts come from a versioned catalog, and Luna selects each item by id (Decision, D-152). A filter of blocked claims reads each text of Luna, and a template text replaces a blocked text (Decision, D-183).
+
 ### 3.4 Guided workout
 
 The workout screen shows one machine at a time. The design targets one-handed use: large targets, few taps, little typing, and tolerance of interruptions (Decision, D-71). The visual style is calm, focused, high-contrast, and minimal (Decision, D-70). Cues are visual only, with no audio and no vibration (Decision, D-58).
@@ -92,7 +94,7 @@ Targets use one to three reps in reserve. Failure is rare, and it never occurs i
 | Web app | Screens, offline store, outbox | Holds workout history and profile data on the phone | Decision, D-17, D-62, D-77 |
 | API | Auth check, sync, plan calls, policy. It refuses to start on Cloud Run with an emulator variable. | Reads and writes all user data | Decision, D-18, D-82, D-129 |
 | Policy engine | Checks every prescription | Safety-critical | Decision, D-23 |
-| Role layer | Model choice, cost records, fake provider | Sends profile and workout data to OpenAI | Decision, D-24 |
+| Role layer | Model choice, the plan schema, the prompt, cost records, the cap hook, the text filter, and the fake provider | Sends workout data to OpenAI | Decision, D-24, D-25, D-183 |
 | Firestore | Source of record after sync | Injuries, body data, workout history | Decision, D-77 |
 | Firebase Auth | Email and password, and an invite allowlist of uids in Firestore | Email address | Decision, D-75, D-131 |
 | GCP project | One project, `nk-workout-app-prod`, in `us-central1` | All of the above | Decision, D-76, D-137 |
@@ -147,6 +149,17 @@ The policy is in `go/internal/policy` (Decision, D-157). It has one version, and
 
 The policy has no reactive deload (Decision, D-175). The draft in `tools/spikes/luna_plan/policy.py` is the spike record alone.
 
+The role layer is in `go/internal/ai` (Decision, D-157). It holds these parts:
+
+- The planner and the reviser roles on `gpt-6-luna` at medium effort. The role holds the model id, so a call site names a role alone (Decision, D-22, D-24).
+- The strict plan schema. Its enums hold the ids of the catalog of D-155 and of the guidance catalog, so a valid output names no unknown id (Decision, D-152).
+- The prompt, with the boundary of D-36 and the dated copy of the usage policies of D-93, and each rule of the policy.
+- A cost record for each call, and a cap hook that reserves the worst-case cost before the call. The hook refuses a call over the cap. The cap values come from the configuration until Q-98 has an answer (Decision, D-25).
+- The filter of blocked claims on each text of Luna (Decision, D-183).
+- The fake provider for tests. No test calls OpenAI (Decision, D-24).
+
+A malformed output, a refusal of the model, a time-out, an error, or a call over the cap gives no proposal. The policy then gives the rules fallback (Decision, D-23).
+
 ### 5.2 Accepted risks
 
 The owner chose these options against the launch prompt recommendations. The research in `docs/research/exercise-safety.md` records the evidence behind each recommendation.
@@ -164,7 +177,9 @@ The owner chose these options against the launch prompt recommendations. The res
 
 ### 5.3 Medical boundary
 
-The app states that it gives fitness guidance only (Decision, D-36). The FDA general wellness guidance of January 2026 treats claims about strength and muscle size as wellness claims (Fact). Claims about disease, treatment, or rehabilitation fall outside it (Fact). The policy and the prompts must keep Luna text inside that line. Q-95 asks what the OpenAI usage policies add (Open).
+The app states that it gives fitness guidance only (Decision, D-36). The FDA general wellness guidance of January 2026 treats claims about strength and muscle size as wellness claims (Fact). Claims about disease, treatment, or rehabilitation fall outside it (Fact). The policy and the prompts must keep Luna text inside that line.
+
+The prompt follows the dated copy of the OpenAI usage policies of D-93 (Decision, D-93). Luna writes short texts alone, and the filter of blocked claims replaces a text with a medical, diet, or emergency claim (Decision, D-182, D-183). The filter is a guard after the prompt, not a proof: a claim in other words can pass it.
 
 ## 6. Privacy posture
 
@@ -172,7 +187,7 @@ Workout App stores data about one person, the owner (Decision, D-67). The owner 
 
 - The repository is public. No personal data, email address, photo, or workout log goes into it. The author credit that the license of a test image requires is the one exception (Decision, D-106).
 - Telemetry holds ids only (Decision, D-80).
-- The API sends OpenAI requests with the response store turned off (Recommendation, from `docs/research/platform-cloud-and-ai.md`).
+- The API sends OpenAI requests with the response store turned off (Recommendation, from `docs/research/platform-cloud-and-ai.md`). The OpenAI provider of `go/internal/ai` does this. A call sends no note of the owner and no user id.
 - The app takes no photo now (Decision, D-110). In a later photo phase, the app removes photo metadata before upload, and the server deletes each photo after the confirmation (Decision, D-52).
 - Secrets live in Secret Manager, never in the repository.
 
