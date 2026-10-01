@@ -4,7 +4,7 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-30. Roadmap PR-15 of `docs/roadmaps/phase-3-workout-domain.md`, work area 3.2, on branch `feat/pr-15-policy-fallback`, from base `0b80066`. It holds the re-entry, the calibration, and the rules fallback.
+Date: 2026-10-01. Roadmap PR-15 of `docs/roadmaps/phase-3-workout-domain.md`, work area 3.2, on branch `feat/pr-15-policy-fallback`, from base `0b80066`. The review covers GitHub PR 16 at effective head `04d3d1b`.
 
 The pull request holds these concerns, all in `go/internal/policy`, at policy version 2:
 
@@ -18,9 +18,9 @@ The owner approved the milestone before the first edit, and answered Q-188 to Q-
 
 State: GitHub PR 16 is open. Codex round 1 found P2-1 at `f4ebf8f`, and round 2 found P2-2 at `e42982b`. The author found full merit in each.
 
-Round 3 at `4273bab` gave `Blocked` with no open finding, and asked the owner about the scope of the calibration set. The owner put the full contract in PR-15 (Q-195, D-181). `Check` now accepts one calibration set in a calibration session alone, at the reps and the load of the first working set (`docs/reviews/pr-16-response.md`). `make go-test` and `make verify` pass.
+Round 3 at `4273bab` gave `Blocked` with no open finding. The owner set the full calibration-set contract in D-181, and `Check` now enforces it. Codex round 4 records `Ready for owner merge` at `04d3d1b`. P3-1 records trailing spaces in one golden fixture. `make go-test` and `make verify` pass. CI needs a fresh `review-gate` result after publication.
 
-Next action: wait for green CI, then run `make codex-review PR=16` for round 4 (D-8).
+Next action: the author session waits for green CI, then asks the owner to confirm the merge (D-13).
 
 ## Facts that expire
 
