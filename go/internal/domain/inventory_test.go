@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"math"
 	"slices"
 	"testing"
 )
@@ -20,6 +21,11 @@ func TestDumbbellSetCheck(t *testing.T) {
 		{"negative step", DumbbellSet{Pounds(5), Pounds(50), -Pounds(5)}, false},
 		{"heaviest below lightest", DumbbellSet{Pounds(50), Pounds(5), Pounds(5)}, false},
 		{"step does not divide", DumbbellSet{Pounds(5), Pounds(52), Pounds(5)}, false},
+		{"heaviest 100 lb", DumbbellSet{Pounds(5), Pounds(100), Pounds(5)}, true},
+		{"0.1 lb steps to 100 lb", DumbbellSet{Tenth, Pounds(100), Tenth}, true},
+		{"heaviest above 100 lb", DumbbellSet{Pounds(5), 1005, 25}, false},
+		{"heaviest at the top of Load", DumbbellSet{Tenth, math.MaxInt64, Tenth}, false},
+		{"lightest at the top of Load", DumbbellSet{math.MaxInt64, math.MaxInt64, Tenth}, false},
 	} {
 		err := tc.set.Check()
 		if (err == nil) != tc.ok || (err != nil && !errors.Is(err, ErrInvalid)) {
@@ -36,6 +42,14 @@ func TestDumbbellSetWeights(t *testing.T) {
 	}
 	if got := (DumbbellSet{Pounds(5), Pounds(15), 0}).Weights(); got != nil {
 		t.Errorf("Weights() of a bad set = %v, want nil", got)
+	}
+	// Codex P2-2 of PR 14: a range up to the top of Load ended in no
+	// loop. The 100 lb cap refuses it, so Weights returns at once (D-166).
+	if got := (DumbbellSet{Tenth, math.MaxInt64, Tenth}).Weights(); got != nil {
+		t.Errorf("Weights() up to the top of Load = %d weights, want nil", len(got))
+	}
+	if got := (DumbbellSet{Tenth, DumbbellMax, Tenth}).Weights(); len(got) != 1000 || got[999] != DumbbellMax {
+		t.Errorf("Weights() of 0.1 lb to 100 lb = %d weights, want 1000", len(got))
 	}
 }
 

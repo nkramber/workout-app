@@ -13,11 +13,11 @@ The pull request holds these concerns:
 - the lookups of the catalog by id, by kind, by region, and by machine,
 - the check of each type, with loads in tenths of a pound (D-160) and the log bounds of D-162, D-164, and D-165.
 
-The owner answered Q-172 to Q-178 (D-159 to D-165). No check of the base needs `main` or a deploy, because PR-12 changed documents alone.
+The owner answered Q-172 to Q-179 (D-159 to D-166). No check of the base needs `main` or a deploy, because PR-12 changed documents alone.
 
-State: GitHub PR 14 is open. The Codex review of effective head `6da346c` found P2-1 and P2-2. Local checks and all product CI checks pass. `review-gate` reports the `Changes required` verdict.
+State: GitHub PR 14 is open. Codex round 1 reviewed effective head `6da346c` with the verdict `Changes required`, with P2-1 and P2-2 in `docs/reviews/pr-14.md`. The author found full merit in each, and corrected both. The owner set the 100 lb dumbbell cap for P2-2 (D-166). `docs/reviews/pr-14-response.md` holds the answer. `make go-test` and `make verify` pass, and the coverage of `go/internal/domain` stays 100%.
 
-Next action: the author fixes P2-1 and P2-2, pushes the correction, then runs a new Codex review after CI.
+Next action: wait for green CI, then run `make codex-review PR=14` for round 2.
 
 ## Facts that expire
 
@@ -70,9 +70,10 @@ Branch: `feat/pr-13-domain-model`. Role: author.
 
 Completed:
 
-- The owner approved the milestone before the first edit (D-12), and answered Q-172 to Q-178 (D-159 to D-165).
+- The owner approved the milestone before the first edit (D-12), and answered Q-172 to Q-179 (D-159 to D-166).
 - Wrote `go/internal/domain`: the types, the catalog of D-155, the lookups, and the checks, with table tests.
 - Changed the design, the Phase 3 roadmap, and `go/README.md` for the new decisions.
+- Answered Codex findings P2-1 and P2-2 with full merit: fixed sets of kinds and regions, and the 100 lb dumbbell cap.
 
 Open work:
 

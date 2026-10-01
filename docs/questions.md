@@ -303,6 +303,7 @@ The owner answered through the answer controls of the session. The first session
 | Q-176 | How does the model hold the adjustable bench? | As part of the dumbbell set. | Answered | D-163 |
 | Q-177 | Which bounds does the check of a set log apply? | Reps and reps in reserve of 0 or more, and a weight above 0. | Answered | D-164 |
 | Q-178 | Which unit holds the distance of a cardio log? | Tenths of a mile. | Answered | D-165 |
+| Q-179 | Codex finding P2-2 of PR 14: which upper bound does the dumbbell set have? | At most 100 lb for each dumbbell. | Answered | D-166 |
 
 ## Open questions
 

@@ -12,8 +12,9 @@ const (
 	KindCardio   Kind = "cardio"   // a cardio machine
 )
 
-// Kinds lists each kind in catalog order.
-var Kinds = []Kind{KindMachine, KindCable, KindDumbbell, KindCardio}
+// Kinds gives a new list of each kind, in catalog order. A change of
+// the list changes no check.
+func Kinds() []Kind { return []Kind{KindMachine, KindCable, KindDumbbell, KindCardio} }
 
 // Region names the body region of an exercise (D-161). The first four
 // are the regions of EV-1, and the volume rules count them. Core and
@@ -29,8 +30,11 @@ const (
 	RegionCardio    Region = "cardio"
 )
 
-// Regions lists each region in catalog order.
-var Regions = []Region{RegionUpperPush, RegionUpperPull, RegionLowerPush, RegionLowerPull, RegionCore, RegionCardio}
+// Regions gives a new list of each region, in catalog order. A change
+// of the list changes no check.
+func Regions() []Region {
+	return []Region{RegionUpperPush, RegionUpperPull, RegionLowerPush, RegionLowerPull, RegionCore, RegionCardio}
+}
 
 // MachineID is the stable id of a machine of the catalog. An id never
 // changes, and a removed id is never used again.
@@ -69,8 +73,21 @@ type Catalog struct {
 	Exercises []Exercise
 }
 
-func (k Kind) known() bool   { return slices.Contains(Kinds, k) }
-func (r Region) known() bool { return slices.Contains(Regions, r) }
+func (k Kind) known() bool {
+	switch k {
+	case KindMachine, KindCable, KindDumbbell, KindCardio:
+		return true
+	}
+	return false
+}
+
+func (r Region) known() bool {
+	switch r {
+	case RegionUpperPush, RegionUpperPull, RegionLowerPush, RegionLowerPull, RegionCore, RegionCardio:
+		return true
+	}
+	return false
+}
 
 // Check reads the rules of a catalog: unique ids, a name for each item,
 // a known kind and region, the kind of the machine on each exercise, the

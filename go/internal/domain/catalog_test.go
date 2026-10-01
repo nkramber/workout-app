@@ -252,3 +252,33 @@ func TestCatalogCheckRefuses(t *testing.T) {
 		}
 	}
 }
+
+// Codex P2-1 of PR 14: a change of the list that Kinds or Regions gives
+// changes no check.
+func TestKindAndRegionListsAreCopies(t *testing.T) {
+	if got := Kinds(); !slices.Equal(got, []Kind{KindMachine, KindCable, KindDumbbell, KindCardio}) {
+		t.Errorf("Kinds() = %v", got)
+	}
+	if got := Regions(); len(got) != 6 || got[0] != RegionUpperPush || got[5] != RegionCardio {
+		t.Errorf("Regions() = %v", got)
+	}
+	kinds, regions := Kinds(), Regions()
+	kinds[0], regions[0] = "barbell", "arms"
+	_ = append(Kinds(), "barbell")
+	_ = append(Regions(), "arms")
+	c := Catalog{
+		Version:   1,
+		Machines:  []Machine{{ID: "a", Name: "n", Kind: "barbell"}},
+		Exercises: []Exercise{{ID: "a", Name: "n", Machine: "a", Kind: "barbell", Region: RegionCore}},
+	}
+	if err := c.Check(); !errors.Is(err, ErrInvalid) {
+		t.Errorf("Check() of kind barbell = %v, want ErrInvalid", err)
+	}
+	c.Machines[0].Kind, c.Exercises[0].Kind, c.Exercises[0].Region = KindMachine, KindMachine, "arms"
+	if err := c.Check(); !errors.Is(err, ErrInvalid) {
+		t.Errorf("Check() of region arms = %v, want ErrInvalid", err)
+	}
+	if Kinds()[0] != KindMachine || Regions()[0] != RegionUpperPush {
+		t.Error("a change of one list changed the next list")
+	}
+}

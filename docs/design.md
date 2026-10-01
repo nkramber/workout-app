@@ -44,7 +44,7 @@ No phase of the roadmap holds photo recognition now (Decision, D-111). The recog
 
 The equipment record holds the identity and the available weights of each machine (Decision, D-54). The owner has one active inventory (Decision, D-46).
 
-The catalog of D-155 gives each machine and each exercise a stable id, a kind, and a region. A machine with two movements gives two exercises (Decision, D-159). The six regions are the four regions of EV-1, core, and cardio (Decision, D-161). The adjustable bench is part of the dumbbell set (Decision, D-163). A load is in pounds, as a count of tenths of a pound, so 12.5 lb stays exact (Decision, D-122, D-160).
+The catalog of D-155 gives each machine and each exercise a stable id, a kind, and a region. A machine with two movements gives two exercises (Decision, D-159). The six regions are the four regions of EV-1, core, and cardio (Decision, D-161). The adjustable bench is part of the dumbbell set, and the heaviest dumbbell is at most 100 lb (Decision, D-163, D-166). A load is in pounds, as a count of tenths of a pound, so 12.5 lb stays exact (Decision, D-122, D-160).
 
 ### 3.3 Plan
 

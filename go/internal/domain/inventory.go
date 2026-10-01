@@ -9,8 +9,13 @@ type DumbbellSet struct {
 	Step     Load
 }
 
+// DumbbellMax is the heaviest dumbbell of a set (D-166). With a step of
+// 0.1 lb or more, a set holds 1,000 weights or fewer.
+const DumbbellMax = 100 * Pound
+
 // Check refuses a set with a weight of 0 or less, a heaviest weight
-// below the lightest, or a step that does not divide the range.
+// below the lightest or above DumbbellMax, or a step that does not
+// divide the range.
 func (d DumbbellSet) Check() error {
 	if err := d.Lightest.Check(); err != nil {
 		return invalid("dumbbells lightest: %v", err)
@@ -20,6 +25,9 @@ func (d DumbbellSet) Check() error {
 	}
 	if d.Heaviest < d.Lightest {
 		return invalid("dumbbells heaviest %s below lightest %s", d.Heaviest, d.Lightest)
+	}
+	if d.Heaviest > DumbbellMax {
+		return invalid("dumbbells heaviest %s: want %s or less", d.Heaviest, DumbbellMax)
 	}
 	if (d.Heaviest-d.Lightest)%d.Step != 0 {
 		return invalid("dumbbells step %s does not divide %s to %s", d.Step, d.Lightest, d.Heaviest)
