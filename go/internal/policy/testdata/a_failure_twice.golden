@@ -1,0 +1,7 @@
+policy version: 1
+rules: progress.failure-hold
+target: biceps_curl, rest 120 s
+  working[0]: 12 reps at 25 lb, 2 RIR
+  working[1]: 12 reps at 25 lb, 2 RIR
+  working[2]: 12 reps at 25 lb, 2 RIR
+reason: Two sessions in a row had a set at 0 reps in reserve. The target stays the same.

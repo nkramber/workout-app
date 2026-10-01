@@ -35,6 +35,7 @@ The owner changed the scope in the session of PR-12 (D-154). Dumbbells and two e
 | Q-170, the place of the types | Go types alone in Phase 3. | D-157 |
 | Q-171, the split | PR-12 to PR-17, in section 4. | D-158 |
 | Q-172 to Q-179, the domain model | Two exercises for one machine, loads in tenths of a pound, six regions, pain from 0 to 10, the bench in the dumbbell set, set log bounds, distance in tenths of a mile, and a 100 lb dumbbell at most. | D-159 to D-166 |
+| Q-180 to Q-187, the policy | Rep ranges by exercise, the missed-rep rules, a pain hold of one session, sets with no log, the dumbbell press floor, rest, a lighter weight, and the reps of a load drop. | D-167 to D-174 |
 
 Q-95 and Q-100 have an answer from earlier phases (D-93, D-123). No question of the phase stays open. Section 4 names each recommendation that a later pull request of the phase asks the owner about.
 
@@ -116,11 +117,13 @@ Concerns:
 - the fixed warning text of D-153 for a pain report,
 - the free-weight rules of `docs/research/exercise-safety.md` section 5.14 that the owner adopts.
 
-Acceptance story: the golden tests of scenarios A to D pass. Property tests prove each property of section 6.3 of the high-level roadmap for every input.
+Acceptance story: the golden tests of scenarios A to D pass. Property tests prove each property of section 6.3 of the high-level roadmap for every input. For the property of a Luna proposal, PR-14 proves the refusal, and PR-15 proves the fallback.
 
 Checks: `make go-test` and `make verify`, free. Codex reviews PR-14.
 
-Questions for the session: which of REC-6, REC-9, REC-14, REC-15, and REC-17 to REC-22 the policy adopts. REC-9 holds the pain hold for two sessions, and D-153 already declined its referral text. The rep range limits of section 5.2 are recommendations too.
+The owner answered the open points in the session of PR-14 (D-167 to D-174). The policy adopts REC-6, REC-14, REC-15, REC-17, REC-19, and the rep limits of section 5.2 with a top of 20. A pain report holds progression for one session, not the two sessions of REC-9. REC-18, REC-20, and REC-21 are not policy rules. REC-22 goes to PR-15.
+
+Questions for the session: none open.
 
 ### PR-15 - The re-entry, calibration, and rules fallback
 
@@ -138,7 +141,7 @@ Acceptance story: the golden tests of scenarios E and F pass. A proposal with a 
 
 Checks: `make go-test` and `make verify`, free. Codex reviews PR-15.
 
-Questions for the session: the reactive deload triggers (REC-7) and the fields of the decision record (REC-12). The session also asks about the fallback target for an exercise with no history.
+Questions for the session: the reactive deload triggers (REC-7), the fields of the decision record (REC-12), and the calibration of REC-22. The session also asks about the fallback target for an exercise with no history.
 
 ### PR-16 - The Luna role layer
 

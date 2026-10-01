@@ -1,0 +1,7 @@
+policy version: 1
+rules: progress.add-reps
+target: db_biceps_curl, rest 120 s
+  working[0]: 14 reps at 15 lb, 2 RIR
+  working[1]: 14 reps at 15 lb, 2 RIR
+  working[2]: 14 reps at 15 lb, 2 RIR
+reason: You completed every set with reps to spare. The target is 3 x 14.

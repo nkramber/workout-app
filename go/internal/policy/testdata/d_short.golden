@@ -1,0 +1,7 @@
+policy version: 1
+rules: progress.shortfall-repeat
+target: biceps_curl, rest 120 s
+  working[0]: 12 reps at 25 lb, 2 RIR
+  working[1]: 12 reps at 25 lb, 2 RIR
+  working[2]: 12 reps at 25 lb, 2 RIR
+reason: Set 2 ended 6 reps short. The target stays the same.
