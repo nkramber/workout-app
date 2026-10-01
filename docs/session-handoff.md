@@ -4,23 +4,13 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-09-30. Roadmap PR-14 of `docs/roadmaps/phase-3-workout-domain.md`, work area 3.2, on branch `feat/pr-14-policy-progression`, from base `c3ab54c`. It holds the policy bounds and progression.
+Date: 2026-09-30. GitHub PR 15 is PR-14 of `docs/roadmaps/phase-3-workout-domain.md`, work area 3.2, on branch `feat/pr-14-policy-progression`.
 
-The pull request holds these concerns:
+The Codex review covers effective head `c6fbf78c345a6c544e2f6b93a92843c255600d2b`. The verdict is `Ready for owner merge`. The review found no open findings. The record is `docs/reviews/pr-15.md`.
 
-- the policy package in `go/internal/policy`, with one version and a rule id and sources for each rule (D-38),
-- the bounds of reps, reps in reserve, rest, and load (D-37, D-54, D-167, D-171, D-172),
-- the rounding of D-65 with the halfway rule of D-148 and the machine weight of D-149, for each dumbbell too (D-166),
-- double progression with one 5 lb step (D-147), and missed reps (D-168),
-- a pain report with the warning text of D-153 (D-169), and sets with no log (D-170),
-- the free-weight rule of REC-17 (D-171), a lighter weight (D-173), and the reps of a load drop (D-174).
+The local Go tests and `make verify` pass. The remote contract and product checks pass. Before publication, `review-gate` failed because the branch lacked the review record. Detached `HEAD` blocks local `make pr-check`. The remote `pr-contract` check passed.
 
-The owner approved the milestone before the first edit, and answered Q-180 to Q-187 (D-167 to D-174). The deploy of `c3ab54c` passed: the build `deploy-api` `f54e3728` gave SUCCESS, and the live `/version` names `c3ab54c`.
-
-State: the pull request is open, before CI and the Codex review. `make go-test` and `make verify` pass.
-
-Next action: wait for CI, then run `make codex-review`.
-
+Next action: read the review record and confirm the merge under D-13.
 ## Facts that expire
 
 | Fact | Date read | Source |
