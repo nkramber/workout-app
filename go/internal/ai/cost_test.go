@@ -87,3 +87,25 @@ func TestMemoryCapParallel(t *testing.T) {
 		t.Fatalf("%d calls and %d spent: want 33 and 990", ok, u)
 	}
 }
+
+// TestWorstCoversEachRate: the reservation of a request covers each
+// usage that the request can bill: each input token at any input rate,
+// and the full output limit.
+func TestWorstCoversEachRate(t *testing.T) {
+	r := Planner()
+	const n = 50_000
+	out := int64(r.MaxOutputTokens)
+	for _, u := range []Usage{
+		{InputTokens: n, OutputTokens: out},
+		{InputTokens: n, CachedInputTokens: n, OutputTokens: out},
+		{InputTokens: n, CacheWriteTokens: n, OutputTokens: out},
+		{InputTokens: n, CachedInputTokens: n / 2, CacheWriteTokens: n / 2, OutputTokens: out},
+	} {
+		if c := r.Prices.Cost(u); c > r.worst(n) {
+			t.Errorf("usage %+v costs %s: over the reservation %s", u, c, r.worst(n))
+		}
+	}
+	if r.worst(n) != r.Prices.Cost(Usage{InputTokens: n, CacheWriteTokens: n, OutputTokens: out}) {
+		t.Fatal("the reservation is not the cost of the highest input rate")
+	}
+}

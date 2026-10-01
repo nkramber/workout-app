@@ -56,7 +56,7 @@ func TestPromptHash(t *testing.T) {
 
 func TestRoles(t *testing.T) {
 	for _, r := range Roles() {
-		if r.Model == "" || r.Effort != "medium" || r.MaxOutputTokens <= 0 || r.Timeout <= 0 || r.Prices.Output <= 0 {
+		if r.Model == "" || r.Effort != "medium" || r.MaxOutputTokens <= 0 || r.MaxRequestBytes != 272_000 || r.Timeout <= 0 || r.Prices.Output <= 0 {
 			t.Errorf("role %+v", r)
 		}
 	}

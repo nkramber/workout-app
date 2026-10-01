@@ -467,3 +467,41 @@ func TestParentCancel(t *testing.T) {
 		t.Fatalf("status %q err %v: want %q", res.Status, err, StatusError)
 	}
 }
+
+// TestCapBoundary: the cap permits a call when the cap covers its
+// reservation at the highest input rate, and refuses it one billionth
+// of a dollar below.
+func TestCapBoundary(t *testing.T) {
+	req := request(t)
+	input, err := userInput(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	worst := Planner().worst(len(Instructions(Planner())) + len(input) + len(Schema()))
+	for _, tc := range []struct {
+		cap  NanoUSD
+		want Status
+	}{{worst, StatusOK}, {worst - 1, StatusCapped}} {
+		fake := &Fake{}
+		res, err := (&Client{Provider: fake, Cap: NewMemoryCap(Caps{User: tc.cap, Project: tc.cap})}).Plan(context.Background(), req)
+		if err != nil || res.Status != tc.want || res.Cost.Reserved > tc.cap {
+			t.Fatalf("cap %s: status %q reserved %s err %v: want %q", tc.cap, res.Status, res.Cost.Reserved, err, tc.want)
+		}
+	}
+}
+
+// TestRequestLimit: a request over the short context of the model makes
+// no call, because a longer request bills at higher prices.
+func TestRequestLimit(t *testing.T) {
+	req := request(t)
+	in := &req.Exercises[0]
+	last := in.History[len(in.History)-1]
+	for len(last.Log.Sets) < 5000 {
+		last.Log.Sets = append(last.Log.Sets, last.Log.Sets[0])
+	}
+	in.History[len(in.History)-1] = last
+	fake := &Fake{}
+	if _, err := (&Client{Provider: fake, Cap: bigCap()}).Plan(context.Background(), req); err == nil || len(fake.Calls()) != 0 {
+		t.Fatalf("err %v with %d calls: want an error and no call", err, len(fake.Calls()))
+	}
+}

@@ -113,7 +113,11 @@ func (c *Client) call(ctx context.Context, role Role, req Request) (Result, erro
 		return r, nil
 	}
 
-	worst := role.worst(len(call.Instructions) + len(call.Input) + len(call.Schema))
+	size := len(call.Instructions) + len(call.Input) + len(call.Schema)
+	if size > role.MaxRequestBytes {
+		return Result{}, fmt.Errorf("ai: a request of %d bytes: want %d or fewer", size, role.MaxRequestBytes)
+	}
+	worst := role.worst(size)
 	settle, err := c.Cap.Reserve(req.User, worst)
 	if errors.Is(err, ErrCap) {
 		rec.Known = true

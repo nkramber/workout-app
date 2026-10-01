@@ -40,7 +40,7 @@ func testCall(t *testing.T) Call {
 
 func TestOpenAIRequest(t *testing.T) {
 	body := `{"status":"completed","output":[{"type":"reasoning"},{"type":"message","content":[{"type":"output_text","text":"{\"a\":"},{"type":"output_text","text":"1}"}]}],
-		"usage":{"input_tokens":900,"input_tokens_details":{"cached_tokens":600},"output_tokens":300,"output_tokens_details":{"reasoning_tokens":100}}}`
+		"usage":{"input_tokens":900,"input_tokens_details":{"cached_tokens":600,"cache_write_tokens":200},"output_tokens":300,"output_tokens_details":{"reasoning_tokens":100}}}`
 	c := testCall(t)
 	s := server(t, 200, body, func(r *http.Request, b map[string]any) {
 		if r.Method != http.MethodPost || r.Header.Get("Authorization") != "Bearer "+testKey || r.Header.Get("Content-Type") != "application/json" {
@@ -65,7 +65,7 @@ func TestOpenAIRequest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if r.Text != `{"a":1}` || r.Refusal || r.Incomplete || r.Usage != (Usage{900, 600, 300, 100}) {
+	if r.Text != `{"a":1}` || r.Refusal || r.Incomplete || r.Usage != (Usage{900, 600, 200, 300, 100}) {
 		t.Fatalf("reply %+v", r)
 	}
 }
@@ -135,5 +135,25 @@ func TestNewOpenAI(t *testing.T) {
 	o, _ = NewOpenAI(testKey, "http://bad host", nil)
 	if _, err := o.Send(context.Background(), testCall(t)); err == nil || strings.Contains(err.Error(), testKey) {
 		t.Fatalf("err %v", err)
+	}
+}
+
+// TestOpenAICacheWriteCost: a reply with cache-write tokens costs the
+// published rates of the planner model, read 2026-10-01: per million tokens,
+// 0.10 USD input, 0.01 USD cached input, 0.125 USD cache write, and
+// 0.50 USD output.
+func TestOpenAICacheWriteCost(t *testing.T) {
+	body := `{"status":"completed","output":[],"usage":{"input_tokens":1000000,"input_tokens_details":{"cached_tokens":250000,"cache_write_tokens":500000},"output_tokens":1000000}}`
+	s := server(t, 200, body, nil)
+	o, _ := NewOpenAI(testKey, s.URL, s.Client())
+	r, err := o.Send(context.Background(), testCall(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// 250,000 ordinary input tokens, 250,000 cache reads, 500,000 cache
+	// writes, and 1,000,000 output tokens.
+	want := USD/40 + USD/400 + USD/16 + USD/2
+	if got := Planner().Prices.Cost(r.Usage); got != want {
+		t.Fatalf("cost %s: want %s", got, want)
 	}
 }

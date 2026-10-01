@@ -28,19 +28,23 @@ func (n NanoUSD) String() string {
 	return fmt.Sprintf("%s%d.%s USD", sign, int64(n/USD), frac)
 }
 
-// Prices are the prices of one model for each token.
+// Prices are the prices of one model for each token. An input token
+// bills at one of three rates: a cache read, a cache write, or neither
+// (the input rate).
 type Prices struct {
 	Input       NanoUSD
 	CachedInput NanoUSD
+	CacheWrite  NanoUSD
 	Output      NanoUSD
 }
 
-// Usage is the token count of one call. The cached input tokens are
-// part of the input tokens, and the reasoning tokens are part of the
-// output tokens.
+// Usage is the token count of one call. The cached input tokens and
+// the cache-write tokens are part of the input tokens, and the
+// reasoning tokens are part of the output tokens.
 type Usage struct {
 	InputTokens       int64
 	CachedInputTokens int64
+	CacheWriteTokens  int64
 	OutputTokens      int64
 	ReasoningTokens   int64
 }
@@ -48,14 +52,19 @@ type Usage struct {
 // Cost gives the cost of a usage. A reasoning token bills as an output
 // token.
 func (p Prices) Cost(u Usage) NanoUSD {
-	fresh := u.InputTokens - u.CachedInputTokens
-	return NanoUSD(fresh)*p.Input + NanoUSD(u.CachedInputTokens)*p.CachedInput + NanoUSD(u.OutputTokens)*p.Output
+	fresh := u.InputTokens - u.CachedInputTokens - u.CacheWriteTokens
+	return NanoUSD(fresh)*p.Input + NanoUSD(u.CachedInputTokens)*p.CachedInput +
+		NanoUSD(u.CacheWriteTokens)*p.CacheWrite + NanoUSD(u.OutputTokens)*p.Output
 }
+
+// maxInput gives the highest rate of an input token.
+func (p Prices) maxInput() NanoUSD { return max(p.Input, p.CachedInput, p.CacheWrite) }
 
 // worst gives the largest cost of a call with a request of n bytes. One
 // token holds one byte or more, so n bytes give n input tokens or fewer.
+// Each input token can bill at the highest input rate.
 func (r Role) worst(n int) NanoUSD {
-	return NanoUSD(n)*r.Prices.Input + NanoUSD(r.MaxOutputTokens)*r.Prices.Output
+	return NanoUSD(n)*r.Prices.maxInput() + NanoUSD(r.MaxOutputTokens)*r.Prices.Output
 }
 
 // CostRecord is the cost of one call (D-25). It holds ids and numbers

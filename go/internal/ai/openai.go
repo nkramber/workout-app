@@ -75,7 +75,8 @@ type openAIResponse struct {
 	Usage struct {
 		InputTokens        int64 `json:"input_tokens"`
 		InputTokensDetails struct {
-			CachedTokens int64 `json:"cached_tokens"`
+			CachedTokens     int64 `json:"cached_tokens"`
+			CacheWriteTokens int64 `json:"cache_write_tokens"`
 		} `json:"input_tokens_details"`
 		OutputTokens        int64 `json:"output_tokens"`
 		OutputTokensDetails struct {
@@ -131,6 +132,7 @@ func (o *OpenAI) Send(ctx context.Context, c Call) (Reply, error) {
 	out := Reply{Usage: Usage{
 		InputTokens:       r.Usage.InputTokens,
 		CachedInputTokens: r.Usage.InputTokensDetails.CachedTokens,
+		CacheWriteTokens:  r.Usage.InputTokensDetails.CacheWriteTokens,
 		OutputTokens:      r.Usage.OutputTokens,
 		ReasoningTokens:   r.Usage.OutputTokensDetails.ReasoningTokens,
 	}}

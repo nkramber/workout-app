@@ -16,9 +16,9 @@ The pull request adds the Luna role layer in `go/internal/ai`:
 
 The owner approved the milestone before the first edit, and answered Q-196 and Q-197 (D-182, D-183). Q-98 stays open for Phase 4. The deploy of `454c141` passed: the build `deploy-api` `0a2829eb` gave SUCCESS, and the live `/version` names `454c141`.
 
-State: Codex reviewed head `21ed998` and found P2-1 open. The cache-write cost is not in the cost record or the cap reserve. `make go-test`, `make verify`, and `go test -race ./internal/ai` pass.
+State: GitHub PR 17 is open. Codex round 1 found P2-1 at `21ed998`: the cost and the cap left out the cache-write rate. The author found full merit (`docs/reviews/pr-17-response.md`). The cost now uses the cache-write rate, and the cap reserves each input token at the highest input rate. The layer refuses a request over the short context. `make go-test` and `make verify` pass.
 
-Next action: correct P2-1, push a new round, and rerun the checks and Codex review (D-8).
+Next action: the author session waits for green CI, then runs `make codex-review PR=17` for round 2 (D-8).
 
 ## Facts that expire
 
@@ -28,7 +28,7 @@ Next action: correct P2-1, push a new round, and rerun the checks and Codex revi
 | The owner ended the D-4 period. `OVERRIDE_ENABLED` is `True` on `main`. | 2026-09-29 | D-125, `docs/tools/review_gate.py` |
 | `main` has the live ruleset `review-gate` and the merge settings of `.github/rulesets`. The ruleset requires `verify:contract`, `verify:go`, `verify:emulator`, and `verify:web` too. `make ruleset-check` passed. | 2026-09-29 | `make ruleset-check` |
 | The review-gate workflow runs from `main`, so it runs on each pull request. | 2026-09-28 | `.github/workflows/review-gate.yml` |
-| `gpt-6-luna` costs 0.10 USD per million input tokens and 0.50 USD per million output tokens. | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
+| In the short context of 272K input tokens or fewer, `gpt-6-luna` costs 0.10 USD per million input tokens, 0.01 USD cached, 0.125 USD for a cache write, and 0.50 USD per million output tokens. | 2026-10-01 | `docs/research/platform-cloud-and-ai.md` |
 | The OpenAI usage policies page returns HTTP 403. The owner accepted a copy printed on 2025-11-07 (D-93). | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
 | `gpt-6-luna` accepts the strict JSON schema of the plan through the Responses API. 60 of 60 plans passed the schema. | 2026-09-28 | `docs/research/luna-plan-spike.md` |
 | `gpt-6-luna` accepts an image with a strict JSON schema. One photo at 1536 px costs 0.00037 USD. | 2026-09-28 | `docs/research/recognition-spike.md` |

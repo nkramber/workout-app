@@ -141,6 +141,7 @@ Chrome on iPhone leads, and it uses the WebKit engine (D-29). The web client use
 | PC-99 | [HIG Accessibility](https://developer.apple.com/design/human-interface-guidelines/accessibility), Apple | Controls 44 by 44 pt by default, 28 by 28 pt minimum. Contrast 4.5:1. | Native guidance | recommendation |
 | PC-100 | [Make apps more accessible](https://developer.android.com/guide/topics/ui/accessibility/apps), Android Developers | Targets of at least 48 by 48 dp. | Native guidance | recommendation |
 | PC-101 | [Usage policies, print copy](https://docs.databricks.com/aws/ja/assets/files/usage-policies-openai-923e062e72487537e2a8df04bcec7f6d.pdf), a Databricks copy of the OpenAI page | The full text of the policy page, printed 2025-11-07, effective 2025-10-29. Read on 2026-09-28. | A copy, not the live page. Changes after 2025-11-07 stay unverified. | evidence, dated copy |
+| PC-102 | [Prompt caching](https://developers.openai.com/api/docs/guides/prompt-caching) and [Pricing](https://developers.openai.com/api/docs/pricing), OpenAI | Caching is on by default. For GPT-5.6 and later, a cache write costs 1.25 times the input rate, and `usage.input_tokens_details.cache_write_tokens` counts the writes. The short context of `gpt-6-luna` is 272K input tokens or fewer. Read on 2026-10-01. | Prices change | evidence |
 
 ## 3. Installable web app on iPhone and Android
 
@@ -383,7 +384,8 @@ Every tier ends with the owner confirmation (D-49). So a tier only chooses the s
 
 | Item | Arithmetic | Result | Class | Source |
 |---|---|---|---|---|
-| Luna token prices | Standard tier, per 1M tokens | $0.10 input, $0.50 output, $0.01 cached input | evidence | PC-61 |
+| Luna token prices | Standard tier, short context, per 1M tokens | $0.10 input, $0.50 output, $0.01 cached input, $0.125 cache write. Read again on 2026-10-01. | evidence | PC-61, PC-102 |
+| Luna long-context prices | Standard tier, more than 272K input tokens, per 1M tokens | $0.20 input, $0.75 output, $0.02 cached input, $0.25 cache write | evidence | PC-102 |
 | Luna image tokens | The vision guide gives 32 px patches and a multiplier for other models. It gives no Luna multiplier. | Unknown | unresolved | PC-62 |
 | One 1024 by 1024 photo, if the 1.2 multiplier applies | 1,229 tokens x $0.10 / 1M | About $0.00012 | assumption | PC-62, PC-61 |
 | One photo call with 1,500 text tokens and 300 output tokens | (1,229 + 1,500) x $0.10 / 1M + 300 x $0.50 / 1M | About $0.00042 | assumption | PC-61 |
