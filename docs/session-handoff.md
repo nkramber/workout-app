@@ -18,7 +18,7 @@ The owner approved the milestone before the first edit, and answered Q-188 to Q-
 
 State: GitHub PR 16 is open. Codex round 1 found P2-1 at `f4ebf8f`, and round 2 found P2-2 at `e42982b`. The author found full merit in each.
 
-Round 3 at `4273bab` gave `Blocked` with no open finding. The owner set the full calibration-set contract in D-181, and `Check` now enforces it. Codex round 4 records `Ready for owner merge` at `04d3d1b`. P3-1 records trailing spaces in one golden fixture. `make go-test` and `make verify` pass. CI needs a fresh `review-gate` result after publication.
+Round 3 at `4273bab` gave `Blocked` with no open finding. The owner set the full calibration-set contract in D-181, and `Check` now enforces it. Codex round 4 records `Ready for owner merge` at `04d3d1b`. P3-1 records trailing spaces in one golden fixture. `make go-test` and `make verify` pass. All required GitHub checks pass at the published metadata head.
 
 Next action: the author session waits for green CI, then asks the owner to confirm the merge (D-13).
 
