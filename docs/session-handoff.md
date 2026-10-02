@@ -17,7 +17,7 @@ The pull request holds:
 - the Phase 5 work areas in `docs/roadmaps/high-level-roadmap.md`, and the onboarding and privacy text of `docs/design.md`,
 - the row of the roadmap in `docs/roadmaps/README.md`, and the Phase 5 stage in `AGENTS.md`.
 
-State: `make verify`, `make ste-check`, and `make ref-check` passed. The CI result and the Codex review come after the push. The result is pending the owner merge.
+State: `make verify`, `make ste-check`, and `make ref-check` passed. The Codex review says `Ready for owner merge` for effective head `2898d5c8cbe09276bd85e6a261f7011a596846a5`. Finding ids: none. The record and this hand-off need a push, then the review-gate check must pass. The result is pending the owner merge.
 
 Next action: after the merge, start PR-23, the profile API and store, in a clean session (D-207). PR-22 changes documents alone, so its merge needs no deploy check.
 
@@ -82,7 +82,7 @@ Completed:
 
 Open work:
 
-- The Codex review, the owner confirmation, and the merge of PR-22.
+- Push the Codex review record and hand-off. Wait for the review-gate check, then get the owner confirmation and merge PR-22.
 
 ### Session 22 - 2026-10-02
 
