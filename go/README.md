@@ -10,6 +10,8 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `go/internal/allowlist` | The invite allowlist of uids in Firestore (D-131) |
 | `go/internal/envguard` | The start guard against an emulator variable on Cloud Run (D-129) |
 | `go/internal/usersvc` | The `GetMe` call |
+| `go/internal/inventory` | The inventory of the owner: the machines and the notes, the checks, the draft and confirmed states, the Firestore store, and `ForPlan` (D-46, D-193, D-197) |
+| `go/internal/inventorysvc` | The calls of `InventoryService` |
 | `go/internal/domain` | The types of the workout domain, the catalog of D-155, and the check of each type (D-157) |
 | `go/internal/policy` | The versioned safety policy: the bounds of a target, the rounding of a load, the start and the calibration of a new exercise, the return after a break, the next target, the check of a proposal, the rules fallback, and the decision record (D-23, D-38, D-176) |
 | `go/internal/ai` | The Luna role layer: the planner and reviser roles, the plan schema, the prompt, the guidance catalog, the filter of blocked claims, the cost records, the cap hook, the OpenAI provider, and the fake provider (D-24, D-25, D-152, D-183) |
@@ -56,6 +58,29 @@ The refusals:
 - A failed read of the list: `unavailable`.
 
 The live project holds the entry of the owner uid. `docs/setup-gcp.md` gives the step. No uid goes into the repository.
+
+## The inventory
+
+`InventoryService` holds the one active inventory of the caller (work area 4.2). Its calls read the catalog and the inventory, and save, confirm, and remove a machine or a note. A load is a whole number of tenths of a pound.
+
+The store keeps one Firestore document for each user at `users/{uid}/inventory/active` (D-197). Each change reads and writes the document in one transaction. A stored machine holds its catalog id, its weights, its estimates, and its state alone. A note holds its id and its text.
+
+The server refuses a bad value with `invalid_argument`:
+
+- A machine outside the catalog, or weights of the wrong kind for the machine.
+- A weight above 1,000 lb, or more than 200 weights (D-199). The dumbbells keep the bound of D-166.
+- An estimate for an exercise of another machine, or an estimate outside the weights of the machine (D-198).
+- A note of 0 or more than 200 characters, or more than 50 notes (D-199).
+
+The other refusals:
+
+- A confirmation of an unknown machine, or a change of an unknown note: `not_found`.
+- A confirmation with weights that are not the stored weights: `failed_precondition` (D-201).
+- A failed read or write of Firestore: `internal`, with a fixed text.
+
+A removal of an unknown machine or note succeeds, so a retry is safe. An error names ids and numbers alone, and never the text of a note (D-80).
+
+The function `inventory.ForPlan` gives the confirmed machines and their estimates to the plan input of Phase 5. A draft and a note never reach it (D-49, D-191, D-193).
 
 ## Emulators
 
