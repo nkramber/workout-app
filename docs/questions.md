@@ -373,6 +373,16 @@ The owner answered through the answer controls of the session. The first session
 | Q-216 | Which order does the catalog list of the inventory screen use? | By kind: the machines, the cable station, the dumbbells, then the cardio machines, each group in catalog order. | Answered | D-202 |
 | Q-217 | When does the owner add and confirm one machine in the live app on the iPhone? | After the merge of PR-20 and its web deploy. The Phase 5 roadmap session records the result as the exit evidence of Phase 4. | Answered | D-203 |
 
+## Questions of the inventory writes session
+
+The live check of D-203 failed on 2026-10-02. The app showed "The API did not answer. The change is not saved." `SaveMachine` gave HTTP 500, because `api-runtime` held `roles/datastore.viewer` alone.
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-218 | The live check failed. What comes before the Phase 5 roadmap? | A Phase 4 correction in this session as PR-21. The Phase 5 roadmap becomes PR-22. | Answered | D-204 |
+| Q-219 | Which lists show the machines A to Z? | Both: the inventory list, and each kind group of the catalog list. | Answered | D-205 |
+| Q-220 | Which role lets the API write Firestore? | `roles/datastore.user` in place of `roles/datastore.viewer`, applied in this session. A server fault shows "The server failed." | Answered | D-206 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |

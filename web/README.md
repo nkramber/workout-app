@@ -8,7 +8,7 @@ This folder holds the installable web shell of work area 2.2 and the inventory s
 | `web/src/shell.tsx` | The shell that fills the whole screen (D-120) |
 | `web/src/pages` | The sign-in page and the home screen |
 | `web/src/pages/inventory` | The inventory screens: the list, the catalog list and the text entry, the weights, and the review screen |
-| `web/src/lib/inventory.ts` | The catalog order, the search of the catalog names, and the checks of the weights, the estimates, and the notes |
+| `web/src/lib/inventory.ts` | The catalog order, the A to Z order of the inventory list, the search of the catalog names, and the checks of the weights, the estimates, and the notes |
 | `web/src/lib/inventory-api.ts`, `web/src/lib/errors.ts` | The calls that change the inventory, and the error text of a failed call |
 | `web/src/lib/firebase.ts` | Firebase Authentication with email and password (D-75) |
 | `web/src/lib/api.ts` | The Connect transport, with the ID token of the owner on each call |
@@ -30,13 +30,13 @@ The app has no form that makes an account. The owner makes the one account in th
 
 The home screen opens the equipment inventory (work area 4.1). The screens read the catalog and the inventory through `InventoryService` of the API, and never through Firestore (D-77).
 
-- The list shows each machine with its state, draft or confirmed, and each note.
-- The catalog list shows the machines by kind (D-202). A text searches the names of the machines and of their exercises. The owner selects a match, or keeps the text as a note (D-191).
+- The list shows each machine with its state, draft or confirmed, A to Z by name (D-205), and each note.
+- The catalog list shows the machines by kind (D-202), and each kind A to Z by name (D-205). A text searches the names of the machines and of their exercises. The owner selects a match, or keeps the text as a note (D-191).
 - A machine or the cable station gets a range and a step, then single weights (D-195). The dumbbells get the dumbbell set. A cardio machine gets no weights.
 - Each exercise of the machine gets one optional estimate, from the lightest to the heaviest weight (D-192, D-198).
 - The review screen confirms the weights that it shows (D-201), and removes the machine.
 
-Each load is a whole number of tenths of a pound, as in the contract. Each change is a direct call to the API. With no connection, the screen shows an error, and the server keeps no change (D-196). The inventory has no offline copy until Phase 6.
+Each load is a whole number of tenths of a pound, as in the contract. Each change is a direct call to the API. With no connection, the screen shows an error, and the server keeps no change (D-196). A server fault, the code `internal`, shows "The server failed." (D-206). The inventory has no offline copy until Phase 6.
 
 ## The offline store
 

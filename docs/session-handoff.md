@@ -4,26 +4,22 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-02. Roadmap PR-20 of `docs/roadmaps/phase-4-equipment-inventory.md`, open as GitHub PR 21 on branch `feat/pr-20-inventory-screens`, from base `b3484b6`. Work area 4.1.
+Date: 2026-10-02. Roadmap PR-21 of `docs/roadmaps/phase-4-equipment-inventory.md`, on branch `fix/pr-21-inventory-writes`, from base `dc89e30`. Work area 4.1.
 
-The session read the deploys of `b3484b6` first. The builds `deploy-api` `19e8e84a` and `deploy-web` `98ec4b70` gave SUCCESS. The live `/version` and `/version.json` name `b3484b6`.
+The session read the deploy of `dc89e30` first. The build `deploy-web` `c78c7c6e` gave SUCCESS, and the live `/version.json` names `dc89e30`. The live `/version` names `b3484b6`, because no API deploy followed.
 
-The pull request holds the inventory screens:
+The live check of D-203 failed. The app showed "The API did not answer. The change is not saved." The request log gave HTTP 500 for each `SaveMachine` call, and `api-runtime` held `roles/datastore.viewer` alone. The owner chose a Phase 4 correction in this session (D-204), and approved the milestone before the first edit (D-12).
 
-- `web/src/pages/inventory`: the list, the catalog list by kind and the text entry, the weights and the estimates, and the review screen,
-- `web/src/lib/inventory.ts`, `web/src/lib/inventory-api.ts`, and `web/src/lib/errors.ts`, with the unit tests of `web/src/lib/inventory.test.ts`,
-- the browser tests of `web/e2e/inventory.spec.ts`, and the shared steps of `web/e2e/support.ts`,
-- the owner answers D-202 and D-203 to Q-216 and Q-217, with the design, both roadmaps, `web/README.md`, and `AGENTS.md`.
+The pull request holds:
 
-The owner approved the milestone before the first edit (D-12).
+- the role change of `api-runtime` to `roles/datastore.user`, applied at 16:22:48Z and read back, in `docs/setup-gcp.md` (D-206),
+- the text "The server failed." for the code `internal`, in `web/src/lib/errors.ts` (D-206),
+- the A to Z order of the inventory list and of each kind group of the catalog list, in `web/src/lib/inventory.ts` (D-205),
+- the unit tests and the browser tests of both, and the owner answers D-204 to D-206 to Q-218 to Q-220.
 
-State: `make verify` passed. GitHub `verify:*` and `pr-contract` passed. The Codex review says `Ready for owner merge` for effective head `b46c0a3`. Finding ids: none.
+State: `make web` passed under Node 22. The result is pending CI, the Codex review, and the owner merge.
 
-The author ran `make web` under Node 22, and it passed. The Codex checkout has Node 20, so `make web` did not run there, and GitHub `verify:web` passed. The result is pending the owner confirmation and merge.
-
-Next action: the owner reads the review record and the author provider, confirms the merge, then the author session turns on auto-merge under D-13.
-
-The merge changes `web/` alone, so `deploy-web` deploys the web app, and no API deploy follows. After that deploy, the owner adds and confirms one machine in the live app on the iPhone (D-203). The Phase 5 roadmap session records the result as the exit evidence of Phase 4.
+Next action: after the merge, read the `deploy-web` build of the merge and the live `/version.json`. Then the owner adds and confirms one machine in the live app on the iPhone (D-203). The Phase 5 roadmap session records the result as PR-22 (D-204).
 
 ## Facts that expire
 
@@ -43,7 +39,8 @@ The merge changes `web/` alone, so `deploy-web` deploys the web app, and no API 
 | The bucket `nk-workout-app-prod-deploy-lock` exists, and each deployer account holds `roles/storage.objectUser` on it alone. | 2026-09-29 | `gcloud storage buckets describe`, `get-iam-policy` |
 | `workout-app-prod` is in use by another Google Cloud project. | 2026-09-29 | `gcloud projects create` |
 | The old project `gym-route-dev` is `DELETE_REQUESTED` since 2026-09-30T03:19:47Z. `gcloud projects undelete` can restore it for 30 days. Its site still gave HTTP 200 at 04:38:56Z. | 2026-09-30 | `gcloud projects describe`, `curl` |
-| The live `/version` names `b3484b631e10b1fe18c75a5c4bb139c732b8dc51`, from the build `deploy-api` `19e8e84a`. The live `/version.json` names the same commit, from the build `deploy-web` `98ec4b70`. The rules release of `df79c16` has the update time 02:33:00Z, read 2026-09-30. | 2026-10-02 | `curl`, `gcloud builds list` |
+| The live `/version` names `b3484b631e10b1fe18c75a5c4bb139c732b8dc51`, from the build `deploy-api` `19e8e84a`. The live `/version.json` names `dc89e30d2fd996510b68e442f9b95394c1744338`, from the build `deploy-web` `c78c7c6e`. The rules release of `df79c16` has the update time 02:33:00Z, read 2026-09-30. | 2026-10-02 | `curl`, `gcloud builds list` |
+| `api-runtime` holds `roles/datastore.user`, and no other project role. | 2026-10-02 | `gcloud projects get-iam-policy` |
 | With `context.setOffline(true)` of Playwright 1.63.0, a call of the API fails in WebKit and in Chromium. Connect gives the code `unknown` with a `TypeError` as its cause. | 2026-10-02 | `web/e2e/inventory.spec.ts` |
 | `rules-deployer` holds `roles/firebaserules.admin`, `roles/serviceusage.serviceUsageViewer`, and `roles/logging.logWriter`. | 2026-09-30 | `gcloud projects get-iam-policy` |
 | Since iOS 26, a Home Screen app blurs a band below the status bar, and a page can not turn it off. On iOS 27.0 with Chrome 154, 16 px above the title keeps it sharp. The owner saw the fix in the live app of `73b1964`. | 2026-09-30 | `docs/research/phase-2-check.md`, the owner |
@@ -66,12 +63,29 @@ The merge changes `web/` alone, so `deploy-web` deploys the web app, and no API 
 
 ## Next steps, in order
 
-1. Close PR-20: CI, the Codex review, the owner confirmation, and the merge.
+1. Close PR-21: CI, the Codex review, the owner confirmation, and the merge.
 2. Read the `deploy-web` build of the merge, and the live `/version.json`.
 3. The owner adds and confirms one machine in the live app on the iPhone (D-203).
-4. Start the Phase 5 focused roadmap in a clean session. It records the Phase 4 exit evidence.
+4. Start the Phase 5 focused roadmap as PR-22 in a clean session. It records the Phase 4 exit evidence (D-204).
 
 ## Session records
+
+### Session 22 - 2026-10-02
+
+Author provider: Claude Code
+
+Branch: `fix/pr-21-inventory-writes`. Role: author.
+
+Completed:
+
+- Read the deploy of `dc89e30`. The live check of D-203 failed, and the request log and the IAM policy gave the cause.
+- The owner answered Q-218 to Q-220 (D-204 to D-206), and approved the milestone before the first edit (D-12).
+- Changed the role of `api-runtime`. Wrote the A to Z order and the text of a server fault, with their tests.
+
+Open work:
+
+- CI, the Codex review, the owner confirmation, and the merge of PR-21.
+- The owner check on the iPhone after the deploy (D-203).
 
 ### Session 21 - 2026-10-02
 
@@ -87,8 +101,7 @@ Completed:
 
 Open work:
 
-- CI, the Codex review, the owner confirmation, and the merge of PR-20.
-- The owner check on the iPhone after the deploy (D-203).
+- None. GitHub PR 21 merged as `dc89e30`. The live check of D-203 failed, and PR-21 corrects the fault (D-204).
 
 ### Session 20 - 2026-10-02
 
@@ -105,19 +118,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 20 merged as `b3484b6`.
-
-### Session 19 - 2026-10-02
-
-Author provider: Claude Code
-
-Branch: `docs/pr-18-phase-4-roadmap`. Role: author.
-
-Completed:
-
-- Read the deploy of `9d0e5d0`. The owner approved the milestone before the first edit (D-12).
-- Asked Q-98 and Q-203 to Q-210, and recorded D-188 to D-196.
-- Wrote the Phase 4 focused roadmap, and changed the high-level roadmap, the design, the roadmap index, and `AGENTS.md`.
-
-Open work:
-
-- None. GitHub PR 19 merged as `a95ce8c`.

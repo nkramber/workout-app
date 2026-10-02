@@ -2,7 +2,7 @@
 
 This document gives the live state of the project `nk-workout-app-prod`, and the steps that make it again. The structure follows `decktome:docs/setup-gcp.md`. `docs/deploy-and-rollback.md` gives the deploy and the rollback.
 
-The date of this version is 2026-09-29. The session of work area 2.3 made each part with the approval of the owner at run time, and it read each part back.
+The date of this version is 2026-10-02. The session of work area 2.3 made each part with the approval of the owner at run time, and it read each part back. The session of PR-21 changed the role of `api-runtime` (D-206).
 
 CAUTION: do not write an account email, a uid, or a secret value into this file. The repository is public (D-106).
 
@@ -33,7 +33,7 @@ Each account holds the roles of one job, and no account holds a basic role.
 
 | Account | Roles | Use |
 |---|---|---|
-| `api-runtime` | `roles/datastore.viewer`, and the accessor role on `openai-api-key` alone | The Cloud Run service `api` runs as this account. |
+| `api-runtime` | `roles/datastore.user`, and the accessor role on `openai-api-key` alone | The Cloud Run service `api` runs as this account. |
 | `api-deployer` | `roles/run.developer`, `roles/artifactregistry.writer`, `roles/logging.logWriter`, and `roles/iam.serviceAccountUser` on `api-runtime` alone | The trigger `deploy-api` |
 | `web-deployer` | `roles/firebasehosting.admin`, `roles/logging.logWriter` | The trigger `deploy-web` |
 | `rules-deployer` | `roles/firebaserules.admin`, `roles/serviceusage.serviceUsageViewer`, `roles/logging.logWriter` | The trigger `deploy-rules` |
@@ -44,7 +44,9 @@ Before a release of the rules, `firebase-tools` reads the state of the Firestore
 
 The web build installs npm code, so `web-deployer` can release Hosting alone. A bad package can not deploy the API, and it can not open the rules (D-142).
 
-Note: `api-runtime` reads the allowlist and no other data. Phase 3 changes its role when the API writes Firestore.
+Note: `api-runtime` reads the allowlist, and it reads and writes the inventory of PR-19. Until 2026-10-02 it held `roles/datastore.viewer` alone, so each save gave HTTP 500 in the live app. The emulator applies no IAM, so the emulator tests did not find the fault (D-206).
+
+CAUTION: a new write path of the API needs a write role on the live project. The emulator tests can not prove the role. Read the role of `api-runtime` before the live check of a new write path.
 
 ## 3. Before you start
 
