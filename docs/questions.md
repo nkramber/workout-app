@@ -343,6 +343,19 @@ The owner answered through the answer controls of the session. The first session
 | Q-200 | The policy accepts more reps or fewer reps in reserve at the load of its target. Does it refuse such a proposal? | Yes. A new rule goes in before the paid run. | Answered | D-186 |
 | Q-201 | How does the OpenAI key reach Secret Manager? | The owner adds the version in a local terminal. | Answered | D-187 |
 
+## Questions of the Phase 4 roadmap session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-203 | Which phase builds the lasting store of the monthly AI caps? The cap hook of PR-16 holds the spend in memory, so a new instance of the API resets it. | Phase 5, before the first live call of the planner. | Answered | D-189 |
+| Q-204 | Which period does a monthly AI cap use? | The calendar month in UTC. | Answered | D-190 |
+| Q-205 | What happens to a machine that the owner enters as text? | A search of the catalog. A text with no match stays as a note that no plan uses. | Answered | D-191 |
+| Q-206 | Does the load estimate belong to a machine or to an exercise? | To an exercise, and it is optional. | Answered | D-192 |
+| Q-207 | What is the confirmation of a machine that the owner enters? | A confirmation on a review screen after a draft. A change of the weights makes a draft again. | Answered | D-193 |
+| Q-208 | How does Phase 4 split into pull requests? | PR-19 for the API and the store, then PR-20 for the screens. | Answered | D-194 |
+| Q-209 | How does the owner enter the weights of a stack? | A range and a step, then a change of single weights. | Answered | D-195 |
+| Q-210 | How does a change of the inventory reach the server in Phase 4? | A direct call to the API. The outbox comes in Phase 6. | Answered | D-196 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |
@@ -355,7 +368,7 @@ The owner answered through the answer controls of the session. The first session
 | Q-95 | What do the current OpenAI usage policies say about fitness and health advice? | The research could not read the policy page. The prompts of Luna must obey it. Answer on 2026-09-28: use the dated copy of the policy page (D-93). | Phase 1 | Answered |
 | Q-96 | What does one equipment photo cost on `gpt-6-luna`? | OpenAI does not publish the image token rate of this model. A paid probe needs owner approval (D-25). Answer on 2026-09-28: the recognition spike measures it, with a cap of 2 USD (D-94). Measured on 2026-09-28: 0.00037 USD per photo, with 2,815 input tokens and 368 output tokens on average (`docs/research/recognition-spike.md`). | Phase 1 | Answered |
 | Q-97 | Which image licenses are acceptable for the recognition test set (D-56)? | Test images must be lawful to copy and store. Answer on 2026-09-28: CC0, public domain, CC BY, CC BY-SA, and CC BY-NC (D-95). | Phase 1 | Answered |
-| Q-98 | What are the monthly AI caps for the one user and for the project (D-25)? | A cap stops a runaway loop from a large bill. | Phase 4 | Open |
+| Q-98 | What are the monthly AI caps for the one user and for the project (D-25)? | A cap stops a runaway loop from a large bill. Answer on 2026-10-02: 1 USD for the user and 2 USD for the project, for each calendar month in UTC (D-188, D-190). | Phase 4 | Answered |
 | Q-99 | Does the one development project get Firestore backups and point-in-time recovery? | D-76 leaves one project. It holds the only copy of the workout history. Answer on 2026-09-29: yes, point-in-time recovery and a daily backup from work area 2.3 (D-124). | Phase 4 | Answered |
 | Q-100 | Which fields does a cardio machine log hold? | D-57 defines the set log for resistance machines only. D-45 adds cardio machines. Answer on 2026-09-29: duration and an effort rating, with optional distance, level, pain, and note (D-123). | Phase 2 | Answered |
 | Q-101 | Where does mobility and recovery guidance come from, as text only (D-73) and inside the fitness boundary (D-36)? | Luna can write this text, and the policy can not check prose for medical claims as easily as numbers. Answer on 2026-09-30: a versioned catalog of texts in the repository, which Luna selects by id (D-152). | Phase 3 | Answered |

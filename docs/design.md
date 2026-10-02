@@ -34,7 +34,11 @@ The owner enters experience, goals, injuries and restrictions, age, height, weig
 
 ### 3.2 Equipment capture
 
-The owner selects each machine from the catalog, or enters it as text (Decision, D-51, D-55, D-110). The owner confirms or corrects each machine before a plan uses it (Decision, D-49). The owner then gives a current load estimate for the machine (Decision, D-41).
+The owner selects each machine from the catalog, or enters it as text (Decision, D-51, D-55, D-110). A text searches the names of the catalog, and the owner selects the match. A text with no match stays as a note in the inventory, and no plan uses a note (Decision, D-191).
+
+The owner enters the weights of a stack as the lightest weight, the heaviest weight, and the step. The app makes the list, and the owner can add or remove a weight (Decision, D-195). The owner can give a current load estimate for each exercise of the machine (Decision, D-41, D-192).
+
+The owner saves a machine as a draft, then confirms it on a review screen. A plan reads confirmed machines alone. A change of the weights makes a confirmed machine a draft again (Decision, D-49, D-193). In Phase 4, each change is a direct call to the API, and Phase 6 adds the offline copy (Decision, D-196).
 
 No phase of the roadmap holds photo recognition now (Decision, D-111). The recognition spike gave a no-go, because Luna gave too many wrong answers with a high stated confidence (Decision, D-107, and `docs/research/recognition-spike.md`). When a later decision adds a photo phase, these rules apply:
 
@@ -154,7 +158,7 @@ The role layer is in `go/internal/ai` (Decision, D-157). It holds these parts:
 - The planner and the reviser roles on `gpt-6-luna` at medium effort. The role holds the model id, so a call site names a role alone (Decision, D-22, D-24).
 - The strict plan schema. Its enums hold the ids of the catalog of D-155 and of the guidance catalog, so a valid output names no unknown id (Decision, D-152).
 - The prompt, with the boundary of D-36 and the dated copy of the usage policies of D-93, and each rule of the policy.
-- A cost record for each call, and a cap hook that reserves the worst-case cost before the call. The hook refuses a call over the cap. The cap values come from the configuration until Q-98 has an answer (Decision, D-25).
+- A cost record for each call, and a cap hook that reserves the worst-case cost before the call. The hook refuses a call over the cap. The cap values come from the configuration. The caps are 1 USD for the user and 2 USD for the project, for each calendar month in UTC (Decision, D-25, D-188, D-190). The hook keeps the spend in memory until Phase 5 adds a lasting store in Firestore (Decision, D-189).
 - The filter of blocked claims on each text of Luna (Decision, D-183).
 - The fake provider for tests. No test calls OpenAI (Decision, D-24).
 
