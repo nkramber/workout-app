@@ -39,8 +39,10 @@ Phase 2 gives the contract in `proto/`, the API in `go/`, the web shell in `web/
 | Q-213, the bounds | 1,000 lb and 200 weights for a list. 200 characters and 50 notes for the notes. | D-199 |
 | Q-214, a second save | The save replaces the entry. A change of the estimates alone keeps the confirmation. | D-200 |
 | Q-215, the confirmation | The weights that the review screen showed. The server refuses other weights. | D-201 |
+| Q-216, the catalog list | By kind: the machines, the cable station, the dumbbells, and the cardio machines. | D-202 |
+| Q-217, the live check | After the merge of PR-20 and its web deploy. The Phase 5 roadmap session records it. | D-203 |
 
-No question of the phase stays open. Q-194 and Q-202 stay open for Phase 7. Q-103 stays open for the deferred photo work.
+No question of the phase stays open. PR-20 asked Q-216 and Q-217 (D-202, D-203). Q-194 and Q-202 stay open for Phase 7. Q-103 stays open for the deferred photo work.
 
 The answers of Q-98, Q-203, and Q-204 do not change Phase 4. They change work areas 5.2 and 8.2 of the high-level roadmap (D-189). The pull request of Phase 5 that adds the lasting cap store also changes the comments of `go/internal/ai/cost.go` and the cap text of `go/README.md`.
 
@@ -115,10 +117,12 @@ Concerns:
 
 Acceptance story: the browser tests add a machine by selection and a machine by text entry, and confirm both. A change of the weights makes a confirmed machine a draft again. A text with no match stays as a note. The owner adds and confirms one machine in the live app on the iPhone.
 
+A deploy comes from `main` alone (D-14). So the browser tests are the evidence of the merge, and the owner does the iPhone step after the `deploy-web` build of the merge (D-203).
+
 Checks: `make web`, `make verify`, and the Go checks of PR-19 when `go/` changes, free. Codex reviews PR-20.
 
-Questions for the session: the order of the catalog list, by region or by kind. Ask the owner, with a recommendation.
+Questions for the session: the order of the catalog list, by region or by kind. The owner answered by kind (Q-216, D-202). The session also asked Q-217 (D-203).
 
 ## 5. Exit of the phase
 
-Phase 4 ends when PR-20 merges. The emulator tests of PR-19 and the browser tests of PR-20 pass in CI. The owner confirms one machine in the live app on the iPhone. The function of PR-19 gives the confirmed machines alone. So a plan of Phase 5 can not use a machine that the owner did not confirm.
+Phase 4 ends when PR-20 merges. The emulator tests of PR-19 and the browser tests of PR-20 pass in CI. After the deploy of the merge, the owner confirms one machine in the live app on the iPhone. The Phase 5 roadmap session records the result (D-203). The function of PR-19 gives the confirmed machines alone. So a plan of Phase 5 can not use a machine that the owner did not confirm.

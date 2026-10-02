@@ -1,19 +1,22 @@
 # Workout App - the web client
 
-This folder holds the installable web shell of work area 2.2. The stack is the Decktome React stack (D-84): React, Vite, `vite-plugin-pwa`, TanStack Query with Connect Query, and Tailwind. The folder is one npm package (D-135). The app has the phone layout alone (D-20).
+This folder holds the installable web shell of work area 2.2 and the inventory screens of work area 4.1. The stack is the Decktome React stack (D-84): React, Vite, `vite-plugin-pwa`, TanStack Query with Connect Query, and Tailwind. The folder is one npm package (D-135). The app has the phone layout alone (D-20).
 
 | Path | Content |
 |---|---|
-| `web/src/app.tsx` | The sign-in page for a signed-out owner, and the home screen for a signed-in owner |
+| `web/src/app.tsx` | The sign-in page for a signed-out owner, and the home screen and the inventory screens for a signed-in owner |
 | `web/src/shell.tsx` | The shell that fills the whole screen (D-120) |
 | `web/src/pages` | The sign-in page and the home screen |
+| `web/src/pages/inventory` | The inventory screens: the list, the catalog list and the text entry, the weights, and the review screen |
+| `web/src/lib/inventory.ts` | The catalog order, the search of the catalog names, and the checks of the weights, the estimates, and the notes |
+| `web/src/lib/inventory-api.ts`, `web/src/lib/errors.ts` | The calls that change the inventory, and the error text of a failed call |
 | `web/src/lib/firebase.ts` | Firebase Authentication with email and password (D-75) |
 | `web/src/lib/api.ts` | The Connect transport, with the ID token of the owner on each call |
 | `web/src/lib/db.ts` | The offline store and the outbox (D-62, D-77, D-132) |
 | `web/src/lib/pwa.ts`, `web/src/lib/update-check.ts` | The service worker and its update strategy (D-133) |
 | `web/src/lib/storage.ts` | The persistent storage request (D-134) |
 | `web/src/gen` | The generated code of the contract. `make proto` writes it, and Git keeps it. |
-| `web/e2e` | The browser tests of the acceptance story |
+| `web/e2e` | The browser tests of the acceptance stories of work areas 2.2 and 4.1 |
 
 ## The screen
 
@@ -22,6 +25,18 @@ The viewport meta holds `maximum-scale=1, user-scalable=no`, so a pinch does not
 Since iOS 26, the Home Screen app blurs a band below the status bar, and the page can not turn it off. So the header adds 16 px above the title when a status bar covers the page (D-145).
 
 The app has no form that makes an account. The owner makes the one account in the Firebase console, and self sign-up is off (D-117).
+
+## The inventory screens
+
+The home screen opens the equipment inventory (work area 4.1). The screens read the catalog and the inventory through `InventoryService` of the API, and never through Firestore (D-77).
+
+- The list shows each machine with its state, draft or confirmed, and each note.
+- The catalog list shows the machines by kind (D-202). A text searches the names of the machines and of their exercises. The owner selects a match, or keeps the text as a note (D-191).
+- A machine or the cable station gets a range and a step, then single weights (D-195). The dumbbells get the dumbbell set. A cardio machine gets no weights.
+- Each exercise of the machine gets one optional estimate, from the lightest to the heaviest weight (D-192, D-198).
+- The review screen confirms the weights that it shows (D-201), and removes the machine.
+
+Each load is a whole number of tenths of a pound, as in the contract. Each change is a direct call to the API. With no connection, the screen shows an error, and the server keeps no change (D-196). The inventory has no offline copy until Phase 6.
 
 ## The offline store
 
