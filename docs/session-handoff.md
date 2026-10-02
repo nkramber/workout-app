@@ -18,7 +18,7 @@ The pull request holds:
 
 Codex round 1 reviewed effective head `fe99aed`, with the verdict `Changes required`. The author found full merit in P1-1 and P2-1. The owner decided P1-1 (D-221). `docs/reviews/pr-24-response.md` holds the corrections and their regression tests. `make go-test`, `make emulator-test`, and `make verify` passed after the corrections.
 
-Next action: Codex approved effective head `616eda5` after the corrections to P1-1 and P2-1. The record and this hand-off are on the branch. The new review-gate result is pending. Then get the owner confirmation and merge. After the merge, read the deploy of the API first. Then start PR-24, the onboarding screens, in a clean session.
+Next action: Codex approved effective head `616eda5` after the corrections to P1-1 and P2-1. The record and this hand-off are on the branch. The new `pr-contract` and `review-gate` checks passed on metadata head `35768e6`. Then get the owner confirmation and merge. After the merge, read the deploy of the API first. Then start PR-24, the onboarding screens, in a clean session.
 
 ## Facts that expire
 
