@@ -10,7 +10,7 @@ The Codex review record is `docs/reviews/pr-24.md`. The effective head is `fe99a
 
 State: `Changes required`. Open findings: P1-1, the calf-raise injury filter, and P2-1, profile text in validation errors. `make verify`, `make go-test`, `make contract`, and `make emulator-test` passed. Product CI passed at the effective head. The `review-gate` check failed at RG 4 because this record says `Changes required`.
 
-Next action: commit and push this record and hand-off. Then the author can correct both findings and request a new review.
+Next action: the author corrects both findings, pushes a new code round, and requests a new review.
 
 ## Facts that expire
 
