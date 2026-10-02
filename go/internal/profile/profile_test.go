@@ -207,3 +207,18 @@ func TestGapInTheTableRemoves(t *testing.T) {
 		t.Fatalf("ForPlan with no injury = %+v, want each exercise", in)
 	}
 }
+
+// TestCalfRaiseLeavesForAKneeInjury reads the shared id of the standing
+// and the seated calf raise. The seated pad loads the knee, so a knee
+// injury removes the exercise (D-221).
+func TestCalfRaiseLeavesForAKneeInjury(t *testing.T) {
+	p := valid()
+	p.InjuredAreas = []domain.Area{domain.AreaKnee}
+	if in := ForPlan(p, catalog, tables); slices.Contains(in.Exercises, "calf_raise") {
+		t.Fatalf("a knee injury keeps calf_raise: %v", in.Exercises)
+	}
+	p.InjuredAreas = []domain.Area{domain.AreaShoulder}
+	if in := ForPlan(p, catalog, tables); !slices.Contains(in.Exercises, "calf_raise") {
+		t.Fatalf("a shoulder injury removes calf_raise: %v", in.Exercises)
+	}
+}

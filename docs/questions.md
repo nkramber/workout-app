@@ -406,6 +406,7 @@ The live check of D-203 failed on 2026-10-02. The app showed "The API did not an
 | Q-232 | Which areas does each exercise load? | The research table, with the close calls left out. | Answered | D-218 |
 | Q-233 | Which primary groups does each exercise have? The adductors are not one of the ten groups. | The research table. Hip adduction and the cardio exercises get no group. | Answered | D-219 |
 | Q-234 | Which groups does the template "Strength" select? | The six prime-mover groups. | Answered | D-220 |
+| Q-235 | Codex finding P1-1 of PR 24: one id covers the standing and the seated calf raise, and the seated pad loads the knee. Does a knee injury remove it? | Yes. The row adds the knee. | Answered | D-221 |
 
 
 ## Open questions

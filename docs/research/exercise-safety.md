@@ -490,7 +490,7 @@ Property tests check four invariants. No load increase follows a shortfall. No r
 
 ### 5.15 Areas and primary groups of each exercise (synthesis)
 
-The owner selects injured areas from a fixed list (D-208, D-216). A versioned table gives the areas that each exercise loads, and the server removes each such exercise before the call to Luna. A second table gives the primary muscle groups of each exercise (D-210). `go/internal/domain` holds both tables. This section gives the basis of each row. The owner approved the values (D-218, D-219, D-220).
+The owner selects injured areas from a fixed list (D-208, D-216). A versioned table gives the areas that each exercise loads, and the server removes each such exercise before the call to Luna. A second table gives the primary muscle groups of each exercise (D-210). `go/internal/domain` holds both tables. This section gives the basis of each row. The owner approved the values (D-218 to D-221).
 
 The rule of the area table (D-218):
 
@@ -507,7 +507,7 @@ The rule of the area table (D-218):
 | `lying_leg_curl` | knee | EV-86, by analogy (assumption) |
 | `hip_abduction` | hip | EV-103, EV-104 |
 | `hip_adduction` | hip | Assumption: the hip is the one joint that moves. |
-| `calf_raise` | lower back, ankle | Ankle: EV-88. Lower back: assumption for the standing form, with the pads on the shoulders. |
+| `calf_raise` | lower back, knee, ankle | Ankle: EV-88. Lower back: assumption for the standing form, with the pads on the shoulders. Knee: assumption for the seated form, with the pad on the thigh (D-221). |
 | `chest_press` | shoulder, elbow, wrist | EV-112, EV-113. Elbow and wrist: assumption. |
 | `shoulder_press` | shoulder, elbow, wrist | EV-111, EV-112. Elbow and wrist: assumption. |
 | `seated_row` | shoulder, elbow, wrist | EV-107. Wrist: assumption. |
@@ -624,5 +624,5 @@ Every row in this table is a recommendation. No row is an owner decision.
 - The research did not query the raw NEISS data. The register uses published analyses only.
 - No source measures the load on the wrist or the elbow in a press, a row, or a curl. The area table marks them from the grip alone (section 5.15).
 - No source covers the crunch machine, the triceps pushdown, or the hip adduction machine. No source gives the lumbar load of the leg press, or the load of a stair stepper.
-- The catalog id `calf_raise` covers the standing and the seated form. The area table uses the standing form. The seated form puts a pad load on the knee, and the table does not mark the knee.
+- The catalog id `calf_raise` covers the standing and the seated form. So its row holds the areas of both forms, and a knee injury removes a standing calf raise too (D-221).
 - The area table has no row value for 14 close calls (D-218). Examples are the knee on the hip machines and the lower back on the seated row.

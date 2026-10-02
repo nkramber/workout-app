@@ -12,7 +12,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `go/internal/usersvc` | The `GetMe` call |
 | `go/internal/inventory` | The inventory of the owner: the machines and the notes, the checks, the draft and confirmed states, the Firestore store, and `ForPlan` (D-46, D-193, D-197) |
 | `go/internal/inventorysvc` | The calls of `InventoryService` |
-| `go/internal/profile` | The profile of the owner: the fields, the checks, the Firestore store, and `ForPlan` (D-41, D-208 to D-220) |
+| `go/internal/profile` | The profile of the owner: the fields, the checks, the Firestore store, and `ForPlan` (D-41, D-208 to D-221) |
 | `go/internal/profilesvc` | The calls of `ProfileService` |
 | `go/internal/domain` | The types of the workout domain, the catalog of D-155, the injury areas and the muscle groups with their tables (D-218, D-219), and the check of each type (D-157) |
 | `go/internal/policy` | The versioned safety policy: the bounds of a target, the rounding of a load, the start and the calibration of a new exercise, the return after a break, the next target, the check of a proposal, the rules fallback, and the decision record (D-23, D-38, D-176) |
@@ -100,7 +100,7 @@ Before its check, the server removes the spaces at each end of each text, and pu
 
 A failed read or write of Firestore gives `internal`, with a fixed text. An error names the field and the bound alone, and never the value of the age, the height, the weight, or a text (D-80).
 
-`domain.DefaultBodyTables` holds the areas and the primary groups of each exercise, and the goal templates (D-218 to D-220). A unit test finds each exercise of the catalog in both tables. Section 5.15 of `docs/research/exercise-safety.md` gives the research of each row.
+`domain.DefaultBodyTables` holds the areas and the primary groups of each exercise, and the goal templates (D-218 to D-221). A unit test finds each exercise of the catalog in both tables. Section 5.15 of `docs/research/exercise-safety.md` gives the research of each row.
 
 The function `profile.ForPlan` gives the planner input of a profile. It holds the inputs of D-209 and the session count of D-211. It removes each exercise that loads an injured area (D-208). An exercise with no row in the area table loads each area, so a gap removes an exercise. The input type has no field for the age, the height, the weight, the areas, or the injury text.
 

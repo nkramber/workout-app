@@ -160,3 +160,30 @@ func TestStoreErrorIsHidden(t *testing.T) {
 		t.Fatalf("SaveProfile = %v, want Internal with no path", err)
 	}
 }
+
+// TestErrorHoldsNoText sends a synthetic health text in each field of a
+// fixed list. Each error names the field alone, and never the text
+// (D-80).
+func TestErrorHoldsNoText(t *testing.T) {
+	const text = "Synthetic note: knee pain after surgery"
+	s := New(profile.NewMemory())
+	cases := map[string]func(*workoutappv1.Profile){
+		"experience":    func(p *workoutappv1.Profile) { p.Experience = text },
+		"goal template": func(p *workoutappv1.Profile) { p.GoalTemplate = text },
+		"muscle group":  func(p *workoutappv1.Profile) { p.MuscleGroups = []string{"chest", text} },
+		"injured area":  func(p *workoutappv1.Profile) { p.InjuredAreas = []string{text} },
+		"cardio":        func(p *workoutappv1.Profile) { p.CardioExerciseIds = []string{text} },
+	}
+	for name, change := range cases {
+		p := synthetic()
+		change(p)
+		_, err := save(s, p)
+		if connect.CodeOf(err) != connect.CodeInvalidArgument {
+			t.Errorf("%s: SaveProfile = %v, want InvalidArgument", name, err)
+			continue
+		}
+		if strings.Contains(err.Error(), "knee pain") {
+			t.Errorf("%s: the error %q holds the text", name, err)
+		}
+	}
+}

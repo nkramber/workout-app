@@ -4,13 +4,21 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-02. Review of GitHub PR #24, roadmap PR-23 in `docs/roadmaps/phase-5-onboarding-and-plan.md`, on branch `feat/pr-23-profile-api`, from base `8ccf95d`. Work area 5.1.
+Date: 2026-10-02. Roadmap PR-23 of `docs/roadmaps/phase-5-onboarding-and-plan.md`, GitHub PR #24, on branch `feat/pr-23-profile-api`, from base `8ccf95d`. Work area 5.1.
 
-The Codex review record is `docs/reviews/pr-24.md`. The effective head is `fe99aed9b4b531e3dc8fe16aa0f4465b8bd1c23d`.
+The owner approved the milestone before the first edit (D-12), and answered Q-227 to Q-235 (D-213 to D-221).
 
-State: `Changes required`. Open findings: P1-1, the calf-raise injury filter, and P2-1, profile text in validation errors. `make verify`, `make go-test`, `make contract`, and `make emulator-test` passed. Product CI passed at the effective head. The `review-gate` check failed at RG 4 because this record says `Changes required`.
+The pull request holds:
 
-Next action: the author corrects both findings, pushes a new code round, and requests a new review.
+- the `ProfileService` of `proto/workoutapp/v1`, with `GetProfileOptions`, `GetProfile`, and `SaveProfile`,
+- the profile and its Firestore store at `users/{uid}/profile/active` in `go/internal/profile`, and the calls in `go/internal/profilesvc` (D-213),
+- the checks of the server: the experience, the template, each group, area, and cardio exercise against its list, and each bound (D-214 to D-217),
+- the area table and the group table of each exercise, and the goal templates, in `go/internal/domain` (D-218 to D-221). Section 5.15 and EV-86 to EV-113 of `docs/research/exercise-safety.md` hold the research,
+- the function `profile.ForPlan`, which gives the inputs of D-209 and the session count of D-211, with no exercise of an injured area (D-208).
+
+Codex round 1 reviewed effective head `fe99aed`, with the verdict `Changes required`. The author found full merit in P1-1 and P2-1. The owner decided P1-1 (D-221). `docs/reviews/pr-24-response.md` holds the corrections and their regression tests. `make go-test`, `make emulator-test`, and `make verify` passed after the corrections.
+
+Next action: when CI is green, run Codex round 2. Then get the owner confirmation and merge. After the merge, read the deploy of the API first. Then start PR-24, the onboarding screens, in a clean session.
 
 ## Facts that expire
 
@@ -68,7 +76,8 @@ Branch: `feat/pr-23-profile-api`. Role: author.
 
 Completed:
 
-- The owner approved the milestone before the first edit (D-12), and answered Q-227 to Q-234 (D-213 to D-220).
+- The owner approved the milestone before the first edit (D-12), and answered Q-227 to Q-235 (D-213 to D-221).
+- Answered Codex findings P1-1 and P2-1 of round 1 with full merit.
 - Wrote the profile service, the store, the checks, the two tables, and `profile.ForPlan`, with unit tests and emulator tests.
 - Added the research of both tables to `docs/research/exercise-safety.md`. Changed the design, both roadmaps, the registers, `go/README.md`, and `AGENTS.md`.
 

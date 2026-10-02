@@ -38,7 +38,7 @@ The owner selects from ten muscle groups, or starts from the template "General f
 
 The experience is "intermediate" or "advanced" (Decision, D-214). The server accepts an age of 18 to 90 years, a height of 48 to 96 in, and a weight of 80 to 500 lb. Each text has 500 characters or fewer (Decision, D-215). The cardio preference is a list of the cardio exercises that the owner likes (Decision, D-217). The template "Strength" selects the chest, the back, the shoulders, the quadriceps, the hamstrings, and the glutes (Decision, D-220).
 
-The API stores the profile in one Firestore document at `users/{uid}/profile/active` (Decision, D-213). Section 5.15 of `docs/research/exercise-safety.md` gives the values of both tables and their research (Decision, D-218, D-219).
+The API stores the profile in one Firestore document at `users/{uid}/profile/active` (Decision, D-213). Section 5.15 of `docs/research/exercise-safety.md` gives the values of both tables and their research (Decision, D-218, D-219, D-221).
 
 ### 3.2 Equipment capture
 

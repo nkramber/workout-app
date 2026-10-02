@@ -1,13 +1,15 @@
 package domain
 
-// The body tables of D-208 and D-210, with the values of D-218 to D-220.
+// The body tables of D-208 and D-210, with the values of D-218 to D-221.
 // Change BodyTablesVersion with each change of this data. Section 5.15
 // of docs/research/exercise-safety.md gives the research of each row
 // (D-38).
 //
 // An area is in a row when the joint moves under the load, holds a large
-// moment of it, or takes it directly (D-218). Hip adduction and the
-// cardio exercises have no primary group (D-219).
+// moment of it, or takes it directly (D-218). The id calf_raise covers
+// the standing and the seated machine, so its row holds the areas of
+// both forms (D-221). Hip adduction and the cardio exercises have no
+// primary group (D-219).
 
 // BodyTablesVersion is the version of the data of DefaultBodyTables.
 const BodyTablesVersion = 1
@@ -33,7 +35,7 @@ func DefaultBodyTables() BodyTables {
 		{"lying_leg_curl", []Area{kn}, []MuscleGroup{hs}},
 		{"hip_abduction", []Area{hp}, []MuscleGroup{gl}},
 		{"hip_adduction", []Area{hp}, nil},
-		{"calf_raise", []Area{lb, an}, []MuscleGroup{ca}},
+		{"calf_raise", []Area{lb, kn, an}, []MuscleGroup{ca}},
 		{"chest_press", []Area{sh, el, wr}, []MuscleGroup{ch, tr}},
 		{"shoulder_press", []Area{sh, el, wr}, []MuscleGroup{sd, tr}},
 		{"seated_row", []Area{sh, el, wr}, []MuscleGroup{bk, bi}},

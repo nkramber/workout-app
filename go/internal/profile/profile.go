@@ -102,11 +102,13 @@ func sortBy[T comparable](row, list []T) {
 // more, the areas, the cardio exercises of the catalog, the numbers, and
 // the texts. A text has no space at either end.
 func (p Profile) Check(c domain.Catalog, t domain.BodyTables) error {
+	// An unknown value can be any text of the caller, so no error
+	// names it (D-80).
 	if !slices.Contains(Experiences(), p.Experience) {
-		return invalid("profile experience: unknown value %q", p.Experience)
+		return invalid("profile experience: not a value of the list")
 	}
 	if _, ok := t.Template(p.Template); !ok {
-		return invalid("profile goal template: unknown value %q", p.Template)
+		return invalid("profile goal template: not a value of the list")
 	}
 	if len(p.Groups) == 0 {
 		return invalid("profile muscle groups: want 1 or more")
@@ -147,16 +149,16 @@ func (p Profile) Check(c domain.Catalog, t domain.BodyTables) error {
 	return nil
 }
 
-// unique reads that each value is known and comes one time. An unknown
-// value is an id of a fixed list, so the error can name it.
+// unique reads that each value is known and comes one time. A value can
+// be any text of the caller, so the error gives its index alone (D-80).
 func unique[T comparable](field string, row []T, known func(T) bool) error {
 	seen := map[T]bool{}
-	for _, v := range row {
+	for i, v := range row {
 		if !known(v) {
-			return invalid("profile %s: unknown value %q", field, fmt.Sprint(v))
+			return invalid("profile %s %d: not a value of the list", field, i)
 		}
 		if seen[v] {
-			return invalid("profile %s: %q two times", field, fmt.Sprint(v))
+			return invalid("profile %s %d: two times", field, i)
 		}
 		seen[v] = true
 	}
