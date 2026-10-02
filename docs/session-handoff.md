@@ -4,24 +4,22 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-02. Roadmap PR-17 of `docs/roadmaps/phase-3-workout-domain.md`, work areas 3.2 and 3.3, on branch `test/pr-17-luna-evaluation`, from base `1b3f9be`. The pull request ends Phase 3.
+Date: 2026-10-02. Roadmap PR-18 of `docs/roadmaps/phase-4-equipment-inventory.md`, on branch `docs/pr-18-phase-4-roadmap`, from base `9d0e5d0`. The pull request starts Phase 4.
 
-The pull request holds the Phase 3 Luna evaluation:
+The pull request holds the Phase 4 focused roadmap:
 
-- the command `go/cmd/lunaeval`, with the 20 profiles of the plan spike and the scenarios A to F, and its fake-provider tests,
-- the policy rule `effort.ceiling` of D-186, policy version 3, and the prompt `luna-prompt-v2`,
-- version 1 of the secret `openai-api-key`, which the owner added in a local terminal (D-187),
-- the paid run and the report `docs/research/phase-3-check.md`.
+- the new file `docs/roadmaps/phase-4-equipment-inventory.md`, with PR-19 for the inventory API and store, and PR-20 for the inventory screens,
+- the owner answers D-188 to D-196 to Q-98 and Q-203 to Q-210,
+- the move of the lasting AI cap store to work area 5.2 (D-189), in `docs/roadmaps/high-level-roadmap.md`,
+- the equipment rules in `docs/design.md`, the row in `docs/roadmaps/README.md`, and the Phase 4 stage in `AGENTS.md`.
 
-The owner approved the milestone before the first edit, then the run size, the cap, the rule, the key, and the paid run (D-184 to D-187). The deploy of `1b3f9be` passed: the build `deploy-api` `22038133` gave SUCCESS, and the live `/version` names `1b3f9be`.
+The deploy of `9d0e5d0` passed: the build `deploy-api` `46b8f059` gave SUCCESS, and the live `/version` names `9d0e5d0`. The owner approved the milestone before the first edit (D-12).
 
-The paid run passed. All 50 calls passed the schema, the policy refused 0 of 197 proposals, and each of the 75 scenario cases was safe. It cost 0.0468 USD under the cap of 2 USD. Luna copied the target of the rules in each decision (Q-202).
+State: pending the owner merge. CI and the Codex review are open.
 
-State: pending the owner merge. Product CI passed. Codex review is Ready for owner merge at `11223740c2b52c1b58086ca9d45585d6d37246d2`. The owner confirmation and merge are open.
+Next action: the author session waits for CI, runs the Codex review, gets the owner confirmation, and follows the merge steps of D-13.
 
-Next action: the author session reads the review record, gets the owner confirmation, and follows the merge steps of D-13.
-
-The merge changes `go/`, so `deploy-api` deploys it. The next session reads that deploy first.
+The merge changes no file in `go/` or `web/`, so no deploy follows it.
 
 ## Facts that expire
 
@@ -35,13 +33,13 @@ The merge changes `go/`, so `deploy-api` deploys it. The next session reads that
 | The OpenAI usage policies page returns HTTP 403. The owner accepted a copy printed on 2025-11-07 (D-93). | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
 | `gpt-6-luna` accepts the strict JSON schema of the plan through the Responses API. 60 of 60 plans passed the schema. | 2026-09-28 | `docs/research/luna-plan-spike.md` |
 | `gpt-6-luna` accepts an image with a strict JSON schema. One photo at 1536 px costs 0.00037 USD. | 2026-09-28 | `docs/research/recognition-spike.md` |
-| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `1b3f9be`, three triggers, and the allowlist entry. | 2026-10-01 | `docs/setup-gcp.md`, `/version` |
+| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `9d0e5d0`, three triggers, and the allowlist entry. | 2026-10-02 | `docs/setup-gcp.md`, `/version` |
 | The secret `openai-api-key` has version 1, enabled. A free call to the OpenAI model list with it gave HTTP 200 and lists `gpt-6-luna`. | 2026-10-01 | `gcloud secrets versions list`, `curl` |
 | `gpt-6-luna` at medium effort passed the schema `luna_plan_v2` in 50 of 50 calls. A planner call cost 0.0017 USD on average, and the longest call took 33.0 s. | 2026-10-02 | `docs/research/phase-3-check.md` |
 | The bucket `nk-workout-app-prod-deploy-lock` exists, and each deployer account holds `roles/storage.objectUser` on it alone. | 2026-09-29 | `gcloud storage buckets describe`, `get-iam-policy` |
 | `workout-app-prod` is in use by another Google Cloud project. | 2026-09-29 | `gcloud projects create` |
 | The old project `gym-route-dev` is `DELETE_REQUESTED` since 2026-09-30T03:19:47Z. `gcloud projects undelete` can restore it for 30 days. Its site still gave HTTP 200 at 04:38:56Z. | 2026-09-30 | `gcloud projects describe`, `curl` |
-| The live `/version` names `1b3f9bef339c8da0aa7e660de661f51e0aa74ae5`, from the build `deploy-api` `22038133`, read 2026-10-01. The live `/version.json` names `73b1964340ebc2a14f93b75f1be19aba024918f5`, from the build `deploy-web` `c5ac0f62`. The rules release of `df79c16` has the update time 02:33:00Z. | 2026-09-30 | `curl`, `gcloud builds list` |
+| The live `/version` names `9d0e5d0b87eca288c985debfee6390e5929503a9`, from the build `deploy-api` `46b8f059`, read 2026-10-02. The live `/version.json` names `73b1964340ebc2a14f93b75f1be19aba024918f5`, from the build `deploy-web` `c5ac0f62`. The rules release of `df79c16` has the update time 02:33:00Z. | 2026-09-30 | `curl`, `gcloud builds list` |
 | `rules-deployer` holds `roles/firebaserules.admin`, `roles/serviceusage.serviceUsageViewer`, and `roles/logging.logWriter`. | 2026-09-30 | `gcloud projects get-iam-policy` |
 | Since iOS 26, a Home Screen app blurs a band below the status bar, and a page can not turn it off. On iOS 27.0 with Chrome 154, 16 px above the title keeps it sharp. The owner saw the fix in the live app of `73b1964`. | 2026-09-30 | `docs/research/phase-2-check.md`, the owner |
 | Google Cloud SDK 533.0.0 has no `gcloud builds retry`. The Cloud Build API call `builds/{id}:retry` works. | 2026-09-30 | `docs/deploy-and-rollback.md` |
@@ -63,10 +61,26 @@ The merge changes `go/`, so `deploy-api` deploys it. The next session reads that
 
 ## Next steps, in order
 
-1. Close PR-17: CI, the Codex review, the owner confirmation, and the merge.
-2. Read the deploy of the merge, then start the Phase 4 focused roadmap in a clean session. Q-98 and Q-202 stay open.
+1. Close PR-18: CI, the Codex review, the owner confirmation, and the merge.
+2. Start PR-19, the inventory API and store, in a clean session. Ask the owner the questions that section 4 of the Phase 4 roadmap names.
 
 ## Session records
+
+### Session 19 - 2026-10-02
+
+Author provider: Claude Code
+
+Branch: `docs/pr-18-phase-4-roadmap`. Role: author.
+
+Completed:
+
+- Read the deploy of `9d0e5d0`. The owner approved the milestone before the first edit (D-12).
+- Asked Q-98 and Q-203 to Q-210, and recorded D-188 to D-196.
+- Wrote the Phase 4 focused roadmap, and changed the high-level roadmap, the design, the roadmap index, and `AGENTS.md`.
+
+Open work:
+
+- CI, the Codex review, the owner confirmation, and the merge of PR-18.
 
 ### Session 18 - 2026-10-01 to 2026-10-02
 
@@ -83,7 +97,7 @@ Completed:
 
 Open work:
 
-- CI, the Codex review, the owner confirmation, and the merge of PR-17.
+- None. GitHub PR 18 merged as `9d0e5d0`.
 
 ### Session 17 - 2026-10-01
 
@@ -101,22 +115,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 17 merged as `1b3f9be`.
-
-### Session 16 - 2026-09-30
-
-Author provider: Claude Code
-
-Branch: `feat/pr-15-policy-fallback`. Role: author.
-
-Completed:
-
-- Read the deploy of `0b80066`. The owner approved the milestone before the first edit (D-12), and answered Q-188 to Q-193 (D-175 to D-180).
-- Added to `go/internal/policy` the start, the calibration, the long-break table, the first sessions after a break, the rules fallback, and the decision record.
-- Wrote the golden tests of scenarios E and F, and the property tests of the fallback half of the Luna property of section 6.3.
-- Changed the design, both roadmaps, the registers, and `go/README.md`.
-- Answered Codex findings P2-1 and P2-2 with full merit. A proposal holds one calibration set in a calibration session alone.
-- Asked Q-195 after the round 3 verdict `Blocked`, and recorded D-181.
-
-Open work:
-
-- None. GitHub PR 16 merged as `454c141`.

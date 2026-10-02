@@ -2,7 +2,7 @@
 
 This roadmap gives the path from a blank repository to a safe, useful Workout App for its one user, the owner (D-67). It names the phases, their order, the risk work, the outcomes, the work areas of pull request size, and the exit evidence of each phase. It is not a plan of tasks. A focused roadmap turns one phase into tasks later. `docs/roadmaps/README.md` gives the rules for focused roadmaps.
 
-The date of this version is 2026-09-30. `docs/design.md` holds the product design. `docs/decisions.md` and `docs/questions.md` hold every decision and question that this roadmap cites.
+The date of this version is 2026-10-02. `docs/design.md` holds the product design. `docs/decisions.md` and `docs/questions.md` hold every decision and question that this roadmap cites.
 
 ## 1. Rules of this roadmap
 
@@ -127,14 +127,14 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 
 **Depends on.** Phase 2 and Phase 3.
 
-**Outcome.** The owner builds the one active inventory (D-46). Every machine carries an identity, the available weights, and the owner's load estimate (D-41, D-54).
+**Outcome.** The owner builds the one active inventory (D-46). Every machine carries an identity, the available weights, and the owner's load estimate for each exercise (D-41, D-54, D-192).
 
 | Work area | Concerns | Exit evidence |
 |---|---|---|
-| 4.1 Selection and text entry | The owner selects each machine from the catalog of D-155, or enters it as text (D-51, D-55). The owner confirms each machine before a plan uses it (D-49). | Browser UI tests add a machine by selection and by text entry. A plan can not use a machine that the owner did not confirm. |
-| 4.2 Machine details | Identity and available weights only (D-54). The load estimate of the owner (D-41). Kilogram markings (Q-91). | An emulator test proves that a stored machine holds only the fields of D-54 and the load estimate. |
+| 4.1 Selection and text entry | The owner selects each machine from the catalog of D-155, or enters it as text that searches the catalog (D-51, D-55, D-191). The owner confirms each machine before a plan uses it (D-49, D-193). | Browser UI tests add a machine by selection and by text entry. A plan can not use a machine that the owner did not confirm. |
+| 4.2 Machine details | Identity and available weights only (D-54, D-195). The load estimates of the owner (D-41, D-192). Pound markings alone (D-122). | An emulator test proves that a stored machine holds only the fields of D-54, the load estimates, and its state (D-193). |
 
-**Decisions and questions.** D-41, D-45, D-46, D-154, D-155, D-49, D-51, D-54, D-55, D-110, Q-91.
+**Decisions and questions.** D-41, D-45, D-46, D-154, D-155, D-49, D-51, D-54, D-55, D-110, D-122, D-191 to D-196, Q-91, Q-205 to Q-210.
 
 ### Phase 5 - Onboarding and plan generation
 
@@ -147,9 +147,9 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 | Work area | Concerns | Exit evidence |
 |---|---|---|
 | 5.1 Onboarding | Profile inputs, the injury warning of D-35, muscle and goal selection with free text. | UI tests cover each input and the injury warning. |
-| 5.2 Plan generation and view | The planner call, the policy check, the fallback, and exclusions (D-48). | An end-to-end test with the fake provider returns a valid plan for the core profile of D-31. |
+| 5.2 Plan generation and view | The planner call, the policy check, the fallback, and exclusions (D-48). The lasting store of the monthly AI caps of D-188 and D-190, before the first live call (D-189). | An end-to-end test with the fake provider returns a valid plan for the core profile of D-31. A cap test refuses a call over the cap after a restart of the API. |
 
-**Decisions and questions.** D-31 to D-36, D-41 to D-44, D-48, D-73.
+**Decisions and questions.** D-25, D-31 to D-36, D-41 to D-44, D-48, D-73, D-188 to D-190.
 
 ### Phase 6 - Guided workout and offline logging
 
@@ -195,10 +195,10 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 | Work area | Concerns | Exit evidence |
 |---|---|---|
 | 8.1 Backups and recovery | The backups of D-124 from work area 2.3. A restore drill into a new database. A rollback procedure for the API and the web app. | A restore drill report. |
-| 8.2 Alerts and cost caps | Error and job-failure alerts. The AI caps of Q-98. Spend caps on the development project. | A test alert reaches the owner. A cap test refuses a call over the cap. |
+| 8.2 Alerts and cost caps | Error and job-failure alerts. Spend caps on the development project. Work area 5.2 holds the lasting cap store (D-189). | A test alert reaches the owner. |
 | 8.3 Version migration | Policy and evidence version changes. A model change when `gpt-6-luna` retires. An incident runbook. | A replay of stored sessions under a new policy version gives a diff report. |
 
-**Decisions and questions.** D-25, D-76, D-80, D-124, Q-98, Q-99.
+**Decisions and questions.** D-25, D-76, D-80, D-124, D-188, D-189, Q-98, Q-99.
 
 **Exit for the roadmap.** Four weeks of owner use with no lost set, no refused valid sync, and no policy breach in the decision log.
 
