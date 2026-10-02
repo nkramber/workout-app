@@ -17,7 +17,9 @@ The pull request holds the inventory screens:
 
 The owner approved the milestone before the first edit (D-12).
 
-State: `make verify` passed. GitHub `verify:*` and `pr-contract` passed. The Codex review says `Ready for owner merge` for effective head `b46c0a3`. Finding ids: none. The local `make web` did not run because this checkout has Node 20, and `web/.nvmrc` requires Node 22. The result is pending the owner confirmation and merge.
+State: `make verify` passed. GitHub `verify:*` and `pr-contract` passed. The Codex review says `Ready for owner merge` for effective head `b46c0a3`. Finding ids: none.
+
+The author ran `make web` under Node 22, and it passed. The Codex checkout has Node 20, so `make web` did not run there, and GitHub `verify:web` passed. The result is pending the owner confirmation and merge.
 
 Next action: the owner reads the review record and the author provider, confirms the merge, then the author session turns on auto-merge under D-13.
 
