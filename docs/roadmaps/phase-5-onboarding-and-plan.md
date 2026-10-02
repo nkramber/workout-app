@@ -106,7 +106,9 @@ Acceptance story: the emulator tests save and read a profile through the API, an
 
 Checks: `make contract`, `make go-test`, `make emulator-test`, and `make verify`, free. Codex reviews PR-23.
 
-Questions for the session: the Firestore path of the profile, the bounds of each field, and the values of the experience field (D-30, D-33). Also the final list of areas, and the values of both tables.
+Questions for the session: the Firestore path of the profile, the bounds of each field, and the values of the experience field (D-30, D-33). Also the final list of areas, and the values of both tables. The owner answered them as Q-227 to Q-234 (D-213 to D-220). Codex finding P1-1 gave Q-235 (D-221).
+
+Calls for PR-24: `GetProfileOptions` gives the experience values, the goal templates with their groups, the ten groups, and the seven areas. `GetProfile` gives the profile, or no profile. `SaveProfile` replaces the whole profile, and it refuses a field outside its bound with `invalid_argument`.
 
 ### PR-24 - The onboarding screens
 

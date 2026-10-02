@@ -18,6 +18,7 @@ import (
 	"github.com/nkramber/workout-app/go/internal/auth"
 	"github.com/nkramber/workout-app/go/internal/envguard"
 	"github.com/nkramber/workout-app/go/internal/inventory"
+	"github.com/nkramber/workout-app/go/internal/profile"
 )
 
 const webOrigin = "https://nk-workout-app-prod.web.app"
@@ -44,7 +45,7 @@ func (f fakeList) Allowed(_ context.Context, uid string) (bool, error) {
 func server(t *testing.T, list auth.Allowlist) *httptest.Server {
 	t.Helper()
 	v := fakeVerifier{"token-a": "uid-a", "token-b": "uid-b", "token-empty": ""}
-	srv := httptest.NewServer(newHandler(v, list, inventory.NewMemory(), webOrigin, "abc123"))
+	srv := httptest.NewServer(newHandler(v, list, inventory.NewMemory(), profile.NewMemory(), webOrigin, "abc123"))
 	t.Cleanup(srv.Close)
 	return srv
 }
@@ -128,6 +129,43 @@ func TestInventorySignIn(t *testing.T) {
 	b, err := call("token-b")
 	if err != nil || len(b.Msg.GetInventory().GetMachines()) != 0 {
 		t.Fatalf("GetInventory as uid-b = %v, %v, want an empty inventory", b, err)
+	}
+}
+
+// TestProfileSignIn proves that ProfileService has the sign-in of
+// UserService, and that each uid reads its own profile alone.
+func TestProfileSignIn(t *testing.T) {
+	srv := server(t, fakeList{uids: map[string]bool{"uid-a": true, "uid-b": true}})
+	client := workoutappv1connect.NewProfileServiceClient(srv.Client(), srv.URL)
+	call := func(token string) (*connect.Response[workoutappv1.GetProfileResponse], error) {
+		req := connect.NewRequest(&workoutappv1.GetProfileRequest{})
+		if token != "" {
+			req.Header().Set("Authorization", "Bearer "+token)
+		}
+		return client.GetProfile(context.Background(), req)
+	}
+	if _, err := call(""); connect.CodeOf(err) != connect.CodeUnauthenticated {
+		t.Fatalf("GetProfile with no token = %v, want Unauthenticated", err)
+	}
+	if _, err := call("forged"); connect.CodeOf(err) != connect.CodeUnauthenticated {
+		t.Fatalf("GetProfile with a bad token = %v, want Unauthenticated", err)
+	}
+
+	save := connect.NewRequest(&workoutappv1.SaveProfileRequest{Profile: &workoutappv1.Profile{
+		Experience: "advanced", GoalTemplate: "general_fitness", MuscleGroups: []string{"chest"},
+		AgeYears: 40, HeightIn: 66, WeightLb: 150, TrainingDays: 2,
+	}})
+	save.Header().Set("Authorization", "Bearer token-a")
+	if _, err := client.SaveProfile(context.Background(), save); err != nil {
+		t.Fatalf("SaveProfile as uid-a: %v", err)
+	}
+	a, err := call("token-a")
+	if err != nil || a.Msg.GetProfile().GetExperience() != "advanced" {
+		t.Fatalf("GetProfile as uid-a = %v, %v, want the saved profile", a, err)
+	}
+	b, err := call("token-b")
+	if err != nil || b.Msg.GetProfile() != nil {
+		t.Fatalf("GetProfile as uid-b = %v, %v, want no profile", b, err)
 	}
 }
 

@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+package workoutapp.v1;
+
+option go_package = "github.com/nkramber/workout-app/go/gen/workoutapp/v1;workoutappv1";
+
+// ProfileService holds the one profile of the caller (work area 5.1). Every
+// call needs a Firebase ID token of a uid on the invite allowlist (D-75,
+// D-131).
+//
+// The server reads each field against its bound and each value against
+// its fixed list, and refuses a bad value with INVALID_ARGUMENT. An error
+// names the field and numbers alone, and never a text of the profile
+// (D-80).
+service ProfileService {
+  // GetProfileOptions returns the fixed lists of the profile: the
+  // experience values, the goal templates with their groups, the muscle
+  // groups, and the injury areas (D-208, D-210). The server holds the one
+  // copy of them.
+  rpc GetProfileOptions(GetProfileOptionsRequest) returns (GetProfileOptionsResponse) {}
+
+  // GetProfile returns the profile of the caller. A caller with no profile
+  // gets no profile.
+  rpc GetProfile(GetProfileRequest) returns (GetProfileResponse) {}
+
+  // SaveProfile replaces the whole profile of the caller. The server trims
+  // the spaces at each end of each text before its check.
+  rpc SaveProfile(SaveProfileRequest) returns (SaveProfileResponse) {}
+}
+
+// Profile is the one profile of the owner, with the onboarding inputs of
+// D-41, D-42, and D-208 to D-211. The load estimates of D-41 live in the
+// inventory (D-192). Each list holds each value one time, in the order of
+// its fixed list.
+message Profile {
+  // The experience: "intermediate" or "advanced" (D-30, D-33).
+  string experience = 1;
+  // The goal template that the selection started from: "general_fitness"
+  // or "strength" (D-210).
+  string goal_template = 2;
+  // The selected muscle groups, one or more, from the fixed list (D-210).
+  repeated string muscle_groups = 3;
+  // The free text for Luna, 500 characters or fewer, or empty (D-42).
+  string free_text = 4;
+  // The injured areas, from the fixed list (D-208). Empty when no area has
+  // an injury.
+  repeated string injured_areas = 5;
+  // The injury text, 500 characters or fewer, or empty. No model reads it
+  // (D-208, D-209).
+  string injury_text = 6;
+  // The age in whole years, from 18 to 90.
+  int32 age_years = 7;
+  // The height in whole inches, from 48 to 96 (D-28).
+  int32 height_in = 8;
+  // The weight in whole pounds, from 80 to 500 (D-28).
+  int32 weight_lb = 9;
+  // The cardio preference: the ids of the cardio exercises of the catalog
+  // that the owner likes. Empty means no optional cardio (D-41, D-44).
+  repeated string cardio_exercise_ids = 10;
+  // The training days in each week, from 2 to 4 (D-211).
+  int32 training_days = 11;
+}
+
+// GoalTemplate is one goal template and the muscle groups that it selects
+// (D-210).
+message GoalTemplate {
+  string id = 1;
+  string name = 2;
+  // The groups that the template selects, in the order of the fixed list.
+  repeated string muscle_groups = 3;
+}
+
+// Option is one value of a fixed list, with its display name.
+message Option {
+  string id = 1;
+  string name = 2;
+}
+
+message GetProfileOptionsRequest {}
+
+message GetProfileOptionsResponse {
+  // The experience values.
+  repeated Option experiences = 1;
+  // The goal templates.
+  repeated GoalTemplate goal_templates = 2;
+  // The muscle groups.
+  repeated Option muscle_groups = 3;
+  // The injury areas.
+  repeated Option injury_areas = 4;
+}
+
+message GetProfileRequest {}
+
+message GetProfileResponse {
+  // The profile, or no profile when the caller saved none.
+  Profile profile = 1;
+}
+
+message SaveProfileRequest {
+  Profile profile = 1;
+}
+
+message SaveProfileResponse {
+  // The stored profile, after the trim of each text.
+  Profile profile = 1;
+}

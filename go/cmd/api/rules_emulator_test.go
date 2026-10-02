@@ -45,6 +45,7 @@ func TestFirestoreRulesRefuseEachClientCall(t *testing.T) {
 	own := docs + "/allowlist/" + uid
 	other := docs + "/settings/" + uid
 	inv := docs + "/users/" + uid + "/inventory/active"
+	prof := docs + "/users/" + uid + "/profile/active"
 	empty := []byte(`{"fields":{}}`)
 
 	if code, raw := call(http.MethodPatch, own, "owner", empty); code != http.StatusOK {
@@ -59,6 +60,8 @@ func TestFirestoreRulesRefuseEachClientCall(t *testing.T) {
 		{"write of another document", http.MethodPatch, other, token, empty},
 		{"read of the own inventory", http.MethodGet, inv, token, nil},
 		{"write of the own inventory", http.MethodPatch, inv, token, empty},
+		{"read of the own profile", http.MethodGet, prof, token, nil},
+		{"write of the own profile", http.MethodPatch, prof, token, empty},
 		{"read with no sign-in", http.MethodGet, own, "", nil},
 		{"write with no sign-in", http.MethodPatch, other, "", empty},
 	}

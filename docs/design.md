@@ -36,6 +36,10 @@ An injury answer gives a warning, and the plan avoids the injured area (Decision
 
 The owner selects from ten muscle groups, or starts from the template "General fitness" or "Strength" (Decision, D-210). Onboarding asks the training days in each week, from 2 to 4, and a plan holds that count of sessions for one week (Decision, D-211).
 
+The experience is "intermediate" or "advanced" (Decision, D-214). The server accepts an age of 18 to 90 years, a height of 48 to 96 in, and a weight of 80 to 500 lb. Each text has 500 characters or fewer (Decision, D-215). The cardio preference is a list of the cardio exercises that the owner likes (Decision, D-217). The template "Strength" selects the chest, the back, the shoulders, the quadriceps, the hamstrings, and the glutes (Decision, D-220).
+
+The API stores the profile in one Firestore document at `users/{uid}/profile/active` (Decision, D-213). Section 5.15 of `docs/research/exercise-safety.md` gives the values of both tables and their research (Decision, D-218, D-219, D-221).
+
 ### 3.2 Equipment capture
 
 The owner selects each machine from the catalog, or enters it as text (Decision, D-51, D-55, D-110). A text searches the names of the catalog, and the owner selects the match. A text with no match stays as a note in the inventory, and no plan uses a note (Decision, D-191). The catalog list shows the machines by kind: the machines, the cable station, the dumbbells, and the cardio machines (Decision, D-202). Each kind group and the inventory list show the machines A to Z by name (Decision, D-205).

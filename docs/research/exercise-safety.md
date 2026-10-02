@@ -2,7 +2,7 @@
 
 Status: research input for the roadmap. This document holds evidence and synthesis. It holds no owner decision. The owner decisions live in `docs/decisions.md`.
 
-Date of this document: 2026-09-28. Access date of every source: 2026-09-27. Section 5.14, EV-67 to EV-85, and REC-17 to REC-22 date from 2026-09-30, and their sources have the access date 2026-09-30.
+Date of this document: 2026-09-28. Access date of every source: 2026-09-27. Section 5.14, EV-67 to EV-85, and REC-17 to REC-22 date from 2026-09-30, and their sources have the access date 2026-09-30. Section 5.15 and EV-86 to EV-113 date from 2026-10-02, and their sources have the access date 2026-10-02.
 
 ## 1. Purpose
 
@@ -132,6 +132,34 @@ Classes in the register:
 | EV-83 | Wiedenmann T et al., trainability of RIR estimation, BMC Sports Sci Med Rehabil 2026;18:375. [DOI 10.1186/s13102-026-01997-y](https://doi.org/10.1186/s13102-026-01997-y) | Mean absolute error fell by up to 2.3 reps over 6 sessions. | n=26. Bench and leg press. | evidence (small study) |
 | EV-84 | "Loading Recommendations for Muscle Strength, Hypertrophy, and Local Endurance: A Re-Examination of the Repetition Continuum." Schoenfeld BJ et al., Sports 2021;9:32. [DOI 10.3390/sports9020032](https://doi.org/10.3390/sports9020032) | Hypertrophy occurs across a wide range of loads and reps. | Narrative review. | recommendation |
 | EV-85 | "Fatal accident with weight-lifting equipment: implications for safety standards." George DH et al., CMAJ 1989;140:925-926. [PMC1268894](https://europepmc.org/article/PMC/PMC1268894) | Title shows a fatal event with weight equipment. | No abstract. PDF fetch failed (HTTP 403). Content not read. | unresolved |
+| EV-86 | "My Top Five Concepts for Selecting Lower Extremity Exercises for Cruciate Ligament and Patellofemoral Rehabilitation." Escamilla RF, Int J Sports Phys Ther 2023;18(1):14-25. [PMC9897005](https://europepmc.org/article/PMC/PMC9897005), [DOI 10.26603/001c.65896](https://doi.org/10.26603/001c.65896) | Leg press at 12 RM: patellofemoral force 3761-4809 N at 80-90 degrees of knee flexion. Seated knee extension: the highest ACL strain, and patellofemoral stress above that of weight-bearing exercises at 15-57 degrees. Seated knee flexion: PCL force 2701-3330 N at 90 degrees. | Clinical commentary that gives a summary of primary studies. Mostly healthy young men. | evidence (secondary summary) |
+| EV-87 | "Hypertrophic Effects of Single- versus Multi-Joint Exercise." Kinoshita M, Maeo S, et al., Med Sci Sports Exerc 2026;58(7):1566-1580. [PMC13215645](https://europepmc.org/article/PMC/PMC13215645), [DOI 10.1249/MSS.0000000000003957](https://doi.org/10.1249/MSS.0000000000003957) | The leg press grew the vasti, the gluteus maximus (+15.4%), and the adductor magnus (+6.2%). The knee extension grew the quadriceps alone. EMG agreed. | Abstract only. n=17 untrained adults, 12 weeks. | evidence |
+| EV-88 | "Triceps surae muscle hypertrophy is greater after standing versus seated calf-raise training." Kinoshita M et al., Front Physiol 2023;14:1272106. [PMC10753835](https://europepmc.org/article/PMC/PMC10753835), [DOI 10.3389/fphys.2023.1272106](https://doi.org/10.3389/fphys.2023.1272106) | Both forms train the triceps surae. The seated form did not grow the gastrocnemius. | Abstract only. n=14. | evidence |
+| EV-89 | "Ankle Position-Dependent Muscle Swelling During Seated Leg Curl." Lisboa F et al., J Strength Cond Res 2026;40(4):400-405. [DOI 10.1519/JSC.0000000000005344](https://doi.org/10.1519/JSC.0000000000005344) | The seated leg curl works the hamstrings. The gastrocnemius is active too, with a neutral ankle. | Abstract only. n=17 women. Swelling is an indirect measure. | evidence |
+| EV-90 | "A Biomechanical Review of the Squat Exercise." Straub RK, Powers CM, Int J Sports Phys Ther 2024;19:490-501. [PMC10987311](https://europepmc.org/article/PMC/PMC10987311), [DOI 10.26603/001c.94600](https://doi.org/10.26603/001c.94600) | A front load, as in the goblet squat, keeps the trunk upright. A forward lean increases the lumbar flexion moment. The squat needs high trunk-muscle work. The ankle sets the knee moment. | Clinical commentary, level of evidence 5. | recommendation |
+| EV-91 | "Loading of the knee joint during activities of daily living measured in vivo in five subjects." Kutzner I et al., J Biomech 2010;43(11):2164-2173. [DOI 10.1016/j.jbiomech.2010.03.046](https://doi.org/10.1016/j.jbiomech.2010.03.046) | Peak knee force from an instrumented implant: stair descent 346% of body weight, stair ascent 316%, walking 261%. | Abstract only. n=5 patients with a knee implant. | evidence |
+| EV-92 | "Standardized loads acting in knee implants." Bergmann G et al., PLoS One 2014;9(1):e86035. [PMC3900456](https://europepmc.org/article/PMC/PMC3900456), [DOI 10.1371/journal.pone.0086035](https://doi.org/10.1371/journal.pone.0086035) | Knee contact forces of 3372-4218 N in walking and on stairs, and up to 5165 N in slow jogging. | Abstract only. n=8 patients with a knee implant. | evidence |
+| EV-93 | "Standardized Loads Acting in Hip Implants." Bergmann G et al., PLoS One 2016;11(5):e0155612. [PMC4873223](https://europepmc.org/article/PMC/PMC4873223), [DOI 10.1371/journal.pone.0155612](https://doi.org/10.1371/journal.pone.0155612) | Mean peak hip force for a person of 75 kg: cycling at 90 W 731 N, walking 1925 N, stairs up 2232 N, stairs down 2300 N, jogging 3065 N. | n=10 patients with a hip implant. | evidence |
+| EV-94 | "Comparing Knee Joint Load Accumulation During Cycling, Walking, and Running." Ebbecke J et al., Scand J Med Sci Sports 2026;36(9):e70369. [PMC13579708](https://europepmc.org/article/PMC/PMC13579708), [DOI 10.1111/sms.70369](https://doi.org/10.1111/sms.70369) | The cumulative knee load of cycling is below that of running, and not above that of walking. Each activity loads the knee. | Abstract only. n=56. External moments, not contact forces. | evidence |
+| EV-95 | "The effects of saddle height and power output on lower-limb muscles and joints during cycling." Bing F et al., BMC Sports Sci Med Rehabil 2026;18:357. [PMC13474869](https://europepmc.org/article/PMC/PMC13474869), [DOI 10.1186/s13102-026-01779-6](https://doi.org/10.1186/s13102-026-01779-6) | Hip, knee, and ankle forces in cycling change with the power and the saddle height. | Abstract only. A model with an EMG check. n=25. | evidence |
+| EV-96 | "Effects of Stationary Bikes and Elliptical Machines on Knee Joint Kinematics during Exercise." He MY et al., Medicina 2024;60(3):498. [PMC10972514](https://europepmc.org/article/PMC/PMC10972514), [DOI 10.3390/medicina60030498](https://doi.org/10.3390/medicina60030498) | The elliptical gave a higher knee torque, and higher knee and ankle peak forces, than the stationary bike. | Abstract only. n=12 healthy men. | evidence |
+| EV-97 | "Effects of recumbent and upright bicycle exercises on knee joint cartilage and lower extremity muscles." Guvener O et al., Eur J Appl Physiol 2026;126(1):541-548. [DOI 10.1007/s00421-025-05916-w](https://doi.org/10.1007/s00421-025-05916-w) | The recumbent and the upright bike had similar effects on the femoral cartilage. | Abstract only. n=34, not randomized, 60 W. | evidence |
+| EV-98 | "Risk factors associated with low back pain in rowers: a systematic review and meta-analysis." Ze X et al., BMC Sports Sci Med Rehabil 2025;17:157. [PMC12218018](https://europepmc.org/article/PMC/PMC12218018), [DOI 10.1186/s13102-025-01153-y](https://doi.org/10.1186/s13102-025-01153-y) | Low back pain is a frequent injury of rowing. An earlier episode is the one significant risk factor (OR 2.65). | Abstract only. Rowers on water and on the ergometer. No joint-load data. | evidence (indirect) |
+| EV-99 | "Electromyographic Analysis of the Lumbar Extensor Muscles during Dynamic Exercise on a Home Exercise Device." Mayer JM et al., J Funct Morphol Kinesiol 2022;7(1):26. [PMC8955744](https://europepmc.org/article/PMC/PMC8955744), [DOI 10.3390/jfmk7010026](https://doi.org/10.3390/jfmk7010026) | The EMG of the lumbar extensors increases with the load and through the range of motion of a back extension. | Abstract only. n=10. A home device, not a gym machine. | evidence |
+| EV-100 | "Effects of loading positions on the activation of trunk and hip muscles during flywheel and dumbbell single-leg Romanian deadlift." Mo RCY et al., Front Physiol 2023;14:1264604. [PMC10716453](https://europepmc.org/article/PMC/PMC10716453), [DOI 10.3389/fphys.2023.1264604](https://doi.org/10.3389/fphys.2023.1264604) | The dumbbell Romanian deadlift gave very high gluteus maximus and biceps femoris activity. The erector spinae were active. | Abstract only. A single-leg form. n=12 trained men. | evidence |
+| EV-101 | "Robustness of hamstring muscle activation strategies following selective hypertrophy induced by Nordic hamstring curl and stiff-leg deadlift." Morin T et al., J Appl Physiol 2025;139(1):296-307. [DOI 10.1152/japplphysiol.00237.2025](https://doi.org/10.1152/japplphysiol.00237.2025) | Nine weeks of the stiff-leg deadlift increased 1RM by 34% and grew the semimembranosus by 11.2%. | Abstract only. n=36 untrained. | evidence |
+| EV-102 | "Beyond the Neutral Spine: Low Back Injury Prevention in Deadlifting." Cherni B et al., Sports 2026;14(4):151. [PMC13120164](https://europepmc.org/article/PMC/PMC13120164), [DOI 10.3390/sports14040151](https://doi.org/10.3390/sports14040151) | The lumbar load of the deadlift is a known concern for low back injury. Load management predicts injury better than posture. | Abstract only. Narrative review. | recommendation (narrative) |
+| EV-103 | "An examination of the gluteal muscle activity associated with dynamic hip abduction and hip external rotation exercise: a systematic review." Macadam P, Cronin J, Contreras B, Int J Sports Phys Ther 2015;10(5):573-591. [PMC4595911](https://europepmc.org/article/PMC/PMC4595911) | Hip abduction exercises work the gluteus medius and the gluteus maximus. | Abstract only. The abstract gives no separate result for the machine. | evidence (systematic review) |
+| EV-104 | "Hip abduction machine is better than free weights to target the gluteus medius while minimizing tensor fascia latae activation." de Almeida Paz I et al., J Bodyw Mov Ther 2022;30:160-167. [DOI 10.1016/j.jbmt.2022.01.001](https://doi.org/10.1016/j.jbmt.2022.01.001) | The hip abduction machine works the gluteus medius. | Abstract only. n=11 men. | evidence |
+| EV-105 | "Electromyographic Analysis of Latissimus Dorsi Activation During Common Resistance Training Exercises." Di Fonza D et al., J Funct Morphol Kinesiol 2026;11(3):315. [PMC13510307](https://europepmc.org/article/PMC/PMC13510307), [DOI 10.3390/jfmk11030315](https://doi.org/10.3390/jfmk11030315) | The latissimus dorsi is a prime mover in the lat pulldown and the seated row. | Abstract only. Narrative review of 23 studies. | evidence (narrative) |
+| EV-106 | "Electromyographic Analysis of Back Muscle Activation During Lat Pulldown Exercise." Buonsenso A et al., J Funct Morphol Kinesiol 2025;10(3):345. [PMC12452428](https://europepmc.org/article/PMC/PMC12452428), [DOI 10.3390/jfmk10030345](https://doi.org/10.3390/jfmk10030345) | The pulldown works the latissimus, the posterior deltoid, the biceps, the trapezius, and the infraspinatus. | Abstract only. n=40 trained men. | evidence |
+| EV-107 | "High-Density Surface Electromyography Excitation of Prime Movers Across Scapular Positions in the Seated Row." Padovan R et al., J Funct Morphol Kinesiol 2025;11(1):6. [PMC12821611](https://europepmc.org/article/PMC/PMC12821611), [DOI 10.3390/jfmk11010006](https://doi.org/10.3390/jfmk11010006) | The prime movers of the seated row: the trapezius, the latissimus, the deltoid, and the biceps. | Abstract only. n=14 trained men. | evidence |
+| EV-108 | "Biceps Brachii and Brachioradialis Excitation in Biceps Curl Exercise: Different Handgrips, Different Synergy." Coratella G et al., Sports 2023;11(3):64. [PMC10054060](https://europepmc.org/article/PMC/PMC10054060), [DOI 10.3390/sports11030064](https://doi.org/10.3390/sports11030064) | The neutral grip of the hammer curl gives less biceps activity than the supinated grip. The brachioradialis works in each grip. The anterior deltoid only holds the shoulder. | Abstract only. n=10. | evidence |
+| EV-109 | "Dumbbell versus cable lateral raises for lateral deltoid hypertrophy." Larsen S et al., Front Physiol 2025;16:1611468. [PMC12277279](https://europepmc.org/article/PMC/PMC12277279), [DOI 10.3389/fphys.2025.1611468](https://doi.org/10.3389/fphys.2025.1611468) | The dumbbell lateral raise grew the lateral deltoid by 3.3-4.6% in 8 weeks. | Abstract only. n=24 trained. | evidence |
+| EV-110 | "Training with an elastic bench press device provides comparable adaptations to conventional resistance training." Gavanda S et al., Biol Sport 2026;43:839-846. [PMC13217382](https://europepmc.org/article/PMC/PMC13217382), [DOI 10.5114/biolsport.2026.157993](https://doi.org/10.5114/biolsport.2026.157993) | Ten weeks of the bench press grew the pectoralis major by 15-17%. The triceps did not change significantly. | Abstract only. n=22 trained men. Barbell, not dumbbell or machine. | evidence |
+| EV-111 | "Effects of Mind-Muscle Connection on Muscle Activity During Machine-Based Shoulder Press." Kim D et al., J Clin Med 2026;15(10):3925. [PMC13207441](https://europepmc.org/article/PMC/PMC13207441), [DOI 10.3390/jcm15103925](https://doi.org/10.3390/jcm15103925) | The machine shoulder press works the deltoid and the triceps. | Abstract only. 40% of 1RM. n=31 untrained. | evidence (weak) |
+| EV-112 | "Shoulder injuries attributed to resistance training: a brief review." Kolber MJ et al., J Strength Cond Res 2010;24(6):1696-1704. [DOI 10.1519/JSC.0b013e3181dc4330](https://doi.org/10.1519/JSC.0b013e3181dc4330) | Up to 36% of the recorded injuries of resistance training occur at the shoulder. | Abstract only. Mostly retrospective data. | evidence (review) |
+| EV-113 | "Risk factors and management of atraumatic distal clavicular osteolysis: a scoping review." Wilkinson M et al., Shoulder Elbow 2026. [PMC13506996](https://europepmc.org/article/PMC/PMC13506996), [DOI 10.1177/17585732261479715](https://doi.org/10.1177/17585732261479715) | The bench press was the most frequent activity risk factor (49.1%) of this shoulder disorder. | Abstract only. 8 cohort studies, n=483. | evidence |
 
 ## 5. Synthesis
 
@@ -460,6 +488,80 @@ Property tests check four invariants. No load increase follows a shortfall. No r
 - Cable stations: the research found no safety data that compare them with machines. A cable stack moves on a guided path like a selectorized machine. Treat both cable exercises like fixed-path machines (assumption). Stack increments can differ from 5 lb.
 - The evidence is thin for injury rates, spotter needs, load steps, the two leg exercises, and cables. Most candidate values are assumptions.
 
+### 5.15 Areas and primary groups of each exercise (synthesis)
+
+The owner selects injured areas from a fixed list (D-208, D-216). A versioned table gives the areas that each exercise loads, and the server removes each such exercise before the call to Luna. A second table gives the primary muscle groups of each exercise (D-210). `go/internal/domain` holds both tables. This section gives the basis of each row. The owner approved the values (D-218 to D-221).
+
+The rule of the area table (D-218):
+
+- An area is in a row when its joint moves under the load, holds a large moment, or takes the load directly.
+- A joint with static, aligned compression alone is not in a row. An example is the knee in a Romanian deadlift.
+- The rule leans toward removal, because a gap keeps an exercise that can hurt an injured area.
+- No source measures the load on the wrist or the elbow in these exercises. So each wrist and elbow cell is an assumption: the hands hold the full load.
+
+| Exercise | Areas | Basis |
+|---|---|---|
+| `leg_press` | lower back, hip, knee, ankle | Knee: EV-86. Hip: EV-87. Ankle and lower back: assumption. Deep hip flexion can flex the lumbar spine under the load. |
+| `leg_extension` | knee | EV-86 |
+| `seated_leg_curl` | knee | EV-86, EV-89 |
+| `lying_leg_curl` | knee | EV-86, by analogy (assumption) |
+| `hip_abduction` | hip | EV-103, EV-104 |
+| `hip_adduction` | hip | Assumption: the hip is the one joint that moves. |
+| `calf_raise` | lower back, knee, ankle | Ankle: EV-88. Lower back: assumption for the standing form, with the pads on the shoulders. Knee: assumption for the seated form, with the pad on the thigh (D-221). |
+| `chest_press` | shoulder, elbow, wrist | EV-112, EV-113. Elbow and wrist: assumption. |
+| `shoulder_press` | shoulder, elbow, wrist | EV-111, EV-112. Elbow and wrist: assumption. |
+| `seated_row` | shoulder, elbow, wrist | EV-107. Wrist: assumption. |
+| `biceps_curl` | elbow, wrist | Assumption. The pad holds the upper arm, so the shoulder does not move. |
+| `abdominal_crunch` | lower back | Assumption: the lumbar spine flexes under the load. |
+| `back_extension` | lower back, hip | Lower back: EV-99. Hip: assumption. |
+| `lat_pulldown` | shoulder, elbow, wrist | EV-105, EV-106. Wrist: assumption. |
+| `triceps_pulldown` | elbow, wrist | Assumption |
+| `db_flat_bench_press` | shoulder, elbow, wrist | EV-110, EV-113. Elbow and wrist: assumption. |
+| `db_incline_bench_press` | shoulder, elbow, wrist | As the flat press (assumption) |
+| `db_seated_shoulder_press` | shoulder, elbow, wrist | EV-111, EV-112. The back support keeps the lower back out. |
+| `db_one_arm_row` | shoulder, elbow, wrist, lower back | Assumption. The spine holds a load on one side. |
+| `db_biceps_curl` | elbow, wrist | EV-108. The shoulder only holds its position. |
+| `db_hammer_curl` | elbow, wrist | EV-108 |
+| `db_lateral_raise` | shoulder, elbow, wrist | Shoulder: EV-109. Elbow and wrist: assumption, because the long lever puts a moment on them. |
+| `db_romanian_deadlift` | wrist, lower back, hip | EV-100, EV-101, EV-102. Wrist: assumption. |
+| `db_goblet_squat` | elbow, wrist, lower back, hip, knee, ankle | EV-90. Elbow and wrist: assumption, because the arms hold the dumbbell. |
+| `treadmill` | hip, knee, ankle | EV-91 to EV-94. Ankle: assumption. |
+| `upright_bike` | hip, knee, ankle | EV-93, EV-94, EV-95 |
+| `recumbent_bike` | hip, knee, ankle | EV-95, EV-97. The joints are as on the upright bike (assumption). |
+| `rowing_machine` | each of the seven areas | EV-98 for the lower back. The rest: assumption. The legs push the footplate and the arms pull the handle. |
+| `elliptical` | hip, knee, ankle | EV-96 |
+| `stair_climber` | hip, knee, ankle | EV-91, EV-93. A stepper is like stairs (assumption). |
+
+The group table (D-219) gives the prime movers alone, not the stabilizers.
+
+| Exercise | Primary groups | Basis |
+|---|---|---|
+| `leg_press`, `db_goblet_squat` | quadriceps, glutes | EV-87, EV-90 |
+| `leg_extension` | quadriceps | EV-86, EV-87 |
+| `seated_leg_curl`, `lying_leg_curl` | hamstrings | EV-89. The lying curl: assumption. |
+| `hip_abduction` | glutes | EV-103, EV-104 |
+| `hip_adduction` | none | The adductors are not one of the ten groups of D-210. |
+| `calf_raise` | calves | EV-88 |
+| `chest_press`, `db_flat_bench_press` | chest, triceps | EV-110. Triceps: assumption. |
+| `db_incline_bench_press` | chest, shoulders, triceps | Assumption. The incline adds work for the anterior deltoid. |
+| `shoulder_press`, `db_seated_shoulder_press` | shoulders, triceps | EV-111 |
+| `seated_row`, `lat_pulldown`, `db_one_arm_row` | back, biceps | EV-105, EV-106, EV-107 |
+| `biceps_curl`, `db_biceps_curl`, `db_hammer_curl` | biceps | EV-108 |
+| `triceps_pulldown` | triceps | Assumption |
+| `db_lateral_raise` | shoulders | EV-109 |
+| `abdominal_crunch` | core | Assumption |
+| `back_extension` | back | EV-99. The lumbar extensors are back muscles, as in the list of EV-3. |
+| `db_romanian_deadlift` | hamstrings, glutes | EV-100, EV-101 |
+| each cardio exercise | none | EV-3 keeps aerobic work and muscle-strengthening work apart. A cardio exercise never counts as the training of a group. |
+
+The goal templates (D-210, D-220):
+
+- "General fitness" selects each of the ten groups.
+- "Strength" selects the chest, the back, the shoulders, the quadriceps, the hamstrings, and the glutes. These are the prime movers of the upper and lower push and pull regions of EV-1. The arms, the calves, and the core work as synergists in these exercises (assumption). EV-110 weakens this assumption for the triceps.
+- EV-1 found no data on single-joint against multi-joint exercises for strength. So "multi-joint first" is a choice of order, not a result of EV-1.
+
+Limits: most sources are small (n=10-40), mostly trained young men, and the researcher read most of them as abstracts alone. The joint loads of EV-91 to EV-93 come from patients with an implant. Section 7 lists the gaps.
+
 ## 6. Recommendations not yet owner decisions
 
 Every row in this table is a recommendation. No row is an owner decision.
@@ -520,3 +622,7 @@ Every row in this table is a recommendation. No row is an owner decision.
 - Cable stack increments and gym dumbbell steps can differ from 5 lb. D-149 selects the weight of a machine, and no decision names the dumbbell set for this case.
 - George 1989 content not read (EV-85). The Ruiz-Alias 2025 numeric results are not verified (EV-79).
 - The research did not query the raw NEISS data. The register uses published analyses only.
+- No source measures the load on the wrist or the elbow in a press, a row, or a curl. The area table marks them from the grip alone (section 5.15).
+- No source covers the crunch machine, the triceps pushdown, or the hip adduction machine. No source gives the lumbar load of the leg press, or the load of a stair stepper.
+- The catalog id `calf_raise` covers the standing and the seated form. So its row holds the areas of both forms, and a knee injury removes a standing calf raise too (D-221).
+- The area table has no row value for 14 close calls (D-218). Examples are the knee on the hip machines and the lower back on the seated row.

@@ -4,22 +4,21 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-02. Roadmap PR-22 of `docs/roadmaps/phase-5-onboarding-and-plan.md`, on branch `docs/pr-22-phase-5-roadmap`, from base `e010746`. All work areas of Phase 5.
+Date: 2026-10-02. Roadmap PR-23 of `docs/roadmaps/phase-5-onboarding-and-plan.md`, GitHub PR #24, on branch `feat/pr-23-profile-api`, from base `8ccf95d`. Work area 5.1.
 
-The session read the deploy of `e010746` first. The build `deploy-web` `5d3916f0` gave SUCCESS, and the live `/version.json` names `e010746`. The live `/version` names `b3484b6`, because no API deploy followed. `api-runtime` holds `roles/datastore.user` alone (D-206). The owner added and confirmed one machine in the live app on the iPhone, so the exit of Phase 4 holds (D-203, D-204).
-
-The owner approved the milestone before the first edit (D-12), and answered Q-221 to Q-226 (D-207 to D-212).
+The owner approved the milestone before the first edit (D-12), and answered Q-227 to Q-235 (D-213 to D-221).
 
 The pull request holds:
 
-- the focused roadmap of Phase 5, with PR-22 to PR-27 and the exit evidence of Phase 4,
-- the owner answers D-207 to D-212 to Q-221 to Q-226. They give the split, the injury areas, the input of Luna, the muscle groups, the training days, and the live checks,
-- the Phase 5 work areas in `docs/roadmaps/high-level-roadmap.md`, and the onboarding and privacy text of `docs/design.md`,
-- the row of the roadmap in `docs/roadmaps/README.md`, and the Phase 5 stage in `AGENTS.md`.
+- the `ProfileService` of `proto/workoutapp/v1`, with `GetProfileOptions`, `GetProfile`, and `SaveProfile`,
+- the profile and its Firestore store at `users/{uid}/profile/active` in `go/internal/profile`, and the calls in `go/internal/profilesvc` (D-213),
+- the checks of the server: the experience, the template, each group, area, and cardio exercise against its list, and each bound (D-214 to D-217),
+- the area table and the group table of each exercise, and the goal templates, in `go/internal/domain` (D-218 to D-221). Section 5.15 and EV-86 to EV-113 of `docs/research/exercise-safety.md` hold the research,
+- the function `profile.ForPlan`, which gives the inputs of D-209 and the session count of D-211, with no exercise of an injured area (D-208).
 
-State: `make verify`, `make ste-check`, and `make ref-check` passed. The Codex review says `Ready for owner merge` for effective head `2898d5c8cbe09276bd85e6a261f7011a596846a5`. Finding ids: none. The session pushed the record and this hand-off. The fresh `review-gate`, `pr-contract`, and `verify` checks passed. The result is pending the owner merge.
+Codex round 1 reviewed effective head `fe99aed`, with the verdict `Changes required`. The author found full merit in P1-1 and P2-1. The owner decided P1-1 (D-221). `docs/reviews/pr-24-response.md` holds the corrections and their regression tests. `make go-test`, `make emulator-test`, and `make verify` passed after the corrections.
 
-Next action: after the merge, start PR-23, the profile API and store, in a clean session (D-207). PR-22 changes documents alone, so its merge needs no deploy check.
+Next action: Codex approved effective head `616eda5` after the corrections to P1-1 and P2-1. The record and this hand-off are on the branch. The new `pr-contract` and `review-gate` checks passed on metadata head `35768e6`. Then get the owner confirmation and merge. After the merge, read the deploy of the API first. Then start PR-24, the onboarding screens, in a clean session.
 
 ## Facts that expire
 
@@ -63,10 +62,28 @@ Next action: after the merge, start PR-23, the profile API and store, in a clean
 
 ## Next steps, in order
 
-1. Close PR-22: CI, the Codex review, the owner confirmation, and the merge.
-2. Start PR-23, the profile API and store, in a clean session (D-207). The owner approves its milestone first (D-12).
+1. Close PR-23: CI, the Codex review, the owner confirmation, and the merge.
+2. Read the deploy of the API of the merge of PR-23 (D-137).
+3. Start PR-24, the onboarding screens, in a clean session (D-207). The owner approves its milestone first (D-12).
 
 ## Session records
+
+### Session 24 - 2026-10-02
+
+Author provider: Claude Code
+
+Branch: `feat/pr-23-profile-api`. Role: author.
+
+Completed:
+
+- The owner approved the milestone before the first edit (D-12), and answered Q-227 to Q-235 (D-213 to D-221).
+- Answered Codex findings P1-1 and P2-1 of round 1 with full merit.
+- Wrote the profile service, the store, the checks, the two tables, and `profile.ForPlan`, with unit tests and emulator tests.
+- Added the research of both tables to `docs/research/exercise-safety.md`. Changed the design, both roadmaps, the registers, `go/README.md`, and `AGENTS.md`.
+
+Open work:
+
+- The Codex review, the owner confirmation, and the merge of PR-23.
 
 ### Session 23 - 2026-10-02
 
@@ -82,7 +99,7 @@ Completed:
 
 Open work:
 
-- Get the owner confirmation and merge PR-22.
+- None. GitHub PR 23 merged as `8ccf95d`.
 
 ### Session 22 - 2026-10-02
 
@@ -99,19 +116,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 22 merged as `e010746`. The owner check on the iPhone passed (D-203).
-
-### Session 21 - 2026-10-02
-
-Author provider: Claude Code
-
-Branch: `feat/pr-20-inventory-screens`. Role: author.
-
-Completed:
-
-- Read the deploys of `b3484b6`. The owner approved the milestone before the first edit (D-12), and answered Q-216 and Q-217 (D-202, D-203).
-- Wrote the inventory screens of `web/src/pages/inventory`, with 25 unit tests and 7 browser tests in each engine.
-- Changed the design, both roadmaps, the registers, `web/README.md`, and `AGENTS.md`.
-
-Open work:
-
-- None. GitHub PR 21 merged as `dc89e30`. The live check of D-203 failed, and PR-21 corrects the fault (D-204).
