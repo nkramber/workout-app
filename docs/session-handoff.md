@@ -16,9 +16,9 @@ The pull request holds the inventory API and its store:
 
 The merge of PR-18 changed no file in `go/` or `web/`, so no deploy followed it. The owner approved the milestone before the first edit (D-12).
 
-State: pending the owner merge. The checks and the Codex review are in the `## Checks` and `## Review` sections of the pull request.
+State: the Codex review is Ready for owner merge at `14769036ada85eea862951f07eea5b196f66cf6b`, with no open findings. The owner confirmation stays open.
 
-Next action: the author session runs CI and the Codex review, then gets the owner confirmation and follows the merge steps of D-13.
+Next action: the author session gets the owner confirmation and follows the merge steps of D-13.
 
 The merge changes `go/`, so `deploy-api` deploys the API. It also changes `web/src/gen`, so `deploy-web` deploys the web app. The next session reads both deploys first.
 
