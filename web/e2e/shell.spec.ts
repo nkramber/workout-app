@@ -1,4 +1,6 @@
-import { expect, test, type APIRequestContext, type BrowserContext, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+
+import { allow, makeAccount, signIn, stopAndOpen, uniqueEmail } from "./support";
 
 // The acceptance story of work area 2.2. Each test runs in WebKit and in
 // Chromium with phone emulation. The tests sign in against the Auth
@@ -6,45 +8,6 @@ import { expect, test, type APIRequestContext, type BrowserContext, type Page } 
 // the page blocks the pinch zoom, and write a change and its outbox entry.
 // A test that stops the app closes each page of the context and opens a
 // new page. The context keeps its storage, as the phone does.
-
-const authHost = process.env.FIREBASE_AUTH_EMULATOR_HOST;
-const firestoreHost = process.env.FIRESTORE_EMULATOR_HOST;
-const project = "demo-workout-app";
-const password = "emulator-only-1";
-
-// The Auth emulator makes the account, so the app needs no form for it.
-async function makeAccount(request: APIRequestContext, email: string): Promise<string> {
-  const res = await request.post(`http://${authHost}/identitytoolkit.googleapis.com/v1/accounts:signUp?key=demo-key`, {
-    data: { email, password, returnSecureToken: true },
-  });
-  expect(res.ok(), await res.text()).toBe(true);
-  return (await res.json()).localId;
-}
-
-// allow writes the allowlist document of a uid (D-131). The emulator
-// accepts the `owner` token as an admin, so no rule blocks the write.
-async function allow(request: APIRequestContext, uid: string) {
-  const url = `http://${firestoreHost}/v1/projects/${project}/databases/(default)/documents/allowlist?documentId=${uid}`;
-  const res = await request.post(url, { headers: { Authorization: "Bearer owner" }, data: { fields: {} } });
-  expect(res.ok(), await res.text()).toBe(true);
-}
-
-async function signIn(page: Page, email: string, pass = password) {
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill(pass);
-  await page.getByRole("button", { name: "Sign in" }).click();
-}
-
-async function stopAndOpen(context: BrowserContext): Promise<Page> {
-  for (const p of context.pages()) await p.close();
-  const page = await context.newPage();
-  await page.goto("/");
-  return page;
-}
-
-function uniqueEmail(name: string, info: { project: { name: string } }) {
-  return `${name}-${info.project.name}-${Date.now()}-${Math.floor(Math.random() * 1e6)}@example.com`;
-}
 
 test("the app has one sign-in form and no form that makes an account", async ({ page }) => {
   await page.goto("/");

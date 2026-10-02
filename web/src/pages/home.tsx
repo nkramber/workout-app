@@ -7,11 +7,12 @@ import { UserService } from "../gen/workoutapp/v1/user_service_pb";
 import { db } from "../lib/db";
 import { megabytes, requestPersistenceOnce, type StorageState } from "../lib/storage";
 
-// The home screen of Phase 2 is empty. It proves the whole path from the
-// sign-in to the API: it calls GetMe, and it shows the uid that the API
-// read from the token. The uid is an id, so the screen can show it (D-80).
-// The diagnostics rows serve the device check of PR-11.
-export function HomePage({ onSignOut }: { onSignOut: () => void }) {
+// The home screen proves the whole path from the sign-in to the API: it
+// calls GetMe, and it shows the uid that the API read from the token. The
+// uid is an id, so the screen can show it (D-80). It opens the equipment
+// inventory (work area 4.1). The diagnostics rows serve the device check
+// of PR-11.
+export function HomePage({ onSignOut, onOpenInventory }: { onSignOut: () => void; onOpenInventory: () => void }) {
   const me = useQuery(UserService.method.getMe, {});
   const pending = useLiveQuery(() => db.outbox.count(), [], null);
   const [storage, setStorage] = useState<StorageState | null>(null);
@@ -44,6 +45,14 @@ export function HomePage({ onSignOut }: { onSignOut: () => void }) {
           </p>
         )}
       </section>
+
+      <button
+        type="button"
+        onClick={onOpenInventory}
+        className="min-h-11 w-full rounded-lg bg-sky-600 px-4 font-medium text-white active:bg-sky-700"
+      >
+        Equipment
+      </button>
 
       <section className="space-y-2 text-sm">
         <h2 className="text-base font-semibold text-slate-100">Diagnostics</h2>

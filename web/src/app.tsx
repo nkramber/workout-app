@@ -4,15 +4,17 @@ import { useEffect, useState } from "react";
 
 import { authErrorCode, signOutOfApp, watchUser } from "./lib/firebase";
 import { HomePage } from "./pages/home";
+import { InventoryPage } from "./pages/inventory";
 import { SignInPage } from "./pages/sign-in";
 import { Shell } from "./shell";
 
-// App shows the sign-in page to a signed-out owner and the home screen to
-// a signed-in owner. Phase 2 has no other screen.
+// App shows the sign-in page to a signed-out owner. A signed-in owner gets
+// the home screen, and from it the equipment inventory (work area 4.1).
 export function App() {
   const queryClient = useQueryClient();
   const [user, setUser] = useState<User | null | undefined>(undefined);
   const [error, setError] = useState("");
+  const [page, setPage] = useState<"home" | "inventory">("home");
 
   useEffect(() => watchUser(setUser, (err) => setError(authErrorCode(err))), []);
 
@@ -20,6 +22,7 @@ export function App() {
   const signOut = async () => {
     await signOutOfApp();
     queryClient.clear();
+    setPage("home");
   };
 
   let body;
@@ -33,8 +36,10 @@ export function App() {
     body = <p className="text-slate-400">Loading…</p>;
   } else if (user === null) {
     body = <SignInPage />;
+  } else if (page === "inventory") {
+    body = <InventoryPage onBack={() => setPage("home")} />;
   } else {
-    body = <HomePage onSignOut={() => void signOut()} />;
+    body = <HomePage onSignOut={() => void signOut()} onOpenInventory={() => setPage("inventory")} />;
   }
   return <Shell>{body}</Shell>;
 }
