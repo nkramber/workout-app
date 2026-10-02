@@ -17,9 +17,9 @@ The pull request holds the inventory screens:
 
 The owner approved the milestone before the first edit (D-12).
 
-State: `make web` and `make verify` passed. CI, the Codex review, and the owner confirmation stay open. The result is pending the owner merge.
+State: `make verify` passed. GitHub `verify:*` and `pr-contract` passed. The Codex review says `Ready for owner merge` for effective head `b46c0a3`. Finding ids: none. The local `make web` did not run because this checkout has Node 20, and `web/.nvmrc` requires Node 22. The result is pending the owner confirmation and merge.
 
-Next action: the author session waits for CI on GitHub PR 21, and then runs `make codex-review PR=21`.
+Next action: the owner reads the review record and the author provider, confirms the merge, then the author session turns on auto-merge under D-13.
 
 The merge changes `web/` alone, so `deploy-web` deploys the web app, and no API deploy follows. After that deploy, the owner adds and confirms one machine in the live app on the iPhone (D-203). The Phase 5 roadmap session records the result as the exit evidence of Phase 4.
 
