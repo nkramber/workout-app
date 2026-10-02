@@ -12,7 +12,9 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `go/internal/usersvc` | The `GetMe` call |
 | `go/internal/inventory` | The inventory of the owner: the machines and the notes, the checks, the draft and confirmed states, the Firestore store, and `ForPlan` (D-46, D-193, D-197) |
 | `go/internal/inventorysvc` | The calls of `InventoryService` |
-| `go/internal/domain` | The types of the workout domain, the catalog of D-155, and the check of each type (D-157) |
+| `go/internal/profile` | The profile of the owner: the fields, the checks, the Firestore store, and `ForPlan` (D-41, D-208 to D-220) |
+| `go/internal/profilesvc` | The calls of `ProfileService` |
+| `go/internal/domain` | The types of the workout domain, the catalog of D-155, the injury areas and the muscle groups with their tables (D-218, D-219), and the check of each type (D-157) |
 | `go/internal/policy` | The versioned safety policy: the bounds of a target, the rounding of a load, the start and the calibration of a new exercise, the return after a break, the next target, the check of a proposal, the rules fallback, and the decision record (D-23, D-38, D-176) |
 | `go/internal/ai` | The Luna role layer: the planner and reviser roles, the plan schema, the prompt, the guidance catalog, the filter of blocked claims, the cost records, the cap hook, the OpenAI provider, and the fake provider (D-24, D-25, D-152, D-183) |
 | `go/gen` | The generated code. `make proto` writes it, and Git keeps it. |
@@ -81,6 +83,26 @@ The other refusals:
 A removal of an unknown machine or note succeeds, so a retry is safe. An error names ids and numbers alone, and never the text of a note (D-80).
 
 The function `inventory.ForPlan` gives the confirmed machines and their estimates to the plan input of Phase 5. A draft and a note never reach it (D-49, D-191, D-193).
+
+## The profile
+
+`ProfileService` holds the one profile of the caller (work area 5.1). Its calls read the fixed lists, read the profile, and save the whole profile. A caller with no profile gets no profile.
+
+The store keeps one Firestore document for each user at `users/{uid}/profile/active` (D-213). Each save replaces the document. The load estimates of D-41 stay in the inventory (D-192).
+
+Before its check, the server removes the spaces at each end of each text, and puts each list in the order of its fixed list. Then it refuses a bad value with `invalid_argument`:
+
+- An experience other than "intermediate" or "advanced" (D-214), or a template other than "general_fitness" or "strength".
+- No muscle group, or a group, an area, or a cardio exercise off its fixed list, or a value two times (D-216, D-217).
+- An age, a height, or a weight outside its bound: 18 to 90 years, 48 to 96 in, and 80 to 500 lb (D-215).
+- Training days outside 2 to 4 (D-211).
+- A free text or an injury text of more than 500 characters (D-215).
+
+A failed read or write of Firestore gives `internal`, with a fixed text. An error names the field and the bound alone, and never the value of the age, the height, the weight, or a text (D-80).
+
+`domain.DefaultBodyTables` holds the areas and the primary groups of each exercise, and the goal templates (D-218 to D-220). A unit test finds each exercise of the catalog in both tables. Section 5.15 of `docs/research/exercise-safety.md` gives the research of each row.
+
+The function `profile.ForPlan` gives the planner input of a profile. It holds the inputs of D-209 and the session count of D-211. It removes each exercise that loads an injured area (D-208). An exercise with no row in the area table loads each area, so a gap removes an exercise. The input type has no field for the age, the height, the weight, the areas, or the injury text.
 
 ## Emulators
 
