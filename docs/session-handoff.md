@@ -15,9 +15,9 @@ The pull request holds the Phase 4 focused roadmap:
 
 The deploy of `9d0e5d0` passed: the build `deploy-api` `46b8f059` gave SUCCESS, and the live `/version` names `9d0e5d0`. The owner approved the milestone before the first edit (D-12).
 
-State: pending the owner merge. Product CI passed. The Codex review is Ready for owner merge at `ea1620c25599d77daeb5957ee609ec1d14c39d23`. The review-gate check is open for the metadata push.
+State: pending the owner merge. All nine GitHub checks passed after the review record push. The Codex review is Ready for owner merge at `ea1620c25599d77daeb5957ee609ec1d14c39d23`.
 
-Next action: the author session reads the review-gate result, gets the owner confirmation, and follows the merge steps of D-13.
+Next action: the author session gets the owner confirmation and follows the merge steps of D-13.
 
 The merge changes no file in `go/` or `web/`, so no deploy follows it.
 
