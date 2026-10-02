@@ -8,7 +8,7 @@ Date: 2026-10-02. Review of GitHub PR #24, roadmap PR-23 in `docs/roadmaps/phase
 
 The Codex review record is `docs/reviews/pr-24.md`. The effective head is `fe99aed9b4b531e3dc8fe16aa0f4465b8bd1c23d`.
 
-State: `Changes required`. Open findings: P1-1, the calf-raise injury filter, and P2-1, profile text in validation errors. `make verify`, `make go-test`, `make contract`, and `make emulator-test` passed. Product CI passed at the effective head. The `review-gate` check failed before this record reached the branch.
+State: `Changes required`. Open findings: P1-1, the calf-raise injury filter, and P2-1, profile text in validation errors. `make verify`, `make go-test`, `make contract`, and `make emulator-test` passed. Product CI passed at the effective head. The `review-gate` check failed at RG 4 because this record says `Changes required`.
 
 Next action: commit and push this record and hand-off. Then the author can correct both findings and request a new review.
 
