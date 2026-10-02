@@ -383,6 +383,17 @@ The live check of D-203 failed on 2026-10-02. The app showed "The API did not an
 | Q-219 | Which lists show the machines A to Z? | Both: the inventory list, and each kind group of the catalog list. | Answered | D-205 |
 | Q-220 | Which role lets the API write Firestore? | `roles/datastore.user` in place of `roles/datastore.viewer`, applied in this session. A server fault shows "The server failed." | Answered | D-206 |
 
+## Questions of the Phase 5 roadmap session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-221 | How does Phase 5 split into pull requests? | Five: the profile API, the onboarding screens, the lasting cap store, the plan API, and the plan screens. | Answered | D-207 |
+| Q-222 | How does an injury answer make the plan avoid the injured area? The catalog has six regions alone, and no table of the joints of each exercise. | Areas from a fixed list, and a versioned table of the areas of each exercise. The server removes these exercises before the call. | Answered | D-208 |
+| Q-223 | Which profile inputs does a planner call send to Luna? | The training inputs alone. The age, the height, the weight, and the injury text stay on the server. | Answered | D-209 |
+| Q-224 | Which muscle groups and goal templates does onboarding give? | Ten fixed groups, a table of the primary groups of each exercise, and the templates "General fitness" and "Strength". | Answered | D-210 |
+| Q-225 | How many sessions does a plan hold? D-41 has no training frequency. | Onboarding asks the training days in each week, from 2 to 4. | Answered | D-211 |
+| Q-226 | Is the live check of a planner call in the app a paid development run? | Yes. The owner approves each live check with its expected cost. | Answered | D-212 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |

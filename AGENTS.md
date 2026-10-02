@@ -6,7 +6,7 @@ This file holds the rules for every agent and every session in this repository. 
 
 Workout App is a personal workout app for one user, the owner (D-67). It is an installable, phone-first web app on Google Cloud, and it never goes to an app store (D-17). OpenAI `gpt-6-luna` proposes plans and revisions. A deterministic, versioned policy checks every set and load before the owner sees it (D-22, D-23).
 
-Stage: Phase 4 of `docs/roadmaps/high-level-roadmap.md`, with the pull requests of `docs/roadmaps/phase-4-equipment-inventory.md`. Phase 3 ended with PR-17. PR-21 corrects the live writes of the inventory, and the Phase 4 exit needs its live check (D-204). The contract is in `proto/`, and the web shell and the inventory screens are in `web/`. The Go API, the domain model, the policy, the Luna role layer, and the inventory store are in `go/`.
+Stage: Phase 5 of `docs/roadmaps/high-level-roadmap.md`, with the pull requests of `docs/roadmaps/phase-5-onboarding-and-plan.md`. Phase 4 ended with PR-21, and the owner confirmed one machine in the live app (D-203, D-204). The contract is in `proto/`, and the web shell and the inventory screens are in `web/`. The Go API, the domain model, the policy, the Luna role layer, and the inventory store are in `go/`.
 
 The project `nk-workout-app-prod` holds Firestore, the Cloud Run service `api`, Hosting, and Auth, and Cloud Build deploys each merge to `main` (D-137). `docs/setup-gcp.md` and `docs/deploy-and-rollback.md` describe it. `docs/research/phase-2-check.md` holds the exit evidence of Phase 2, and `docs/research/phase-3-check.md` holds the Luna evaluation of Phase 3. `docs/design.md` holds the design.
 

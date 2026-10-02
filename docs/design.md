@@ -1,6 +1,6 @@
 # Workout App - design
 
-This document holds the product thesis, the target experience, the system context, the safety boundaries, and the privacy posture of Workout App. It is the design reference for `docs/roadmaps/high-level-roadmap.md`. The date of this version is 2026-09-28.
+This document holds the product thesis, the target experience, the system context, the safety boundaries, and the privacy posture of Workout App. It is the design reference for `docs/roadmaps/high-level-roadmap.md`. The date of this version is 2026-10-02.
 
 Each statement has a label. **Fact** means a verified fact with a source in `docs/research/`. **Decision** means an owner decision in `docs/decisions.md`. **Recommendation** means a proposal that the owner did not accept yet. **Assumption** means a belief that nobody verified yet. **Open** means a question in `docs/questions.md`.
 
@@ -30,7 +30,11 @@ Workout App is an installable, phone-first web app on a default Firebase Hosting
 
 ### 3.1 Onboarding
 
-The owner enters experience, goals, injuries and restrictions, age, height, weight, and cardio preference (Decision, D-41). The owner picks muscles directly or starts from a goal template, and can add free text for Luna (Decision, D-42). The screen asks about injuries and experience only. It has no readiness questions (Decision, D-34). An injury answer gives a warning, and the plan avoids the injured area (Decision, D-35).
+The owner enters experience, goals, injuries and restrictions, age, height, weight, and cardio preference (Decision, D-41). The owner picks muscles directly or starts from a goal template, and can add free text for Luna (Decision, D-42). The screen asks about injuries and experience only. It has no readiness questions (Decision, D-34).
+
+An injury answer gives a warning, and the plan avoids the injured area (Decision, D-35). The owner selects each injured area from a fixed list. A versioned table gives the areas that each exercise loads, and the server removes each such exercise before the call to Luna. The policy refuses it too (Decision, D-208).
+
+The owner selects from ten muscle groups, or starts from the template "General fitness" or "Strength" (Decision, D-210). Onboarding asks the training days in each week, from 2 to 4, and a plan holds that count of sessions for one week (Decision, D-211).
 
 ### 3.2 Equipment capture
 
@@ -195,6 +199,7 @@ Workout App stores data about one person, the owner (Decision, D-67). The owner 
 
 - The repository is public. No personal data, email address, photo, or workout log goes into it. The author credit that the license of a test image requires is the one exception (Decision, D-106).
 - Telemetry holds ids only (Decision, D-80).
+- A planner call sends the experience, the goal template, the muscle groups, the free text, and the cardio preference alone. The age, the height, the weight, and the injury text stay on the server (Decision, D-209).
 - The API sends OpenAI requests with the response store turned off (Recommendation, from `docs/research/platform-cloud-and-ai.md`). The OpenAI provider of `go/internal/ai` does this. A call sends no note of the owner and no user id.
 - The app takes no photo now (Decision, D-110). In a later photo phase, the app removes photo metadata before upload, and the server deletes each photo after the confirmation (Decision, D-52).
 - Secrets live in Secret Manager, never in the repository.
