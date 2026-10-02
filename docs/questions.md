@@ -394,6 +394,20 @@ The live check of D-203 failed on 2026-10-02. The app showed "The API did not an
 | Q-225 | How many sessions does a plan hold? D-41 has no training frequency. | Onboarding asks the training days in each week, from 2 to 4. | Answered | D-211 |
 | Q-226 | Is the live check of a planner call in the app a paid development run? | Yes. The owner approves each live check with its expected cost. | Answered | D-212 |
 
+## Questions of the profile API session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-227 | Which Firestore path holds the one profile? | `users/{uid}/profile/active`. | Answered | D-213 |
+| Q-228 | Which values does the experience field have? | Intermediate and advanced. | Answered | D-214 |
+| Q-229 | Which bounds does the server apply? | Age 18 to 90, height 48 to 96 in, weight 80 to 500 lb, and texts of 500 characters or fewer. | Answered | D-215 |
+| Q-230 | Which fixed list of injury areas does onboarding give? | The seven areas of D-208. | Answered | D-216 |
+| Q-231 | Which form does the cardio preference take? | A list of the cardio exercises that the owner likes. | Answered | D-217 |
+| Q-232 | Which areas does each exercise load? | The research table, with the close calls left out. | Answered | D-218 |
+| Q-233 | Which primary groups does each exercise have? The adductors are not one of the ten groups. | The research table. Hip adduction and the cardio exercises get no group. | Answered | D-219 |
+| Q-234 | Which groups does the template "Strength" select? | The six prime-mover groups. | Answered | D-220 |
+
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |
