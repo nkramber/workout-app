@@ -17,6 +17,7 @@ import (
 	"github.com/nkramber/workout-app/go/gen/workoutapp/v1/workoutappv1connect"
 	"github.com/nkramber/workout-app/go/internal/auth"
 	"github.com/nkramber/workout-app/go/internal/envguard"
+	"github.com/nkramber/workout-app/go/internal/inventory"
 )
 
 const webOrigin = "https://nk-workout-app-prod.web.app"
@@ -43,7 +44,7 @@ func (f fakeList) Allowed(_ context.Context, uid string) (bool, error) {
 func server(t *testing.T, list auth.Allowlist) *httptest.Server {
 	t.Helper()
 	v := fakeVerifier{"token-a": "uid-a", "token-b": "uid-b", "token-empty": ""}
-	srv := httptest.NewServer(newHandler(v, list, webOrigin, "abc123"))
+	srv := httptest.NewServer(newHandler(v, list, inventory.NewMemory(), webOrigin, "abc123"))
 	t.Cleanup(srv.Close)
 	return srv
 }
@@ -93,6 +94,40 @@ func TestGetMe(t *testing.T) {
 				t.Fatalf("GetMe uid = %q, want %q", res.Msg.GetUid(), c.uid)
 			}
 		})
+	}
+}
+
+// TestInventorySignIn proves that InventoryService has the sign-in of
+// UserService, and that each uid reads its own inventory alone.
+func TestInventorySignIn(t *testing.T) {
+	srv := server(t, fakeList{uids: map[string]bool{"uid-a": true, "uid-b": true}})
+	client := workoutappv1connect.NewInventoryServiceClient(srv.Client(), srv.URL)
+	call := func(token string) (*connect.Response[workoutappv1.GetInventoryResponse], error) {
+		req := connect.NewRequest(&workoutappv1.GetInventoryRequest{})
+		if token != "" {
+			req.Header().Set("Authorization", "Bearer "+token)
+		}
+		return client.GetInventory(context.Background(), req)
+	}
+	if _, err := call(""); connect.CodeOf(err) != connect.CodeUnauthenticated {
+		t.Fatalf("GetInventory with no token = %v, want Unauthenticated", err)
+	}
+	if _, err := call("forged"); connect.CodeOf(err) != connect.CodeUnauthenticated {
+		t.Fatalf("GetInventory with a bad token = %v, want Unauthenticated", err)
+	}
+
+	save := connect.NewRequest(&workoutappv1.SaveMachineRequest{MachineId: "treadmill"})
+	save.Header().Set("Authorization", "Bearer token-a")
+	if _, err := client.SaveMachine(context.Background(), save); err != nil {
+		t.Fatalf("SaveMachine as uid-a: %v", err)
+	}
+	a, err := call("token-a")
+	if err != nil || len(a.Msg.GetInventory().GetMachines()) != 1 {
+		t.Fatalf("GetInventory as uid-a = %v, %v, want one machine", a, err)
+	}
+	b, err := call("token-b")
+	if err != nil || len(b.Msg.GetInventory().GetMachines()) != 0 {
+		t.Fatalf("GetInventory as uid-b = %v, %v, want an empty inventory", b, err)
 	}
 }
 

@@ -1,0 +1,201 @@
+syntax = "proto3";
+
+package workoutapp.v1;
+
+option go_package = "github.com/nkramber/workout-app/go/gen/workoutapp/v1;workoutappv1";
+
+// InventoryService holds the one active inventory of the caller (work area
+// 4.2, D-46). Every call needs a Firebase ID token of a uid on the invite
+// allowlist (D-75, D-131). Each change is a direct call (D-196).
+//
+// A load is a whole number of tenths of a pound, so 12.5 lb is 125 (D-122,
+// D-160). The server reads each machine against the catalog of GetCatalog,
+// and refuses a bad value with INVALID_ARGUMENT. An error names ids and
+// numbers alone, and never the text of a note (D-80).
+service InventoryService {
+  // GetCatalog returns the product catalog (D-155). The server holds the
+  // one copy of it.
+  rpc GetCatalog(GetCatalogRequest) returns (GetCatalogResponse) {}
+
+  // GetInventory returns the inventory of the caller. A caller with no
+  // inventory gets an empty one.
+  rpc GetInventory(GetInventoryRequest) returns (GetInventoryResponse) {}
+
+  // SaveMachine adds a machine as a draft, or replaces the one entry of a
+  // machine that the inventory holds (D-200). A change of the weights
+  // makes a confirmed machine a draft again (D-193). A change of the
+  // estimates alone keeps the state.
+  rpc SaveMachine(SaveMachineRequest) returns (SaveMachineResponse) {}
+
+  // ConfirmMachine confirms a machine with the weights that the review
+  // screen showed. When the stored weights are different, the call fails
+  // with FAILED_PRECONDITION, and the state does not change (D-201). An
+  // unknown machine gives NOT_FOUND.
+  rpc ConfirmMachine(ConfirmMachineRequest) returns (ConfirmMachineResponse) {}
+
+  // RemoveMachine removes a machine. The removal of a machine that the
+  // inventory does not hold succeeds, so a retry is safe.
+  rpc RemoveMachine(RemoveMachineRequest) returns (RemoveMachineResponse) {}
+
+  // SaveNote adds a note when the id is empty, or replaces the text of a
+  // note (D-191). An unknown id gives NOT_FOUND. No plan reads a note.
+  rpc SaveNote(SaveNoteRequest) returns (SaveNoteResponse) {}
+
+  // RemoveNote removes a note. The removal of an unknown note succeeds.
+  rpc RemoveNote(RemoveNoteRequest) returns (RemoveNoteResponse) {}
+}
+
+// CatalogMachine is one machine of the catalog.
+message CatalogMachine {
+  // The stable id of the machine. An id never changes.
+  string id = 1;
+  string name = 2;
+  // The kind: "machine", "cable", "dumbbell", or "cardio".
+  string kind = 3;
+}
+
+// CatalogExercise is one exercise of the catalog, on one machine (D-159).
+message CatalogExercise {
+  // The stable id of the exercise. An id never changes.
+  string id = 1;
+  string name = 2;
+  // The id of the machine of the exercise.
+  string machine_id = 3;
+  // The body region (D-161): "upper_push", "upper_pull", "lower_push",
+  // "lower_pull", "core", or "cardio".
+  string region = 4;
+}
+
+message GetCatalogRequest {}
+
+message GetCatalogResponse {
+  // The version of the catalog data.
+  int32 version = 1;
+  // The machines, in catalog order.
+  repeated CatalogMachine machines = 2;
+  // The exercises, in catalog order.
+  repeated CatalogExercise exercises = 3;
+}
+
+// DumbbellSet is the dumbbell set as its lightest weight, heaviest weight,
+// and step (D-155). Each load is the load of one dumbbell.
+message DumbbellSet {
+  int32 lightest_tenth_lb = 1;
+  int32 heaviest_tenth_lb = 2;
+  int32 step_tenth_lb = 3;
+}
+
+// Estimate is the optional load estimate of the owner for one exercise of
+// the machine (D-192). The load is from the lightest to the heaviest
+// weight of the machine (D-198).
+message Estimate {
+  string exercise_id = 1;
+  int32 load_tenth_lb = 2;
+}
+
+// MachineState is the state of a machine of the inventory (D-193).
+enum MachineState {
+  MACHINE_STATE_UNSPECIFIED = 0;
+  // The owner saved the machine, and did not confirm its weights.
+  MACHINE_STATE_DRAFT = 1;
+  // The owner confirmed the machine. A plan reads it.
+  MACHINE_STATE_CONFIRMED = 2;
+}
+
+// InventoryMachine is one machine of the inventory. It holds the identity,
+// the weights, the estimates, and the state alone (D-54, D-192, D-193).
+message InventoryMachine {
+  // The catalog id of the machine.
+  string machine_id = 1;
+  // The weights of a machine or of the cable station, lightest first. A
+  // dumbbell set or a cardio machine has none.
+  repeated int32 weights_tenth_lb = 2;
+  // The dumbbell set of the dumbbells alone.
+  DumbbellSet dumbbells = 3;
+  // The estimates, in catalog order of the exercises.
+  repeated Estimate estimates = 4;
+  MachineState state = 5;
+}
+
+// InventoryNote is a text that matched no catalog name (D-191).
+message InventoryNote {
+  string id = 1;
+  string text = 2;
+}
+
+// Inventory is the one active inventory (D-46).
+message Inventory {
+  // The machines, in catalog order.
+  repeated InventoryMachine machines = 1;
+  // The notes, in the order of their addition.
+  repeated InventoryNote notes = 2;
+}
+
+message GetInventoryRequest {}
+
+message GetInventoryResponse {
+  Inventory inventory = 1;
+}
+
+message SaveMachineRequest {
+  // The catalog id of the machine.
+  string machine_id = 1;
+  // The weights of a machine or of the cable station, lightest first.
+  repeated int32 weights_tenth_lb = 2;
+  // The dumbbell set of the dumbbells alone.
+  DumbbellSet dumbbells = 3;
+  // The estimates. The request replaces each stored estimate.
+  repeated Estimate estimates = 4;
+}
+
+message SaveMachineResponse {
+  // The inventory after the change.
+  Inventory inventory = 1;
+}
+
+message ConfirmMachineRequest {
+  // The catalog id of the machine.
+  string machine_id = 1;
+  // The weights that the review screen showed.
+  repeated int32 weights_tenth_lb = 2;
+  // The dumbbell set that the review screen showed.
+  DumbbellSet dumbbells = 3;
+}
+
+message ConfirmMachineResponse {
+  // The inventory after the change.
+  Inventory inventory = 1;
+}
+
+message RemoveMachineRequest {
+  string machine_id = 1;
+}
+
+message RemoveMachineResponse {
+  // The inventory after the change.
+  Inventory inventory = 1;
+}
+
+message SaveNoteRequest {
+  // The id of the note to change, or empty for a new note.
+  string id = 1;
+  // The text, from 1 to 200 characters after the trim of the spaces at
+  // each end (D-199).
+  string text = 2;
+}
+
+message SaveNoteResponse {
+  // The inventory after the change.
+  Inventory inventory = 1;
+  // The id of the saved note.
+  string note_id = 2;
+}
+
+message RemoveNoteRequest {
+  string id = 1;
+}
+
+message RemoveNoteResponse {
+  // The inventory after the change.
+  Inventory inventory = 1;
+}

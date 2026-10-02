@@ -30,6 +30,8 @@ import (
 	"github.com/nkramber/workout-app/go/internal/allowlist"
 	"github.com/nkramber/workout-app/go/internal/auth"
 	"github.com/nkramber/workout-app/go/internal/envguard"
+	"github.com/nkramber/workout-app/go/internal/inventory"
+	"github.com/nkramber/workout-app/go/internal/inventorysvc"
 	"github.com/nkramber/workout-app/go/internal/usersvc"
 )
 
@@ -93,7 +95,7 @@ func run(ctx context.Context, logger *slog.Logger, environ []string, getenv func
 
 	srv := &http.Server{
 		Addr:              ":" + port,
-		Handler:           newHandler(verifier, allowlist.FromFirestore(fs), origin, commit),
+		Handler:           newHandler(verifier, allowlist.FromFirestore(fs), inventory.FromFirestore(fs), origin, commit),
 		ReadHeaderTimeout: readHeaderTimeout,
 		IdleTimeout:       idleTimeout,
 	}
@@ -112,14 +114,14 @@ func run(ctx context.Context, logger *slog.Logger, environ []string, getenv func
 	return srv.Shutdown(shutdownCtx)
 }
 
-// newHandler builds the routes. Each call of UserService needs a token
-// of a uid on the allowlist. The version route needs no sign-in, and it
-// gives the commit alone.
-func newHandler(v auth.Verifier, a auth.Allowlist, origin, buildCommit string) http.Handler {
+// newHandler builds the routes. Each call of UserService and of
+// InventoryService needs a token of a uid on the allowlist. The version
+// route needs no sign-in, and it gives the commit alone.
+func newHandler(v auth.Verifier, a auth.Allowlist, store inventory.Store, origin, buildCommit string) http.Handler {
 	mux := http.NewServeMux()
-	path, h := workoutappv1connect.NewUserServiceHandler(usersvc.Server{},
-		connect.WithInterceptors(auth.Interceptor(v, a)))
-	mux.Handle(path, h)
+	signedIn := connect.WithInterceptors(auth.Interceptor(v, a))
+	mux.Handle(workoutappv1connect.NewUserServiceHandler(usersvc.Server{}, signedIn))
+	mux.Handle(workoutappv1connect.NewInventoryServiceHandler(inventorysvc.New(store), signedIn))
 	body, _ := json.Marshal(map[string]string{"commit": buildCommit})
 	mux.HandleFunc("GET "+VersionPath, func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
