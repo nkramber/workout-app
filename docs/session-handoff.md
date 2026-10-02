@@ -17,9 +17,9 @@ The owner approved the milestone before the first edit, then the run size, the c
 
 The paid run passed. All 50 calls passed the schema, the policy refused 0 of 197 proposals, and each of the 75 scenario cases was safe. It cost 0.0468 USD under the cap of 2 USD. Luna copied the target of the rules in each decision (Q-202).
 
-State: pending the owner merge. CI, the Codex review, and the owner confirmation are open.
+State: pending the owner merge. Product CI passed. Codex review is Ready for owner merge at `11223740c2b52c1b58086ca9d45585d6d37246d2`. The owner confirmation and merge are open.
 
-Next action: push the branch, open the pull request, and run `make codex-review` after CI passes (D-8).
+Next action: the author session reads the review record, gets the owner confirmation, and follows the merge steps of D-13.
 
 The merge changes `go/`, so `deploy-api` deploys it. The next session reads that deploy first.
 
