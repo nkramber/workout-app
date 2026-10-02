@@ -4,22 +4,22 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-02. Roadmap PR-21 of `docs/roadmaps/phase-4-equipment-inventory.md`, on branch `fix/pr-21-inventory-writes`, from base `dc89e30`. Work area 4.1.
+Date: 2026-10-02. Roadmap PR-22 of `docs/roadmaps/phase-5-onboarding-and-plan.md`, on branch `docs/pr-22-phase-5-roadmap`, from base `e010746`. All work areas of Phase 5.
 
-The session read the deploy of `dc89e30` first. The build `deploy-web` `c78c7c6e` gave SUCCESS, and the live `/version.json` names `dc89e30`. The live `/version` names `b3484b6`, because no API deploy followed.
+The session read the deploy of `e010746` first. The build `deploy-web` `5d3916f0` gave SUCCESS, and the live `/version.json` names `e010746`. The live `/version` names `b3484b6`, because no API deploy followed. `api-runtime` holds `roles/datastore.user` alone (D-206). The owner added and confirmed one machine in the live app on the iPhone, so the exit of Phase 4 holds (D-203, D-204).
 
-The live check of D-203 failed. The app showed "The API did not answer. The change is not saved." The request log gave HTTP 500 for each `SaveMachine` call, and `api-runtime` held `roles/datastore.viewer` alone. The owner chose a Phase 4 correction in this session (D-204), and approved the milestone before the first edit (D-12).
+The owner approved the milestone before the first edit (D-12), and answered Q-221 to Q-226 (D-207 to D-212).
 
 The pull request holds:
 
-- the role change of `api-runtime` to `roles/datastore.user`, applied at 16:22:48Z and read back, in `docs/setup-gcp.md` (D-206),
-- the text "The server failed." for the code `internal`, in `web/src/lib/errors.ts` (D-206),
-- the A to Z order of the inventory list and of each kind group of the catalog list, in `web/src/lib/inventory.ts` (D-205),
-- the unit tests and the browser tests of both, and the owner answers D-204 to D-206 to Q-218 to Q-220.
+- the focused roadmap of Phase 5, with PR-22 to PR-27 and the exit evidence of Phase 4,
+- the owner answers D-207 to D-212 to Q-221 to Q-226. They give the split, the injury areas, the input of Luna, the muscle groups, the training days, and the live checks,
+- the Phase 5 work areas in `docs/roadmaps/high-level-roadmap.md`, and the onboarding and privacy text of `docs/design.md`,
+- the row of the roadmap in `docs/roadmaps/README.md`, and the Phase 5 stage in `AGENTS.md`.
 
-State: `make web` and `make verify` passed. CI passed except `review-gate`, which needed the review record. The Codex review says `Ready for owner merge` for effective head `5ba1eb38f2af08675364a89c788062297a90d6cc`. Finding ids: none. The result is pending the owner merge.
+State: `make verify`, `make ste-check`, and `make ref-check` passed. The Codex review says `Ready for owner merge` for effective head `2898d5c8cbe09276bd85e6a261f7011a596846a5`. Finding ids: none. The session pushed the record and this hand-off. The fresh `review-gate`, `pr-contract`, and `verify` checks passed. The result is pending the owner merge.
 
-Next action: after the merge, read the `deploy-web` build of the merge and the live `/version.json`. Then the owner adds and confirms one machine in the live app on the iPhone (D-203). The Phase 5 roadmap session records the result as PR-22 (D-204).
+Next action: after the merge, start PR-23, the profile API and store, in a clean session (D-207). PR-22 changes documents alone, so its merge needs no deploy check.
 
 ## Facts that expire
 
@@ -39,7 +39,7 @@ Next action: after the merge, read the `deploy-web` build of the merge and the l
 | The bucket `nk-workout-app-prod-deploy-lock` exists, and each deployer account holds `roles/storage.objectUser` on it alone. | 2026-09-29 | `gcloud storage buckets describe`, `get-iam-policy` |
 | `workout-app-prod` is in use by another Google Cloud project. | 2026-09-29 | `gcloud projects create` |
 | The old project `gym-route-dev` is `DELETE_REQUESTED` since 2026-09-30T03:19:47Z. `gcloud projects undelete` can restore it for 30 days. Its site still gave HTTP 200 at 04:38:56Z. | 2026-09-30 | `gcloud projects describe`, `curl` |
-| The live `/version` names `b3484b631e10b1fe18c75a5c4bb139c732b8dc51`, from the build `deploy-api` `19e8e84a`. The live `/version.json` names `dc89e30d2fd996510b68e442f9b95394c1744338`, from the build `deploy-web` `c78c7c6e`. The rules release of `df79c16` has the update time 02:33:00Z, read 2026-09-30. | 2026-10-02 | `curl`, `gcloud builds list` |
+| The live `/version` names `b3484b631e10b1fe18c75a5c4bb139c732b8dc51`, from the build `deploy-api` `19e8e84a`. The live `/version.json` names `e010746bca4de1f4e5b6583023dc992bf089c1aa`, from the build `deploy-web` `5d3916f0`. The rules release of `df79c16` has the update time 02:33:00Z, read 2026-09-30. | 2026-10-02 | `curl`, `gcloud builds list` |
 | `api-runtime` holds `roles/datastore.user`, and no other project role. | 2026-10-02 | `gcloud projects get-iam-policy` |
 | With `context.setOffline(true)` of Playwright 1.63.0, a call of the API fails in WebKit and in Chromium. Connect gives the code `unknown` with a `TypeError` as its cause. | 2026-10-02 | `web/e2e/inventory.spec.ts` |
 | `rules-deployer` holds `roles/firebaserules.admin`, `roles/serviceusage.serviceUsageViewer`, and `roles/logging.logWriter`. | 2026-09-30 | `gcloud projects get-iam-policy` |
@@ -63,12 +63,26 @@ Next action: after the merge, read the `deploy-web` build of the merge and the l
 
 ## Next steps, in order
 
-1. Close PR-21: CI, the Codex review, the owner confirmation, and the merge.
-2. Read the `deploy-web` build of the merge, and the live `/version.json`.
-3. The owner adds and confirms one machine in the live app on the iPhone (D-203).
-4. Start the Phase 5 focused roadmap as PR-22 in a clean session. It records the Phase 4 exit evidence (D-204).
+1. Close PR-22: CI, the Codex review, the owner confirmation, and the merge.
+2. Start PR-23, the profile API and store, in a clean session (D-207). The owner approves its milestone first (D-12).
 
 ## Session records
+
+### Session 23 - 2026-10-02
+
+Author provider: Claude Code
+
+Branch: `docs/pr-22-phase-5-roadmap`. Role: author.
+
+Completed:
+
+- Read the deploy of `e010746` and the role of `api-runtime`. The owner gave the result of the iPhone check, and it passed (D-203).
+- The owner approved the milestone before the first edit (D-12), and answered Q-221 to Q-226 (D-207 to D-212).
+- Wrote the Phase 5 focused roadmap. Changed the high-level roadmap, the design, the registers, and `AGENTS.md`.
+
+Open work:
+
+- Get the owner confirmation and merge PR-22.
 
 ### Session 22 - 2026-10-02
 
@@ -84,8 +98,7 @@ Completed:
 
 Open work:
 
-- The owner confirmation and the merge of PR-21. The Codex review approved `5ba1eb3`.
-- The owner check on the iPhone after the deploy (D-203).
+- None. GitHub PR 22 merged as `e010746`. The owner check on the iPhone passed (D-203).
 
 ### Session 21 - 2026-10-02
 
@@ -102,19 +115,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 21 merged as `dc89e30`. The live check of D-203 failed, and PR-21 corrects the fault (D-204).
-
-### Session 20 - 2026-10-02
-
-Author provider: Claude Code
-
-Branch: `feat/pr-19-inventory-api`. Role: author.
-
-Completed:
-
-- Read the merge of PR-18. The owner approved the milestone before the first edit (D-12), and answered Q-211 to Q-215 (D-197 to D-201).
-- Wrote `InventoryService`, `go/internal/inventory`, and `go/internal/inventorysvc`, with the unit tests and the emulator tests.
-- Changed the design, both roadmaps, the registers, `go/README.md`, and `AGENTS.md`.
-
-Open work:
-
-- None. GitHub PR 20 merged as `b3484b6`.
