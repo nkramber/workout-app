@@ -132,9 +132,9 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 | Work area | Concerns | Exit evidence |
 |---|---|---|
 | 4.1 Selection and text entry | The owner selects each machine from the catalog of D-155, or enters it as text that searches the catalog (D-51, D-55, D-191). The owner confirms each machine before a plan uses it (D-49, D-193). | Browser UI tests add a machine by selection and by text entry. A plan can not use a machine that the owner did not confirm. |
-| 4.2 Machine details | Identity and available weights only (D-54, D-195). The load estimates of the owner (D-41, D-192). Pound markings alone (D-122). | An emulator test proves that a stored machine holds only the fields of D-54, the load estimates, and its state (D-193). |
+| 4.2 Machine details | Identity and available weights only (D-54, D-195). The load estimates of the owner, in the range of the weights (D-41, D-192, D-198). Pound markings alone (D-122). The store of D-197, with the bounds of D-199 and the confirmation of D-200 and D-201. | An emulator test proves that a stored machine holds only the fields of D-54, the load estimates, and its state (D-193). |
 
-**Decisions and questions.** D-41, D-45, D-46, D-154, D-155, D-49, D-51, D-54, D-55, D-110, D-122, D-191 to D-196, Q-91, Q-205 to Q-210.
+**Decisions and questions.** D-41, D-45, D-46, D-154, D-155, D-49, D-51, D-54, D-55, D-110, D-122, D-191 to D-201, Q-91, Q-205 to Q-215.
 
 ### Phase 5 - Onboarding and plan generation
 

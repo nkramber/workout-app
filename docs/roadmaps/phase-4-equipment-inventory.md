@@ -34,6 +34,11 @@ Phase 2 gives the contract in `proto/`, the API in `go/`, the web shell in `web/
 | Q-208, the split | PR-19 for the API and the store, then PR-20 for the screens. | D-194 |
 | Q-209, the weights of a stack | A range and a step, then a change of single weights. | D-195 |
 | Q-210, the write path | A direct call to the API for each change. Phase 6 adds the outbox. | D-196 |
+| Q-211, the inventory path | `users/{uid}/inventory/active`, one document. | D-197 |
+| Q-212, the highest estimate | An estimate in the range of the weights of the machine. | D-198 |
+| Q-213, the bounds | 1,000 lb and 200 weights for a list. 200 characters and 50 notes for the notes. | D-199 |
+| Q-214, a second save | The save replaces the entry. A change of the estimates alone keeps the confirmation. | D-200 |
+| Q-215, the confirmation | The weights that the review screen showed. The server refuses other weights. | D-201 |
 
 No question of the phase stays open. Q-194 and Q-202 stay open for Phase 7. Q-103 stays open for the deferred photo work.
 
@@ -92,7 +97,7 @@ Acceptance story: the emulator tests save, confirm, change, and remove machines 
 
 Checks: `make contract`, `make go-test`, `make emulator-test`, and `make verify`, free. Codex reviews PR-19.
 
-Questions for the session: the Firestore path of the inventory, and the highest estimate that the server accepts. Ask the owner each one, with a recommendation.
+Questions for the session: the Firestore path of the inventory, and the highest estimate that the server accepts. The owner answered them as Q-211 and Q-212. The session also asked Q-213 to Q-215 (D-197 to D-201).
 
 ### PR-20 - The inventory screens
 
@@ -101,11 +106,11 @@ Branch: `feat/pr-20-inventory-screens`. Work area 4.1. It needs PR-19 on `main`.
 Concerns:
 
 - the inventory screen, with each machine and its state, and each note,
-- the selection of a machine from the catalog (D-51),
+- the selection of a machine from the catalog of `GetCatalog` (D-51),
 - the text entry: a search of the catalog names, then a match or a note (D-55, D-191),
 - the weights: a range and a step, then a change of single weights (D-195). The dumbbells use the dumbbell set, and a cardio machine has no weights,
 - the optional estimate of each exercise (D-192),
-- the review screen, the confirmation, and the removal of a machine (D-193),
+- the review screen, the confirmation with the shown weights, and the removal of a machine (D-193, D-201),
 - a direct call to the API for each change, and an error with no connection (D-196).
 
 Acceptance story: the browser tests add a machine by selection and a machine by text entry, and confirm both. A change of the weights makes a confirmed machine a draft again. A text with no match stays as a note. The owner adds and confirms one machine in the live app on the iPhone.

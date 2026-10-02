@@ -356,6 +356,16 @@ The owner answered through the answer controls of the session. The first session
 | Q-209 | How does the owner enter the weights of a stack? | A range and a step, then a change of single weights. | Answered | D-195 |
 | Q-210 | How does a change of the inventory reach the server in Phase 4? | A direct call to the API. The outbox comes in Phase 6. | Answered | D-196 |
 
+## Questions of the inventory API session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-211 | Which Firestore path holds the inventory? | `users/{uid}/inventory/active`, one document. | Answered | D-197 |
+| Q-212 | Which load estimate does the server accept? | An estimate in the range of the weights of the machine. | Answered | D-198 |
+| Q-213 | Which bounds does the server apply to the inventory? | 1,000 lb and 200 weights for a list, and 200 characters and 50 notes for the notes. | Answered | D-199 |
+| Q-214 | What happens when the owner saves a machine that the inventory holds? | The save replaces the entry. A change of the estimates alone keeps the confirmation. | Answered | D-200 |
+| Q-215 | What does the confirmation of a machine send? | The weights that the review screen showed. The server refuses a confirmation of other weights. | Answered | D-201 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |

@@ -4,22 +4,23 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-02. Roadmap PR-18 of `docs/roadmaps/phase-4-equipment-inventory.md`, on branch `docs/pr-18-phase-4-roadmap`, from base `9d0e5d0`. The pull request starts Phase 4.
+Date: 2026-10-02. Roadmap PR-19 of `docs/roadmaps/phase-4-equipment-inventory.md`, on branch `feat/pr-19-inventory-api`, from base `a95ce8c`. Work area 4.2.
 
-The pull request holds the Phase 4 focused roadmap:
+The pull request holds the inventory API and its store:
 
-- the new file `docs/roadmaps/phase-4-equipment-inventory.md`, with PR-19 for the inventory API and store, and PR-20 for the inventory screens,
-- the owner answers D-188 to D-196 to Q-98 and Q-203 to Q-210,
-- the move of the lasting AI cap store to work area 5.2 (D-189), in `docs/roadmaps/high-level-roadmap.md`,
-- the equipment rules in `docs/design.md`, the row in `docs/roadmaps/README.md`, and the Phase 4 stage in `AGENTS.md`.
+- `InventoryService` in `proto/workoutapp/v1/inventory_service.proto`, with the generated code of `go/gen` and `web/src/gen`,
+- `go/internal/inventory`: the machines and the notes, the checks, the draft and confirmed states, the Firestore store at `users/{uid}/inventory/active`, and `ForPlan`,
+- `go/internal/inventorysvc`, and the route in `go/cmd/api/main.go`,
+- the emulator tests of the acceptance story, of the store, and of the rules,
+- the owner answers D-197 to D-201 to Q-211 to Q-215, with the design, both roadmaps, `go/README.md`, and `AGENTS.md`.
 
-The deploy of `9d0e5d0` passed: the build `deploy-api` `46b8f059` gave SUCCESS, and the live `/version` names `9d0e5d0`. The owner approved the milestone before the first edit (D-12).
+The merge of PR-18 changed no file in `go/` or `web/`, so no deploy followed it. The owner approved the milestone before the first edit (D-12).
 
-State: pending the owner merge. All nine GitHub checks passed after the review record push. The Codex review is Ready for owner merge at `ea1620c25599d77daeb5957ee609ec1d14c39d23`.
+State: the Codex review is Ready for owner merge at `14769036ada85eea862951f07eea5b196f66cf6b`, with no open findings. The owner confirmation stays open.
 
 Next action: the author session gets the owner confirmation and follows the merge steps of D-13.
 
-The merge changes no file in `go/` or `web/`, so no deploy follows it.
+The merge changes `go/`, so `deploy-api` deploys the API. It also changes `web/src/gen`, so `deploy-web` deploys the web app. The next session reads both deploys first.
 
 ## Facts that expire
 
@@ -61,10 +62,27 @@ The merge changes no file in `go/` or `web/`, so no deploy follows it.
 
 ## Next steps, in order
 
-1. Close PR-18: CI, the Codex review, the owner confirmation, and the merge.
-2. Start PR-19, the inventory API and store, in a clean session. Ask the owner the questions that section 4 of the Phase 4 roadmap names.
+1. Close PR-19: CI, the Codex review, the owner confirmation, and the merge.
+2. Read the deploys of the merge of PR-19.
+3. Start PR-20, the inventory screens, in a clean session. Ask the owner the question that section 4 of the Phase 4 roadmap names.
 
 ## Session records
+
+### Session 20 - 2026-10-02
+
+Author provider: Claude Code
+
+Branch: `feat/pr-19-inventory-api`. Role: author.
+
+Completed:
+
+- Read the merge of PR-18. The owner approved the milestone before the first edit (D-12), and answered Q-211 to Q-215 (D-197 to D-201).
+- Wrote `InventoryService`, `go/internal/inventory`, and `go/internal/inventorysvc`, with the unit tests and the emulator tests.
+- Changed the design, both roadmaps, the registers, `go/README.md`, and `AGENTS.md`.
+
+Open work:
+
+- CI, the Codex review, the owner confirmation, and the merge of PR-19.
 
 ### Session 19 - 2026-10-02
 
@@ -80,7 +98,7 @@ Completed:
 
 Open work:
 
-- CI, the Codex review, the owner confirmation, and the merge of PR-18.
+- None. GitHub PR 19 merged as `a95ce8c`.
 
 ### Session 18 - 2026-10-01 to 2026-10-02
 
@@ -98,20 +116,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 18 merged as `9d0e5d0`.
-
-### Session 17 - 2026-10-01
-
-Author provider: Claude Code
-
-Branch: `feat/pr-16-luna-role-layer`. Role: author.
-
-Completed:
-
-- Read the deploy of `454c141`. The owner approved the milestone before the first edit (D-12), and answered Q-196 and Q-197 (D-182, D-183).
-- Wrote `go/internal/ai`: the roles, the schema, the prompt, the guidance catalog, the filter, the cost records, the cap hook, and the providers.
-- Wrote the fake-provider tests of the acceptance story, and the tests of each part.
-- Changed the design, the Phase 3 roadmap, the registers, and `go/README.md`.
-
-Open work:
-
-- None. GitHub PR 17 merged as `1b3f9be`.

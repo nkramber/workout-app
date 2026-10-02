@@ -38,7 +38,9 @@ The owner selects each machine from the catalog, or enters it as text (Decision,
 
 The owner enters the weights of a stack as the lightest weight, the heaviest weight, and the step. The app makes the list, and the owner can add or remove a weight (Decision, D-195). The owner can give a current load estimate for each exercise of the machine (Decision, D-41, D-192).
 
-The owner saves a machine as a draft, then confirms it on a review screen. A plan reads confirmed machines alone. A change of the weights makes a confirmed machine a draft again (Decision, D-49, D-193). In Phase 4, each change is a direct call to the API, and Phase 6 adds the offline copy (Decision, D-196).
+An estimate is in the range of the weights of the machine, as the policy input reads it. The server refuses a change of the weights that puts an estimate outside that range (Decision, D-198). A weight of a stack is 1,000 lb or less, and a list holds 200 weights or fewer. A note holds 1 to 200 characters, and the inventory holds 50 notes or fewer (Decision, D-199).
+
+The owner saves a machine as a draft, then confirms it on a review screen. A plan reads confirmed machines alone. A change of the weights makes a confirmed machine a draft again (Decision, D-49, D-193). A second save of a machine replaces its one entry, and a change of the estimates alone keeps the confirmation (Decision, D-200). The confirmation sends the weights that the review screen showed, and the server refuses it when the stored weights are different (Decision, D-201). In Phase 4, each change is a direct call to the API, and Phase 6 adds the offline copy (Decision, D-196).
 
 No phase of the roadmap holds photo recognition now (Decision, D-111). The recognition spike gave a no-go, because Luna gave too many wrong answers with a high stated confidence (Decision, D-107, and `docs/research/recognition-spike.md`). When a later decision adds a photo phase, these rules apply:
 
@@ -46,7 +48,7 @@ No phase of the roadmap holds photo recognition now (Decision, D-111). The recog
 - The app deletes each source photo after the confirmation, unless the owner keeps it (Decision, D-52).
 - No user photo goes into an evaluation set (Decision, D-53).
 
-The equipment record holds the identity and the available weights of each machine (Decision, D-54). The owner has one active inventory (Decision, D-46).
+The equipment record holds the identity and the available weights of each machine (Decision, D-54). It also holds the estimates of D-192 and the state of D-193. The owner has one active inventory (Decision, D-46). The API keeps it in one Firestore document at `users/{uid}/inventory/active` (Decision, D-197). The function `inventory.ForPlan` gives the confirmed machines alone to a plan.
 
 The catalog of D-155 gives each machine and each exercise a stable id, a kind, and a region. A machine with two movements gives two exercises (Decision, D-159). The six regions are the four regions of EV-1, core, and cardio (Decision, D-161). The adjustable bench is part of the dumbbell set, and the heaviest dumbbell is at most 100 lb (Decision, D-163, D-166). A load is in pounds, as a count of tenths of a pound, so 12.5 lb stays exact (Decision, D-122, D-160).
 
@@ -99,7 +101,7 @@ Targets use one to three reps in reserve. Failure is rare, and it never occurs i
 | API | Auth check, sync, plan calls, policy. It refuses to start on Cloud Run with an emulator variable. | Reads and writes all user data | Decision, D-18, D-82, D-129 |
 | Policy engine | Checks every prescription | Safety-critical | Decision, D-23 |
 | Role layer | Model choice, the plan schema, the prompt, cost records, the cap hook, the text filter, and the fake provider | Sends workout data to OpenAI | Decision, D-24, D-25, D-183 |
-| Firestore | Source of record after sync | Injuries, body data, workout history | Decision, D-77 |
+| Firestore | Source of record after sync | Injuries, body data, workout history, and the equipment inventory with its notes | Decision, D-77, D-197 |
 | Firebase Auth | Email and password, and an invite allowlist of uids in Firestore | Email address | Decision, D-75, D-131 |
 | GCP project | One project, `nk-workout-app-prod`, in `us-central1` | All of the above | Decision, D-76, D-137 |
 
