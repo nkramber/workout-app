@@ -21,7 +21,7 @@ CAUTION: do not write an account email, a uid, or a secret value into this file.
 | Backups | A daily schedule, and each backup stays 10 days | D-124 |
 | Allowlist | One document in `allowlist`, with the uid of the owner as its id | D-75, D-131 |
 | Cloud Run | Service `api` in `us-central1`, request billing, min instances 0, max instances 2, CPU boost | D-141 |
-| Secret Manager | Secret `openai-api-key` with no version. Phase 3 adds the value. | D-24 |
+| Secret Manager | Secret `openai-api-key`. The owner added version 1 on 2026-10-01 in a local terminal. | D-24, D-187 |
 | Artifact Registry | Docker repository `workout-app` in `us-central1` | - |
 | Deploy lock | Bucket `nk-workout-app-prod-deploy-lock` in `us-central1`, with public access prevention, and a rule that deletes each object after one day | D-143 |
 | Cloud Build | The connection `github` to `nkramber/workout-app`, and the triggers `deploy-api`, `deploy-web`, and `deploy-rules` | D-14, D-142 |

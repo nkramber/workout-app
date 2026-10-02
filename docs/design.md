@@ -141,7 +141,7 @@ The policy is in `go/internal/policy` (Decision, D-157). It has one version, and
 - The rounding of a load to 5 lb, with the halfway rule and the weight of the machine (Decision, D-65, D-148, D-149).
 - The next target: double progression with one 5 lb step, missed reps, pain, a lighter weight, and sets with no log (Decision, D-147, D-168 to D-170, D-173, D-174).
 - The fixed warning text of a pain report (Decision, D-153, D-169).
-- The check of a proposal. The policy refuses a proposal outside a bound (Decision, D-23).
+- The check of a proposal. The policy refuses a proposal outside a bound (Decision, D-23). Outside a calibration session, it also refuses a proposal that is harder than its target at the same load (Decision, D-186).
 - The start of a new exercise with 3 working sets, and the calibration of its first 3 sessions (Decision, D-150, D-177, D-178, D-180).
 - The return after a break of 14 days or more, and the first sessions after it (Decision, D-37, D-151, D-179).
 - The rules fallback. When Luna gives no proposal, or the policy refuses its proposal, the target comes from the rules alone (Decision, D-23).
@@ -159,6 +159,8 @@ The role layer is in `go/internal/ai` (Decision, D-157). It holds these parts:
 - The fake provider for tests. No test calls OpenAI (Decision, D-24).
 
 A malformed output, a refusal of the model, a time-out, an error, or a call over the cap gives no proposal. The policy then gives the rules fallback (Decision, D-23).
+
+The command `go/cmd/lunaeval` sends synthetic profiles and the scenarios of section 5 of the high-level roadmap through the layer and the policy. A live run needs the approval of the owner (Decision, D-25). `docs/research/phase-3-check.md` holds the result of the Phase 3 run.
 
 ### 5.2 Accepted risks
 
