@@ -180,7 +180,7 @@ Acceptance story: the report gives each count and the cost. Each scenario of sec
 
 Checks: `make go-test` and `make verify`, free. Codex reviews PR-17. **Paid:** the spike of PR-2 used a price of 0.10 USD for each million input tokens (`docs/research/luna-plan-spike.md`). So a run of the same size costs cents (assumption).
 
-Questions for the session: the cap of the run, and the number of profiles.
+Questions for the session: the cap of the run, and the number of profiles. The owner answered both (Q-198, Q-199, D-184, D-185). Before the paid run, the owner added a concern: the policy rule of D-186 (Q-200). The key reached Secret Manager by D-187 (Q-201).
 
 ## 5. Exit of the phase
 

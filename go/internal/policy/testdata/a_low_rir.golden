@@ -1,4 +1,4 @@
-policy version: 2
+policy version: 3
 rules: progress.shortfall-low-rir
 target: biceps_curl, rest 120 s
   working[0]: 8 reps at 25 lb, 2 RIR

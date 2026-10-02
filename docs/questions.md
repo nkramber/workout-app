@@ -334,6 +334,15 @@ The owner answered through the answer controls of the session. The first session
 | Q-196 | Which shown text does Luna write, and which text comes from templates? | Luna writes one plan summary and one short reason for each exercise. Templates and the guidance catalog give the other texts. | Answered | D-182 |
 | Q-197 | Does the role layer apply the blocked-claims filter of REC-11? | Yes. A versioned filter reads each text of Luna, and a template text replaces a blocked text. | Answered | D-183 |
 
+## Questions of the Luna evaluation session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-198 | How many profiles and calls does the paid run of the Phase 3 Luna evaluation have? | 20 planner calls and 5 reviser calls for each of the 6 scenarios. | Answered | D-184 |
+| Q-199 | Which cap does the paid run get? | 2 USD. | Answered | D-185 |
+| Q-200 | The policy accepts more reps or fewer reps in reserve at the load of its target. Does it refuse such a proposal? | Yes. A new rule goes in before the paid run. | Answered | D-186 |
+| Q-201 | How does the OpenAI key reach Secret Manager? | The owner adds the version in a local terminal. | Answered | D-187 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |
@@ -357,3 +366,4 @@ The owner answered through the answer controls of the session. The first session
 | Q-106 | Do calibration sets for a new machine use three to four reps in reserve, when D-37 sets targets at one to three? | The research recommends more reserve for the first sets on an unknown machine. Answer on 2026-09-30: 3 to 4 reps in reserve, with the calibration table of REC-5 (D-150). | Phase 3 | Answered |
 | Q-107 | Where does the D-40 warning end and emergency advice, which D-36 excludes, begin? | A warning for chest pain needs text that stays inside the fitness boundary. Answer on 2026-09-30: the warning names the symptom and tells the user to stop the exercise, with no referral text (D-153). | Phase 3 | Answered |
 | Q-194 | Does the policy adopt the reactive deload triggers of REC-7 (D-175)? | A decline on 2 or more exercises in 2 or more sessions can need a deload of the full day. The rules of D-168 read one exercise at a time. | Phase 7 | Open |
+| Q-202 | Does Luna keep a role in the targets? | In the Phase 3 evaluation, Luna copied the target of the rules in each of 197 decisions (`docs/research/phase-3-check.md`). | Phase 7 | Open |

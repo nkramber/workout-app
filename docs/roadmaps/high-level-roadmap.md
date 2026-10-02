@@ -117,7 +117,7 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 | 3.2 Policy engine and fallback | Rep, reps-in-reserve, rest, and load bounds (D-37). The 5 lb rounding of D-65, with D-148 and D-149, and the one 5 lb step of D-147. The rules fallback. | Golden scenario tests pass, section 5 scenarios included. Property tests prove that no output breaks a bound. |
 | 3.3 Luna role layer | Planner and reviser roles on `gpt-6-luna` at medium effort. The fake provider. Cost records, cap hooks, and a prompt that keeps text inside the fitness boundary (D-36, Q-95, Q-101). | Fake-provider tests cover a valid proposal, a malformed proposal, an unsafe proposal, and a timeout. |
 
-**Decisions and questions.** D-22 to D-25, D-30, D-32, D-36 to D-38, D-40, D-43, D-45, D-64 to D-66, D-122, D-123, D-147 to D-158, Q-92, Q-95, Q-100 to Q-102, Q-104 to Q-107.
+**Decisions and questions.** D-22 to D-25, D-30, D-32, D-36 to D-38, D-40, D-43, D-45, D-64 to D-66, D-122, D-123, D-147 to D-158, D-184 to D-187, Q-92, Q-95, Q-100 to Q-102, Q-104 to Q-107.
 
 **Gate.** A limited paid evaluation of the planner and the reviser runs only with owner approval (D-25).
 
@@ -180,7 +180,7 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 | 7.1 Revision after a session | The reviser call and the policy check. Reasons that cite logged sets. | The section 5 scenarios pass end to end with the fake provider. |
 | 7.2 Overrides and disruptions | Separate override records. Missed-session and long-break rules (Q-102). | Scenario tests for a missed week and for a break of the Q-102 length. |
 
-**Decisions and questions.** D-37, D-43, D-64 to D-69, Q-92, Q-102.
+**Decisions and questions.** D-37, D-43, D-64 to D-69, Q-92, Q-102, Q-202.
 
 **Gate.** A paid evaluation of the reviser on the section 5 scenarios runs only with owner approval (D-25).
 
@@ -270,6 +270,7 @@ The Phase 3 and Phase 7 suites prove these properties for every input:
 - Every load is a multiple of 5 lb (D-65), or the machine weight that D-149 selects. A dumbbell load is the load of one dumbbell (D-155).
 - A pain flag blocks progression on that exercise in the next session.
 - Every Luna proposal outside the bounds becomes a refusal and a fallback, never a displayed target.
+- Outside a calibration session, no accepted proposal is harder than the policy target at the same load (D-186).
 - The same history and the same policy version give the same validated targets.
 
 ## 7. Scope reopening gate

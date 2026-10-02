@@ -90,6 +90,11 @@ func TestCheck(t *testing.T) {
 		{"not on the stack", in, func(p *domain.PlannedExercise) { p.Working[0].Load = lb(15) }, []RuleID{RuleLoadAvailable}},
 		{"zero load", in, func(p *domain.PlannedExercise) { p.Working[0].Load = 0 }, []RuleID{RuleLoadAvailable}},
 		{"two steps", in, func(p *domain.PlannedExercise) { p.Working[1].Load = lb(30) }, []RuleID{RuleLoadCeiling}},
+		{"more reps at the load", in, func(p *domain.PlannedExercise) { p.Working[0].Reps = 11 }, []RuleID{RuleEffortCeiling}},
+		{"less rir at the load", in, func(p *domain.PlannedExercise) { p.Working[1].RIR = 1 }, []RuleID{RuleEffortCeiling}},
+		{"more sets", in, func(p *domain.PlannedExercise) { p.Working = append(p.Working, p.Working[0]) }, []RuleID{RuleEffortCeiling}},
+		{"more reps at a lower load", in, func(p *domain.PlannedExercise) { p.Working[0].Load, p.Working[0].Reps = lb(20), 14 }, nil},
+		{"more reps over the bounds", in, func(p *domain.PlannedExercise) { p.Working[0].Reps = 21 }, []RuleID{RuleRepBounds}},
 		{"calibration", in, func(p *domain.PlannedExercise) {
 			p.Calibration = []domain.CalibrationSet{{Reps: 30, Load: lb(11)}}
 		}, []RuleID{RuleCalibrationSet, RuleRepBounds, RuleLoadAvailable, RuleCalibrationSet}},

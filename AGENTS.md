@@ -8,7 +8,7 @@ Workout App is a personal workout app for one user, the owner (D-67). It is an i
 
 Stage: Phase 3 of `docs/roadmaps/high-level-roadmap.md`, with the pull requests of `docs/roadmaps/phase-3-workout-domain.md`. Phase 2 ended with PR-11. The contract is in `proto/`, the Go API skeleton is in `go/`, and the web shell is in `web/`.
 
-The project `nk-workout-app-prod` holds Firestore, the Cloud Run service `api`, Hosting, and Auth, and Cloud Build deploys each merge to `main` (D-137). `docs/setup-gcp.md` and `docs/deploy-and-rollback.md` describe it. `docs/research/phase-2-check.md` holds the exit evidence of Phase 2. `docs/design.md` holds the design.
+The project `nk-workout-app-prod` holds Firestore, the Cloud Run service `api`, Hosting, and Auth, and Cloud Build deploys each merge to `main` (D-137). `docs/setup-gcp.md` and `docs/deploy-and-rollback.md` describe it. `docs/research/phase-2-check.md` holds the exit evidence of Phase 2, and `docs/research/phase-3-check.md` holds the Luna evaluation of Phase 3. `docs/design.md` holds the design.
 
 **The repository is public.** Write no email address, no personal data, no photo, no workout log, and no secret into a file, an issue, or a pull request. The one exception is the author credit that the license of a test image requires (D-106).
 
@@ -94,6 +94,6 @@ Paid targets: `make codex-review` and `make claude-review`. They spend the owner
 - `docs/tools/` - the checks and their tests.
 - `tools/spikes/` - the Phase 1 spike harnesses, outside the product code, with their tests.
 - `proto/` - the Connect-RPC contract. `buf.yaml` and `buf.gen.yaml` configure it.
-- `go/` - the Go API: `go/cmd/api` and `go/internal`, with the generated code in `go/gen`.
+- `go/` - the Go API: `go/cmd/api` and `go/internal`, with the generated code in `go/gen`. `go/cmd/lunaeval` is the Luna evaluation.
 - `web/` - the web client, with the generated code in `web/src/gen`. `web/README.md` describes it.
 - `firebase.json` and `emulators/` - the local emulators and their pinned `firebase-tools`.

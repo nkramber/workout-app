@@ -13,6 +13,7 @@ const (
 	RuleLoadAvailable RuleID = "load.available"
 	RuleLoadRounding  RuleID = "load.rounding"
 	RuleLoadCeiling   RuleID = "load.ceiling"
+	RuleEffortCeiling RuleID = "effort.ceiling"
 	RuleLoadRepair    RuleID = "load.repair"
 )
 
@@ -77,6 +78,7 @@ var rules = []Rule{
 	{RuleLoadAvailable, "Each load is an available weight of the machine. A dumbbell load is the load of one dumbbell, and the input refuses a dumbbell set above 100 lb.", []string{"D-54", "D-149", "D-155", "D-166"}},
 	{RuleLoadRounding, "Each load is a multiple of 5 lb, or the weight that D-149 selects for a multiple of 5 lb.", []string{"D-65", "D-148", "D-149"}},
 	{RuleLoadCeiling, "A proposed load is not more than the load of the next target of the policy. So a proposal adds at most one 5 lb step, and adds no load when the policy holds or lowers it.", []string{"D-23", "D-147"}},
+	{RuleEffortCeiling, "A proposal has no more working sets than the next target of the policy. A proposed set at the load of the set of the same position of that target has no more reps and no fewer reps in reserve. A set at a lower load can have more reps, inside the rep bounds.", []string{"D-23", "D-147", "D-168", "D-186"}},
 	{RuleLoadRepair, "When the last load is not a valid load of the machine, the next load is the weight that D-149 selects for the multiple of 5 lb at or below it. A repair raises a load only to the lightest weight of the machine.", []string{"D-65", "D-149"}},
 	{RuleSkipped, "A skipped exercise repeats its target.", []string{"D-63", "D-64", "D-170"}},
 	{RulePainHold, "A pain rating of 1 or more on a set gives no progression on that exercise in the next session. The target repeats.", []string{"D-40", "D-169", "EV-54", "EV-55"}},

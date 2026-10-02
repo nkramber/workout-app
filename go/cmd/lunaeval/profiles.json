@@ -1,0 +1,663 @@
+{
+ "note": "The 20 synthetic profiles of the Luna plan spike (tools/spikes/luna_plan/profiles.json), with each machine mapped to the exercise of the catalog of D-155. The machines M08, M10, and M18 have no exercise in the catalog, so the profiles do not hold them. returning is true for a break of 3 months or more (D-150). estimate_lb 0 means no estimate.",
+ "profiles": [
+  {
+   "profile_id": "SP-01",
+   "returning": true,
+   "exercises": [
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 250
+    },
+    {
+     "exercise_id": "seated_leg_curl",
+     "estimate_lb": 90
+    },
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 150
+    },
+    {
+     "exercise_id": "shoulder_press",
+     "estimate_lb": 90
+    },
+    {
+     "exercise_id": "lat_pulldown",
+     "estimate_lb": 140
+    },
+    {
+     "exercise_id": "seated_row",
+     "estimate_lb": 140
+    },
+    {
+     "exercise_id": "hip_abduction",
+     "estimate_lb": 25
+    },
+    {
+     "exercise_id": "abdominal_crunch",
+     "estimate_lb": 70
+    }
+   ],
+   "cardio": [
+    "recumbent_bike"
+   ]
+  },
+  {
+   "profile_id": "SP-02",
+   "returning": false,
+   "exercises": [
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 90
+    },
+    {
+     "exercise_id": "seated_leg_curl",
+     "estimate_lb": 30
+    },
+    {
+     "exercise_id": "leg_extension",
+     "estimate_lb": 30
+    },
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 40
+    },
+    {
+     "exercise_id": "lat_pulldown",
+     "estimate_lb": 50
+    },
+    {
+     "exercise_id": "seated_row",
+     "estimate_lb": 40
+    },
+    {
+     "exercise_id": "hip_abduction",
+     "estimate_lb": 40
+    }
+   ],
+   "cardio": [
+    "treadmill"
+   ]
+  },
+  {
+   "profile_id": "SP-03",
+   "returning": false,
+   "exercises": [
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 320
+    },
+    {
+     "exercise_id": "seated_leg_curl",
+     "estimate_lb": 110
+    },
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 190
+    },
+    {
+     "exercise_id": "shoulder_press",
+     "estimate_lb": 110
+    },
+    {
+     "exercise_id": "lat_pulldown",
+     "estimate_lb": 170
+    },
+    {
+     "exercise_id": "seated_row",
+     "estimate_lb": 180
+    },
+    {
+     "exercise_id": "biceps_curl",
+     "estimate_lb": 70
+    }
+   ],
+   "cardio": []
+  },
+  {
+   "profile_id": "SP-04",
+   "returning": true,
+   "exercises": [
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 160
+    },
+    {
+     "exercise_id": "seated_leg_curl",
+     "estimate_lb": 60
+    },
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 80
+    },
+    {
+     "exercise_id": "lat_pulldown",
+     "estimate_lb": 90
+    },
+    {
+     "exercise_id": "seated_row",
+     "estimate_lb": 80
+    },
+    {
+     "exercise_id": "back_extension",
+     "estimate_lb": 50
+    },
+    {
+     "exercise_id": "abdominal_crunch",
+     "estimate_lb": 50
+    }
+   ],
+   "cardio": [
+    "rowing_machine"
+   ]
+  },
+  {
+   "profile_id": "SP-05",
+   "returning": false,
+   "exercises": [
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 0
+    },
+    {
+     "exercise_id": "seated_leg_curl",
+     "estimate_lb": 0
+    },
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 30
+    },
+    {
+     "exercise_id": "lat_pulldown",
+     "estimate_lb": 40
+    },
+    {
+     "exercise_id": "seated_row",
+     "estimate_lb": 0
+    },
+    {
+     "exercise_id": "biceps_curl",
+     "estimate_lb": 15
+    }
+   ],
+   "cardio": [
+    "treadmill",
+    "recumbent_bike"
+   ]
+  },
+  {
+   "profile_id": "SP-06",
+   "returning": true,
+   "exercises": [
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 150
+    },
+    {
+     "exercise_id": "seated_leg_curl",
+     "estimate_lb": 50
+    },
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 70
+    },
+    {
+     "exercise_id": "shoulder_press",
+     "estimate_lb": 40
+    },
+    {
+     "exercise_id": "seated_row",
+     "estimate_lb": 70
+    },
+    {
+     "exercise_id": "hip_abduction",
+     "estimate_lb": 50
+    }
+   ],
+   "cardio": [
+    "recumbent_bike"
+   ]
+  },
+  {
+   "profile_id": "SP-07",
+   "returning": false,
+   "exercises": [
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 450
+    },
+    {
+     "exercise_id": "seated_leg_curl",
+     "estimate_lb": 150
+    },
+    {
+     "exercise_id": "leg_extension",
+     "estimate_lb": 170
+    },
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 230
+    },
+    {
+     "exercise_id": "lat_pulldown",
+     "estimate_lb": 210
+    },
+    {
+     "exercise_id": "seated_row",
+     "estimate_lb": 220
+    },
+    {
+     "exercise_id": "calf_raise",
+     "estimate_lb": 280
+    }
+   ],
+   "cardio": []
+  },
+  {
+   "profile_id": "SP-08",
+   "returning": false,
+   "exercises": [
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 0
+    },
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 0
+    },
+    {
+     "exercise_id": "lat_pulldown",
+     "estimate_lb": 0
+    },
+    {
+     "exercise_id": "biceps_curl",
+     "estimate_lb": 30
+    }
+   ],
+   "cardio": []
+  },
+  {
+   "profile_id": "SP-09",
+   "returning": true,
+   "exercises": [
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 120
+    },
+    {
+     "exercise_id": "seated_leg_curl",
+     "estimate_lb": 45
+    },
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 60
+    },
+    {
+     "exercise_id": "lat_pulldown",
+     "estimate_lb": 70
+    },
+    {
+     "exercise_id": "seated_row",
+     "estimate_lb": 60
+    }
+   ],
+   "cardio": [
+    "treadmill",
+    "recumbent_bike"
+   ]
+  },
+  {
+   "profile_id": "SP-10",
+   "returning": true,
+   "exercises": [
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 230
+    },
+    {
+     "exercise_id": "seated_leg_curl",
+     "estimate_lb": 80
+    },
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 120
+    },
+    {
+     "exercise_id": "lat_pulldown",
+     "estimate_lb": 120
+    },
+    {
+     "exercise_id": "hip_abduction",
+     "estimate_lb": 30
+    },
+    {
+     "exercise_id": "back_extension",
+     "estimate_lb": 37.5
+    },
+    {
+     "exercise_id": "calf_raise",
+     "estimate_lb": 150
+    }
+   ],
+   "cardio": []
+  },
+  {
+   "profile_id": "SP-11",
+   "returning": false,
+   "exercises": [
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 70
+    },
+    {
+     "exercise_id": "seated_leg_curl",
+     "estimate_lb": 20
+    },
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 20
+    },
+    {
+     "exercise_id": "lat_pulldown",
+     "estimate_lb": 30
+    },
+    {
+     "exercise_id": "seated_row",
+     "estimate_lb": 30
+    },
+    {
+     "exercise_id": "abdominal_crunch",
+     "estimate_lb": 20
+    }
+   ],
+   "cardio": [
+    "treadmill"
+   ]
+  },
+  {
+   "profile_id": "SP-12",
+   "returning": false,
+   "exercises": [
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 160
+    },
+    {
+     "exercise_id": "shoulder_press",
+     "estimate_lb": 95
+    },
+    {
+     "exercise_id": "lat_pulldown",
+     "estimate_lb": 150
+    },
+    {
+     "exercise_id": "seated_row",
+     "estimate_lb": 150
+    },
+    {
+     "exercise_id": "biceps_curl",
+     "estimate_lb": 60
+    },
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 270
+    }
+   ],
+   "cardio": []
+  },
+  {
+   "profile_id": "SP-13",
+   "returning": true,
+   "exercises": [
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 200
+    },
+    {
+     "exercise_id": "seated_leg_curl",
+     "estimate_lb": 70
+    },
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 110
+    },
+    {
+     "exercise_id": "lat_pulldown",
+     "estimate_lb": 110
+    },
+    {
+     "exercise_id": "seated_row",
+     "estimate_lb": 100
+    }
+   ],
+   "cardio": [
+    "treadmill"
+   ]
+  },
+  {
+   "profile_id": "SP-14",
+   "returning": false,
+   "exercises": [
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 100
+    },
+    {
+     "exercise_id": "seated_leg_curl",
+     "estimate_lb": 35
+    },
+    {
+     "exercise_id": "leg_extension",
+     "estimate_lb": 40
+    },
+    {
+     "exercise_id": "hip_abduction",
+     "estimate_lb": 60
+    },
+    {
+     "exercise_id": "lat_pulldown",
+     "estimate_lb": 50
+    },
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 30
+    }
+   ],
+   "cardio": [
+    "rowing_machine"
+   ]
+  },
+  {
+   "profile_id": "SP-15",
+   "returning": true,
+   "exercises": [
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 180
+    },
+    {
+     "exercise_id": "seated_leg_curl",
+     "estimate_lb": 60
+    },
+    {
+     "exercise_id": "leg_extension",
+     "estimate_lb": 60
+    },
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 130
+    },
+    {
+     "exercise_id": "lat_pulldown",
+     "estimate_lb": 120
+    },
+    {
+     "exercise_id": "seated_row",
+     "estimate_lb": 120
+    }
+   ],
+   "cardio": [
+    "recumbent_bike"
+   ]
+  },
+  {
+   "profile_id": "SP-16",
+   "returning": false,
+   "exercises": [
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 285
+    },
+    {
+     "exercise_id": "leg_extension",
+     "estimate_lb": 125
+    },
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 175
+    },
+    {
+     "exercise_id": "lat_pulldown",
+     "estimate_lb": 165
+    },
+    {
+     "exercise_id": "seated_row",
+     "estimate_lb": 155
+    },
+    {
+     "exercise_id": "abdominal_crunch",
+     "estimate_lb": 85
+    }
+   ],
+   "cardio": [
+    "rowing_machine"
+   ]
+  },
+  {
+   "profile_id": "SP-17",
+   "returning": true,
+   "exercises": [
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 0
+    },
+    {
+     "exercise_id": "seated_leg_curl",
+     "estimate_lb": 0
+    },
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 0
+    },
+    {
+     "exercise_id": "lat_pulldown",
+     "estimate_lb": 80
+    },
+    {
+     "exercise_id": "seated_row",
+     "estimate_lb": 0
+    },
+    {
+     "exercise_id": "back_extension",
+     "estimate_lb": 0
+    }
+   ],
+   "cardio": [
+    "rowing_machine"
+   ]
+  },
+  {
+   "profile_id": "SP-18",
+   "returning": false,
+   "exercises": [
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 160
+    },
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 70
+    },
+    {
+     "exercise_id": "shoulder_press",
+     "estimate_lb": 45
+    },
+    {
+     "exercise_id": "lat_pulldown",
+     "estimate_lb": 90
+    },
+    {
+     "exercise_id": "seated_row",
+     "estimate_lb": 80
+    },
+    {
+     "exercise_id": "biceps_curl",
+     "estimate_lb": 35
+    }
+   ],
+   "cardio": []
+  },
+  {
+   "profile_id": "SP-19",
+   "returning": true,
+   "exercises": [
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 190
+    },
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 100
+    },
+    {
+     "exercise_id": "lat_pulldown",
+     "estimate_lb": 100
+    },
+    {
+     "exercise_id": "seated_row",
+     "estimate_lb": 90
+    },
+    {
+     "exercise_id": "biceps_curl",
+     "estimate_lb": 40
+    }
+   ],
+   "cardio": [
+    "recumbent_bike"
+   ]
+  },
+  {
+   "profile_id": "SP-20",
+   "returning": false,
+   "exercises": [
+    {
+     "exercise_id": "leg_press",
+     "estimate_lb": 140
+    },
+    {
+     "exercise_id": "chest_press",
+     "estimate_lb": 60
+    },
+    {
+     "exercise_id": "lat_pulldown",
+     "estimate_lb": 70
+    },
+    {
+     "exercise_id": "seated_row",
+     "estimate_lb": 70
+    },
+    {
+     "exercise_id": "back_extension",
+     "estimate_lb": 50
+    },
+    {
+     "exercise_id": "abdominal_crunch",
+     "estimate_lb": 40
+    }
+   ],
+   "cardio": [
+    "treadmill"
+   ]
+  }
+ ]
+}

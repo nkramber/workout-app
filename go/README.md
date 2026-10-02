@@ -5,6 +5,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | Path | Content |
 |---|---|
 | `go/cmd/api` | The entry point, the routes, and the tests of the acceptance story |
+| `go/cmd/lunaeval` | The Luna evaluation of Phase 3: synthetic profiles and the scenarios A to F through the layer and the policy (D-184 to D-186) |
 | `go/internal/auth` | The Firebase ID token check, the allowlist check, and CORS |
 | `go/internal/allowlist` | The invite allowlist of uids in Firestore (D-131) |
 | `go/internal/envguard` | The start guard against an emulator variable on Cloud Run (D-129) |
@@ -24,6 +25,23 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `FIREBASE_AUTH_EMULATOR_HOST`, `FIRESTORE_EMULATOR_HOST` | The local emulators. On Cloud Run, the API refuses each variable with a name that ends in `_EMULATOR_HOST` (D-129). |
 
 `go/internal/ai` reads the caps of D-25 from `LUNA_CAP_USER_USD` and `LUNA_CAP_PROJECT_USD`, in US dollars, such as `0.25`. A value that is not set stops the start, and 0 refuses each call. The API does not call Luna yet, so it reads neither variable. Q-98 gives the values in Phase 4.
+
+## The Luna evaluation
+
+`go/cmd/lunaeval` uses the fake provider unless you give `-live`. A fake run costs nothing:
+
+```bash
+cd go && go run ./cmd/lunaeval -cap 2 -out /tmp/report.json
+```
+
+CAUTION: a run with `-live` calls OpenAI, and each call costs money. Get the approval of the owner for the run and its cap before the run (D-25). The command reads the key from `OPENAI_API_KEY` alone. Give the key to the one process from Secret Manager (D-187):
+
+```bash
+OPENAI_API_KEY="$(gcloud secrets versions access latest --secret=openai-api-key --project=nk-workout-app-prod)" \
+  go run ./cmd/lunaeval -live -cap 2 -out ../docs/research/phase-3-check/results.json
+```
+
+The command writes the report and a summary of ids and numbers. The report holds synthetic data alone.
 
 The build writes the commit into the binary with `-ldflags "-X main.commit=<sha>"`. The route `GET /version` gives it as `{"commit": "<sha>"}`, with no sign-in. The route does not use `/healthz`, because that path does not answer on a `run.app` URL (`decktome:cloudbuild/api.yaml`).
 
