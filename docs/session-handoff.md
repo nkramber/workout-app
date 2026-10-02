@@ -17,7 +17,7 @@ The pull request holds:
 - the A to Z order of the inventory list and of each kind group of the catalog list, in `web/src/lib/inventory.ts` (D-205),
 - the unit tests and the browser tests of both, and the owner answers D-204 to D-206 to Q-218 to Q-220.
 
-State: CI passed except `review-gate`, which needs the review record. The Codex review says `Ready for owner merge` for effective head `5ba1eb38f2af08675364a89c788062297a90d6cc`. Finding ids: none. The result is pending the owner merge.
+State: `make web` and `make verify` passed. CI passed except `review-gate`, which needed the review record. The Codex review says `Ready for owner merge` for effective head `5ba1eb38f2af08675364a89c788062297a90d6cc`. Finding ids: none. The result is pending the owner merge.
 
 Next action: after the merge, read the `deploy-web` build of the merge and the live `/version.json`. Then the owner adds and confirms one machine in the live app on the iPhone (D-203). The Phase 5 roadmap session records the result as PR-22 (D-204).
 
@@ -84,7 +84,7 @@ Completed:
 
 Open work:
 
-- CI, the Codex review, the owner confirmation, and the merge of PR-21.
+- The owner confirmation and the merge of PR-21. The Codex review approved `5ba1eb3`.
 - The owner check on the iPhone after the deploy (D-203).
 
 ### Session 21 - 2026-10-02
