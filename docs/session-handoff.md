@@ -4,23 +4,24 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-02. Roadmap PR-19 of `docs/roadmaps/phase-4-equipment-inventory.md`, on branch `feat/pr-19-inventory-api`, from base `a95ce8c`. Work area 4.2.
+Date: 2026-10-02. Roadmap PR-20 of `docs/roadmaps/phase-4-equipment-inventory.md`, on branch `feat/pr-20-inventory-screens`, from base `b3484b6`. Work area 4.1.
 
-The pull request holds the inventory API and its store:
+The session read the deploys of `b3484b6` first. The builds `deploy-api` `19e8e84a` and `deploy-web` `98ec4b70` gave SUCCESS. The live `/version` and `/version.json` name `b3484b6`.
 
-- `InventoryService` in `proto/workoutapp/v1/inventory_service.proto`, with the generated code of `go/gen` and `web/src/gen`,
-- `go/internal/inventory`: the machines and the notes, the checks, the draft and confirmed states, the Firestore store at `users/{uid}/inventory/active`, and `ForPlan`,
-- `go/internal/inventorysvc`, and the route in `go/cmd/api/main.go`,
-- the emulator tests of the acceptance story, of the store, and of the rules,
-- the owner answers D-197 to D-201 to Q-211 to Q-215, with the design, both roadmaps, `go/README.md`, and `AGENTS.md`.
+The pull request holds the inventory screens:
 
-The merge of PR-18 changed no file in `go/` or `web/`, so no deploy followed it. The owner approved the milestone before the first edit (D-12).
+- `web/src/pages/inventory`: the list, the catalog list by kind and the text entry, the weights and the estimates, and the review screen,
+- `web/src/lib/inventory.ts`, `web/src/lib/inventory-api.ts`, and `web/src/lib/errors.ts`, with the unit tests of `web/src/lib/inventory.test.ts`,
+- the browser tests of `web/e2e/inventory.spec.ts`, and the shared steps of `web/e2e/support.ts`,
+- the owner answers D-202 and D-203 to Q-216 and Q-217, with the design, both roadmaps, `web/README.md`, and `AGENTS.md`.
 
-State: the Codex review is Ready for owner merge at `14769036ada85eea862951f07eea5b196f66cf6b`, with no open findings. The owner confirmation stays open.
+The owner approved the milestone before the first edit (D-12).
 
-Next action: the author session gets the owner confirmation and follows the merge steps of D-13.
+State: `make web` and `make verify` passed. CI, the Codex review, and the owner confirmation stay open. The result is pending the owner merge.
 
-The merge changes `go/`, so `deploy-api` deploys the API. It also changes `web/src/gen`, so `deploy-web` deploys the web app. The next session reads both deploys first.
+Next action: the author session pushes the branch, opens the pull request, waits for CI, and runs `make codex-review`.
+
+The merge changes `web/` alone, so `deploy-web` deploys the web app, and no API deploy follows. After that deploy, the owner adds and confirms one machine in the live app on the iPhone (D-203). The Phase 5 roadmap session records the result as the exit evidence of Phase 4.
 
 ## Facts that expire
 
@@ -34,13 +35,14 @@ The merge changes `go/`, so `deploy-api` deploys the API. It also changes `web/s
 | The OpenAI usage policies page returns HTTP 403. The owner accepted a copy printed on 2025-11-07 (D-93). | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
 | `gpt-6-luna` accepts the strict JSON schema of the plan through the Responses API. 60 of 60 plans passed the schema. | 2026-09-28 | `docs/research/luna-plan-spike.md` |
 | `gpt-6-luna` accepts an image with a strict JSON schema. One photo at 1536 px costs 0.00037 USD. | 2026-09-28 | `docs/research/recognition-spike.md` |
-| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `9d0e5d0`, three triggers, and the allowlist entry. | 2026-10-02 | `docs/setup-gcp.md`, `/version` |
+| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `b3484b6`, three triggers, and the allowlist entry. | 2026-10-02 | `docs/setup-gcp.md`, `/version` |
 | The secret `openai-api-key` has version 1, enabled. A free call to the OpenAI model list with it gave HTTP 200 and lists `gpt-6-luna`. | 2026-10-01 | `gcloud secrets versions list`, `curl` |
 | `gpt-6-luna` at medium effort passed the schema `luna_plan_v2` in 50 of 50 calls. A planner call cost 0.0017 USD on average, and the longest call took 33.0 s. | 2026-10-02 | `docs/research/phase-3-check.md` |
 | The bucket `nk-workout-app-prod-deploy-lock` exists, and each deployer account holds `roles/storage.objectUser` on it alone. | 2026-09-29 | `gcloud storage buckets describe`, `get-iam-policy` |
 | `workout-app-prod` is in use by another Google Cloud project. | 2026-09-29 | `gcloud projects create` |
 | The old project `gym-route-dev` is `DELETE_REQUESTED` since 2026-09-30T03:19:47Z. `gcloud projects undelete` can restore it for 30 days. Its site still gave HTTP 200 at 04:38:56Z. | 2026-09-30 | `gcloud projects describe`, `curl` |
-| The live `/version` names `9d0e5d0b87eca288c985debfee6390e5929503a9`, from the build `deploy-api` `46b8f059`, read 2026-10-02. The live `/version.json` names `73b1964340ebc2a14f93b75f1be19aba024918f5`, from the build `deploy-web` `c5ac0f62`. The rules release of `df79c16` has the update time 02:33:00Z. | 2026-09-30 | `curl`, `gcloud builds list` |
+| The live `/version` names `b3484b631e10b1fe18c75a5c4bb139c732b8dc51`, from the build `deploy-api` `19e8e84a`. The live `/version.json` names the same commit, from the build `deploy-web` `98ec4b70`. The rules release of `df79c16` has the update time 02:33:00Z, read 2026-09-30. | 2026-10-02 | `curl`, `gcloud builds list` |
+| With `context.setOffline(true)` of Playwright 1.63.0, a call of the API fails in WebKit and in Chromium. Connect gives the code `unknown` with a `TypeError` as its cause. | 2026-10-02 | `web/e2e/inventory.spec.ts` |
 | `rules-deployer` holds `roles/firebaserules.admin`, `roles/serviceusage.serviceUsageViewer`, and `roles/logging.logWriter`. | 2026-09-30 | `gcloud projects get-iam-policy` |
 | Since iOS 26, a Home Screen app blurs a band below the status bar, and a page can not turn it off. On iOS 27.0 with Chrome 154, 16 px above the title keeps it sharp. The owner saw the fix in the live app of `73b1964`. | 2026-09-30 | `docs/research/phase-2-check.md`, the owner |
 | Google Cloud SDK 533.0.0 has no `gcloud builds retry`. The Cloud Build API call `builds/{id}:retry` works. | 2026-09-30 | `docs/deploy-and-rollback.md` |
@@ -62,11 +64,29 @@ The merge changes `go/`, so `deploy-api` deploys the API. It also changes `web/s
 
 ## Next steps, in order
 
-1. Close PR-19: CI, the Codex review, the owner confirmation, and the merge.
-2. Read the deploys of the merge of PR-19.
-3. Start PR-20, the inventory screens, in a clean session. Ask the owner the question that section 4 of the Phase 4 roadmap names.
+1. Close PR-20: CI, the Codex review, the owner confirmation, and the merge.
+2. Read the `deploy-web` build of the merge, and the live `/version.json`.
+3. The owner adds and confirms one machine in the live app on the iPhone (D-203).
+4. Start the Phase 5 focused roadmap in a clean session. It records the Phase 4 exit evidence.
 
 ## Session records
+
+### Session 21 - 2026-10-02
+
+Author provider: Claude Code
+
+Branch: `feat/pr-20-inventory-screens`. Role: author.
+
+Completed:
+
+- Read the deploys of `b3484b6`. The owner approved the milestone before the first edit (D-12), and answered Q-216 and Q-217 (D-202, D-203).
+- Wrote the inventory screens of `web/src/pages/inventory`, with 25 unit tests and 7 browser tests in each engine.
+- Changed the design, both roadmaps, the registers, `web/README.md`, and `AGENTS.md`.
+
+Open work:
+
+- CI, the Codex review, the owner confirmation, and the merge of PR-20.
+- The owner check on the iPhone after the deploy (D-203).
 
 ### Session 20 - 2026-10-02
 
@@ -82,7 +102,7 @@ Completed:
 
 Open work:
 
-- CI, the Codex review, the owner confirmation, and the merge of PR-19.
+- None. GitHub PR 20 merged as `b3484b6`.
 
 ### Session 19 - 2026-10-02
 
@@ -99,20 +119,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 19 merged as `a95ce8c`.
-
-### Session 18 - 2026-10-01 to 2026-10-02
-
-Author provider: Claude Code
-
-Branch: `test/pr-17-luna-evaluation`. Role: author.
-
-Completed:
-
-- Read the deploy of `1b3f9be`. The owner approved the milestone before the first edit (D-12), and answered Q-198 to Q-201 (D-184 to D-187).
-- Wrote `go/cmd/lunaeval` and its tests. A test found the rep gap of the policy, and the owner approved the rule of D-186.
-- Ran the paid run after the owner approval, and wrote `docs/research/phase-3-check.md`.
-- Changed the design, both roadmaps, the registers, `docs/setup-gcp.md`, `go/README.md`, and `AGENTS.md`.
-
-Open work:
-
-- None. GitHub PR 18 merged as `9d0e5d0`.

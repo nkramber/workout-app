@@ -34,7 +34,7 @@ The owner enters experience, goals, injuries and restrictions, age, height, weig
 
 ### 3.2 Equipment capture
 
-The owner selects each machine from the catalog, or enters it as text (Decision, D-51, D-55, D-110). A text searches the names of the catalog, and the owner selects the match. A text with no match stays as a note in the inventory, and no plan uses a note (Decision, D-191).
+The owner selects each machine from the catalog, or enters it as text (Decision, D-51, D-55, D-110). A text searches the names of the catalog, and the owner selects the match. A text with no match stays as a note in the inventory, and no plan uses a note (Decision, D-191). The catalog list shows the machines by kind: the machines, the cable station, the dumbbells, and the cardio machines (Decision, D-202).
 
 The owner enters the weights of a stack as the lightest weight, the heaviest weight, and the step. The app makes the list, and the owner can add or remove a weight (Decision, D-195). The owner can give a current load estimate for each exercise of the machine (Decision, D-41, D-192).
 

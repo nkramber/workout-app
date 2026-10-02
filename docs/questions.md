@@ -366,6 +366,13 @@ The owner answered through the answer controls of the session. The first session
 | Q-214 | What happens when the owner saves a machine that the inventory holds? | The save replaces the entry. A change of the estimates alone keeps the confirmation. | Answered | D-200 |
 | Q-215 | What does the confirmation of a machine send? | The weights that the review screen showed. The server refuses a confirmation of other weights. | Answered | D-201 |
 
+## Questions of the inventory screens session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-216 | Which order does the catalog list of the inventory screen use? | By kind: the machines, the cable station, the dumbbells, then the cardio machines, each group in catalog order. | Answered | D-202 |
+| Q-217 | When does the owner add and confirm one machine in the live app on the iPhone? | After the merge of PR-20 and its web deploy. The Phase 5 roadmap session records the result as the exit evidence of Phase 4. | Answered | D-203 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |
