@@ -22,7 +22,7 @@ The browser tests of `web/e2e/profile.spec.ts` hold the acceptance story. The ot
 
 Codex review of GitHub PR #25 approves effective head `c39fe5584197b6dd0c48e2cae39046a9a739aeba` with no open findings. The review record is `docs/reviews/pr-25.md`.
 
-Next action: push the review record and this hand-off. Check that `review-gate` passes. Then get the owner confirmation and merge. After the merge, read the deploy of the web app first. Then start PR-25, the lasting AI cap store, in a clean session.
+Next action: get the owner confirmation and merge. After the merge, read the deploy of the web app first. Then start PR-25, the lasting AI cap store, in a clean session.
 
 ## Facts that expire
 
