@@ -4,7 +4,7 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-02. Roadmap PR-20 of `docs/roadmaps/phase-4-equipment-inventory.md`, on branch `feat/pr-20-inventory-screens`, from base `b3484b6`. Work area 4.1.
+Date: 2026-10-02. Roadmap PR-20 of `docs/roadmaps/phase-4-equipment-inventory.md`, open as GitHub PR 21 on branch `feat/pr-20-inventory-screens`, from base `b3484b6`. Work area 4.1.
 
 The session read the deploys of `b3484b6` first. The builds `deploy-api` `19e8e84a` and `deploy-web` `98ec4b70` gave SUCCESS. The live `/version` and `/version.json` name `b3484b6`.
 
@@ -19,7 +19,7 @@ The owner approved the milestone before the first edit (D-12).
 
 State: `make web` and `make verify` passed. CI, the Codex review, and the owner confirmation stay open. The result is pending the owner merge.
 
-Next action: the author session pushes the branch, opens the pull request, waits for CI, and runs `make codex-review`.
+Next action: the author session waits for CI on GitHub PR 21, and then runs `make codex-review PR=21`.
 
 The merge changes `web/` alone, so `deploy-web` deploys the web app, and no API deploy follows. After that deploy, the owner adds and confirms one machine in the live app on the iPhone (D-203). The Phase 5 roadmap session records the result as the exit evidence of Phase 4.
 
