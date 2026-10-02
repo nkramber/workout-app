@@ -20,7 +20,8 @@ export function isNoConnection(err: unknown, isOnline = online()): boolean {
 // (D-206).
 const SERVER_FAULT = "The server failed.";
 
-// changeErrorText gives the message of a failed change of the inventory.
+// changeErrorText gives the message of a failed change of the inventory
+// or of the profile.
 // Phase 4 has no outbox, so a change with no connection is not saved, and
 // the owner tries again (D-196). The text holds no value of the request.
 export function changeErrorText(err: unknown, isOnline = online()): string {
@@ -43,10 +44,18 @@ export function changeErrorText(err: unknown, isOnline = online()): string {
   }
 }
 
-// loadErrorText gives the message of a failed read of the catalog or of
-// the inventory.
+// loadErrorText gives the message of a failed read of the catalog, the
+// inventory, the profile, or the lists of the profile.
 export function loadErrorText(err: unknown, isOnline = online()): string {
   if (isNoConnection(err, isOnline)) return "No connection. Try again when the phone is online.";
-  if (ConnectError.from(err).code === Code.Internal) return SERVER_FAULT;
-  return "The API did not answer.";
+  switch (ConnectError.from(err).code) {
+    case Code.Internal:
+      return SERVER_FAULT;
+    case Code.PermissionDenied:
+      return "This account is not on the allowlist.";
+    case Code.Unauthenticated:
+      return "The API did not accept the sign-in.";
+    default:
+      return "The API did not answer.";
+  }
 }

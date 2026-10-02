@@ -4,8 +4,9 @@ import { MachineState, type InventoryMachine } from "../../gen/workoutapp/v1/inv
 import { changeErrorText } from "../../lib/errors";
 import { formatPounds } from "../../lib/inventory";
 
-// The shared parts of the inventory screens. The styles copy the sign-in
-// page and the home screen. Each button is 44 px high or more.
+// The shared parts of the inventory screens. The profile screen and the
+// profile gate of the app use them too. The styles copy the sign-in page
+// and the home screen. Each button is 44 px high or more.
 
 export const field = "mt-1 block w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-base";
 export const primary =

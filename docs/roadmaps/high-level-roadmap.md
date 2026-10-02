@@ -146,7 +146,7 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 
 | Work area | Concerns | Exit evidence |
 |---|---|---|
-| 5.1 Onboarding | Profile inputs, with the training days of D-211. The injury warning of D-35 and the injury areas of D-208. The muscle groups and the goal templates of D-210, with free text (D-42). The profile store, the bounds, and both tables (D-213 to D-221). | UI tests cover each input and the injury warning. |
+| 5.1 Onboarding | Profile inputs, with the training days of D-211. Onboarding before the home screen (D-223). The injury warning of D-35 and D-222, and the injury areas of D-208. The muscle groups and the goal templates of D-210, with free text (D-42). The profile store, the bounds, and both tables (D-213 to D-221). | UI tests cover each input and the injury warning. |
 | 5.2 Plan generation and view | The planner call with the input of D-209, the policy check, the fallback, and exclusions (D-48). The lasting store of the monthly AI caps of D-188 and D-190, before the first live call (D-189). | An end-to-end test with the fake provider returns a valid plan for the core profile of D-31. A cap test refuses a call over the cap after a restart of the API. After the deploy, the owner approves the cost and sees a plan in the live app on the iPhone (D-207, D-212). |
 
 **Decisions and questions.** D-25, D-31 to D-36, D-41 to D-44, D-48, D-73, D-188 to D-190, D-207 to D-212, Q-221 to Q-226.

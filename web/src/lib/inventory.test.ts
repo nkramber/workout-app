@@ -243,4 +243,10 @@ describe("the error text", () => {
   it("names a changed weight list for a refused confirmation (D-201)", () => {
     expect(changeErrorText(new ConnectError("x", Code.FailedPrecondition), true)).toMatch(/weights changed/);
   });
+
+  it("names a refused account in a failed read, so the profile gate can show it (D-223)", () => {
+    expect(loadErrorText(new ConnectError("x", Code.PermissionDenied), true)).toBe("This account is not on the allowlist.");
+    expect(loadErrorText(new ConnectError("x", Code.Unauthenticated), true)).toBe("The API did not accept the sign-in.");
+    expect(loadErrorText(new ConnectError("x", Code.DeadlineExceeded), true)).toBe("The API did not answer.");
+  });
 });

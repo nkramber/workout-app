@@ -10,9 +10,17 @@ import { megabytes, requestPersistenceOnce, type StorageState } from "../lib/sto
 // The home screen proves the whole path from the sign-in to the API: it
 // calls GetMe, and it shows the uid that the API read from the token. The
 // uid is an id, so the screen can show it (D-80). It opens the equipment
-// inventory (work area 4.1). The diagnostics rows serve the device check
+// inventory (work area 4.1) and the profile (work area 5.1). The diagnostics rows serve the device check
 // of PR-11.
-export function HomePage({ onSignOut, onOpenInventory }: { onSignOut: () => void; onOpenInventory: () => void }) {
+export function HomePage({
+  onSignOut,
+  onOpenInventory,
+  onOpenProfile,
+}: {
+  onSignOut: () => void;
+  onOpenInventory: () => void;
+  onOpenProfile: () => void;
+}) {
   const me = useQuery(UserService.method.getMe, {});
   const pending = useLiveQuery(() => db.outbox.count(), [], null);
   const [storage, setStorage] = useState<StorageState | null>(null);
@@ -52,6 +60,13 @@ export function HomePage({ onSignOut, onOpenInventory }: { onSignOut: () => void
         className="min-h-11 w-full rounded-lg bg-sky-600 px-4 font-medium text-white active:bg-sky-700"
       >
         Equipment
+      </button>
+      <button
+        type="button"
+        onClick={onOpenProfile}
+        className="min-h-11 w-full rounded-lg border border-slate-700 px-4 font-medium text-slate-100 active:bg-slate-800"
+      >
+        Profile
       </button>
 
       <section className="space-y-2 text-sm">

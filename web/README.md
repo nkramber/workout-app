@@ -1,22 +1,23 @@
 # Workout App - the web client
 
-This folder holds the installable web shell of work area 2.2 and the inventory screens of work area 4.1. The stack is the Decktome React stack (D-84): React, Vite, `vite-plugin-pwa`, TanStack Query with Connect Query, and Tailwind. The folder is one npm package (D-135). The app has the phone layout alone (D-20).
+This folder holds the web client: the installable shell (work area 2.2), the inventory screens (4.1), and the onboarding screen (5.1). The stack is the Decktome React stack (D-84): React, Vite, `vite-plugin-pwa`, TanStack Query with Connect Query, and Tailwind. The folder is one npm package (D-135). The app has the phone layout alone (D-20).
 
 | Path | Content |
 |---|---|
-| `web/src/app.tsx` | The sign-in page for a signed-out owner, and the home screen and the inventory screens for a signed-in owner |
+| `web/src/app.tsx` | The sign-in page for a signed-out owner. For a signed-in owner, the onboarding screen while no profile exists, then the home screen, the inventory screens, and the profile screen |
 | `web/src/shell.tsx` | The shell that fills the whole screen (D-120) |
-| `web/src/pages` | The sign-in page and the home screen |
+| `web/src/pages` | The sign-in page, the home screen, and the onboarding screen of `web/src/pages/profile.tsx` |
 | `web/src/pages/inventory` | The inventory screens: the list, the catalog list and the text entry, the weights, and the review screen |
 | `web/src/lib/inventory.ts` | The catalog order, the A to Z order of the inventory list, the search of the catalog names, and the checks of the weights, the estimates, and the notes |
 | `web/src/lib/inventory-api.ts`, `web/src/lib/errors.ts` | The calls that change the inventory, and the error text of a failed call |
+| `web/src/lib/profile.ts`, `web/src/lib/profile-api.ts` | The form state and the checks of the profile, the text of the injury warning, and the save of the profile |
 | `web/src/lib/firebase.ts` | Firebase Authentication with email and password (D-75) |
 | `web/src/lib/api.ts` | The Connect transport, with the ID token of the owner on each call |
 | `web/src/lib/db.ts` | The offline store and the outbox (D-62, D-77, D-132) |
 | `web/src/lib/pwa.ts`, `web/src/lib/update-check.ts` | The service worker and its update strategy (D-133) |
 | `web/src/lib/storage.ts` | The persistent storage request (D-134) |
 | `web/src/gen` | The generated code of the contract. `make proto` writes it, and Git keeps it. |
-| `web/e2e` | The browser tests of the acceptance stories of work areas 2.2 and 4.1 |
+| `web/e2e` | The browser tests of the acceptance stories of work areas 2.2, 4.1, and 5.1 |
 
 ## The screen
 
@@ -37,6 +38,19 @@ The home screen opens the equipment inventory (work area 4.1). The screens read 
 - The review screen confirms the weights that it shows (D-201), and removes the machine.
 
 Each load is a whole number of tenths of a pound, as in the contract. Each change is a direct call to the API. With no connection, the screen shows an error, and the server keeps no change (D-196). A server fault, the code `internal`, shows "The server failed." (D-206). The inventory has no offline copy until Phase 6.
+
+## The onboarding screen
+
+After the sign-in, the app reads the profile through `ProfileService`. With no saved profile, the app opens the onboarding screen before the home screen (D-223). The screen has no Back button, and it can sign out. After the first save, the home screen has a "Profile" button that opens the same screen. A save there goes back to the home screen.
+
+One screen holds each input, with one save (D-41, D-42, D-208 to D-211). Most inputs are large buttons, so the owner types little (D-71):
+
+- The experience, the training days from 2 to 4, and the goal template are buttons. A template selects its muscle groups, and the owner can change them (D-210, D-220).
+- The injured areas are buttons. After the owner selects an area, the screen shows the injury warning of D-222.
+- The age and the weight use the number keypad. The height uses two lists, feet and inches.
+- The cardio preference lists the cardio exercises of the catalog (D-217).
+
+`GetProfileOptions` gives the lists, and `GetCatalog` gives the cardio exercises, so the server holds the one copy of each list. The screen checks each bound of the server before the save (D-215). The save is a direct call to the API, as for the inventory (D-196). A browser test saves a profile through the API with `makeOwner` of `web/e2e/support.ts`, so the other tests go past onboarding.
 
 ## The offline store
 
