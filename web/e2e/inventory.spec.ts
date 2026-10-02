@@ -1,6 +1,6 @@
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
 
-import { allow, makeAccount, signIn, stopAndOpen, uniqueEmail } from "./support";
+import { makeOwner, signIn, stopAndOpen, uniqueEmail } from "./support";
 
 // The acceptance story of work area 4.1. Each test runs in WebKit and in
 // Chromium with phone emulation, against the API of go/ and the Firestore
@@ -11,7 +11,7 @@ import { allow, makeAccount, signIn, stopAndOpen, uniqueEmail } from "./support"
 
 async function openInventory(page: Page, info: TestInfo) {
   const email = uniqueEmail("inventory", info);
-  await allow(page.request, await makeAccount(page.request, email));
+  await makeOwner(page.request, email);
   await page.goto("/");
   await signIn(page, email);
   await expect(page.getByTestId("me-uid")).toBeVisible();

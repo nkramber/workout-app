@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { allow, makeAccount, signIn, stopAndOpen, uniqueEmail } from "./support";
+import { makeAccount, makeOwner, signIn, stopAndOpen, uniqueEmail } from "./support";
 
 // The acceptance story of work area 2.2. Each test runs in WebKit and in
 // Chromium with phone emulation. The tests sign in against the Auth
@@ -19,8 +19,7 @@ test("the app has one sign-in form and no form that makes an account", async ({ 
 
 test("sign-in reaches the home screen with the uid from the API, and stays after a stop", async ({ page, context }, info) => {
   const email = uniqueEmail("owner", info);
-  const uid = await makeAccount(page.request, email);
-  await allow(page.request, uid);
+  const uid = await makeOwner(page.request, email);
 
   await page.goto("/");
   await signIn(page, email, "wrong-pass-1");
@@ -37,14 +36,17 @@ test("sign-in reaches the home screen with the uid from the API, and stays after
   await expect(again.getByRole("form", { name: "Sign in" })).toBeVisible();
 });
 
-test("a uid outside the allowlist reaches the home screen and gets permission_denied from the API", async ({ page }, info) => {
+test("a uid outside the allowlist gets permission_denied from the API, and can sign out", async ({ page }, info) => {
   const email = uniqueEmail("stranger", info);
   await makeAccount(page.request, email);
 
   await page.goto("/");
   await signIn(page, email);
-  await expect(page.getByTestId("me-error")).toHaveText("PermissionDenied");
+  await expect(page.getByTestId("profile-load-error")).toHaveText("This account is not on the allowlist.");
   await expect(page.getByTestId("me-uid")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Sign out" }).click();
+  await expect(page.getByRole("form", { name: "Sign in" })).toBeVisible();
 });
 
 test("the viewport meta blocks the pinch zoom", async ({ page }) => {
@@ -156,7 +158,7 @@ test("the shell fills the whole screen, and the main region is the one part that
 
 test("a change and its outbox entry go into the offline store together, and stay after a stop", async ({ page, context }, info) => {
   const email = uniqueEmail("outbox", info);
-  await allow(page.request, await makeAccount(page.request, email));
+  await makeOwner(page.request, email);
   await page.goto("/");
   await signIn(page, email);
   await expect(page.getByTestId("outbox-count")).toHaveText("0");
@@ -178,7 +180,7 @@ test("a change and its outbox entry go into the offline store together, and stay
 
 test("the first sign-in asks for persistent storage and shows the state", async ({ page }, info) => {
   const email = uniqueEmail("storage", info);
-  await allow(page.request, await makeAccount(page.request, email));
+  await makeOwner(page.request, email);
   await page.goto("/");
   await signIn(page, email);
   await expect(page.getByTestId("storage-persisted")).toHaveText(/^(yes|no)$/);

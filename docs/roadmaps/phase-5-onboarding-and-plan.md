@@ -126,7 +126,7 @@ Acceptance story: the browser tests fill each input, show the injury warning, se
 
 Checks: `make web`, `make verify`, and the Go checks of PR-23 when `go/` changes, free. Codex reviews PR-24.
 
-Questions for the session: the groups of the template "Strength" (D-210), and the text of the injury warning.
+Questions for the session: the groups of the template "Strength" (D-210), and the text of the injury warning. D-220 answered the groups. The owner answered the text of the warning and the way to onboarding as Q-236 and Q-237 (D-222, D-223).
 
 ### PR-25 - The lasting AI cap store
 

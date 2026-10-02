@@ -409,6 +409,13 @@ The live check of D-203 failed on 2026-10-02. The app showed "The API did not an
 | Q-235 | Codex finding P1-1 of PR 24: one id covers the standing and the seated calf raise, and the seated pad loads the knee. Does a knee injury remove it? | Yes. The row adds the knee. | Answered | D-221 |
 
 
+## Questions of the onboarding screens session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-236 | Which text does the injury warning show? | The plan avoids the areas, and the app gives fitness guidance only, with no diagnosis or treatment. | Answered | D-222 |
+| Q-237 | How does the owner get to onboarding? | The app opens it before the home screen while no profile exists. | Answered | D-223 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |

@@ -4,21 +4,25 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-02. Roadmap PR-23 of `docs/roadmaps/phase-5-onboarding-and-plan.md`, GitHub PR #24, on branch `feat/pr-23-profile-api`, from base `8ccf95d`. Work area 5.1.
+Date: 2026-10-02. Roadmap PR-24 of `docs/roadmaps/phase-5-onboarding-and-plan.md`, on branch `feat/pr-24-onboarding-screens`, from base `2e22c27`. Work area 5.1.
 
-The owner approved the milestone before the first edit (D-12), and answered Q-227 to Q-235 (D-213 to D-221).
+Before the work, the session read the deploys of `2e22c27`. The builds `deploy-api` `d2933354` and `deploy-web` `7285d93d` gave `SUCCESS`, and the live `/version` and `/version.json` name `2e22c27`.
+
+The owner approved the milestone before the first edit (D-12), and answered Q-236 and Q-237 (D-222, D-223).
 
 The pull request holds:
 
-- the `ProfileService` of `proto/workoutapp/v1`, with `GetProfileOptions`, `GetProfile`, and `SaveProfile`,
-- the profile and its Firestore store at `users/{uid}/profile/active` in `go/internal/profile`, and the calls in `go/internal/profilesvc` (D-213),
-- the checks of the server: the experience, the template, each group, area, and cardio exercise against its list, and each bound (D-214 to D-217),
-- the area table and the group table of each exercise, and the goal templates, in `go/internal/domain` (D-218 to D-221). Section 5.15 and EV-86 to EV-113 of `docs/research/exercise-safety.md` hold the research,
-- the function `profile.ForPlan`, which gives the inputs of D-209 and the session count of D-211, with no exercise of an injured area (D-208).
+- the onboarding screen in `web/src/pages/profile.tsx`, with each input of `ProfileService` on one screen, large buttons, and one save (D-71),
+- the injury warning of D-222 after the owner selects an area,
+- the two goal templates, which select their groups, and the free text (D-42, D-210, D-220),
+- the training days from 2 to 4 (D-211), and a direct call to the API for the save (D-196),
+- the profile gate in `web/src/app.tsx`: with no profile, onboarding comes before the home screen (D-223), and the home screen gets a "Profile" button.
 
-Codex round 1 reviewed effective head `fe99aed`, with the verdict `Changes required`. The author found full merit in P1-1 and P2-1. The owner decided P1-1 (D-221). `docs/reviews/pr-24-response.md` holds the corrections and their regression tests. `make go-test`, `make emulator-test`, and `make verify` passed after the corrections.
+The browser tests of `web/e2e/profile.spec.ts` hold the acceptance story. The other browser tests save a profile through the API first, with `makeOwner`. `make web` and `make verify` passed.
 
-Next action: Codex approved effective head `616eda5` after the corrections to P1-1 and P2-1. The record and this hand-off are on the branch. The new `pr-contract` and `review-gate` checks passed on metadata head `35768e6`. Then get the owner confirmation and merge. After the merge, read the deploy of the API first. Then start PR-24, the onboarding screens, in a clean session.
+Codex review of GitHub PR #25 approves effective head `c39fe5584197b6dd0c48e2cae39046a9a739aeba` with no open findings. The review record is `docs/reviews/pr-25.md`.
+
+Next action: get the owner confirmation and merge. After the merge, read the deploy of the web app first. Then start PR-25, the lasting AI cap store, in a clean session.
 
 ## Facts that expire
 
@@ -32,13 +36,13 @@ Next action: Codex approved effective head `616eda5` after the corrections to P1
 | The OpenAI usage policies page returns HTTP 403. The owner accepted a copy printed on 2025-11-07 (D-93). | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
 | `gpt-6-luna` accepts the strict JSON schema of the plan through the Responses API. 60 of 60 plans passed the schema. | 2026-09-28 | `docs/research/luna-plan-spike.md` |
 | `gpt-6-luna` accepts an image with a strict JSON schema. One photo at 1536 px costs 0.00037 USD. | 2026-09-28 | `docs/research/recognition-spike.md` |
-| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `b3484b6`, three triggers, and the allowlist entry. | 2026-10-02 | `docs/setup-gcp.md`, `/version` |
+| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `2e22c27`, three triggers, and the allowlist entry. | 2026-10-02 | `docs/setup-gcp.md`, `/version` |
 | The secret `openai-api-key` has version 1, enabled. A free call to the OpenAI model list with it gave HTTP 200 and lists `gpt-6-luna`. | 2026-10-01 | `gcloud secrets versions list`, `curl` |
 | `gpt-6-luna` at medium effort passed the schema `luna_plan_v2` in 50 of 50 calls. A planner call cost 0.0017 USD on average, and the longest call took 33.0 s. | 2026-10-02 | `docs/research/phase-3-check.md` |
 | The bucket `nk-workout-app-prod-deploy-lock` exists, and each deployer account holds `roles/storage.objectUser` on it alone. | 2026-09-29 | `gcloud storage buckets describe`, `get-iam-policy` |
 | `workout-app-prod` is in use by another Google Cloud project. | 2026-09-29 | `gcloud projects create` |
 | The old project `gym-route-dev` is `DELETE_REQUESTED` since 2026-09-30T03:19:47Z. `gcloud projects undelete` can restore it for 30 days. Its site still gave HTTP 200 at 04:38:56Z. | 2026-09-30 | `gcloud projects describe`, `curl` |
-| The live `/version` names `b3484b631e10b1fe18c75a5c4bb139c732b8dc51`, from the build `deploy-api` `19e8e84a`. The live `/version.json` names `e010746bca4de1f4e5b6583023dc992bf089c1aa`, from the build `deploy-web` `5d3916f0`. The rules release of `df79c16` has the update time 02:33:00Z, read 2026-09-30. | 2026-10-02 | `curl`, `gcloud builds list` |
+| The live `/version` and the live `/version.json` name `2e22c2774dff177363d6d049b070429300a61054`, from the builds `deploy-api` `d2933354` and `deploy-web` `7285d93d`. The rules release of `df79c16` has the update time 02:33:00Z, read 2026-09-30. | 2026-10-02 | `curl`, `gcloud builds list` |
 | `api-runtime` holds `roles/datastore.user`, and no other project role. | 2026-10-02 | `gcloud projects get-iam-policy` |
 | With `context.setOffline(true)` of Playwright 1.63.0, a call of the API fails in WebKit and in Chromium. Connect gives the code `unknown` with a `TypeError` as its cause. | 2026-10-02 | `web/e2e/inventory.spec.ts` |
 | `rules-deployer` holds `roles/firebaserules.admin`, `roles/serviceusage.serviceUsageViewer`, and `roles/logging.logWriter`. | 2026-09-30 | `gcloud projects get-iam-policy` |
@@ -62,11 +66,27 @@ Next action: Codex approved effective head `616eda5` after the corrections to P1
 
 ## Next steps, in order
 
-1. Close PR-23: CI, the Codex review, the owner confirmation, and the merge.
-2. Read the deploy of the API of the merge of PR-23 (D-137).
-3. Start PR-24, the onboarding screens, in a clean session (D-207). The owner approves its milestone first (D-12).
+1. Close PR-24: CI, the Codex review, the owner confirmation, and the merge.
+2. Read the deploy of the web app of the merge of PR-24 (D-137).
+3. Start PR-25, the lasting AI cap store, in a clean session (D-189, D-207). The owner approves its milestone first (D-12).
 
 ## Session records
+
+### Session 25 - 2026-10-02
+
+Author provider: Claude Code
+
+Branch: `feat/pr-24-onboarding-screens`. Role: author.
+
+Completed:
+
+- Read the deploys of `2e22c27`.
+- The owner approved the milestone before the first edit (D-12), and answered Q-236 and Q-237 (D-222, D-223).
+- Wrote the onboarding screen, the profile gate, and the "Profile" button, with unit tests and browser tests. Changed the design, both roadmaps, the registers, `web/README.md`, and `AGENTS.md`.
+
+Open work:
+
+- The Codex review, the owner confirmation, and the merge of PR-24.
 
 ### Session 24 - 2026-10-02
 
@@ -83,7 +103,7 @@ Completed:
 
 Open work:
 
-- The Codex review, the owner confirmation, and the merge of PR-23.
+- None. GitHub PR 24 merged as `2e22c27`.
 
 ### Session 23 - 2026-10-02
 
@@ -100,19 +120,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 23 merged as `8ccf95d`.
-
-### Session 22 - 2026-10-02
-
-Author provider: Claude Code
-
-Branch: `fix/pr-21-inventory-writes`. Role: author.
-
-Completed:
-
-- Read the deploy of `dc89e30`. The live check of D-203 failed, and the request log and the IAM policy gave the cause.
-- The owner answered Q-218 to Q-220 (D-204 to D-206), and approved the milestone before the first edit (D-12).
-- Changed the role of `api-runtime`. Wrote the A to Z order and the text of a server fault, with their tests.
-
-Open work:
-
-- None. GitHub PR 22 merged as `e010746`. The owner check on the iPhone passed (D-203).
