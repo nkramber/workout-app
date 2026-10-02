@@ -32,12 +32,29 @@ export const KIND_ORDER: readonly { kind: Kind; title: string }[] = [
 
 export type CatalogGroup = { kind: Kind; title: string; machines: CatalogMachine[] };
 
-// groupByKind gives the groups of the catalog list, by kind, each in
-// catalog order (D-202). A group with no machine does not show.
+// compareNames orders two names A to Z, with no difference between upper
+// and lower case (D-205).
+export function compareNames(a: string, b: string): number {
+  return a.localeCompare(b, "en", { sensitivity: "base", numeric: true });
+}
+
+function byName(a: { id: string; name: string }, b: { id: string; name: string }): number {
+  return compareNames(a.name, b.name) || compareNames(a.id, b.id);
+}
+
+// groupByKind gives the groups of the catalog list, by kind (D-202), each
+// A to Z by name (D-205). A group with no machine does not show.
 export function groupByKind(machines: readonly CatalogMachine[]): CatalogGroup[] {
-  return KIND_ORDER.map((g) => ({ ...g, machines: machines.filter((m) => m.kind === g.kind) })).filter(
+  return KIND_ORDER.map((g) => ({ ...g, machines: machines.filter((m) => m.kind === g.kind).sort(byName) })).filter(
     (g) => g.machines.length > 0,
   );
+}
+
+// sortByName gives the machines of the inventory A to Z by the catalog
+// name (D-205). A machine that the catalog does not name sorts by its id.
+export function sortByName(machines: readonly InventoryMachine[], names: ReadonlyMap<string, string>): InventoryMachine[] {
+  const name = (m: InventoryMachine) => names.get(m.machineId) ?? m.machineId;
+  return [...machines].sort((a, b) => byName({ id: a.machineId, name: name(a) }, { id: b.machineId, name: name(b) }));
 }
 
 function words(text: string): string[] {
@@ -62,7 +79,7 @@ function nameMatches(queryWords: string[], name: string): boolean {
 // searchCatalog searches the names of the catalog for a text (D-191). A
 // machine matches when each word of the text matches a word of its name,
 // or of the name of one of its exercises. So "lat pull" finds the cable
-// station. The matches keep the order of the catalog list (D-202). A text
+// station. The matches keep the order of the catalog list (D-202, D-205). A text
 // with no words matches nothing.
 export function searchCatalog(
   machines: readonly CatalogMachine[],

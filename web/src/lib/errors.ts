@@ -15,6 +15,11 @@ export function isNoConnection(err: unknown, isOnline = online()): boolean {
   return e.code === Code.Unknown && e.cause instanceof TypeError;
 }
 
+// SERVER_FAULT is the message of the code `internal`. The API answered,
+// but it failed, so the text does not say that the API did not answer
+// (D-206).
+const SERVER_FAULT = "The server failed.";
+
 // changeErrorText gives the message of a failed change of the inventory.
 // Phase 4 has no outbox, so a change with no connection is not saved, and
 // the owner tries again (D-196). The text holds no value of the request.
@@ -31,6 +36,8 @@ export function changeErrorText(err: unknown, isOnline = online()): string {
       return "This account is not on the allowlist.";
     case Code.Unauthenticated:
       return "The API did not accept the sign-in.";
+    case Code.Internal:
+      return SERVER_FAULT + " The change is not saved.";
     default:
       return "The API did not answer. The change is not saved.";
   }
@@ -40,5 +47,6 @@ export function changeErrorText(err: unknown, isOnline = online()): string {
 // the inventory.
 export function loadErrorText(err: unknown, isOnline = online()): string {
   if (isNoConnection(err, isOnline)) return "No connection. Try again when the phone is online.";
+  if (ConnectError.from(err).code === Code.Internal) return SERVER_FAULT;
   return "The API did not answer.";
 }

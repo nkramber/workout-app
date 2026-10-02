@@ -41,8 +41,11 @@ Phase 2 gives the contract in `proto/`, the API in `go/`, the web shell in `web/
 | Q-215, the confirmation | The weights that the review screen showed. The server refuses other weights. | D-201 |
 | Q-216, the catalog list | By kind: the machines, the cable station, the dumbbells, and the cardio machines. | D-202 |
 | Q-217, the live check | After the merge of PR-20 and its web deploy. The Phase 5 roadmap session records it. | D-203 |
+| Q-218, the failed live check | A Phase 4 correction as PR-21. The Phase 5 roadmap becomes PR-22. | D-204 |
+| Q-219, the machine order | The inventory list A to Z, and each kind group of the catalog list A to Z. | D-205 |
+| Q-220, the write role | `roles/datastore.user` for `api-runtime`. A server fault shows "The server failed." | D-206 |
 
-No question of the phase stays open. PR-20 asked Q-216 and Q-217 (D-202, D-203). Q-194 and Q-202 stay open for Phase 7. Q-103 stays open for the deferred photo work.
+No question of the phase stays open. PR-20 asked Q-216 and Q-217 (D-202, D-203). PR-21 asked Q-218 to Q-220 (D-204 to D-206). Q-194 and Q-202 stay open for Phase 7. Q-103 stays open for the deferred photo work.
 
 The answers of Q-98, Q-203, and Q-204 do not change Phase 4. They change work areas 5.2 and 8.2 of the high-level roadmap (D-189). The pull request of Phase 5 that adds the lasting cap store also changes the comments of `go/internal/ai/cost.go` and the cap text of `go/README.md`.
 
@@ -57,6 +60,7 @@ The answers of Q-98, Q-203, and Q-204 do not change Phase 4. They change work ar
 - Tests use synthetic data alone. The repository is public.
 - Each pull request with code gets the review of the other provider (D-15).
 - A merge that changes `go/` deploys the API, and a merge that changes `web/` deploys the web app (D-137). The next session reads each deploy first.
+- A new write path of the API needs a write role of `api-runtime` on the live project. The emulator applies no IAM, so its tests can not prove the role (D-206).
 
 ## 4. Pull requests
 
@@ -67,6 +71,7 @@ The PR-<n> order is the order of work. Each pull request needs the one before it
 | PR-18 | all | `docs: the Phase 4 focused roadmap (PR-18)` | none |
 | PR-19 | 4.2 | `feat: the inventory API and store (PR-19)` | none |
 | PR-20 | 4.1 | `feat: the inventory screens (PR-20)` | none |
+| PR-21 | 4.1 | `fix: the inventory writes and the machine order (PR-21)` | none |
 
 ### PR-18 - The Phase 4 focused roadmap
 
@@ -123,6 +128,24 @@ Checks: `make web`, `make verify`, and the Go checks of PR-19 when `go/` changes
 
 Questions for the session: the order of the catalog list, by region or by kind. The owner answered by kind (Q-216, D-202). The session also asked Q-217 (D-203).
 
+### PR-21 - The inventory writes and the machine order
+
+Branch: `fix/pr-21-inventory-writes`. Work area 4.1. It needs PR-20 on `main`.
+
+The live check of D-203 failed on 2026-10-02. The deploy of `dc89e30` passed: the build `deploy-web` `c78c7c6e` gave SUCCESS, and the live `/version.json` names `dc89e30`. But each `SaveMachine` call gave HTTP 500, because `api-runtime` held `roles/datastore.viewer` alone. The app showed "The API did not answer. The change is not saved." (D-204).
+
+Concerns:
+
+- the write role: `api-runtime` holds `roles/datastore.user` in place of `roles/datastore.viewer`, and `docs/setup-gcp.md` records it (D-206),
+- the text of a server fault: the code `internal` shows "The server failed." (D-206),
+- the order: the inventory list shows its machines A to Z, and the catalog list shows each kind group A to Z (D-205).
+
+Acceptance story: after the role change, a save of a machine in the live API works. The browser tests show both lists in A to Z order and the text of a server fault. After the merge and its `deploy-web` build, the owner adds and confirms one machine on the iPhone (D-203).
+
+Checks: `make web` and `make verify`, free. Codex reviews PR-21, because it changes code.
+
+Questions for the session: Q-218 to Q-220 (D-204 to D-206).
+
 ## 5. Exit of the phase
 
-Phase 4 ends when PR-20 merges. The emulator tests of PR-19 and the browser tests of PR-20 pass in CI. After the deploy of the merge, the owner confirms one machine in the live app on the iPhone. The Phase 5 roadmap session records the result (D-203). The function of PR-19 gives the confirmed machines alone. So a plan of Phase 5 can not use a machine that the owner did not confirm.
+Phase 4 ends when PR-21 merges. The emulator tests of PR-19 and the browser tests of PR-20 and PR-21 pass in CI. After the deploy of the merge of PR-21, the owner confirms one machine in the live app on the iPhone. The Phase 5 roadmap session records the result (D-203, D-204). The function of PR-19 gives the confirmed machines alone. So a plan of Phase 5 can not use a machine that the owner did not confirm.

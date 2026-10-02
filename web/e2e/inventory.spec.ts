@@ -19,6 +19,9 @@ async function openInventory(page: Page, info: TestInfo) {
   await expect(page.getByText("No machine yet.")).toBeVisible();
 }
 
+// aToZ gives a copy of the names in the order of D-205.
+const aToZ = (names: string[]) => [...names].sort((a, b) => a.localeCompare(b, "en", { sensitivity: "base", numeric: true }));
+
 const button = (page: Page, name: string) => page.getByRole("button", { name, exact: true });
 const weightButtons = (page: Page) => page.getByTestId("weight-list").getByRole("button");
 const state = (page: Page) => page.getByTestId("machine-state");
@@ -45,9 +48,15 @@ async function addStack(page: Page, machineId: string, lightest: string, heavies
 test("the owner adds a machine by selection and a machine by text entry, and confirms both", async ({ page, context }, info) => {
   await openInventory(page, info);
 
-  // Selection: the catalog list shows the kinds in the order of D-202.
+  // Selection: the catalog list shows the kinds in the order of D-202,
+  // and each kind A to Z by name (D-205).
   await button(page, "Add a machine").click();
   await expect(page.getByRole("heading", { level: 3 })).toHaveText(["Machines", "Cable station", "Dumbbells", "Cardio"]);
+  for (const kind of ["Machines", "Cardio"]) {
+    const shown = await page.getByRole("region", { name: kind }).getByRole("listitem").allTextContents();
+    expect(shown.length).toBeGreaterThan(1);
+    expect(shown).toEqual(aToZ(shown));
+  }
   await page.getByTestId("catalog-chest_press").click();
 
   // The range makes the list, then the owner removes and adds one weight.
@@ -88,6 +97,9 @@ test("the owner adds a machine by selection and a machine by text entry, and con
   await expect(again.getByTestId("machine-chest_press").getByTestId("machine-state")).toHaveText("Confirmed");
   await expect(again.getByTestId("machine-cable_station").getByTestId("machine-state")).toHaveText("Confirmed");
   await expect(again.getByTestId("note")).toHaveCount(0);
+
+  // The list shows the machines A to Z, not in the order of the adds (D-205).
+  await expect(again.getByRole("region", { name: "Machines" }).getByRole("button")).toHaveText([/^Cable station/, /^Chest press/]);
 });
 
 test("a change of the weights makes a confirmed machine a draft again, and a change of an estimate alone does not", async ({ page }, info) => {
@@ -208,6 +220,31 @@ test("a change with no connection shows an error and saves nothing (D-196)", asy
   await expect(button(page, "Save")).toBeEnabled();
 
   await context.setOffline(false);
+  await button(page, "Save").click();
+  await expect(state(page)).toHaveText("Draft");
+});
+
+test("a server fault shows that the server failed, not that the API did not answer (D-206)", async ({ page }, info) => {
+  await openInventory(page, info);
+  await button(page, "Add a machine").click();
+  await page.getByTestId("catalog-leg_press").click();
+  await fillRange(page, "10", "100", "10");
+
+  // The live fault of PR-21: the API refused a write to Firestore, and
+  // gave the code `internal` with HTTP 500.
+  await page.route("**/workoutapp.v1.InventoryService/SaveMachine", (route) =>
+    route.fulfill({
+      status: 500,
+      contentType: "application/json",
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({ code: "internal", message: "the inventory store failed" }),
+    }),
+  );
+  await button(page, "Save").click();
+  await expect(page.getByTestId("change-error")).toHaveText("The server failed. The change is not saved.");
+  await expect(button(page, "Save")).toBeEnabled();
+
+  await page.unroute("**/workoutapp.v1.InventoryService/SaveMachine");
   await button(page, "Save").click();
   await expect(state(page)).toHaveText("Draft");
 });

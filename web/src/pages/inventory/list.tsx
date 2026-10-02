@@ -1,15 +1,17 @@
+import { sortByName } from "../../lib/inventory";
 import { useInventoryApi } from "../../lib/inventory-api";
 import type { ScreenProps } from "./types";
 import { ErrorText, primary, secondary, StateBadge, Title, useAction, weightSummary } from "./ui";
 
 // ListScreen shows each machine of the inventory with its state, and each
-// note. A tap on a machine opens its review screen. A plan reads the
-// confirmed machines alone, and no plan reads a note (D-191, D-193).
+// note. The machines show A to Z by name (D-205). A tap on a machine opens
+// its review screen. A plan reads the confirmed machines alone, and no
+// plan reads a note (D-191, D-193).
 export function ListScreen({ catalog, inventory, go, onBack }: ScreenProps & { onBack: () => void }) {
   const api = useInventoryApi();
   const action = useAction();
   const names = new Map(catalog.machines.map((m) => [m.id, m.name]));
-  const machines = inventory?.machines ?? [];
+  const machines = sortByName(inventory?.machines ?? [], names);
   const notes = inventory?.notes ?? [];
 
   return (

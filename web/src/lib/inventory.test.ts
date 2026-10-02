@@ -8,7 +8,7 @@ import {
   DumbbellSetSchema,
   InventoryMachineSchema,
 } from "../gen/workoutapp/v1/inventory_service_pb";
-import { changeErrorText, isNoConnection } from "./errors";
+import { changeErrorText, isNoConnection, loadErrorText } from "./errors";
 import {
   addWeight,
   available,
@@ -22,10 +22,12 @@ import {
   rangeWeights,
   removeWeight,
   searchCatalog,
+  sortByName,
 } from "./inventory";
 
 // A synthetic catalog in the form of GetCatalog, with the kinds out of
-// the order of D-202, so the tests prove the order.
+// the order of D-202 and the names out of A to Z order, so the tests prove
+// both orders.
 const machines = [
   ["treadmill", "Treadmill", "cardio"],
   ["leg_press", "Leg press", "machine"],
@@ -47,10 +49,10 @@ const exercises = [
 const ids = (list: { id: string }[]) => list.map((m) => m.id);
 
 describe("groupByKind", () => {
-  it("orders the groups by kind and keeps the catalog order in each group (D-202)", () => {
+  it("orders the groups by kind (D-202), and each group A to Z by name (D-205)", () => {
     const groups = groupByKind(machines);
     expect(groups.map((g) => g.title)).toEqual(["Machines", "Cable station", "Dumbbells", "Cardio"]);
-    expect(ids(groups[0].machines)).toEqual(["leg_press", "seated_leg_curl", "lying_leg_curl"]);
+    expect(ids(groups[0].machines)).toEqual(["leg_press", "lying_leg_curl", "seated_leg_curl"]);
     expect(groups.flatMap((g) => g.machines)).toHaveLength(machines.length);
   });
 
@@ -63,9 +65,26 @@ describe("groupByKind", () => {
   });
 });
 
+describe("sortByName", () => {
+  const names = new Map(machines.map((m) => [m.id, m.name]));
+  const entry = (machineId: string) => create(InventoryMachineSchema, { machineId });
+
+  it("orders the machines of the inventory A to Z by the catalog name, in any case (D-205)", () => {
+    const list = ["treadmill", "seated_leg_curl", "cable_station", "leg_press"].map(entry);
+    const lower = new Map([...names, ["cable_station", "cable station"]]);
+    expect(sortByName(list, lower).map((m) => m.machineId)).toEqual(["cable_station", "leg_press", "seated_leg_curl", "treadmill"]);
+    expect(list.map((m) => m.machineId)[0]).toBe("treadmill");
+  });
+
+  it("sorts a machine that the catalog does not name by its id", () => {
+    const list = ["treadmill", "abc_unknown"].map(entry);
+    expect(sortByName(list, names).map((m) => m.machineId)).toEqual(["abc_unknown", "treadmill"]);
+  });
+});
+
 describe("searchCatalog", () => {
   it("finds a machine by a part of each word of its name, in any case", () => {
-    expect(ids(searchCatalog(machines, exercises, "LEG cur"))).toEqual(["seated_leg_curl", "lying_leg_curl"]);
+    expect(ids(searchCatalog(machines, exercises, "LEG cur"))).toEqual(["lying_leg_curl", "seated_leg_curl"]);
     expect(ids(searchCatalog(machines, exercises, "  leg   PRESS "))).toEqual(["leg_press"]);
   });
 
@@ -75,14 +94,14 @@ describe("searchCatalog", () => {
   });
 
   it("finds a plural of a name", () => {
-    expect(ids(searchCatalog(machines, exercises, "leg curls"))).toEqual(["seated_leg_curl", "lying_leg_curl"]);
+    expect(ids(searchCatalog(machines, exercises, "leg curls"))).toEqual(["lying_leg_curl", "seated_leg_curl"]);
   });
 
-  it("keeps the order of the catalog list", () => {
+  it("keeps the order of the catalog list (D-202, D-205)", () => {
     expect(ids(searchCatalog(machines, exercises, "l"))).toEqual([
       "leg_press",
-      "seated_leg_curl",
       "lying_leg_curl",
+      "seated_leg_curl",
       "cable_station",
     ]);
   });
@@ -212,6 +231,13 @@ describe("the error text", () => {
     expect(isNoConnection(new ConnectError("x", Code.Internal), false)).toBe(true);
     expect(isNoConnection(new ConnectError("x", Code.Unknown), true)).toBe(false);
     expect(changeErrorText(failedFetch, true)).toMatch(/^No connection\. The change is not saved\./);
+  });
+
+  it("names a server fault, and does not say that the API did not answer (D-206)", () => {
+    const fault = new ConnectError("x", Code.Internal);
+    expect(changeErrorText(fault, true)).toBe("The server failed. The change is not saved.");
+    expect(loadErrorText(fault, true)).toBe("The server failed.");
+    expect(changeErrorText(fault, false)).toMatch(/^No connection\./);
   });
 
   it("names a changed weight list for a refused confirmation (D-201)", () => {

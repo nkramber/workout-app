@@ -8,7 +8,7 @@ import { ErrorText, field, secondary, Title, useAction } from "./ui";
 
 // AddScreen adds a machine in one of two ways (D-51, D-55):
 //
-//   - selection: the catalog list, by kind (D-202),
+//   - selection: the catalog list, by kind (D-202), A to Z (D-205),
 //   - text entry: the text searches the names of the catalog, and the
 //     owner selects a match. A text with no match stays as a note, which
 //     no plan uses (D-191).
