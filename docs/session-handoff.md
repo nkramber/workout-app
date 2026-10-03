@@ -4,7 +4,7 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-03. Roadmap PR-29 of `docs/roadmaps/phase-6-guided-workout.md`, on branch `feat/pr-29-workout-api`, from base `fe7fe20`. GitHub PR: TODO.
+Date: 2026-10-03. Roadmap PR-29 of `docs/roadmaps/phase-6-guided-workout.md`, on branch `feat/pr-29-workout-api`, from base `fe7fe20`. GitHub PR 30.
 
 Before the work, the session read the deploy of `fe7fe20`. The build `deploy-api` `1bfa4330` and the build `deploy-web` `9e3f4aff` gave `SUCCESS`, and the live `/version` and `/version.json` both name `fe7fe20` (D-137).
 
@@ -18,9 +18,9 @@ The owner approved the milestone, then widened it with the cardio rule (D-12, D-
 - the phone rule of D-258, the batch limit of D-259, the cardio log of D-260, and the note limit of D-261,
 - the cardio rule of D-255 in prompt v4, the output check, the fake provider, and the plan screen.
 
-TODO checks.
+`make contract`, `make go-test`, `make emulator-test`, `make web`, and `make verify` passed.
 
-State: TODO. Next action: TODO.
+State: the pull request waits for CI and the Codex review. Next action: run `make codex-review PR=30` after CI is green (D-8).
 
 The merge changes `go/` and `web/`, so it deploys both. The session of PR-30 reads both deploys first. The next live plan gives 20 to 30 minutes of cardio in each session. The stored plan of 10 minutes stays until the owner requests a new one.
 
@@ -94,7 +94,7 @@ Completed:
 
 Open work:
 
-- TODO
+- CI, the Codex review, the owner confirmation, and the merge of PR-29.
 
 ### Session 29 - 2026-10-03
 
