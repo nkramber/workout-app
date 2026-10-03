@@ -416,6 +416,13 @@ The live check of D-203 failed on 2026-10-02. The app showed "The API did not an
 | Q-236 | Which text does the injury warning show? | The plan avoids the areas, and the app gives fitness guidance only, with no diagnosis or treatment. | Answered | D-222 |
 | Q-237 | How does the owner get to onboarding? | The app opens it before the home screen while no profile exists. | Answered | D-223 |
 
+## Questions of the cap store session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-238 | Which Firestore path holds the monthly AI spend? | `users/{uid}/aiSpend/{YYYY-MM}` for the user and `aiSpend/{YYYY-MM}` for the project, in one transaction. | Answered | D-224 |
+| Q-239 | What does a failed AI call with an unknown cost charge? | The reserved worst-case cost. | Answered | D-225 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |

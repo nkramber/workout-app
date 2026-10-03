@@ -170,7 +170,7 @@ The role layer is in `go/internal/ai` (Decision, D-157). It holds these parts:
 - The planner and the reviser roles on `gpt-6-luna` at medium effort. The role holds the model id, so a call site names a role alone (Decision, D-22, D-24).
 - The strict plan schema. Its enums hold the ids of the catalog of D-155 and of the guidance catalog, so a valid output names no unknown id (Decision, D-152).
 - The prompt, with the boundary of D-36 and the dated copy of the usage policies of D-93, and each rule of the policy.
-- A cost record for each call, and a cap hook that reserves the worst-case cost before the call. The hook refuses a call over the cap. The cap values come from the configuration. The caps are 1 USD for the user and 2 USD for the project, for each calendar month in UTC (Decision, D-25, D-188, D-190). The hook keeps the spend in memory until Phase 5 adds a lasting store in Firestore (Decision, D-189).
+- A cost record for each call, and a cap hook that reserves the worst-case cost before the call. The hook refuses a call over the cap. The cap values come from the configuration. The caps are 1 USD for the user and 2 USD for the project, for each calendar month in UTC (Decision, D-25, D-188, D-190). The API uses the lasting cap hook of `go/internal/capstore`. It keeps the spend of each month in Firestore, so a new instance of the API does not reset it (Decision, D-189, D-224). A failed call charges the reserved worst-case cost (Decision, D-225).
 - The filter of blocked claims on each text of Luna (Decision, D-183).
 - The fake provider for tests. No test calls OpenAI (Decision, D-24).
 

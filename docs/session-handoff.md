@@ -4,25 +4,23 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-02. Roadmap PR-24 of `docs/roadmaps/phase-5-onboarding-and-plan.md`, on branch `feat/pr-24-onboarding-screens`, from base `2e22c27`. Work area 5.1.
+Date: 2026-10-02. Roadmap PR-25 of `docs/roadmaps/phase-5-onboarding-and-plan.md`, on branch `feat/pr-25-cap-store`, from base `a1b88d4`. Work area 5.2.
 
-Before the work, the session read the deploys of `2e22c27`. The builds `deploy-api` `d2933354` and `deploy-web` `7285d93d` gave `SUCCESS`, and the live `/version` and `/version.json` name `2e22c27`.
+Before the work, the session read the deploy of `a1b88d4`. The build `deploy-web` `b57b45ae` gave `SUCCESS`, and the live `/version.json` names `a1b88d4`. The merge changed no file in `go/`, so the live `/version` stays at `2e22c27` (D-137).
 
-The owner approved the milestone before the first edit (D-12), and answered Q-236 and Q-237 (D-222, D-223).
+The owner approved the milestone before the first edit (D-12), and answered Q-238 and Q-239 (D-224, D-225).
 
 The pull request holds:
 
-- the onboarding screen in `web/src/pages/profile.tsx`, with each input of `ProfileService` on one screen, large buttons, and one save (D-71),
-- the injury warning of D-222 after the owner selects an area,
-- the two goal templates, which select their groups, and the free text (D-42, D-210, D-220),
-- the training days from 2 to 4 (D-211), and a direct call to the API for the save (D-196),
-- the profile gate in `web/src/app.tsx`: with no profile, onboarding comes before the home screen (D-223), and the home screen gets a "Profile" button.
+- the lasting cap hook `go/internal/capstore`, with the spend of each calendar month in UTC in Firestore (D-189, D-190, D-224),
+- a reservation of the worst-case cost before each call and a charge after it, each in one transaction for the user and the project,
+- the worst-case charge of a failed call (D-225), and the flag `Unsettled` of a cost record when the charge does not reach the store,
+- a `context.Context` in `ai.CapHook`, and an error from its settle function,
+- the cap text of `go/internal/ai/cost.go`, `go/internal/ai/doc.go`, and `go/README.md`.
 
-The browser tests of `web/e2e/profile.spec.ts` hold the acceptance story. The other browser tests save a profile through the API first, with `makeOwner`. `make web` and `make verify` passed.
+The emulator tests of `go/internal/capstore/firestore_emulator_test.go` hold the acceptance story. After a restart, a planner call over the cap gets `capped`, and no call reaches the fake provider. `make go-test` and `make emulator-test` passed.
 
-Codex review of GitHub PR #25 approves effective head `c39fe5584197b6dd0c48e2cae39046a9a739aeba` with no open findings. The review record is `docs/reviews/pr-25.md`.
-
-Next action: get the owner confirmation and merge. After the merge, read the deploy of the web app first. Then start PR-25, the lasting AI cap store, in a clean session.
+Next action: push, open the pull request, wait for CI, and run the Codex review.
 
 ## Facts that expire
 
@@ -42,7 +40,8 @@ Next action: get the owner confirmation and merge. After the merge, read the dep
 | The bucket `nk-workout-app-prod-deploy-lock` exists, and each deployer account holds `roles/storage.objectUser` on it alone. | 2026-09-29 | `gcloud storage buckets describe`, `get-iam-policy` |
 | `workout-app-prod` is in use by another Google Cloud project. | 2026-09-29 | `gcloud projects create` |
 | The old project `gym-route-dev` is `DELETE_REQUESTED` since 2026-09-30T03:19:47Z. `gcloud projects undelete` can restore it for 30 days. Its site still gave HTTP 200 at 04:38:56Z. | 2026-09-30 | `gcloud projects describe`, `curl` |
-| The live `/version` and the live `/version.json` name `2e22c2774dff177363d6d049b070429300a61054`, from the builds `deploy-api` `d2933354` and `deploy-web` `7285d93d`. The rules release of `df79c16` has the update time 02:33:00Z, read 2026-09-30. | 2026-10-02 | `curl`, `gcloud builds list` |
+| The live `/version` names `2e22c2774dff177363d6d049b070429300a61054`, from the build `deploy-api` `d2933354`. The live `/version.json` names `a1b88d40c8c6c65d8fc958abff94453cbbf6687d`, from the build `deploy-web` `b57b45ae`. The rules release of `df79c16` has the update time 02:33:00Z, read 2026-09-30. | 2026-10-02 | `curl`, `gcloud builds list` |
+| In the Firestore emulator v1.22.0, 10 transactions at the same time on one document abort with "Transaction lock timeout" after about 3 s, and the Go client tries again. With 5 attempts, a test of 10 transactions took up to 19 s. | 2026-10-02 | `go/internal/capstore/firestore_emulator_test.go` |
 | `api-runtime` holds `roles/datastore.user`, and no other project role. | 2026-10-02 | `gcloud projects get-iam-policy` |
 | With `context.setOffline(true)` of Playwright 1.63.0, a call of the API fails in WebKit and in Chromium. Connect gives the code `unknown` with a `TypeError` as its cause. | 2026-10-02 | `web/e2e/inventory.spec.ts` |
 | `rules-deployer` holds `roles/firebaserules.admin`, `roles/serviceusage.serviceUsageViewer`, and `roles/logging.logWriter`. | 2026-09-30 | `gcloud projects get-iam-policy` |
@@ -66,11 +65,27 @@ Next action: get the owner confirmation and merge. After the merge, read the dep
 
 ## Next steps, in order
 
-1. Close PR-24: CI, the Codex review, the owner confirmation, and the merge.
-2. Read the deploy of the web app of the merge of PR-24 (D-137).
-3. Start PR-25, the lasting AI cap store, in a clean session (D-189, D-207). The owner approves its milestone first (D-12).
+1. Close PR-25: CI, the Codex review, the owner confirmation, and the merge.
+2. Read the deploy of the API of the merge of PR-25 (D-137).
+3. Start PR-26, the plan API, in a clean session (D-207). The owner approves its milestone first (D-12).
 
 ## Session records
+
+### Session 26 - 2026-10-02
+
+Author provider: Claude Code
+
+Branch: `feat/pr-25-cap-store`. Role: author.
+
+Completed:
+
+- Read the deploy of `a1b88d4`.
+- The owner approved the milestone before the first edit (D-12), and answered Q-238 and Q-239 (D-224, D-225).
+- Wrote the lasting cap hook, with unit tests and emulator tests. Changed the cap hook interface of `go/internal/ai`, the design, both roadmaps, the registers, `go/README.md`, and `AGENTS.md`.
+
+Open work:
+
+- The Codex review, the owner confirmation, and the merge of PR-25.
 
 ### Session 25 - 2026-10-02
 
@@ -86,7 +101,7 @@ Completed:
 
 Open work:
 
-- The Codex review, the owner confirmation, and the merge of PR-24.
+- None. GitHub PR 25 merged as `a1b88d4`.
 
 ### Session 24 - 2026-10-02
 
@@ -104,19 +119,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 24 merged as `2e22c27`.
-
-### Session 23 - 2026-10-02
-
-Author provider: Claude Code
-
-Branch: `docs/pr-22-phase-5-roadmap`. Role: author.
-
-Completed:
-
-- Read the deploy of `e010746` and the role of `api-runtime`. The owner gave the result of the iPhone check, and it passed (D-203).
-- The owner approved the milestone before the first edit (D-12), and answered Q-221 to Q-226 (D-207 to D-212).
-- Wrote the Phase 5 focused roadmap. Changed the high-level roadmap, the design, the registers, and `AGENTS.md`.
-
-Open work:
-
-- None. GitHub PR 23 merged as `8ccf95d`.
