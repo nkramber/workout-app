@@ -31,8 +31,9 @@ func fullPlan() Plan {
 		Filtered: []ai.Filtered{{Where: "summary", Rule: ai.FilterDiet}},
 		Sessions: []Session{{
 			Title: "Session 1", WarmUp: ai.DefaultWarmUp, CoolDown: ai.DefaultCoolDown,
-			Exercises: []Exercise{{Target: target, Reason: "rules reason", Record: rec}},
-			Cardio:    &domain.PlannedCardio{Exercise: "treadmill", Minutes: 10},
+			Exercises: []Exercise{{Target: target, Reason: "rules reason", Record: rec,
+				Calibration: []policy.CalibrationLoads{{Weight: 700, Down: 650, Keep: 700, UpOne: 750, UpTwo: 800}, {Weight: 725, Down: 650, Keep: 700, UpOne: 750, UpTwo: 800}}}},
+			Cardio: &domain.PlannedCardio{Exercise: "treadmill", Minutes: 10},
 		}, {Title: "Session 2", WarmUp: "warm_up.light_sets", CoolDown: "cool_down.stretch",
 			Exercises: []Exercise{{Target: target, Reason: "r", Record: policy.Record{Source: policy.SourceLuna, Target: target}}}}},
 		Model: "m", Effort: "medium", PromptVersion: ai.PromptVersion, PromptHash: "h", SchemaName: ai.SchemaName,

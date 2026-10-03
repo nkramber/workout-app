@@ -670,37 +670,37 @@ func TestPropertyStart(t *testing.T) {
 	}
 }
 
-// Each step of a calibration is an available weight that D-149 selects,
-// at most 3 changes of at most two 5 lb steps each (D-150).
-func TestPropertyCalibrate(t *testing.T) {
+// Each row of the calibration table is for an available weight. Each
+// load is an available weight that D-149 selects, and each change is at
+// most two 5 lb steps in its direction (D-150, D-267).
+func TestPropertyCalibrationTable(t *testing.T) {
 	g := newGen(12)
 	for i := range propertyRuns {
 		e := g.exercises[g.pick(len(g.exercises))]
 		in := Input{Exercise: e, Entry: g.entry(e)}
 		available := in.Entry.Available()
-		loads := validLoads(available)
-		first := loads[g.pick(len(loads))]
-		var sets []domain.SetLog
-		for range g.pick(6) {
-			s := domain.SetLog{Kind: domain.SetCalibration, Reps: 8, Weight: first, RIR: g.pick(9)}
-			if g.pick(6) == 0 {
-				p := domain.Pain(g.pick(11))
-				s.Pain = &p
-			}
-			sets = append(sets, s)
-		}
-		c, err := Calibrate(in, first, sets)
+		table, err := CalibrationTable(in)
 		if err != nil {
-			t.Fatalf("run %d: Calibrate: %v", i, err)
+			t.Fatalf("run %d: CalibrationTable: %v", i, err)
 		}
-		if !slices.Contains(available, c.Load) || !Valid(c.Load, available) {
-			t.Fatalf("run %d: load %s is not a valid weight", i, c.Load)
+		if len(table) != len(available) {
+			t.Fatalf("run %d: %d rows for %d weights", i, len(table), len(available))
 		}
-		if c.Changes > CalibrationChanges || c.Changes > len(sets) || c.Load > first+2*Step*domain.Load(c.Changes) {
-			t.Fatalf("run %d: %d changes from %s to %s with %d sets", i, c.Changes, first, c.Load, len(sets))
-		}
-		if c.Again && c.Changes == CalibrationChanges {
-			t.Fatalf("run %d: one more set after %d changes", i, c.Changes)
+		for k, c := range table {
+			if c.Weight != available[k] {
+				t.Fatalf("run %d: row %d is for %s, want %s", i, k, c.Weight, available[k])
+			}
+			for _, l := range []domain.Load{c.Down, c.Keep, c.UpOne, c.UpTwo} {
+				if !slices.Contains(available, l) || !Valid(l, available) {
+					t.Fatalf("run %d: load %s is not a valid weight", i, l)
+				}
+			}
+			if Valid(c.Weight, available) && c.Keep != c.Weight {
+				t.Fatalf("run %d: keep %s for the valid weight %s", i, c.Keep, c.Weight)
+			}
+			if c.Down > c.Keep || c.UpOne < c.Keep || c.UpTwo < c.UpOne || c.UpOne > c.Keep+Step || c.UpTwo > c.Keep+2*Step {
+				t.Fatalf("run %d: loads %+v", i, c)
+			}
 		}
 	}
 }

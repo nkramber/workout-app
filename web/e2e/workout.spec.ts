@@ -116,16 +116,23 @@ test("the plus and minus buttons change the reps and step the weight on the list
   await expect(logger(page).getByTestId("reps")).toHaveText(String(reps - 1));
 
   // Pain and a note are behind one tap (D-57, D-162). A pain report gives
-  // the warning of D-169.
+  // the warning of D-169. The first set of a new exercise is the
+  // calibration set, so it offers 0 to 6+ (D-268).
+  await expect(logger(page).getByTestId("set-label")).toHaveText("Calibration set 1 of 1");
   await button(page, "Add pain or a note").click();
   await button(page, "Pain 3").click();
   await logger(page).getByLabel("Note (optional)").fill("Synthetic note.");
-  await button(page, "4+ in reserve").click();
+  await expect(button(page, "4+ in reserve")).toHaveCount(0);
+  await button(page, "4 in reserve").click();
   await expect(page.getByRole("alertdialog").getByTestId("warning-text")).toHaveText("You reported pain. Stop this exercise.");
   await button(page, "Continue the workout").click();
   await expect(exercise(page, "chest_press").getByTestId("logged-sets")).toContainText(
-    `${reps - 1} reps at ${final} lb, 4+ in reserve, pain 3`,
+    `${reps - 1} reps at ${final} lb, 4 in reserve, pain 3`,
   );
+  // A working set offers 0 to 4+ (D-249).
+  await expect(logger(page).getByTestId("set-label")).toHaveText("Set 1 of 3");
+  await expect(button(page, "4+ in reserve")).toBeVisible();
+  await expect(button(page, "6+ in reserve")).toHaveCount(0);
 });
 
 test("the cardio log holds the duration and the effort, and the optional fields", async ({ page, request }, info) => {
@@ -162,7 +169,7 @@ test("finish now skips the exercises with no set, and the next session comes nex
 
   await button(page, "Finish now").click();
   await expect(page.getByRole("alertdialog").getByTestId("finish-text")).toHaveText(
-    "1 exercise has no logged set. It counts as skipped, and the workout ends early.",
+    "2 exercises have a set with no log, so the workout ends early. An exercise with no logged set counts as skipped.",
   );
   await page.getByRole("alertdialog").getByRole("button", { name: "Finish now", exact: true }).click();
   await expect(button(page, "Workout")).toBeVisible();
@@ -209,4 +216,196 @@ test("the plan screen refuses a new plan and an exclusion during a workout", asy
   await button(page, "Plan").click();
   await expect(page.getByTestId("workout-lock")).toHaveCount(0);
   await expect(button(page, "Make a new plan")).toBeEnabled();
+});
+
+// The rest timer, the preview, and the automatic advance of work area 6.2.
+// The fake plan starts the chest press at the lightest weight, 10 lb,
+// with one calibration set and 3 working sets, and a rest of 2 minutes
+// (D-150, D-172).
+
+// lock sends the app to the back as a screen lock does, moves the clock
+// of the page by ms with no timer, and brings the app back. The phone
+// runs no timer during a lock, so the timer must read its stored end
+// time (D-270).
+async function lockFor(page: Page, ms: number) {
+  const visibility = (state: "hidden" | "visible") =>
+    page.evaluate((s) => {
+      Object.defineProperty(document, "visibilityState", { configurable: true, get: () => s });
+      document.dispatchEvent(new Event("visibilitychange"));
+    }, state);
+  await visibility("hidden");
+  const now = await page.evaluate(() => Date.now());
+  await page.clock.setSystemTime(now + ms);
+  await visibility("visible");
+}
+
+const restLeft = (page: Page) => page.getByTestId("rest-timer").getByTestId("rest-left");
+
+// The acceptance story of PR-31: the timer shows the correct time after a
+// screen lock and a return, and the advance comes after the last set.
+test("the rest timer is correct after a screen lock, and the next machine comes after the last set", async ({ page, request }, info) => {
+  const email = uniqueEmail("workout-rest", info);
+  await makePlanOwner(request, email, MACHINES);
+  await page.clock.install();
+  await openWithPlan(page, email);
+  await button(page, "Workout").click();
+  await button(page, "Start Session 1").click();
+  await expect(page.getByTestId("rest-timer")).toHaveCount(0);
+
+  // The log of a set starts the timer with the rest of the target (D-59).
+  await button(page, "3 in reserve").click();
+  await expect(restLeft(page)).toHaveText(/^(2:00|1:59)$/);
+  await expect(page.getByTestId("rest-state")).toHaveText("Rest");
+
+  // A lock of 75 s leaves 45 s.
+  await lockFor(page, 75_000);
+  await expect(restLeft(page)).toHaveText(/^0:4[3-5]$/);
+
+  // The controls of D-270.
+  await button(page, "15 seconds more rest").click();
+  await expect(restLeft(page)).toHaveText(/^(0:5[89]|1:00)$/);
+  await button(page, "15 seconds less rest").click();
+  await expect(restLeft(page)).toHaveText(/^0:4[3-5]$/);
+
+  // The end is a visual cue alone (D-58).
+  await lockFor(page, 60_000);
+  await expect(restLeft(page)).toHaveText("0:00");
+  await expect(page.getByTestId("rest-state")).toHaveText("Rest done");
+  await expect(page.getByTestId("rest-timer")).toHaveAttribute("data-done", "true");
+  await button(page, "Dismiss").click();
+  await expect(page.getByTestId("rest-timer")).toHaveCount(0);
+
+  // The 3 working sets. After the last one, the preview shows the next
+  // machine, and the rest timer runs (D-60, D-269).
+  for (let i = 1; i <= 3; i++) {
+    await expect(logger(page).getByTestId("set-label")).toHaveText(`Set ${i} of 3`);
+    await button(page, "3 in reserve").click();
+  }
+  const preview = page.getByTestId("next-preview");
+  await expect(preview.getByTestId("preview-done")).toHaveText("Chest press is done.");
+  await expect(preview.getByTestId("preview-next")).toHaveText("Next: Seated row");
+  await expect(preview.getByTestId("preview-seconds")).toHaveText(/^The next machine shows in (10|9) s\.$/);
+  await expect(logger(page)).toHaveCount(0);
+  await expect(page.getByTestId("rest-state")).toHaveText("Rest");
+
+  // The automatic advance after 10 s.
+  await page.clock.fastForward(10_000);
+  await expect(preview).toHaveCount(0);
+  await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Seated row");
+  await expect(restLeft(page)).toHaveText(/^1:[45]\d$/);
+});
+
+// The calibration step of D-267 with no network: 6+ reps in reserve on
+// the calibration set at 10 lb give two 5 lb steps, and the machine has
+// 20 lb. "Go now" advances at once, and a logged set can be edited.
+test("the calibration set gives the working load with no network, go now advances, and a set can be edited", async ({ page, context, request }, info) => {
+  const email = uniqueEmail("workout-calibration", info);
+  await makePlanOwner(request, email, MACHINES);
+  await openWithPlan(page, email);
+  await button(page, "Workout").click();
+  await button(page, "Start Session 1").click();
+  await expect(logger(page).getByTestId("set-target")).toContainText("at 10 lb");
+  await context.setOffline(true);
+
+  await button(page, "6+ in reserve").click();
+  await expect(logger(page).getByTestId("set-label")).toHaveText("Set 1 of 3");
+  await expect(logger(page).getByTestId("set-target")).toContainText("at 20 lb");
+  await expect(logger(page).getByTestId("weight")).toHaveText("20 lb");
+  await expect(logger(page).getByTestId("calibration-note")).toHaveText("The calibration set gave this load.");
+  for (let i = 1; i <= 3; i++) await button(page, "3 in reserve").click();
+  await expect(page.getByTestId("next-preview")).toBeVisible();
+  await button(page, "Go now").click();
+  await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Seated row");
+
+  // The edit of the calibration set keeps its kind and its place (D-63).
+  const rows = exercise(page, "chest_press").getByTestId("logged-text");
+  await expect(rows.first()).toContainText("Calibration: ");
+  await expect(rows.first()).toContainText("at 10 lb, 6+ in reserve");
+  await button(page, "Edit set 1 of Chest press").click();
+  const dialog = page.getByRole("alertdialog");
+  await expect(dialog.getByRole("button", { name: "6+ in reserve", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await dialog.getByRole("button", { name: "More reps", exact: true }).click();
+  await dialog.getByRole("button", { name: "5 in reserve", exact: true }).click();
+  await dialog.getByRole("button", { name: "Save the change", exact: true }).click();
+  await expect(page.getByRole("alertdialog")).toHaveCount(0);
+  await expect(rows.first()).toContainText("at 10 lb, 5 in reserve");
+  await expect(rows).toHaveCount(4);
+
+  const sets = await page.evaluate(async () => (await window.workoutAppE2E!.pendingOutbox()).filter((e) => e.entity === "set"));
+  const firstId = sets[0].entityId;
+  expect(sets.filter((e) => e.entityId === firstId)).toHaveLength(2);
+  expect(sets.at(-1)!.payload).toMatchObject({ kind: "calibration", rir: 5 });
+  await context.setOffline(false);
+});
+
+// The acceptance story of PR-31: a skip and "finish now" give the correct
+// session log (D-63, D-170).
+test("a skip and finish now give the correct session log", async ({ page, request }, info) => {
+  const email = uniqueEmail("workout-skip", info);
+  await makePlanOwner(request, email, MACHINES);
+  await openWithPlan(page, email);
+  await button(page, "Workout").click();
+  await button(page, "Start Session 1").click();
+
+  await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Chest press");
+  await button(page, "Skip this exercise").click();
+  await expect(page.getByRole("alertdialog").getByRole("heading")).toHaveText("Skip Chest press?");
+  await page.getByRole("alertdialog").getByRole("button", { name: "Skip", exact: true }).click();
+  await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Seated row");
+  await expect(exercise(page, "chest_press").getByTestId("exercise-skipped")).toHaveText("Skipped");
+
+  // The table applies to the weight that the owner logged (D-249, D-267):
+  // 20 lb in place of 10 lb, at 6+ reps in reserve, gives 30 lb.
+  await button(page, "Heavier").click();
+  await expect(logger(page).getByTestId("weight")).toHaveText("20 lb");
+  await button(page, "6+ in reserve").click();
+  await expect(logger(page).getByTestId("set-target")).toContainText("at 30 lb");
+  await button(page, "Finish now").click();
+  await expect(page.getByRole("alertdialog").getByTestId("finish-text")).toHaveText(
+    "1 exercise has a set with no log, so the workout ends early.",
+  );
+  await page.getByRole("alertdialog").getByRole("button", { name: "Finish now", exact: true }).click();
+  await expect(button(page, "Workout")).toBeVisible();
+
+  const log = await page.evaluate(async () => ({
+    workouts: (await window.workoutAppE2E!.workouts()).map((w) => ({ finished: w.finished, endedEarly: w.endedEarly, skipped: w.skippedExerciseIds })),
+    sets: (await window.workoutAppE2E!.sets()).map((s) => ({ exerciseId: s.exerciseId, kind: s.kind })),
+    headers: (await window.workoutAppE2E!.pendingOutbox())
+      .filter((e) => e.entity === "workout")
+      .map((e) => e.payload as { skippedExerciseIds?: string[]; endedEarly?: boolean; finished?: boolean }),
+  }));
+  expect(log.workouts).toEqual([{ finished: true, endedEarly: true, skipped: ["chest_press"] }]);
+  expect(log.sets).toEqual([{ exerciseId: "seated_row", kind: "calibration" }]);
+  expect(log.headers).toHaveLength(3);
+  expect(log.headers[1]).toMatchObject({ skippedExerciseIds: ["chest_press"] });
+  expect(log.headers[2]).toMatchObject({ skippedExerciseIds: ["chest_press"], endedEarly: true, finished: true });
+});
+
+// D-271: the notice names the error, and a tap gets the lock again. The
+// fake lock of this test refuses each request until the test allows it.
+test("a refused wake lock shows the error name, and a tap gets the lock again", async ({ page, request }, info) => {
+  const email = uniqueEmail("workout-wake", info);
+  await makePlanOwner(request, email, MACHINES);
+  await page.addInitScript(() => {
+    const w = window as unknown as { wakeRefuse: boolean; wakeRequests: number };
+    w.wakeRefuse = true;
+    w.wakeRequests = 0;
+    const fake = {
+      request: async () => {
+        w.wakeRequests++;
+        if (w.wakeRefuse) throw new DOMException("refused", "NotAllowedError");
+        return { released: false, release: async () => {}, addEventListener: () => {} };
+      },
+    };
+    Object.defineProperty(navigator, "wakeLock", { configurable: true, get: () => fake });
+  });
+  await openWithPlan(page, email);
+  await button(page, "Workout").click();
+  await button(page, "Start Session 1").click();
+  await expect(page.getByTestId("wake-off")).toContainText("The screen can turn off. Tap the screen to try again.");
+  await expect(page.getByTestId("wake-error")).toHaveText("(NotAllowedError)");
+
+  await page.evaluate(() => ((window as unknown as { wakeRefuse: boolean }).wakeRefuse = false));
+  await page.getByRole("heading", { name: "Session 1", exact: true }).click();
+  await expect(page.getByTestId("wake-off")).toHaveCount(0);
 });

@@ -164,6 +164,11 @@ func (s *Server) toProto(p plan.Plan) *workoutappv1.Plan {
 			for _, w := range t.Working {
 				pe.WorkingSets = append(pe.WorkingSets, &workoutappv1.PlannedSet{Reps: int32(w.Reps), LoadTenthLb: int32(w.Load), RirTarget: int32(w.RIR)})
 			}
+			for _, c := range e.Calibration {
+				pe.CalibrationLoads = append(pe.CalibrationLoads, &workoutappv1.CalibrationLoads{
+					WeightTenthLb: int32(c.Weight), DownTenthLb: int32(c.Down), KeepTenthLb: int32(c.Keep), UpOneTenthLb: int32(c.UpOne), UpTwoTenthLb: int32(c.UpTwo),
+				})
+			}
 			ps.Exercises = append(ps.Exercises, pe)
 		}
 		if c := sess.Cardio; c != nil {

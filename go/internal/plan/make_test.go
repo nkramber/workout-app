@@ -193,6 +193,23 @@ func TestCorePlan(t *testing.T) {
 			if e.Target.Exercise == "chest_press" && e.Target.Working[0].Load != domain.Pounds(70) {
 				t.Fatalf("chest press %+v, want 70 lb from an estimate of 100 lb", e.Target.Working)
 			}
+			// Each calibration set gets a row of the table for each
+			// weight of the machine (D-267).
+			if len(e.Target.Calibration) != 1 || len(e.Calibration) < 2 {
+				t.Fatalf("%s: calibration %+v and table %+v", e.Target.Exercise, e.Target.Calibration, e.Calibration)
+			}
+			found := false
+			for k, c := range e.Calibration {
+				if k > 0 && c.Weight <= e.Calibration[k-1].Weight {
+					t.Fatalf("%s: the rows are not in the order of the weights: %+v", e.Target.Exercise, e.Calibration)
+				}
+				if c.Weight == e.Target.Calibration[0].Load {
+					found = c.Keep == c.Weight
+				}
+			}
+			if !found {
+				t.Fatalf("%s: no row keeps the calibration load %s", e.Target.Exercise, e.Target.Calibration[0].Load)
+			}
 		}
 	}
 

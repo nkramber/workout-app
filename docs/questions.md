@@ -483,6 +483,17 @@ The live check of D-203 failed on 2026-10-02. The app showed "The API did not an
 | Q-278 | Which step do the plus and minus buttons of the weight use (D-249)? | The next weight of the list of the machine. | Answered | D-264 |
 | Q-279 | How does the app keep the screen on during a workout? | The Screen Wake Lock API, with a notice when the phone refuses it. | Answered | D-265 |
 
+## Questions of the rest timer session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-280 | The calibration set does not change the load of the working sets on the workout screen. Where does the app apply the step of the policy? | In PR-31. | Answered | D-266 |
+| Q-281 | After a calibration set that is not on target, does the owner do one more calibration set (D-150)? | No. One calibration set, and the table gives the load of the working sets one time. | Answered | D-267 |
+| Q-282 | The set log offers 0 to 4+ reps in reserve, and the table of D-150 needs 5 and 6+. Which buttons does a calibration set show? | 0 to 6+ on a calibration set alone. | Answered | D-268 |
+| Q-283 | How long does the preview of the next machine show before the automatic advance (D-60)? | 10 seconds, with "Go now". | Answered | D-269 |
+| Q-284 | Which controls does the rest timer have (D-59)? | "-15 s", "+15 s", and "Dismiss". | Answered | D-270 |
+| Q-285 | The screen showed "The screen can turn off." after the owner left the app and came back. How does the app get the lock again? | At each tap, focus, `pageshow` event, and return, with the error name in the notice. | Answered | D-271 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |

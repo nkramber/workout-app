@@ -75,6 +75,20 @@ The session stated the expected cost of one live plan at xhigh with `luna-prompt
 
 Each of the 12 exercises had the reason "The exercise log has a gap". The owner has no log yet, so each exercise had its start target (D-150). The evidence list of prompt v4 had no item for a new exercise, so Luna named a gap. Prompt v5 of PR-30 corrects the reason (D-262).
 
+### 1.6 The live check of prompt v5
+
+The session of PR-31 read these facts on 2026-10-03:
+
+- PR-30 merged to `main` as `eaa18b6`.
+- The build `deploy-web` `247ef56d` gave SUCCESS at 16:03:37Z. The build `deploy-api` `715c817d` gave SUCCESS at 16:05:29Z.
+- The live `/version` and the live `/version.json` both named `eaa18b6`, and the revision `api-00016-c2h` served all traffic (D-137).
+
+The session stated the expected cost of one live plan at xhigh with `luna-prompt-v5`, and the owner approved it (D-212). At 16:48Z the owner requested one plan on the iPhone. The API made 1 planner call at xhigh, with the status `ok` and a cost of 0.0019 USD. The plan has 2 sessions with 5 and 4 exercises, 1 attempt, and 25 minutes of cardio in each session (D-255).
+
+The reason of each of the 9 exercises is "This exercise is new.", with no gap, so prompt v5 corrects the reason (D-262). The owner saw the wake lock hold, and logged a set on the iPhone.
+
+The owner then found two faults on the workout screen of PR-30. First, a calibration set did not change the load of the working sets, so it was only one more set. Second, the screen showed "The screen can turn off." after the owner left the app and came back. PR-31 holds both corrections (D-266 to D-268, D-271).
+
 ## 2. Owner answers for this phase
 
 | Question | Answer | Decision |
@@ -103,8 +117,14 @@ Each of the 12 exercises had the reason "The exercise log has a gap". The owner 
 | Q-277, the symptoms and the warnings | Seven symptoms. "You reported <symptom>. Stop this exercise." | D-263 |
 | Q-278, the step of the weight buttons | The next weight of the list of the machine. | D-264 |
 | Q-279, the wake lock | The Screen Wake Lock API, with a notice when the phone refuses it. | D-265 |
+| Q-280, the place of the calibration step | PR-31. | D-266 |
+| Q-281, the count of calibration sets | One. The table gives the load of the working sets one time. | D-267 |
+| Q-282, the reps in reserve of a calibration set | 0 to 6+. A working set keeps 0 to 4+. | D-268 |
+| Q-283, the time of the preview | 10 seconds, with "Go now". | D-269 |
+| Q-284, the controls of the timer | "-15 s", "+15 s", and "Dismiss". | D-270 |
+| Q-285, the wake lock after a return | A request at each tap, focus, `pageshow` event, and return. | D-271 |
 
-No open question blocks PR-31 or PR-32. Section 4 names the questions that each session asks. Q-194 and Q-202 stay open for Phase 7. Q-103 stays open for the deferred photo work.
+No open question blocks PR-32. Section 4 names the questions that each session asks. Q-194 and Q-202 stay open for Phase 7. Q-103 stays open for the deferred photo work.
 
 ## 3. Rules for each pull request of this phase
 
@@ -199,18 +219,22 @@ Branch: `feat/pr-31-rest-timer`. Work area 6.2. It needs PR-30 on `main`.
 
 Concerns:
 
-- the rest timer from a stored end time. It starts when the owner logs a set, and the owner can change or dismiss it (D-59). The rest comes from the target (D-172),
-- the preview of the next machine after the last set of an exercise, then the automatic advance (D-60),
-- the edit of a logged set and the skip of an exercise (D-63, D-170). PR-30 gives "finish now", which ends the session early,
-- visual cues alone, and no notification (D-58, D-61).
+- the rest timer from a stored end time. It starts when the owner logs a set, and the owner can change or dismiss it with "-15 s", "+15 s", and "Dismiss" (D-59, D-270). The rest comes from the target (D-172),
+- the preview of the next machine for 10 seconds after the last set of an exercise, with "Go now", then the automatic advance (D-60, D-269),
+- the edit of a logged set and the skip of an exercise, each with its outbox entry (D-63, D-170, D-132). "Finish now" ends the session early when an exercise that the owner did not skip has a set with no log,
+- visual cues alone, and no notification (D-58, D-61),
+- the calibration step on the workout screen: one calibration set, and the table of D-150 gives the load of the working sets one time. A calibration set offers 0 to 6+ reps in reserve. The plan holds the 4 loads for each weight of the machine. The phone needs no network, and the policy goes to version 4 (D-266 to D-268),
+- the wake lock: a request at each tap, focus, `pageshow` event, and return, with the error name in the notice (D-271).
 
-Acceptance story: the UI tests prove that the timer shows the correct time after a screen lock and a return. The advance comes after the last set. A skip and "finish now" give the correct session log.
+Acceptance story: the UI tests prove that the timer shows the correct time after a screen lock and a return. The advance comes after the last set. A skip and "finish now" give the correct session log. After a calibration set, the working sets show the load of the calibration table with no network. A refused wake lock comes back at the next tap.
 
-Before the work, the session reads the deploys of PR-30. Then one live plan of `luna-prompt-v5` checks the reason of a new exercise (D-212, D-262).
+Before the work, the session read the deploys of PR-30. Then one live plan of `luna-prompt-v5` checked the reason of a new exercise (D-212, D-262). Section 1.6 records the check.
 
-Checks: `make web` and `make verify`, free. Codex reviews PR-31.
+Checks: `make contract`, `make go-test`, `make emulator-test`, `make web`, and `make verify`, free. Codex reviews PR-31.
 
-Questions for the session: the time of the preview before the advance, and the controls of the timer.
+After the deploy of the merge, the owner checks the wake lock after a return to the app. The owner also logs one calibration set on the iPhone.
+
+The owner answered the questions of the session: Q-280 to Q-285 (D-266 to D-271).
 
 ### PR-32 - The outbox sync
 
@@ -237,6 +261,6 @@ Questions for the session: the confirmation of a machine with no connection (D-2
 Phase 6 ends when PR-32 merges and the device check passes. These items give the exit evidence of `docs/roadmaps/high-level-roadmap.md`:
 
 - The browser tests of PR-30 log a set in three taps or fewer.
-- The UI tests of PR-31 prove that the timer shows the correct time after a screen lock. The advance comes after the last set.
+- The UI tests of PR-31 prove that the timer shows the correct time after a screen lock. The advance comes after the last set. A calibration set gives the load of the working sets with no network.
 - The offline tests of PR-32 replay a full workout with a dropped connection and a stop of the app. The server holds each set one time.
 - After the deploy of PR-32, the owner completes a full workout on the iPhone with no connection. The logs reach Firestore when the app is open and online again.

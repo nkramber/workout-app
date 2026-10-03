@@ -69,10 +69,14 @@ type Session struct {
 
 // Exercise is the final target of one exercise of a session, with the
 // reason for the owner and the decision record of the policy (D-176).
+// Calibration holds the loads of the working sets after a calibration
+// set at each weight of the machine, and it is nil when the target has no
+// calibration set (D-267).
 type Exercise struct {
-	Target domain.PlannedExercise
-	Reason string
-	Record policy.Record
+	Target      domain.PlannedExercise
+	Reason      string
+	Record      policy.Record
+	Calibration []policy.CalibrationLoads
 }
 
 // MaxReasonRunes is the length limit of the reason of an exclusion, in

@@ -292,7 +292,7 @@ How the policy bounds the user estimates of D-32 (assumption unless a source is 
 4. The first exposure to each machine is one calibration set at the target reps.
 5. The app cues a stop at 3 or more reps in reserve (D-37). The raw synthesis suggested 3-4 RIR.
 6. The user logs reps and RIR (D-57). The policy adjusts with the table below.
-7. The policy allows at most 3 calibration adjustments per machine per session. Calibration never becomes a max test.
+7. The policy allows at most 3 calibration adjustments per machine per session. Calibration never becomes a max test. The owner later set one calibration set and one adjustment for each session (D-267).
 8. The load stays "calibrating" for 1-2 more sessions.
 9. The app never shows an estimated 1RM as a fact (EV-48).
 
