@@ -2,7 +2,7 @@
 
 This roadmap gives the path from a blank repository to a safe, useful Workout App for its one user, the owner (D-67). It names the phases, their order, the risk work, the outcomes, the work areas of pull request size, and the exit evidence of each phase. It is not a plan of tasks. A focused roadmap turns one phase into tasks later. `docs/roadmaps/README.md` gives the rules for focused roadmaps.
 
-The date of this version is 2026-10-02. `docs/design.md` holds the product design. `docs/decisions.md` and `docs/questions.md` hold every decision and question that this roadmap cites.
+The date of this version is 2026-10-03. `docs/design.md` holds the product design. `docs/decisions.md` and `docs/questions.md` hold every decision and question that this roadmap cites.
 
 ## 1. Rules of this roadmap
 
@@ -115,7 +115,7 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 |---|---|---|
 | 3.1 Domain model and catalog | Machines, exercises, inventory, plan, session, and set log. The catalog of D-155: machines, two cable exercises, dumbbells, and cardio machines (D-154). The cardio log fields of D-123. Machines with pound markings only (D-122). | Table tests for every type and for the catalog lookups. |
 | 3.2 Policy engine and fallback | Rep, reps-in-reserve, rest, and load bounds (D-37). The 5 lb rounding of D-65, with D-148 and D-149, and the one 5 lb step of D-147. The rules fallback. | Golden scenario tests pass, section 5 scenarios included. Property tests prove that no output breaks a bound. |
-| 3.3 Luna role layer | Planner and reviser roles on `gpt-6-luna` at medium effort. The fake provider. Cost records, cap hooks, and a prompt that keeps text inside the fitness boundary (D-36, Q-95, Q-101). | Fake-provider tests cover a valid proposal, a malformed proposal, an unsafe proposal, and a timeout. |
+| 3.3 Luna role layer | Planner and reviser roles on `gpt-6-luna` at medium effort, then xhigh (D-253). The fake provider. Cost records, cap hooks, and a prompt that keeps text inside the fitness boundary (D-36, Q-95, Q-101). | Fake-provider tests cover a valid proposal, a malformed proposal, an unsafe proposal, and a timeout. |
 
 **Decisions and questions.** D-22 to D-25, D-30, D-32, D-36 to D-38, D-40, D-43, D-45, D-64 to D-66, D-122, D-123, D-147 to D-158, D-184 to D-187, Q-92, Q-95, Q-100 to Q-102, Q-104 to Q-107.
 
@@ -161,11 +161,11 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 
 | Work area | Concerns | Exit evidence |
 |---|---|---|
-| 6.1 Workout screen and set log | Set log of D-57. Visual cues only (D-58). Warning flow of D-40. Wake lock. | The owner logs a set in three taps or fewer. UI tests pass. |
+| 6.1 Workout screen and set log | The workout log API and store with idempotent sync (D-247). The start of D-248, and the set log of D-57 and D-249. Visual cues only (D-58). Warning flow of D-40 and D-251. No plan request during a workout (D-252). Wake lock. | The owner logs a set in three taps or fewer. UI tests pass. |
 | 6.2 Rest timer and automatic advance | Timer from a stored end time (D-59). Preview, then advance (D-60). Edit, skip, and "finish now" (D-63). | UI tests prove that the timer survives a screen lock and that the advance happens after the last set. |
-| 6.3 Outbox sync | Client operation ids, idempotent unary sync, sync on open, on focus, and on reconnect. | Offline tests replay a full workout with a dropped connection and an app kill, and the server holds each set once. |
+| 6.3 Outbox sync | Client operation ids, idempotent unary sync, sync on open, on focus, and on reconnect. The offline copy and the outbox of the inventory (D-196, D-250). | Offline tests replay a full workout with a dropped connection and an app kill, and the server holds each set once. |
 
-**Decisions and questions.** D-21, D-40, D-57 to D-63, D-70, D-71, D-77.
+**Decisions and questions.** D-21, D-40, D-57 to D-63, D-70, D-71, D-77, D-196, D-247 to D-252, Q-261 to Q-266.
 
 ### Phase 7 - Adaptation loop
 

@@ -22,7 +22,9 @@ This folder holds the web client: the installable shell (work area 2.2), the inv
 
 ## The screen
 
-The viewport meta holds `maximum-scale=1, user-scalable=no`, so a pinch does not zoom the page, as in Decktome (D-120). This fails the WCAG 1.4.4 rule for text resize. The meta also holds `viewport-fit=cover`. The shell uses the dynamic viewport height and pads itself with the safe areas. The main region is the one part that scrolls.
+The viewport meta holds `maximum-scale=1, user-scalable=no`, so a pinch does not zoom the page, as in Decktome (D-120). This fails the WCAG 1.4.4 rule for text resize. The meta also holds `viewport-fit=cover`. In the Home Screen app, the shell takes the screen height, because the dynamic viewport height leaves out the band of the status bar (PR-28).
+
+A browser tab uses the dynamic viewport height. The shell pads itself with the top and side safe areas. The main region is the one part that scrolls, and its bottom padding holds the bottom safe area (`web/src/lib/app-height.ts`).
 
 Since iOS 26, the Home Screen app blurs a band below the status bar, and the page can not turn it off. So the header adds 16 px above the title when a status bar covers the page (D-145).
 
@@ -34,7 +36,7 @@ The home screen opens the equipment inventory (work area 4.1). The screens read 
 
 - The list shows each machine with its state, draft or confirmed, A to Z by name (D-205), and each note.
 - The catalog list shows the machines by kind (D-202), and each kind A to Z by name (D-205). A text searches the names of the machines and of their exercises. The owner selects a match, or keeps the text as a note (D-191).
-- A machine or the cable station gets a range and a step, then single weights (D-195). The dumbbells get the dumbbell set. A cardio machine gets no weights.
+- A machine or the cable station gets a range and a step, and the save makes the list. A later visit adds or removes single weights (D-195, D-245). The dumbbells get the dumbbell set. A cardio machine gets no weights, and its save confirms it (D-246).
 - Each exercise of the machine gets one optional estimate, from the lightest to the heaviest weight (D-192, D-198).
 - The review screen confirms the weights that it shows (D-201), and removes the machine.
 
