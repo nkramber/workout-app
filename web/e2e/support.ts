@@ -49,6 +49,42 @@ export async function makeOwner(request: APIRequestContext, email: string): Prom
   return uid;
 }
 
+// call sends one Connect call to the API with the token of an account.
+async function call(request: APIRequestContext, idToken: string, method: string, data: unknown) {
+  const res = await request.post(`${apiOrigin}/workoutapp.v1.${method}`, {
+    headers: { Authorization: `Bearer ${idToken}` },
+    data,
+  });
+  expect(res.ok(), await res.text()).toBe(true);
+}
+
+// makePlanOwner makes an owner whose profile asks for chest and back work
+// and the treadmill as cardio, on 3 training days. Each machine of the
+// list is saved and confirmed through the API, so a plan can use it
+// (D-193). With no machine, the plan request finds no allowed exercise.
+export async function makePlanOwner(request: APIRequestContext, email: string, machines: string[]): Promise<string> {
+  const { uid, idToken } = await signUp(request, email);
+  await allow(request, uid);
+  await call(request, idToken, "ProfileService/SaveProfile", {
+    profile: {
+      experience: "intermediate",
+      goalTemplate: "general_fitness",
+      muscleGroups: ["chest", "back"],
+      ageYears: 40,
+      heightIn: 70,
+      weightLb: 180,
+      cardioExerciseIds: ["treadmill"],
+      trainingDays: 3,
+    },
+  });
+  for (const machineId of machines) {
+    const weightsTenthLb = machineId === "treadmill" ? [] : Array.from({ length: 20 }, (_, i) => (i + 1) * 100);
+    await call(request, idToken, "InventoryService/SaveMachine", { machineId, weightsTenthLb });
+    await call(request, idToken, "InventoryService/ConfirmMachine", { machineId, weightsTenthLb });
+  }
+  return uid;
+}
+
 // allow writes the allowlist document of a uid (D-131). The emulator
 // accepts the `owner` token as an admin, so no rule blocks the write.
 export async function allow(request: APIRequestContext, uid: string) {

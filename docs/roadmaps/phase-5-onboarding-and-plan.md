@@ -183,7 +183,7 @@ A deploy comes from `main` alone (D-14). So the browser tests are the evidence o
 
 Checks: `make web`, `make verify`, and the Go checks of PR-26 when `go/` changes, free. Codex reviews PR-27.
 
-Questions for the session: the text of each progress step and of each error. The errors are no valid plan after 4 calls, the cap, and no allowed exercise (D-230).
+Questions for the session: the text of each progress step and of each error. The errors are no valid plan after 4 calls, the cap, and no allowed exercise (D-230). The owner answered them as Q-252 and Q-253 (D-239, D-240). The owner also chose the method of the browser tests as Q-254 (D-241).
 
 ## 5. Exit of the phase
 

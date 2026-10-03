@@ -8,14 +8,15 @@ import { loadErrorText } from "./lib/errors";
 import { authErrorCode, signOutOfApp, watchUser } from "./lib/firebase";
 import { HomePage } from "./pages/home";
 import { InventoryPage } from "./pages/inventory";
+import { PlanPage } from "./pages/plan";
 import { ErrorText, secondary } from "./pages/inventory/ui";
 import { ProfilePage } from "./pages/profile";
 import { SignInPage } from "./pages/sign-in";
 import { Shell } from "./shell";
 
 // App shows the sign-in page to a signed-out owner. A signed-in owner gets
-// the home screen, and from it the equipment inventory (work area 4.1)
-// and the profile (work area 5.1).
+// the home screen, and from it the equipment inventory (work area 4.1),
+// the profile (work area 5.1), and the plan (work area 5.2).
 export function App() {
   const queryClient = useQueryClient();
   const [user, setUser] = useState<User | null | undefined>(undefined);
@@ -51,7 +52,7 @@ export function App() {
 // profile in the query cache, so the home screen then shows.
 function SignedIn({ onSignOut }: { onSignOut: () => void }) {
   const profile = useQuery(ProfileService.method.getProfile, {});
-  const [page, setPage] = useState<"home" | "inventory" | "profile">("home");
+  const [page, setPage] = useState<"home" | "inventory" | "profile" | "plan">("home");
 
   if (profile.error) {
     return (
@@ -77,12 +78,15 @@ function SignedIn({ onSignOut }: { onSignOut: () => void }) {
       return <InventoryPage onBack={home} />;
     case "profile":
       return <ProfilePage onBack={home} />;
+    case "plan":
+      return <PlanPage onBack={home} />;
     case "home":
       return (
         <HomePage
           onSignOut={onSignOut}
           onOpenInventory={() => setPage("inventory")}
           onOpenProfile={() => setPage("profile")}
+          onOpenPlan={() => setPage("plan")}
         />
       );
   }

@@ -3,6 +3,7 @@ package ai
 import (
 	"encoding/json"
 	"errors"
+	"slices"
 	"strings"
 	"testing"
 
@@ -106,7 +107,10 @@ func TestParseMalformed(t *testing.T) {
 		{name: "minutes and no cardio", change: func(o map[string]any) {
 			session0(o)["cardio"] = map[string]any{"exercise_id": "", "minutes": 10}
 		}},
-		{name: "empty session", change: func(o map[string]any) { session0(o)["exercises"] = []any{} }},
+		{name: "empty session", change: func(o map[string]any) {
+			session0(o)["exercises"] = []any{}
+			session0(o)["cardio"] = map[string]any{"exercise_id": "", "minutes": 0}
+		}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			text := tc.text
@@ -165,5 +169,45 @@ func TestParseCardioOnly(t *testing.T) {
 	p, err := parse(text, request(t))
 	if err != nil || len(p.Sessions[0].Exercises) != 0 || p.Sessions[0].Cardio == nil {
 		t.Fatalf("plan %+v, err %v", p, err)
+	}
+}
+
+// TestEchoReplyFull: the default reply of the fake gives each part of a
+// plan, so a browser test can show each part (D-44, D-241). With no
+// cardio exercise in the input, it gives no cardio.
+func TestEchoReplyFull(t *testing.T) {
+	req := request(t)
+	req.Sessions = 2
+	for _, tc := range []struct {
+		name   string
+		cardio []domain.ExerciseID
+		want   *domain.PlannedCardio
+	}{
+		{"with cardio", []domain.ExerciseID{"treadmill"}, &domain.PlannedCardio{Exercise: "treadmill", Minutes: EchoCardioMinutes}},
+		{"no cardio", nil, nil},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			req.Cardio = tc.cardio
+			input, err := userInput(req)
+			if err != nil {
+				t.Fatal(err)
+			}
+			r, err := EchoReply(Call{Input: input})
+			if err != nil {
+				t.Fatal(err)
+			}
+			p, err := parse(r.Text, req)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !slices.Equal(p.Guidance, EchoGuidance) || len(p.Sessions) != 2 {
+				t.Fatalf("plan %+v", p)
+			}
+			for i, s := range p.Sessions {
+				if len(s.Exercises) == 0 || (s.Cardio == nil) != (tc.want == nil) || (s.Cardio != nil && *s.Cardio != *tc.want) {
+					t.Fatalf("session %d: %+v", i, s)
+				}
+			}
+		})
 	}
 }

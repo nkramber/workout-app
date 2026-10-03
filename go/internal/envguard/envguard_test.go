@@ -28,7 +28,8 @@ func TestCheck(t *testing.T) {
 		{"cloud run with a new emulator", []string{"K_SERVICE=api", "FIREBASE_STORAGE_EMULATOR_HOST=x"}, "FIREBASE_STORAGE_EMULATOR_HOST"},
 		{"cloud run with an empty value", []string{"K_SERVICE=api", "FIREBASE_AUTH_EMULATOR_HOST="}, "FIREBASE_AUTH_EMULATOR_HOST"},
 		{"cloud run with the fake provider", []string{"K_SERVICE=api", "LUNA_FAKE_PROVIDER=1"}, "LUNA_FAKE_PROVIDER"},
-		{"local run with the fake provider", []string{"LUNA_FAKE_PROVIDER=1"}, ""},
+		{"cloud run with the fake delay", []string{"K_SERVICE=api", "LUNA_FAKE_DELAY_MS=1000"}, "LUNA_FAKE_DELAY_MS"},
+		{"local run with the fake provider", []string{"LUNA_FAKE_PROVIDER=1", "LUNA_FAKE_DELAY_MS=1000"}, ""},
 		{"cloud run with two", []string{"K_SERVICE=api", "FIRESTORE_EMULATOR_HOST=b", "FIREBASE_AUTH_EMULATOR_HOST=a"}, "FIREBASE_AUTH_EMULATOR_HOST, FIRESTORE_EMULATOR_HOST"},
 	}
 	for _, c := range cases {

@@ -38,12 +38,14 @@ export default defineConfig({
       command: "../.bin/api",
       url: `http://127.0.0.1:${apiPort}/version`,
       // The API uses the fake provider of Luna, so no test calls OpenAI
-      // (D-24). The caps are the caps of D-188.
+      // (D-24). Each call of the fake waits 1 s, so a test can see the
+      // progress of a plan request (D-241). The caps are the caps of D-188.
       env: {
         PORT: String(apiPort),
         GOOGLE_CLOUD_PROJECT: "demo-workout-app",
         ALLOWED_ORIGIN: webOrigin,
         LUNA_FAKE_PROVIDER: "1",
+        LUNA_FAKE_DELAY_MS: "1000",
         LUNA_CAP_USER_USD: "1",
         LUNA_CAP_PROJECT_USD: "2",
       },

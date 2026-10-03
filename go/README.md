@@ -8,7 +8,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `go/cmd/lunaeval` | The Luna evaluation of Phase 3: synthetic profiles and the scenarios A to F through the layer and the policy (D-184 to D-186) |
 | `go/internal/auth` | The Firebase ID token check, the allowlist check, and CORS |
 | `go/internal/allowlist` | The invite allowlist of uids in Firestore (D-131) |
-| `go/internal/envguard` | The start guard against an emulator variable or the fake provider on Cloud Run (D-129) |
+| `go/internal/envguard` | The start guard against an emulator variable, the fake provider, or its delay on Cloud Run (D-129, D-241) |
 | `go/internal/usersvc` | The `GetMe` call |
 | `go/internal/inventory` | The inventory of the owner: the machines and the notes, the checks, the draft and confirmed states, the Firestore store, and `ForPlan` (D-46, D-193, D-197) |
 | `go/internal/inventorysvc` | The calls of `InventoryService` |
@@ -33,6 +33,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `OPENAI_API_KEY` | The key of the planner calls. On Cloud Run it comes from the secret `openai-api-key`. The API does not start without it. The emulator tests give the fake provider in its place. |
 | `LUNA_CAP_USER_USD`, `LUNA_CAP_PROJECT_USD` | The monthly AI caps, below. The API does not start without them. |
 | `LUNA_FAKE_PROVIDER` | `1` gives the fake provider of Luna in place of OpenAI, so a local run makes no paid call (D-24). The browser tests set it. On Cloud Run, the API refuses it. |
+| `LUNA_FAKE_DELAY_MS` | The wait of each call of the fake provider, from 0 to 60000 milliseconds. The browser tests set 1000, so a test can see the progress of a plan request (D-241). On Cloud Run, the API refuses it. |
 
 `go/internal/ai` reads the caps of D-25 from `LUNA_CAP_USER_USD` and `LUNA_CAP_PROJECT_USD`, in US dollars, such as `0.25`. A value that is not set stops the start, and 0 refuses each call. D-188 gives 1 USD for the user and 2 USD for the project, for each calendar month in UTC (D-190). The API reads both variables at its start, and the cap hook of `go/internal/capstore` applies them to each planner call. A plan request over a cap gives an error at once (D-230).
 

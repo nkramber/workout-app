@@ -4,7 +4,7 @@
 // opens the API to a forged token. The guard refuses each variable whose
 // name ends in _EMULATOR_HOST, so a new emulator needs no change here.
 // It also refuses each name of LocalOnly, such as the switch to the fake
-// provider of Luna (D-24).
+// provider of Luna and its delay (D-24, D-241).
 package envguard
 
 import (
@@ -19,7 +19,7 @@ import (
 var ErrEmulatorOnCloudRun = errors.New("an emulator or local-only variable is set on Cloud Run")
 
 // LocalOnly holds the other names that only a local run can set.
-var LocalOnly = []string{"LUNA_FAKE_PROVIDER"}
+var LocalOnly = []string{"LUNA_FAKE_PROVIDER", "LUNA_FAKE_DELAY_MS"}
 
 // OnCloudRun reports whether the process runs on Cloud Run. Cloud Run
 // sets K_SERVICE in each service container.

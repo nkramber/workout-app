@@ -21,6 +21,7 @@ import (
 	"github.com/nkramber/workout-app/go/internal/inventory"
 	"github.com/nkramber/workout-app/go/internal/plan"
 	"github.com/nkramber/workout-app/go/internal/profile"
+	"time"
 )
 
 const webOrigin = "https://nk-workout-app-prod.web.app"
@@ -271,6 +272,7 @@ func TestRunRefuses(t *testing.T) {
 		{"no project cap", []string{"GOOGLE_CLOUD_PROJECT=p", "LUNA_CAP_USER_USD=1", "OPENAI_API_KEY=k"}, ai.EnvProjectCap},
 		{"no key", []string{"GOOGLE_CLOUD_PROJECT=p", "LUNA_CAP_USER_USD=1", "LUNA_CAP_PROJECT_USD=2"}, "OpenAI key"},
 		{"fake provider on cloud run", []string{"K_SERVICE=api", "GOOGLE_CLOUD_PROJECT=p", "LUNA_FAKE_PROVIDER=1"}, envguard.ErrEmulatorOnCloudRun.Error()},
+		{"fake delay on cloud run", []string{"K_SERVICE=api", "GOOGLE_CLOUD_PROJECT=p", "LUNA_FAKE_DELAY_MS=1"}, envguard.ErrEmulatorOnCloudRun.Error()},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -311,6 +313,35 @@ func TestProviderFromEnv(t *testing.T) {
 			t.Fatalf("switch %q = %v", v, err)
 		} else if _, ok := p.(*ai.OpenAI); !ok {
 			t.Fatalf("switch %q = %T, want OpenAI", v, p)
+		}
+	}
+}
+
+// TestProviderFromEnvDelay: EnvFakeDelay sets the wait of the fake, and
+// the switch refuses a value that is not a whole number of milliseconds
+// from 0 to the maximum.
+func TestProviderFromEnvDelay(t *testing.T) {
+	env := func(delay string) func(string) string {
+		return func(k string) string {
+			switch k {
+			case EnvFakeProvider:
+				return "1"
+			case EnvFakeDelay:
+				return delay
+			}
+			return ""
+		}
+	}
+	for v, want := range map[string]time.Duration{"": 0, "0": 0, "1500": 1500 * time.Millisecond, "60000": time.Minute} {
+		p, err := providerFromEnv(env(v))("")
+		if f, ok := p.(*ai.Fake); err != nil || !ok || f.Delay != want {
+			t.Fatalf("delay %q = %+v, %v, want %v", v, p, err, want)
+		}
+	}
+	// 9223372036855 ms overflows a time.Duration to a negative value.
+	for _, v := range []string{"-1", "1.5", "1s", "60001", "9223372036855"} {
+		if _, err := providerFromEnv(env(v))(""); err == nil || !strings.Contains(err.Error(), EnvFakeDelay) {
+			t.Fatalf("delay %q = %v, want a refusal", v, err)
 		}
 	}
 }
