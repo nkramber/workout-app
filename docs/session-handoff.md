@@ -21,9 +21,9 @@ The owner then found two faults. A calibration set did not change the working lo
 
 `make contract`, `make go-test`, `make emulator-test`, `make web`, and `make verify` passed. In the first run of `make web`, 5 earlier Chromium tests waited more than 10 s for a fake plan. The second run passed 73 of 73.
 
-State: PR-31 is open. The Codex review comes next.
+State: PR-31 (GitHub #32) is open. The Codex review comes next, and its record is `docs/reviews/pr-32.md`.
 
-Next action: commit, push, wait for CI, and run `make codex-review` (D-8).
+Next action: wait for CI, and run `make codex-review PR=32` (D-8).
 
 The merge changes `go/` and `web/`, so it deploys both. The session of PR-32 reads both deploys first. The owner then checks the wake lock after a return to the app, and one calibration set on the iPhone. A plan made before the merge has no calibration loads, so the owner requests a new plan first (D-212).
 
