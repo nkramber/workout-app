@@ -1,6 +1,9 @@
 package ai
 
-import "time"
+import (
+	"slices"
+	"time"
+)
 
 // RoleName names one role of the layer.
 type RoleName string
@@ -40,10 +43,12 @@ type Role struct {
 // limit is the limit of the plan spike, and one plan of the spike used
 // 2,579 output tokens at most. One call of
 // the spike took 29.7 seconds at most, so the time limit is 3 times
-// that, rounded up (assumption).
+// that, rounded up (assumption). The effort is xhigh (D-253). At xhigh,
+// one call of "docs/research/luna-effort-check.md" used 7,351 output
+// tokens and took 63.6 seconds at most, so both limits stay.
 const (
 	lunaModel       = "gpt-6-luna"
-	lunaEffort      = "medium"
+	lunaEffort      = "xhigh"
 	lunaMaxOutput   = 32000
 	lunaTimeout     = 90 * time.Second
 	lunaMaxRequest  = 272_000
@@ -51,6 +56,13 @@ const (
 )
 
 var lunaPrices = Prices{Input: 100, CachedInput: 10, CacheWrite: 125, Output: 500}
+
+// Efforts gives each reasoning effort of `gpt-6-luna`, from the model
+// page, read 2026-09-28 ("docs/research/platform-cloud-and-ai.md").
+var Efforts = []string{"none", "low", "medium", "high", "xhigh", "max"}
+
+// ValidEffort tells that e is one of Efforts.
+func ValidEffort(e string) bool { return slices.Contains(Efforts, e) }
 
 // Planner gives the role that plans the next sessions, at most one week
 // of them.

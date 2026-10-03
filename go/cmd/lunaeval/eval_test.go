@@ -284,14 +284,35 @@ func TestCommand(t *testing.T) {
 	if err := json.Unmarshal(b, &rep); err != nil || rep.Provider != "fake" || rep.Cap != "2 USD" || rep.Totals.Calls != 26 {
 		t.Fatalf("report %+v, %v", rep.Totals, err)
 	}
+	if rep.Effort != ai.Planner().Effort {
+		t.Errorf("effort %q: want the effort of the role, %q", rep.Effort, ai.Planner().Effort)
+	}
 	if !strings.Contains(stdout.String(), "scenario F: pass true") {
 		t.Errorf("summary:\n%s", stdout.String())
 	}
+
+	// The -effort flag sets the effort of the report and of each call.
+	stdout.Reset()
+	if err := run(context.Background(), []string{"-cap", "2", "-repeats", "1", "-effort", "xhigh", "-out", out}, env, &stdout); err != nil {
+		t.Fatal(err)
+	}
+	if b, err = os.ReadFile(out); err != nil {
+		t.Fatal(err)
+	}
+	rep = Report{}
+	if err := json.Unmarshal(b, &rep); err != nil || rep.Effort != "xhigh" {
+		t.Fatalf("effort %q, %v: want xhigh", rep.Effort, err)
+	}
+	if !strings.Contains(stdout.String(), "effort xhigh") {
+		t.Errorf("summary:\n%s", stdout.String())
+	}
+
 	for _, args := range [][]string{
 		{"-live", "-cap", "2", "-out", out},
 		{"-out", out},
 		{"-cap", "2"},
 		{"-cap", "two", "-out", out},
+		{"-cap", "2", "-effort", "extra-high", "-out", out},
 	} {
 		if err := run(context.Background(), args, env, &bytes.Buffer{}); err == nil {
 			t.Errorf("run %v: want an error", args)

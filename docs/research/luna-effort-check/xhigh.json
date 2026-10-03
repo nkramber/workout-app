@@ -1,0 +1,3023 @@
+{
+ "provider": "openai",
+ "cap": "2 USD",
+ "model": "gpt-6-luna",
+ "effort": "xhigh",
+ "prompt_version": "luna-prompt-v3",
+ "prompt_hashes": {
+  "planner": "5a5e933197797511f4a7f2feba1c1f2a3632ab59f8e2bd6858cc4f6cd1fc278d",
+  "reviser": "baa1676bc7b0d76419c8028d5377d6fc3c7c92be23fe405081003501a2de74e4"
+ },
+ "schema": "luna_plan_v2",
+ "policy_version": 3,
+ "filter_version": 1,
+ "scenario_repeats": 5,
+ "calls": [
+  {
+   "role": "planner",
+   "item": "SP-01",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 63.6200675,
+   "usage": {
+    "InputTokens": 4652,
+    "CachedInputTokens": 0,
+    "CacheWriteTokens": 4649,
+    "OutputTokens": 7351,
+    "ReasoningTokens": 5106
+   },
+   "cost_nano_usd": 4256925,
+   "cost_known": true,
+   "summary": "Three sessions alternate the listed movements with calibration work. Leave at least one rest day between sessions.",
+   "cardio": [
+    "session 0: recumbent_bike, 10 min",
+    "session 1: recumbent_bike, 10 min",
+    "session 2: recumbent_bike, 10 min"
+   ],
+   "decisions": [
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 175 lb; 8 at 175 lb, 3 RIR; 8 at 175 lb, 3 RIR; 8 at 175 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 175 lb; 8 at 175 lb, 3 RIR; 8 at 175 lb, 3 RIR; 8 at 175 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 175 lb; 8 at 175 lb, 3 RIR; 8 at 175 lb, 3 RIR; 8 at 175 lb, 3 RIR",
+     "reason": "A gap in logged history keeps this exercise in calibration at its policy target."
+    },
+    {
+     "exercise": "seated_leg_curl",
+     "session": 1,
+     "source": "luna",
+     "proposal": "seated_leg_curl, rest 120 s: calibration 8 at 65 lb; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR",
+     "rules_target": "seated_leg_curl, rest 120 s: calibration 8 at 65 lb; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR",
+     "final_target": "seated_leg_curl, rest 120 s: calibration 8 at 65 lb; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR",
+     "reason": "A gap in logged history keeps this exercise in calibration at its policy target."
+    },
+    {
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 105 lb; 8 at 105 lb, 3 RIR; 8 at 105 lb, 3 RIR; 8 at 105 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 105 lb; 8 at 105 lb, 3 RIR; 8 at 105 lb, 3 RIR; 8 at 105 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 105 lb; 8 at 105 lb, 3 RIR; 8 at 105 lb, 3 RIR; 8 at 105 lb, 3 RIR",
+     "reason": "A gap in logged history keeps this exercise in calibration at its policy target."
+    },
+    {
+     "exercise": "shoulder_press",
+     "session": 1,
+     "source": "luna",
+     "proposal": "shoulder_press, rest 120 s: calibration 8 at 65 lb; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR",
+     "rules_target": "shoulder_press, rest 120 s: calibration 8 at 65 lb; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR",
+     "final_target": "shoulder_press, rest 120 s: calibration 8 at 65 lb; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR",
+     "reason": "A gap in logged history keeps this exercise in calibration at its policy target."
+    },
+    {
+     "exercise": "lat_pulldown",
+     "session": 1,
+     "source": "luna",
+     "proposal": "lat_pulldown, rest 120 s: calibration 8 at 100 lb; 8 at 100 lb, 3 RIR; 8 at 100 lb, 3 RIR; 8 at 100 lb, 3 RIR",
+     "rules_target": "lat_pulldown, rest 120 s: calibration 8 at 100 lb; 8 at 100 lb, 3 RIR; 8 at 100 lb, 3 RIR; 8 at 100 lb, 3 RIR",
+     "final_target": "lat_pulldown, rest 120 s: calibration 8 at 100 lb; 8 at 100 lb, 3 RIR; 8 at 100 lb, 3 RIR; 8 at 100 lb, 3 RIR",
+     "reason": "A gap in logged history keeps this exercise in calibration at its policy target."
+    },
+    {
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: calibration 8 at 100 lb; 8 at 100 lb, 3 RIR; 8 at 100 lb, 3 RIR; 8 at 100 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: calibration 8 at 100 lb; 8 at 100 lb, 3 RIR; 8 at 100 lb, 3 RIR; 8 at 100 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: calibration 8 at 100 lb; 8 at 100 lb, 3 RIR; 8 at 100 lb, 3 RIR; 8 at 100 lb, 3 RIR",
+     "reason": "A gap in logged history keeps this exercise in calibration at its policy target."
+    },
+    {
+     "exercise": "hip_abduction",
+     "session": 1,
+     "source": "luna",
+     "proposal": "hip_abduction, rest 120 s: calibration 8 at 15 lb; 8 at 15 lb, 3 RIR; 8 at 15 lb, 3 RIR; 8 at 15 lb, 3 RIR",
+     "rules_target": "hip_abduction, rest 120 s: calibration 8 at 15 lb; 8 at 15 lb, 3 RIR; 8 at 15 lb, 3 RIR; 8 at 15 lb, 3 RIR",
+     "final_target": "hip_abduction, rest 120 s: calibration 8 at 15 lb; 8 at 15 lb, 3 RIR; 8 at 15 lb, 3 RIR; 8 at 15 lb, 3 RIR",
+     "reason": "A gap in logged history keeps this exercise in calibration at its policy target."
+    },
+    {
+     "exercise": "abdominal_crunch",
+     "session": 0,
+     "source": "luna",
+     "proposal": "abdominal_crunch, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "rules_target": "abdominal_crunch, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "final_target": "abdominal_crunch, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "reason": "A gap in logged history keeps this exercise in calibration at its policy target."
+    }
+   ]
+  },
+  {
+   "role": "planner",
+   "item": "SP-02",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 31.545044666,
+   "usage": {
+    "InputTokens": 4426,
+    "CachedInputTokens": 2755,
+    "CacheWriteTokens": 1668,
+    "OutputTokens": 3633,
+    "ReasoningTokens": 1681
+   },
+   "cost_nano_usd": 2052850,
+   "cost_known": true,
+   "summary": "Do these three full-body sessions on nonconsecutive days, leaving at least one rest day between them. Each exercise uses a calibration set followed by three easy working sets.",
+   "cardio": [
+    "session 0: treadmill, 5 min",
+    "session 1: treadmill, 5 min",
+    "session 2: treadmill, 5 min"
+   ],
+   "not_planned": [
+    "hip_abduction"
+   ],
+   "decisions": [
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 90 lb; 8 at 90 lb, 3 RIR; 8 at 90 lb, 3 RIR; 8 at 90 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 90 lb; 8 at 90 lb, 3 RIR; 8 at 90 lb, 3 RIR; 8 at 90 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 90 lb; 8 at 90 lb, 3 RIR; 8 at 90 lb, 3 RIR; 8 at 90 lb, 3 RIR",
+     "reason": "The empty training log leaves a gap, so this starts with a cautious calibration target."
+    },
+    {
+     "exercise": "seated_leg_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_leg_curl, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "rules_target": "seated_leg_curl, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "final_target": "seated_leg_curl, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "reason": "The empty training log leaves a gap, so this starts with a cautious calibration target."
+    },
+    {
+     "exercise": "leg_extension",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_extension, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "rules_target": "leg_extension, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "final_target": "leg_extension, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "reason": "The empty training log leaves a gap, so this starts with a cautious calibration target."
+    },
+    {
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "reason": "The empty training log leaves a gap, so this starts with a cautious calibration target."
+    },
+    {
+     "exercise": "lat_pulldown",
+     "session": 0,
+     "source": "luna",
+     "proposal": "lat_pulldown, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "rules_target": "lat_pulldown, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "final_target": "lat_pulldown, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "reason": "The empty training log leaves a gap, so this starts with a cautious calibration target."
+    },
+    {
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "reason": "The empty training log leaves a gap, so this starts with a cautious calibration target."
+    }
+   ]
+  },
+  {
+   "role": "planner",
+   "item": "SP-03",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 25.817189125,
+   "usage": {
+    "InputTokens": 4425,
+    "CachedInputTokens": 2755,
+    "CacheWriteTokens": 1667,
+    "OutputTokens": 2721,
+    "ReasoningTokens": 1831
+   },
+   "cost_nano_usd": 1596725,
+   "cost_known": true,
+   "summary": "Use separate lower-body, pushing, and pulling sessions across the week. Space them out and leave a rest day between sessions.",
+   "decisions": [
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 320 lb; 8 at 320 lb, 3 RIR; 8 at 320 lb, 3 RIR; 8 at 320 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 320 lb; 8 at 320 lb, 3 RIR; 8 at 320 lb, 3 RIR; 8 at 320 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 320 lb; 8 at 320 lb, 3 RIR; 8 at 320 lb, 3 RIR; 8 at 320 lb, 3 RIR",
+     "reason": "The exercise log has a gap with no prior sets, so use the listed load and reps for calibration."
+    },
+    {
+     "exercise": "seated_leg_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_leg_curl, rest 120 s: calibration 8 at 110 lb; 8 at 110 lb, 3 RIR; 8 at 110 lb, 3 RIR; 8 at 110 lb, 3 RIR",
+     "rules_target": "seated_leg_curl, rest 120 s: calibration 8 at 110 lb; 8 at 110 lb, 3 RIR; 8 at 110 lb, 3 RIR; 8 at 110 lb, 3 RIR",
+     "final_target": "seated_leg_curl, rest 120 s: calibration 8 at 110 lb; 8 at 110 lb, 3 RIR; 8 at 110 lb, 3 RIR; 8 at 110 lb, 3 RIR",
+     "reason": "The exercise log has a gap with no prior sets, so use the listed load and reps for calibration."
+    },
+    {
+     "exercise": "chest_press",
+     "session": 1,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 190 lb; 8 at 190 lb, 3 RIR; 8 at 190 lb, 3 RIR; 8 at 190 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 190 lb; 8 at 190 lb, 3 RIR; 8 at 190 lb, 3 RIR; 8 at 190 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 190 lb; 8 at 190 lb, 3 RIR; 8 at 190 lb, 3 RIR; 8 at 190 lb, 3 RIR",
+     "reason": "The exercise log has a gap with no prior sets, so use the listed load and reps for calibration."
+    },
+    {
+     "exercise": "shoulder_press",
+     "session": 1,
+     "source": "luna",
+     "proposal": "shoulder_press, rest 120 s: calibration 8 at 110 lb; 8 at 110 lb, 3 RIR; 8 at 110 lb, 3 RIR; 8 at 110 lb, 3 RIR",
+     "rules_target": "shoulder_press, rest 120 s: calibration 8 at 110 lb; 8 at 110 lb, 3 RIR; 8 at 110 lb, 3 RIR; 8 at 110 lb, 3 RIR",
+     "final_target": "shoulder_press, rest 120 s: calibration 8 at 110 lb; 8 at 110 lb, 3 RIR; 8 at 110 lb, 3 RIR; 8 at 110 lb, 3 RIR",
+     "reason": "The exercise log has a gap with no prior sets, so use the listed load and reps for calibration."
+    },
+    {
+     "exercise": "lat_pulldown",
+     "session": 2,
+     "source": "luna",
+     "proposal": "lat_pulldown, rest 120 s: calibration 8 at 170 lb; 8 at 170 lb, 3 RIR; 8 at 170 lb, 3 RIR; 8 at 170 lb, 3 RIR",
+     "rules_target": "lat_pulldown, rest 120 s: calibration 8 at 170 lb; 8 at 170 lb, 3 RIR; 8 at 170 lb, 3 RIR; 8 at 170 lb, 3 RIR",
+     "final_target": "lat_pulldown, rest 120 s: calibration 8 at 170 lb; 8 at 170 lb, 3 RIR; 8 at 170 lb, 3 RIR; 8 at 170 lb, 3 RIR",
+     "reason": "The exercise log has a gap with no prior sets, so use the listed load and reps for calibration."
+    },
+    {
+     "exercise": "seated_row",
+     "session": 2,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: calibration 8 at 180 lb; 8 at 180 lb, 3 RIR; 8 at 180 lb, 3 RIR; 8 at 180 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: calibration 8 at 180 lb; 8 at 180 lb, 3 RIR; 8 at 180 lb, 3 RIR; 8 at 180 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: calibration 8 at 180 lb; 8 at 180 lb, 3 RIR; 8 at 180 lb, 3 RIR; 8 at 180 lb, 3 RIR",
+     "reason": "The exercise log has a gap with no prior sets, so use the listed load and reps for calibration."
+    },
+    {
+     "exercise": "biceps_curl",
+     "session": 2,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "rules_target": "biceps_curl, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "final_target": "biceps_curl, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "reason": "The exercise log has a gap with no prior sets, so use the listed load and reps for calibration."
+    }
+   ]
+  },
+  {
+   "role": "planner",
+   "item": "SP-04",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 47.773548083,
+   "usage": {
+    "InputTokens": 4425,
+    "CachedInputTokens": 2755,
+    "CacheWriteTokens": 1667,
+    "OutputTokens": 5927,
+    "ReasoningTokens": 1981
+   },
+   "cost_nano_usd": 3199725,
+   "cost_known": true,
+   "summary": "Plan three full-body sessions with a rest day between them. Each uses the listed calibration targets and includes five minutes of easy rowing.",
+   "cardio": [
+    "session 0: rowing_machine, 5 min",
+    "session 1: rowing_machine, 5 min",
+    "session 2: rowing_machine, 5 min"
+   ],
+   "decisions": [
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 110 lb; 8 at 110 lb, 3 RIR; 8 at 110 lb, 3 RIR; 8 at 110 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 110 lb; 8 at 110 lb, 3 RIR; 8 at 110 lb, 3 RIR; 8 at 110 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 110 lb; 8 at 110 lb, 3 RIR; 8 at 110 lb, 3 RIR; 8 at 110 lb, 3 RIR",
+     "reason": "The gap in logged sets leaves no reps, load, or RIR to progress; begin the policy calibration at 110 lb."
+    },
+    {
+     "exercise": "seated_leg_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_leg_curl, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "rules_target": "seated_leg_curl, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "final_target": "seated_leg_curl, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "reason": "The gap in logged sets leaves no reps, load, or RIR to progress; begin the policy calibration at 40 lb."
+    },
+    {
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 55 lb; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 55 lb; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 55 lb; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR",
+     "reason": "The gap in logged sets leaves no reps, load, or RIR to progress; begin the policy calibration at 55 lb."
+    },
+    {
+     "exercise": "lat_pulldown",
+     "session": 0,
+     "source": "luna",
+     "proposal": "lat_pulldown, rest 120 s: calibration 8 at 65 lb; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR",
+     "rules_target": "lat_pulldown, rest 120 s: calibration 8 at 65 lb; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR",
+     "final_target": "lat_pulldown, rest 120 s: calibration 8 at 65 lb; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR",
+     "reason": "The gap in logged sets leaves no reps, load, or RIR to progress; begin the policy calibration at 65 lb."
+    },
+    {
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: calibration 8 at 55 lb; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: calibration 8 at 55 lb; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: calibration 8 at 55 lb; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR",
+     "reason": "The gap in logged sets leaves no reps, load, or RIR to progress; begin the policy calibration at 55 lb."
+    },
+    {
+     "exercise": "back_extension",
+     "session": 0,
+     "source": "luna",
+     "proposal": "back_extension, rest 120 s: calibration 8 at 35 lb; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR",
+     "rules_target": "back_extension, rest 120 s: calibration 8 at 35 lb; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR",
+     "final_target": "back_extension, rest 120 s: calibration 8 at 35 lb; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR",
+     "reason": "The gap in logged sets leaves no reps, load, or RIR to progress; begin the policy calibration at 35 lb."
+    },
+    {
+     "exercise": "abdominal_crunch",
+     "session": 0,
+     "source": "luna",
+     "proposal": "abdominal_crunch, rest 120 s: calibration 8 at 35 lb; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR",
+     "rules_target": "abdominal_crunch, rest 120 s: calibration 8 at 35 lb; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR",
+     "final_target": "abdominal_crunch, rest 120 s: calibration 8 at 35 lb; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR",
+     "reason": "The gap in logged sets leaves no reps, load, or RIR to progress; begin the policy calibration at 35 lb."
+    }
+   ]
+  },
+  {
+   "role": "planner",
+   "item": "SP-05",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 41.459653709,
+   "usage": {
+    "InputTokens": 4213,
+    "CachedInputTokens": 2755,
+    "CacheWriteTokens": 1455,
+    "OutputTokens": 4954,
+    "ReasoningTokens": 2846
+   },
+   "cost_nano_usd": 2686725,
+   "cost_known": true,
+   "summary": "Repeat this full-body session three times on nonconsecutive days, leaving at least one rest day between sessions. Each exercise includes its listed calibration set and three working sets.",
+   "decisions": [
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "reason": "No prior reps, load, reps in reserve, pain, or gap are logged; use the supplied 10 lb calibration target."
+    },
+    {
+     "exercise": "seated_leg_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_leg_curl, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "rules_target": "seated_leg_curl, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "final_target": "seated_leg_curl, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "reason": "No prior reps, load, reps in reserve, pain, or gap are logged; use the supplied 10 lb calibration target."
+    },
+    {
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "reason": "No prior reps, load, reps in reserve, pain, or gap are logged; use the supplied 30 lb calibration target."
+    },
+    {
+     "exercise": "lat_pulldown",
+     "session": 0,
+     "source": "luna",
+     "proposal": "lat_pulldown, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "rules_target": "lat_pulldown, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "final_target": "lat_pulldown, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "reason": "No prior reps, load, reps in reserve, pain, or gap are logged; use the supplied 40 lb calibration target."
+    },
+    {
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "reason": "No prior reps, load, reps in reserve, pain, or gap are logged; use the supplied 10 lb calibration target."
+    },
+    {
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: calibration 8 at 15 lb; 8 at 15 lb, 3 RIR; 8 at 15 lb, 3 RIR; 8 at 15 lb, 3 RIR",
+     "rules_target": "biceps_curl, rest 120 s: calibration 8 at 15 lb; 8 at 15 lb, 3 RIR; 8 at 15 lb, 3 RIR; 8 at 15 lb, 3 RIR",
+     "final_target": "biceps_curl, rest 120 s: calibration 8 at 15 lb; 8 at 15 lb, 3 RIR; 8 at 15 lb, 3 RIR; 8 at 15 lb, 3 RIR",
+     "reason": "No prior reps, load, reps in reserve, pain, or gap are logged; use the supplied 15 lb calibration target."
+    }
+   ]
+  },
+  {
+   "role": "planner",
+   "item": "SP-06",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 54.229469041,
+   "usage": {
+    "InputTokens": 4204,
+    "CachedInputTokens": 2755,
+    "CacheWriteTokens": 1446,
+    "OutputTokens": 6554,
+    "ReasoningTokens": 3307
+   },
+   "cost_nano_usd": 3485600,
+   "cost_known": true,
+   "summary": "Three balanced full-body sessions are planned with a rest day between them. Keep each set controlled at the listed effort.",
+   "cardio": [
+    "session 0: recumbent_bike, 10 min",
+    "session 1: recumbent_bike, 10 min",
+    "session 2: recumbent_bike, 10 min"
+   ],
+   "decisions": [
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 105 lb; 8 at 105 lb, 3 RIR; 8 at 105 lb, 3 RIR; 8 at 105 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 105 lb; 8 at 105 lb, 3 RIR; 8 at 105 lb, 3 RIR; 8 at 105 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 105 lb; 8 at 105 lb, 3 RIR; 8 at 105 lb, 3 RIR; 8 at 105 lb, 3 RIR",
+     "reason": "The gap in logged training supports a new calibration at the target load and reps."
+    },
+    {
+     "exercise": "seated_leg_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_leg_curl, rest 120 s: calibration 8 at 35 lb; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR",
+     "rules_target": "seated_leg_curl, rest 120 s: calibration 8 at 35 lb; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR",
+     "final_target": "seated_leg_curl, rest 120 s: calibration 8 at 35 lb; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR",
+     "reason": "The gap in logged training supports a new calibration at the target load and reps."
+    },
+    {
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "reason": "The gap in logged training supports a new calibration at the target load and reps."
+    },
+    {
+     "exercise": "shoulder_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "shoulder_press, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "rules_target": "shoulder_press, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "final_target": "shoulder_press, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "reason": "The gap in logged training supports a new calibration at the target load and reps."
+    },
+    {
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "reason": "The gap in logged training supports a new calibration at the target load and reps."
+    },
+    {
+     "exercise": "hip_abduction",
+     "session": 0,
+     "source": "luna",
+     "proposal": "hip_abduction, rest 120 s: calibration 8 at 35 lb; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR",
+     "rules_target": "hip_abduction, rest 120 s: calibration 8 at 35 lb; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR",
+     "final_target": "hip_abduction, rest 120 s: calibration 8 at 35 lb; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR",
+     "reason": "The gap in logged training supports a new calibration at the target load and reps."
+    }
+   ]
+  },
+  {
+   "role": "planner",
+   "item": "SP-07",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 43.4240545,
+   "usage": {
+    "InputTokens": 4422,
+    "CachedInputTokens": 2755,
+    "CacheWriteTokens": 1664,
+    "OutputTokens": 5012,
+    "ReasoningTokens": 3558
+   },
+   "cost_nano_usd": 2741850,
+   "cost_known": true,
+   "summary": "Three sessions use the current calibration targets. Leave at least one rest day between sessions that train the same muscles.",
+   "decisions": [
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 450 lb; 8 at 450 lb, 3 RIR; 8 at 450 lb, 3 RIR; 8 at 450 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 450 lb; 8 at 450 lb, 3 RIR; 8 at 450 lb, 3 RIR; 8 at 450 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 450 lb; 8 at 450 lb, 3 RIR; 8 at 450 lb, 3 RIR; 8 at 450 lb, 3 RIR",
+     "reason": "No reps, load, reps in reserve, pain, or gap are logged for leg press, so I keep its calibration target."
+    },
+    {
+     "exercise": "seated_leg_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_leg_curl, rest 120 s: calibration 8 at 150 lb; 8 at 150 lb, 3 RIR; 8 at 150 lb, 3 RIR; 8 at 150 lb, 3 RIR",
+     "rules_target": "seated_leg_curl, rest 120 s: calibration 8 at 150 lb; 8 at 150 lb, 3 RIR; 8 at 150 lb, 3 RIR; 8 at 150 lb, 3 RIR",
+     "final_target": "seated_leg_curl, rest 120 s: calibration 8 at 150 lb; 8 at 150 lb, 3 RIR; 8 at 150 lb, 3 RIR; 8 at 150 lb, 3 RIR",
+     "reason": "No reps, load, reps in reserve, pain, or gap are logged for seated leg curl, so I keep its calibration target."
+    },
+    {
+     "exercise": "leg_extension",
+     "session": 1,
+     "source": "luna",
+     "proposal": "leg_extension, rest 120 s: calibration 8 at 170 lb; 8 at 170 lb, 3 RIR; 8 at 170 lb, 3 RIR; 8 at 170 lb, 3 RIR",
+     "rules_target": "leg_extension, rest 120 s: calibration 8 at 170 lb; 8 at 170 lb, 3 RIR; 8 at 170 lb, 3 RIR; 8 at 170 lb, 3 RIR",
+     "final_target": "leg_extension, rest 120 s: calibration 8 at 170 lb; 8 at 170 lb, 3 RIR; 8 at 170 lb, 3 RIR; 8 at 170 lb, 3 RIR",
+     "reason": "No reps, load, reps in reserve, pain, or gap are logged for leg extension, so I keep its calibration target."
+    },
+    {
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 230 lb; 8 at 230 lb, 3 RIR; 8 at 230 lb, 3 RIR; 8 at 230 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 230 lb; 8 at 230 lb, 3 RIR; 8 at 230 lb, 3 RIR; 8 at 230 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 230 lb; 8 at 230 lb, 3 RIR; 8 at 230 lb, 3 RIR; 8 at 230 lb, 3 RIR",
+     "reason": "No reps, load, reps in reserve, pain, or gap are logged for chest press, so I keep its calibration target."
+    },
+    {
+     "exercise": "lat_pulldown",
+     "session": 0,
+     "source": "luna",
+     "proposal": "lat_pulldown, rest 120 s: calibration 8 at 210 lb; 8 at 210 lb, 3 RIR; 8 at 210 lb, 3 RIR; 8 at 210 lb, 3 RIR",
+     "rules_target": "lat_pulldown, rest 120 s: calibration 8 at 210 lb; 8 at 210 lb, 3 RIR; 8 at 210 lb, 3 RIR; 8 at 210 lb, 3 RIR",
+     "final_target": "lat_pulldown, rest 120 s: calibration 8 at 210 lb; 8 at 210 lb, 3 RIR; 8 at 210 lb, 3 RIR; 8 at 210 lb, 3 RIR",
+     "reason": "No reps, load, reps in reserve, pain, or gap are logged for lat pulldown, so I keep its calibration target."
+    },
+    {
+     "exercise": "seated_row",
+     "session": 1,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: calibration 8 at 220 lb; 8 at 220 lb, 3 RIR; 8 at 220 lb, 3 RIR; 8 at 220 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: calibration 8 at 220 lb; 8 at 220 lb, 3 RIR; 8 at 220 lb, 3 RIR; 8 at 220 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: calibration 8 at 220 lb; 8 at 220 lb, 3 RIR; 8 at 220 lb, 3 RIR; 8 at 220 lb, 3 RIR",
+     "reason": "No reps, load, reps in reserve, pain, or gap are logged for seated row, so I keep its calibration target."
+    },
+    {
+     "exercise": "calf_raise",
+     "session": 1,
+     "source": "luna",
+     "proposal": "calf_raise, rest 120 s: calibration 8 at 280 lb; 8 at 280 lb, 3 RIR; 8 at 280 lb, 3 RIR; 8 at 280 lb, 3 RIR",
+     "rules_target": "calf_raise, rest 120 s: calibration 8 at 280 lb; 8 at 280 lb, 3 RIR; 8 at 280 lb, 3 RIR; 8 at 280 lb, 3 RIR",
+     "final_target": "calf_raise, rest 120 s: calibration 8 at 280 lb; 8 at 280 lb, 3 RIR; 8 at 280 lb, 3 RIR; 8 at 280 lb, 3 RIR",
+     "reason": "No reps, load, reps in reserve, pain, or gap are logged for calf raise, so I keep its calibration target."
+    }
+   ]
+  },
+  {
+   "role": "planner",
+   "item": "SP-08",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 30.685476125,
+   "usage": {
+    "InputTokens": 3756,
+    "CachedInputTokens": 2755,
+    "CacheWriteTokens": 998,
+    "OutputTokens": 3979,
+    "ReasoningTokens": 1628
+   },
+   "cost_nano_usd": 2142100,
+   "cost_known": true,
+   "summary": "Three sessions repeat the supplied calibration targets for all four listed exercises. Leave at least one rest day between sessions; no cardio option was provided.",
+   "decisions": [
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "reason": "No reps, load, reps in reserve, pain, or gap is logged; I use the supplied new-start calibration target."
+    },
+    {
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "reason": "No reps, load, reps in reserve, pain, or gap is logged; I use the supplied new-start calibration target."
+    },
+    {
+     "exercise": "lat_pulldown",
+     "session": 0,
+     "source": "luna",
+     "proposal": "lat_pulldown, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "rules_target": "lat_pulldown, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "final_target": "lat_pulldown, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "reason": "No reps, load, reps in reserve, pain, or gap is logged; I use the supplied new-start calibration target."
+    },
+    {
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "rules_target": "biceps_curl, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "final_target": "biceps_curl, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "reason": "No reps, load, reps in reserve, pain, or gap is logged; I use the supplied new-start calibration target."
+    }
+   ]
+  },
+  {
+   "role": "planner",
+   "item": "SP-09",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 40.663379209,
+   "usage": {
+    "InputTokens": 3990,
+    "CachedInputTokens": 2755,
+    "CacheWriteTokens": 1232,
+    "OutputTokens": 4640,
+    "ReasoningTokens": 2930
+   },
+   "cost_nano_usd": 2501850,
+   "cost_known": true,
+   "summary": "Space these full-body sessions with at least one rest day between them. Use the listed calibration set for each exercise.",
+   "cardio": [
+    "session 0: treadmill, 5 min",
+    "session 1: recumbent_bike, 5 min",
+    "session 2: treadmill, 5 min"
+   ],
+   "decisions": [
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 85 lb; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 85 lb; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 85 lb; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR",
+     "reason": "The history has a gap, so use the 85-lb, 8-rep calibration target."
+    },
+    {
+     "exercise": "seated_leg_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_leg_curl, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "rules_target": "seated_leg_curl, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "final_target": "seated_leg_curl, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "reason": "The history has a gap, so use the 30-lb, 8-rep calibration target."
+    },
+    {
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "reason": "The history has a gap, so use the 40-lb, 8-rep calibration target."
+    },
+    {
+     "exercise": "lat_pulldown",
+     "session": 0,
+     "source": "luna",
+     "proposal": "lat_pulldown, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "rules_target": "lat_pulldown, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "final_target": "lat_pulldown, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "reason": "The history has a gap, so use the 50-lb, 8-rep calibration target."
+    },
+    {
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "reason": "The history has a gap, so use the 40-lb, 8-rep calibration target."
+    }
+   ]
+  },
+  {
+   "role": "planner",
+   "item": "SP-10",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 47.8527975,
+   "usage": {
+    "InputTokens": 4422,
+    "CachedInputTokens": 2755,
+    "CacheWriteTokens": 1664,
+    "OutputTokens": 5302,
+    "ReasoningTokens": 3892
+   },
+   "cost_nano_usd": 2886850,
+   "cost_known": true,
+   "summary": "Three mixed sessions balance lower- and upper-body work. Leave at least one rest day between sessions, and use the listed calibration sets.",
+   "decisions": [
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 160 lb; 8 at 160 lb, 3 RIR; 8 at 160 lb, 3 RIR; 8 at 160 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 160 lb; 8 at 160 lb, 3 RIR; 8 at 160 lb, 3 RIR; 8 at 160 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 160 lb; 8 at 160 lb, 3 RIR; 8 at 160 lb, 3 RIR; 8 at 160 lb, 3 RIR",
+     "reason": "A gap in the log means this starts at the supplied 8-rep, 160 lb calibration target."
+    },
+    {
+     "exercise": "seated_leg_curl",
+     "session": 1,
+     "source": "luna",
+     "proposal": "seated_leg_curl, rest 120 s: calibration 8 at 55 lb; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR",
+     "rules_target": "seated_leg_curl, rest 120 s: calibration 8 at 55 lb; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR",
+     "final_target": "seated_leg_curl, rest 120 s: calibration 8 at 55 lb; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR",
+     "reason": "A gap in the log means this starts at the supplied 8-rep, 55 lb calibration target."
+    },
+    {
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 85 lb; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 85 lb; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 85 lb; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR",
+     "reason": "A gap in the log means this starts at the supplied 8-rep, 85 lb calibration target."
+    },
+    {
+     "exercise": "lat_pulldown",
+     "session": 0,
+     "source": "luna",
+     "proposal": "lat_pulldown, rest 120 s: calibration 8 at 85 lb; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR",
+     "rules_target": "lat_pulldown, rest 120 s: calibration 8 at 85 lb; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR",
+     "final_target": "lat_pulldown, rest 120 s: calibration 8 at 85 lb; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR",
+     "reason": "A gap in the log means this starts at the supplied 8-rep, 85 lb calibration target."
+    },
+    {
+     "exercise": "hip_abduction",
+     "session": 1,
+     "source": "luna",
+     "proposal": "hip_abduction, rest 120 s: calibration 8 at 20 lb; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR",
+     "rules_target": "hip_abduction, rest 120 s: calibration 8 at 20 lb; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR",
+     "final_target": "hip_abduction, rest 120 s: calibration 8 at 20 lb; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR",
+     "reason": "A gap in the log means this starts at the supplied 8-rep, 20 lb calibration target."
+    },
+    {
+     "exercise": "back_extension",
+     "session": 1,
+     "source": "luna",
+     "proposal": "back_extension, rest 120 s: calibration 8 at 25 lb; 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "rules_target": "back_extension, rest 120 s: calibration 8 at 25 lb; 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "final_target": "back_extension, rest 120 s: calibration 8 at 25 lb; 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "reason": "A gap in the log means this starts at the supplied 8-rep, 25 lb calibration target."
+    },
+    {
+     "exercise": "calf_raise",
+     "session": 0,
+     "source": "luna",
+     "proposal": "calf_raise, rest 120 s: calibration 8 at 105 lb; 8 at 105 lb, 3 RIR; 8 at 105 lb, 3 RIR; 8 at 105 lb, 3 RIR",
+     "rules_target": "calf_raise, rest 120 s: calibration 8 at 105 lb; 8 at 105 lb, 3 RIR; 8 at 105 lb, 3 RIR; 8 at 105 lb, 3 RIR",
+     "final_target": "calf_raise, rest 120 s: calibration 8 at 105 lb; 8 at 105 lb, 3 RIR; 8 at 105 lb, 3 RIR; 8 at 105 lb, 3 RIR",
+     "reason": "A gap in the log means this starts at the supplied 8-rep, 105 lb calibration target."
+    }
+   ]
+  },
+  {
+   "role": "planner",
+   "item": "SP-11",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 60.7802515,
+   "usage": {
+    "InputTokens": 4206,
+    "CachedInputTokens": 2755,
+    "CacheWriteTokens": 1448,
+    "OutputTokens": 7319,
+    "ReasoningTokens": 4074
+   },
+   "cost_nano_usd": 3868350,
+   "cost_known": true,
+   "summary": "Use these full-body sessions on nonconsecutive days, with at least one rest day between them. Keep each set controlled and leave about 3 reps in reserve.",
+   "cardio": [
+    "session 0: treadmill, 10 min",
+    "session 1: treadmill, 10 min",
+    "session 2: treadmill, 10 min"
+   ],
+   "decisions": [
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "reason": "The history gap supports an 8-rep calibration at 70 lb."
+    },
+    {
+     "exercise": "seated_leg_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_leg_curl, rest 120 s: calibration 8 at 20 lb; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR",
+     "rules_target": "seated_leg_curl, rest 120 s: calibration 8 at 20 lb; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR",
+     "final_target": "seated_leg_curl, rest 120 s: calibration 8 at 20 lb; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR",
+     "reason": "The history gap supports an 8-rep calibration at 20 lb."
+    },
+    {
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 20 lb; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 20 lb; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 20 lb; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR",
+     "reason": "The history gap supports an 8-rep calibration at 20 lb."
+    },
+    {
+     "exercise": "lat_pulldown",
+     "session": 0,
+     "source": "luna",
+     "proposal": "lat_pulldown, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "rules_target": "lat_pulldown, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "final_target": "lat_pulldown, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "reason": "The history gap supports an 8-rep calibration at 30 lb."
+    },
+    {
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "reason": "The history gap supports an 8-rep calibration at 30 lb."
+    },
+    {
+     "exercise": "abdominal_crunch",
+     "session": 0,
+     "source": "luna",
+     "proposal": "abdominal_crunch, rest 120 s: calibration 8 at 20 lb; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR",
+     "rules_target": "abdominal_crunch, rest 120 s: calibration 8 at 20 lb; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR",
+     "final_target": "abdominal_crunch, rest 120 s: calibration 8 at 20 lb; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR; 8 at 20 lb, 3 RIR",
+     "reason": "The history gap supports an 8-rep calibration at 20 lb."
+    }
+   ]
+  },
+  {
+   "role": "planner",
+   "item": "SP-12",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 33.92334425,
+   "usage": {
+    "InputTokens": 4200,
+    "CachedInputTokens": 2755,
+    "CacheWriteTokens": 1442,
+    "OutputTokens": 4098,
+    "ReasoningTokens": 2171
+   },
+   "cost_nano_usd": 2257100,
+   "cost_known": true,
+   "summary": "Three full-body sessions use the supplied calibration targets. Space them with at least one rest day between sessions.",
+   "decisions": [
+    {
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 160 lb; 8 at 160 lb, 3 RIR; 8 at 160 lb, 3 RIR; 8 at 160 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 160 lb; 8 at 160 lb, 3 RIR; 8 at 160 lb, 3 RIR; 8 at 160 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 160 lb; 8 at 160 lb, 3 RIR; 8 at 160 lb, 3 RIR; 8 at 160 lb, 3 RIR",
+     "reason": "The history gap supports the supplied calibration target of 8 reps at 160 lb."
+    },
+    {
+     "exercise": "shoulder_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "shoulder_press, rest 120 s: calibration 8 at 95 lb; 8 at 95 lb, 3 RIR; 8 at 95 lb, 3 RIR; 8 at 95 lb, 3 RIR",
+     "rules_target": "shoulder_press, rest 120 s: calibration 8 at 95 lb; 8 at 95 lb, 3 RIR; 8 at 95 lb, 3 RIR; 8 at 95 lb, 3 RIR",
+     "final_target": "shoulder_press, rest 120 s: calibration 8 at 95 lb; 8 at 95 lb, 3 RIR; 8 at 95 lb, 3 RIR; 8 at 95 lb, 3 RIR",
+     "reason": "The history gap supports the supplied calibration target of 8 reps at 95 lb."
+    },
+    {
+     "exercise": "lat_pulldown",
+     "session": 0,
+     "source": "luna",
+     "proposal": "lat_pulldown, rest 120 s: calibration 8 at 150 lb; 8 at 150 lb, 3 RIR; 8 at 150 lb, 3 RIR; 8 at 150 lb, 3 RIR",
+     "rules_target": "lat_pulldown, rest 120 s: calibration 8 at 150 lb; 8 at 150 lb, 3 RIR; 8 at 150 lb, 3 RIR; 8 at 150 lb, 3 RIR",
+     "final_target": "lat_pulldown, rest 120 s: calibration 8 at 150 lb; 8 at 150 lb, 3 RIR; 8 at 150 lb, 3 RIR; 8 at 150 lb, 3 RIR",
+     "reason": "The history gap supports the supplied calibration target of 8 reps at 150 lb."
+    },
+    {
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: calibration 8 at 150 lb; 8 at 150 lb, 3 RIR; 8 at 150 lb, 3 RIR; 8 at 150 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: calibration 8 at 150 lb; 8 at 150 lb, 3 RIR; 8 at 150 lb, 3 RIR; 8 at 150 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: calibration 8 at 150 lb; 8 at 150 lb, 3 RIR; 8 at 150 lb, 3 RIR; 8 at 150 lb, 3 RIR",
+     "reason": "The history gap supports the supplied calibration target of 8 reps at 150 lb."
+    },
+    {
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: calibration 8 at 60 lb; 8 at 60 lb, 3 RIR; 8 at 60 lb, 3 RIR; 8 at 60 lb, 3 RIR",
+     "rules_target": "biceps_curl, rest 120 s: calibration 8 at 60 lb; 8 at 60 lb, 3 RIR; 8 at 60 lb, 3 RIR; 8 at 60 lb, 3 RIR",
+     "final_target": "biceps_curl, rest 120 s: calibration 8 at 60 lb; 8 at 60 lb, 3 RIR; 8 at 60 lb, 3 RIR; 8 at 60 lb, 3 RIR",
+     "reason": "The history gap supports the supplied calibration target of 8 reps at 60 lb."
+    },
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 270 lb; 8 at 270 lb, 3 RIR; 8 at 270 lb, 3 RIR; 8 at 270 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 270 lb; 8 at 270 lb, 3 RIR; 8 at 270 lb, 3 RIR; 8 at 270 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 270 lb; 8 at 270 lb, 3 RIR; 8 at 270 lb, 3 RIR; 8 at 270 lb, 3 RIR",
+     "reason": "The history gap supports the supplied calibration target of 8 reps at 270 lb."
+    }
+   ]
+  },
+  {
+   "role": "planner",
+   "item": "SP-13",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 26.7348325,
+   "usage": {
+    "InputTokens": 3984,
+    "CachedInputTokens": 2755,
+    "CacheWriteTokens": 1226,
+    "OutputTokens": 3203,
+    "ReasoningTokens": 1451
+   },
+   "cost_nano_usd": 1782600,
+   "cost_known": true,
+   "summary": "Repeat this full-body session three times this week, with a rest day between sessions. Keep each set controlled and leave about three reps in reserve.",
+   "decisions": [
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 140 lb; 8 at 140 lb, 3 RIR; 8 at 140 lb, 3 RIR; 8 at 140 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 140 lb; 8 at 140 lb, 3 RIR; 8 at 140 lb, 3 RIR; 8 at 140 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 140 lb; 8 at 140 lb, 3 RIR; 8 at 140 lb, 3 RIR; 8 at 140 lb, 3 RIR",
+     "reason": "The exercise history has a gap with no logged reps, load, or reps in reserve, so use its policy calibration target."
+    },
+    {
+     "exercise": "seated_leg_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_leg_curl, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "rules_target": "seated_leg_curl, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "final_target": "seated_leg_curl, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "reason": "The exercise history has a gap with no logged reps, load, or reps in reserve, so use its policy calibration target."
+    },
+    {
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 75 lb; 8 at 75 lb, 3 RIR; 8 at 75 lb, 3 RIR; 8 at 75 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 75 lb; 8 at 75 lb, 3 RIR; 8 at 75 lb, 3 RIR; 8 at 75 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 75 lb; 8 at 75 lb, 3 RIR; 8 at 75 lb, 3 RIR; 8 at 75 lb, 3 RIR",
+     "reason": "The exercise history has a gap with no logged reps, load, or reps in reserve, so use its policy calibration target."
+    },
+    {
+     "exercise": "lat_pulldown",
+     "session": 0,
+     "source": "luna",
+     "proposal": "lat_pulldown, rest 120 s: calibration 8 at 75 lb; 8 at 75 lb, 3 RIR; 8 at 75 lb, 3 RIR; 8 at 75 lb, 3 RIR",
+     "rules_target": "lat_pulldown, rest 120 s: calibration 8 at 75 lb; 8 at 75 lb, 3 RIR; 8 at 75 lb, 3 RIR; 8 at 75 lb, 3 RIR",
+     "final_target": "lat_pulldown, rest 120 s: calibration 8 at 75 lb; 8 at 75 lb, 3 RIR; 8 at 75 lb, 3 RIR; 8 at 75 lb, 3 RIR",
+     "reason": "The exercise history has a gap with no logged reps, load, or reps in reserve, so use its policy calibration target."
+    },
+    {
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "reason": "The exercise history has a gap with no logged reps, load, or reps in reserve, so use its policy calibration target."
+    }
+   ]
+  },
+  {
+   "role": "planner",
+   "item": "SP-14",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 38.717768375,
+   "usage": {
+    "InputTokens": 4203,
+    "CachedInputTokens": 2755,
+    "CacheWriteTokens": 1445,
+    "OutputTokens": 4572,
+    "ReasoningTokens": 2580
+   },
+   "cost_nano_usd": 2494475,
+   "cost_known": true,
+   "summary": "Three full-body sessions follow the listed calibration targets. Leave at least one rest day between sessions.",
+   "decisions": [
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 100 lb; 8 at 100 lb, 3 RIR; 8 at 100 lb, 3 RIR; 8 at 100 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 100 lb; 8 at 100 lb, 3 RIR; 8 at 100 lb, 3 RIR; 8 at 100 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 100 lb; 8 at 100 lb, 3 RIR; 8 at 100 lb, 3 RIR; 8 at 100 lb, 3 RIR",
+     "reason": "The logged history has a gap, so keep the 8-rep calibration target at 100 lb."
+    },
+    {
+     "exercise": "seated_leg_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_leg_curl, rest 120 s: calibration 8 at 35 lb; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR",
+     "rules_target": "seated_leg_curl, rest 120 s: calibration 8 at 35 lb; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR",
+     "final_target": "seated_leg_curl, rest 120 s: calibration 8 at 35 lb; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR",
+     "reason": "The logged history has a gap, so keep the 8-rep calibration target at 35 lb."
+    },
+    {
+     "exercise": "leg_extension",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_extension, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "rules_target": "leg_extension, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "final_target": "leg_extension, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "reason": "The logged history has a gap, so keep the 8-rep calibration target at 40 lb."
+    },
+    {
+     "exercise": "hip_abduction",
+     "session": 0,
+     "source": "luna",
+     "proposal": "hip_abduction, rest 120 s: calibration 8 at 60 lb; 8 at 60 lb, 3 RIR; 8 at 60 lb, 3 RIR; 8 at 60 lb, 3 RIR",
+     "rules_target": "hip_abduction, rest 120 s: calibration 8 at 60 lb; 8 at 60 lb, 3 RIR; 8 at 60 lb, 3 RIR; 8 at 60 lb, 3 RIR",
+     "final_target": "hip_abduction, rest 120 s: calibration 8 at 60 lb; 8 at 60 lb, 3 RIR; 8 at 60 lb, 3 RIR; 8 at 60 lb, 3 RIR",
+     "reason": "The logged history has a gap, so keep the 8-rep calibration target at 60 lb."
+    },
+    {
+     "exercise": "lat_pulldown",
+     "session": 0,
+     "source": "luna",
+     "proposal": "lat_pulldown, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "rules_target": "lat_pulldown, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "final_target": "lat_pulldown, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "reason": "The logged history has a gap, so keep the 8-rep calibration target at 50 lb."
+    },
+    {
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "reason": "The logged history has a gap, so keep the 8-rep calibration target at 30 lb."
+    }
+   ]
+  },
+  {
+   "role": "planner",
+   "item": "SP-15",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 38.915379833,
+   "usage": {
+    "InputTokens": 4206,
+    "CachedInputTokens": 2755,
+    "CacheWriteTokens": 1448,
+    "OutputTokens": 4671,
+    "ReasoningTokens": 2573
+   },
+   "cost_nano_usd": 2544350,
+   "cost_known": true,
+   "summary": "Three full-body sessions use controlled 8-rep calibration work. Leave at least one rest day between sessions and use the listed mobility and recovery guidance.",
+   "decisions": [
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 125 lb; 8 at 125 lb, 3 RIR; 8 at 125 lb, 3 RIR; 8 at 125 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 125 lb; 8 at 125 lb, 3 RIR; 8 at 125 lb, 3 RIR; 8 at 125 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 125 lb; 8 at 125 lb, 3 RIR; 8 at 125 lb, 3 RIR; 8 at 125 lb, 3 RIR",
+     "reason": "The history gap gives no prior reps, load, or RIR, so use the policy's 8-rep calibration target."
+    },
+    {
+     "exercise": "seated_leg_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_leg_curl, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "rules_target": "seated_leg_curl, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "final_target": "seated_leg_curl, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "reason": "The history gap gives no prior reps, load, or RIR, so use the policy's 8-rep calibration target."
+    },
+    {
+     "exercise": "leg_extension",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_extension, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "rules_target": "leg_extension, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "final_target": "leg_extension, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "reason": "The history gap gives no prior reps, load, or RIR, so use the policy's 8-rep calibration target."
+    },
+    {
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 90 lb; 8 at 90 lb, 3 RIR; 8 at 90 lb, 3 RIR; 8 at 90 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 90 lb; 8 at 90 lb, 3 RIR; 8 at 90 lb, 3 RIR; 8 at 90 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 90 lb; 8 at 90 lb, 3 RIR; 8 at 90 lb, 3 RIR; 8 at 90 lb, 3 RIR",
+     "reason": "The history gap gives no prior reps, load, or RIR, so use the policy's 8-rep calibration target."
+    },
+    {
+     "exercise": "lat_pulldown",
+     "session": 0,
+     "source": "luna",
+     "proposal": "lat_pulldown, rest 120 s: calibration 8 at 85 lb; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR",
+     "rules_target": "lat_pulldown, rest 120 s: calibration 8 at 85 lb; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR",
+     "final_target": "lat_pulldown, rest 120 s: calibration 8 at 85 lb; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR",
+     "reason": "The history gap gives no prior reps, load, or RIR, so use the policy's 8-rep calibration target."
+    },
+    {
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: calibration 8 at 85 lb; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: calibration 8 at 85 lb; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: calibration 8 at 85 lb; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR",
+     "reason": "The history gap gives no prior reps, load, or RIR, so use the policy's 8-rep calibration target."
+    }
+   ]
+  },
+  {
+   "role": "planner",
+   "item": "SP-16",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 30.202890584,
+   "usage": {
+    "InputTokens": 4200,
+    "CachedInputTokens": 2755,
+    "CacheWriteTokens": 1442,
+    "OutputTokens": 3499,
+    "ReasoningTokens": 1552
+   },
+   "cost_nano_usd": 1957600,
+   "cost_known": true,
+   "summary": "Three full-body sessions use the listed calibration targets. Leave a rest day between sessions.",
+   "cardio": [
+    "session 0: rowing_machine, 5 min",
+    "session 1: rowing_machine, 5 min",
+    "session 2: rowing_machine, 5 min"
+   ],
+   "decisions": [
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 285 lb; 8 at 285 lb, 3 RIR; 8 at 285 lb, 3 RIR; 8 at 285 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 285 lb; 8 at 285 lb, 3 RIR; 8 at 285 lb, 3 RIR; 8 at 285 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 285 lb; 8 at 285 lb, 3 RIR; 8 at 285 lb, 3 RIR; 8 at 285 lb, 3 RIR",
+     "reason": "A gap in logged sets supports the 8-rep, 285 lb calibration target."
+    },
+    {
+     "exercise": "leg_extension",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_extension, rest 120 s: calibration 8 at 125 lb; 8 at 125 lb, 3 RIR; 8 at 125 lb, 3 RIR; 8 at 125 lb, 3 RIR",
+     "rules_target": "leg_extension, rest 120 s: calibration 8 at 125 lb; 8 at 125 lb, 3 RIR; 8 at 125 lb, 3 RIR; 8 at 125 lb, 3 RIR",
+     "final_target": "leg_extension, rest 120 s: calibration 8 at 125 lb; 8 at 125 lb, 3 RIR; 8 at 125 lb, 3 RIR; 8 at 125 lb, 3 RIR",
+     "reason": "A gap in logged sets supports the 8-rep, 125 lb calibration target."
+    },
+    {
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 175 lb; 8 at 175 lb, 3 RIR; 8 at 175 lb, 3 RIR; 8 at 175 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 175 lb; 8 at 175 lb, 3 RIR; 8 at 175 lb, 3 RIR; 8 at 175 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 175 lb; 8 at 175 lb, 3 RIR; 8 at 175 lb, 3 RIR; 8 at 175 lb, 3 RIR",
+     "reason": "A gap in logged sets supports the 8-rep, 175 lb calibration target."
+    },
+    {
+     "exercise": "lat_pulldown",
+     "session": 0,
+     "source": "luna",
+     "proposal": "lat_pulldown, rest 120 s: calibration 8 at 165 lb; 8 at 165 lb, 3 RIR; 8 at 165 lb, 3 RIR; 8 at 165 lb, 3 RIR",
+     "rules_target": "lat_pulldown, rest 120 s: calibration 8 at 165 lb; 8 at 165 lb, 3 RIR; 8 at 165 lb, 3 RIR; 8 at 165 lb, 3 RIR",
+     "final_target": "lat_pulldown, rest 120 s: calibration 8 at 165 lb; 8 at 165 lb, 3 RIR; 8 at 165 lb, 3 RIR; 8 at 165 lb, 3 RIR",
+     "reason": "A gap in logged sets supports the 8-rep, 165 lb calibration target."
+    },
+    {
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: calibration 8 at 155 lb; 8 at 155 lb, 3 RIR; 8 at 155 lb, 3 RIR; 8 at 155 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: calibration 8 at 155 lb; 8 at 155 lb, 3 RIR; 8 at 155 lb, 3 RIR; 8 at 155 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: calibration 8 at 155 lb; 8 at 155 lb, 3 RIR; 8 at 155 lb, 3 RIR; 8 at 155 lb, 3 RIR",
+     "reason": "A gap in logged sets supports the 8-rep, 155 lb calibration target."
+    },
+    {
+     "exercise": "abdominal_crunch",
+     "session": 0,
+     "source": "luna",
+     "proposal": "abdominal_crunch, rest 120 s: calibration 8 at 85 lb; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR",
+     "rules_target": "abdominal_crunch, rest 120 s: calibration 8 at 85 lb; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR",
+     "final_target": "abdominal_crunch, rest 120 s: calibration 8 at 85 lb; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR; 8 at 85 lb, 3 RIR",
+     "reason": "A gap in logged sets supports the 8-rep, 85 lb calibration target."
+    }
+   ]
+  },
+  {
+   "role": "planner",
+   "item": "SP-17",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 53.207454959,
+   "usage": {
+    "InputTokens": 4203,
+    "CachedInputTokens": 2755,
+    "CacheWriteTokens": 1445,
+    "OutputTokens": 6474,
+    "ReasoningTokens": 3126
+   },
+   "cost_nano_usd": 3445475,
+   "cost_known": true,
+   "summary": "Three full-body sessions use light calibration loads and 8-rep sets. Leave a rest day between sessions.",
+   "cardio": [
+    "session 0: rowing_machine, 5 min",
+    "session 1: rowing_machine, 5 min",
+    "session 2: rowing_machine, 5 min"
+   ],
+   "decisions": [
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "reason": "No logged reps, load, or reps in reserve; the history gap supports this 10 lb calibration start."
+    },
+    {
+     "exercise": "seated_leg_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_leg_curl, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "rules_target": "seated_leg_curl, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "final_target": "seated_leg_curl, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "reason": "No logged reps, load, or reps in reserve; the history gap supports this 10 lb calibration start."
+    },
+    {
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "reason": "No logged reps, load, or reps in reserve; the history gap supports this 10 lb calibration start."
+    },
+    {
+     "exercise": "lat_pulldown",
+     "session": 0,
+     "source": "luna",
+     "proposal": "lat_pulldown, rest 120 s: calibration 8 at 55 lb; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR",
+     "rules_target": "lat_pulldown, rest 120 s: calibration 8 at 55 lb; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR",
+     "final_target": "lat_pulldown, rest 120 s: calibration 8 at 55 lb; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR; 8 at 55 lb, 3 RIR",
+     "reason": "No logged reps, load, or reps in reserve; the history gap supports this 55 lb calibration start."
+    },
+    {
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "reason": "No logged reps, load, or reps in reserve; the history gap supports this 10 lb calibration start."
+    },
+    {
+     "exercise": "back_extension",
+     "session": 0,
+     "source": "luna",
+     "proposal": "back_extension, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "rules_target": "back_extension, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "final_target": "back_extension, rest 120 s: calibration 8 at 10 lb; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR; 8 at 10 lb, 3 RIR",
+     "reason": "No logged reps, load, or reps in reserve; the history gap supports this 10 lb calibration start."
+    }
+   ]
+  },
+  {
+   "role": "planner",
+   "item": "SP-18",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 33.869775167,
+   "usage": {
+    "InputTokens": 4200,
+    "CachedInputTokens": 2755,
+    "CacheWriteTokens": 1442,
+    "OutputTokens": 3600,
+    "ReasoningTokens": 2173
+   },
+   "cost_nano_usd": 2008100,
+   "cost_known": true,
+   "summary": "Three sessions use the available movements with opening calibration sets and conservative working targets. Leave a rest day between sessions.",
+   "decisions": [
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 160 lb; 8 at 160 lb, 3 RIR; 8 at 160 lb, 3 RIR; 8 at 160 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 160 lb; 8 at 160 lb, 3 RIR; 8 at 160 lb, 3 RIR; 8 at 160 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 160 lb; 8 at 160 lb, 3 RIR; 8 at 160 lb, 3 RIR; 8 at 160 lb, 3 RIR",
+     "reason": "No logged sets are recorded—a gap—so keep the opening calibration target at 8 reps and 3 RIR."
+    },
+    {
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "reason": "No logged sets are recorded—a gap—so keep the opening calibration target at 8 reps and 3 RIR."
+    },
+    {
+     "exercise": "shoulder_press",
+     "session": 1,
+     "source": "luna",
+     "proposal": "shoulder_press, rest 120 s: calibration 8 at 45 lb; 8 at 45 lb, 3 RIR; 8 at 45 lb, 3 RIR; 8 at 45 lb, 3 RIR",
+     "rules_target": "shoulder_press, rest 120 s: calibration 8 at 45 lb; 8 at 45 lb, 3 RIR; 8 at 45 lb, 3 RIR; 8 at 45 lb, 3 RIR",
+     "final_target": "shoulder_press, rest 120 s: calibration 8 at 45 lb; 8 at 45 lb, 3 RIR; 8 at 45 lb, 3 RIR; 8 at 45 lb, 3 RIR",
+     "reason": "No logged sets are recorded—a gap—so keep the opening calibration target at 8 reps and 3 RIR."
+    },
+    {
+     "exercise": "lat_pulldown",
+     "session": 0,
+     "source": "luna",
+     "proposal": "lat_pulldown, rest 120 s: calibration 8 at 90 lb; 8 at 90 lb, 3 RIR; 8 at 90 lb, 3 RIR; 8 at 90 lb, 3 RIR",
+     "rules_target": "lat_pulldown, rest 120 s: calibration 8 at 90 lb; 8 at 90 lb, 3 RIR; 8 at 90 lb, 3 RIR; 8 at 90 lb, 3 RIR",
+     "final_target": "lat_pulldown, rest 120 s: calibration 8 at 90 lb; 8 at 90 lb, 3 RIR; 8 at 90 lb, 3 RIR; 8 at 90 lb, 3 RIR",
+     "reason": "No logged sets are recorded—a gap—so keep the opening calibration target at 8 reps and 3 RIR."
+    },
+    {
+     "exercise": "seated_row",
+     "session": 1,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: calibration 8 at 80 lb; 8 at 80 lb, 3 RIR; 8 at 80 lb, 3 RIR; 8 at 80 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: calibration 8 at 80 lb; 8 at 80 lb, 3 RIR; 8 at 80 lb, 3 RIR; 8 at 80 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: calibration 8 at 80 lb; 8 at 80 lb, 3 RIR; 8 at 80 lb, 3 RIR; 8 at 80 lb, 3 RIR",
+     "reason": "No logged sets are recorded—a gap—so keep the opening calibration target at 8 reps and 3 RIR."
+    },
+    {
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: calibration 8 at 35 lb; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR",
+     "rules_target": "biceps_curl, rest 120 s: calibration 8 at 35 lb; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR",
+     "final_target": "biceps_curl, rest 120 s: calibration 8 at 35 lb; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR; 8 at 35 lb, 3 RIR",
+     "reason": "No logged sets are recorded—a gap—so keep the opening calibration target at 8 reps and 3 RIR."
+    }
+   ]
+  },
+  {
+   "role": "planner",
+   "item": "SP-19",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 29.625066209,
+   "usage": {
+    "InputTokens": 3984,
+    "CachedInputTokens": 2755,
+    "CacheWriteTokens": 1226,
+    "OutputTokens": 3270,
+    "ReasoningTokens": 1619
+   },
+   "cost_nano_usd": 1816100,
+   "cost_known": true,
+   "summary": "Three full-body sessions use conservative calibration targets. Leave at least one rest day between sessions.",
+   "cardio": [
+    "session 0: recumbent_bike, 10 min",
+    "session 1: recumbent_bike, 10 min",
+    "session 2: recumbent_bike, 10 min"
+   ],
+   "decisions": [
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 135 lb; 8 at 135 lb, 3 RIR; 8 at 135 lb, 3 RIR; 8 at 135 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 135 lb; 8 at 135 lb, 3 RIR; 8 at 135 lb, 3 RIR; 8 at 135 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 135 lb; 8 at 135 lb, 3 RIR; 8 at 135 lb, 3 RIR; 8 at 135 lb, 3 RIR",
+     "reason": "No prior sets are logged; this gap supports a conservative calibration at the policy target."
+    },
+    {
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "reason": "No prior sets are logged; this gap supports a conservative calibration at the policy target."
+    },
+    {
+     "exercise": "lat_pulldown",
+     "session": 0,
+     "source": "luna",
+     "proposal": "lat_pulldown, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "rules_target": "lat_pulldown, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "final_target": "lat_pulldown, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "reason": "No prior sets are logged; this gap supports a conservative calibration at the policy target."
+    },
+    {
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: calibration 8 at 65 lb; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: calibration 8 at 65 lb; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: calibration 8 at 65 lb; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR; 8 at 65 lb, 3 RIR",
+     "reason": "No prior sets are logged; this gap supports a conservative calibration at the policy target."
+    },
+    {
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "rules_target": "biceps_curl, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "final_target": "biceps_curl, rest 120 s: calibration 8 at 30 lb; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR; 8 at 30 lb, 3 RIR",
+     "reason": "No prior sets are logged; this gap supports a conservative calibration at the policy target."
+    }
+   ]
+  },
+  {
+   "role": "planner",
+   "item": "SP-20",
+   "repeat": 0,
+   "status": "ok",
+   "seconds": 33.95953925,
+   "usage": {
+    "InputTokens": 4201,
+    "CachedInputTokens": 2755,
+    "CacheWriteTokens": 1443,
+    "OutputTokens": 4524,
+    "ReasoningTokens": 1316
+   },
+   "cost_nano_usd": 2470225,
+   "cost_known": true,
+   "summary": "Three full-body sessions use the available exercises for conservative calibration. Space sessions with at least one rest day between them.",
+   "decisions": [
+    {
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: calibration 8 at 140 lb; 8 at 140 lb, 3 RIR; 8 at 140 lb, 3 RIR; 8 at 140 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: calibration 8 at 140 lb; 8 at 140 lb, 3 RIR; 8 at 140 lb, 3 RIR; 8 at 140 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: calibration 8 at 140 lb; 8 at 140 lb, 3 RIR; 8 at 140 lb, 3 RIR; 8 at 140 lb, 3 RIR",
+     "reason": "A gap in logged sets supports a conservative first calibration at 140 lb."
+    },
+    {
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: calibration 8 at 60 lb; 8 at 60 lb, 3 RIR; 8 at 60 lb, 3 RIR; 8 at 60 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: calibration 8 at 60 lb; 8 at 60 lb, 3 RIR; 8 at 60 lb, 3 RIR; 8 at 60 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: calibration 8 at 60 lb; 8 at 60 lb, 3 RIR; 8 at 60 lb, 3 RIR; 8 at 60 lb, 3 RIR",
+     "reason": "A gap in logged sets supports a conservative first calibration at 60 lb."
+    },
+    {
+     "exercise": "lat_pulldown",
+     "session": 0,
+     "source": "luna",
+     "proposal": "lat_pulldown, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "rules_target": "lat_pulldown, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "final_target": "lat_pulldown, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "reason": "A gap in logged sets supports a conservative first calibration at 70 lb."
+    },
+    {
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: calibration 8 at 70 lb; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR; 8 at 70 lb, 3 RIR",
+     "reason": "A gap in logged sets supports a conservative first calibration at 70 lb."
+    },
+    {
+     "exercise": "back_extension",
+     "session": 0,
+     "source": "luna",
+     "proposal": "back_extension, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "rules_target": "back_extension, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "final_target": "back_extension, rest 120 s: calibration 8 at 50 lb; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR; 8 at 50 lb, 3 RIR",
+     "reason": "A gap in logged sets supports a conservative first calibration at 50 lb."
+    },
+    {
+     "exercise": "abdominal_crunch",
+     "session": 0,
+     "source": "luna",
+     "proposal": "abdominal_crunch, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "rules_target": "abdominal_crunch, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "final_target": "abdominal_crunch, rest 120 s: calibration 8 at 40 lb; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR; 8 at 40 lb, 3 RIR",
+     "reason": "A gap in logged sets supports a conservative first calibration at 40 lb."
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "A",
+   "repeat": 1,
+   "status": "ok",
+   "seconds": 23.403420542,
+   "usage": {
+    "InputTokens": 3705,
+    "CachedInputTokens": 0,
+    "CacheWriteTokens": 3702,
+    "OutputTokens": 2213,
+    "ReasoningTokens": 1603
+   },
+   "cost_nano_usd": 1569550,
+   "cost_known": true,
+   "summary": "Use the listed targets. Leave at least one rest day between sessions that train the same muscles.",
+   "decisions": [
+    {
+     "case": "a_low_rir",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "reason": "The logged reps (12, 12, 5) and reps in reserve (1, 1, 0) support repeating the target.",
+     "safe": true
+    },
+    {
+     "case": "a_twice",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "reason": "The logged reps (12, 12, 6) at 25 lb with reps in reserve of 2, 1, and 0 support the 20 lb target.",
+     "safe": true
+    },
+    {
+     "case": "a_pain",
+     "exercise": "leg_extension",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_extension, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "leg_extension, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "leg_extension, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "The logged pain rating of 4 supports repeating the target at 25 lb for 12 reps with 2 in reserve.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "A",
+   "repeat": 2,
+   "status": "ok",
+   "seconds": 13.06803075,
+   "usage": {
+    "InputTokens": 3705,
+    "CachedInputTokens": 3702,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 1239,
+    "ReasoningTokens": 842
+   },
+   "cost_nano_usd": 656820,
+   "cost_known": true,
+   "summary": "Use controlled working sets and stop each set with the planned reps in reserve.",
+   "decisions": [
+    {
+     "case": "a_low_rir",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "reason": "The logged reps (12, 12, 5) and reps in reserve (1, 1, 0) support holding the 25 lb target at 8 reps.",
+     "safe": true
+    },
+    {
+     "case": "a_twice",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "reason": "The logged reps (12, 12, 6) and reps in reserve (2, 1, 0) support the policy's 20 lb target for 12 reps.",
+     "safe": true
+    },
+    {
+     "case": "a_pain",
+     "exercise": "leg_extension",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_extension, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "leg_extension, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "leg_extension, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "The logged pain rating (4) keeps this at the same 25 lb, 12-rep target.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "A",
+   "repeat": 3,
+   "status": "ok",
+   "seconds": 25.125287042,
+   "usage": {
+    "InputTokens": 3705,
+    "CachedInputTokens": 3702,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 2437,
+    "ReasoningTokens": 1853
+   },
+   "cost_nano_usd": 1255820,
+   "cost_known": true,
+   "summary": "Repeat the listed targets with light warm-up sets, then stretch. Stop the leg extension if pain occurs.",
+   "decisions": [
+    {
+     "case": "a_low_rir",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "reason": "The logged 5 reps and 0 reps in reserve support holding the target at 25 lb.",
+     "safe": true
+    },
+    {
+     "case": "a_twice",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "reason": "The logged 5- and 6-rep sets and 0 reps in reserve support the lower 20 lb target.",
+     "safe": true
+    },
+    {
+     "case": "a_pain",
+     "exercise": "leg_extension",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_extension, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "leg_extension, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "leg_extension, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "The logged pain rating of 4 supports holding the target at 25 lb for 12 reps.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "A",
+   "repeat": 4,
+   "status": "ok",
+   "seconds": 15.828354458,
+   "usage": {
+    "InputTokens": 3705,
+    "CachedInputTokens": 3702,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 1531,
+    "ReasoningTokens": 930
+   },
+   "cost_nano_usd": 802820,
+   "cost_known": true,
+   "summary": "Repeat a controlled session using the targets below. Leave a rest day before training the same muscles again.",
+   "decisions": [
+    {
+     "case": "a_low_rir",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "reason": "Logged reps fell to 5 at 25 lb, and the last set was at 0 RIR, so repeat the target.",
+     "safe": true
+    },
+    {
+     "case": "a_twice",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "reason": "Logged reps were 12, 12, then 6 at 25 lb, with 0 RIR on the last set; use the 20 lb target.",
+     "safe": true
+    },
+    {
+     "case": "a_pain",
+     "exercise": "leg_extension",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_extension, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "leg_extension, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "leg_extension, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "The logged pain rating was 4, so repeat the conservative 25 lb, 12-rep target.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "A",
+   "repeat": 5,
+   "status": "ok",
+   "seconds": 20.154776333,
+   "usage": {
+    "InputTokens": 3705,
+    "CachedInputTokens": 3702,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 1866,
+    "ReasoningTokens": 1496
+   },
+   "cost_nano_usd": 970320,
+   "cost_known": true,
+   "summary": "Use light sets before each exercise, and leave one rest day before training the same muscles again.",
+   "decisions": [
+    {
+     "case": "a_low_rir",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "reason": "Your logged reps fell to 5, with 0 reps in reserve on that set, so repeat the target.",
+     "safe": true
+    },
+    {
+     "case": "a_twice",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "reason": "Your logged reps fell to 5 and 6 on the final sets in consecutive sessions; use the 20 lb target.",
+     "safe": true
+    },
+    {
+     "case": "a_pain",
+     "exercise": "leg_extension",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_extension, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "leg_extension, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "leg_extension, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "Your logged set reported pain rated 4, so repeat the 25 lb and 12-rep target.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "B",
+   "repeat": 1,
+   "status": "ok",
+   "seconds": 14.6020255,
+   "usage": {
+    "InputTokens": 3526,
+    "CachedInputTokens": 2679,
+    "CacheWriteTokens": 844,
+    "OutputTokens": 1542,
+    "ReasoningTokens": 940
+   },
+   "cost_nano_usd": 903590,
+   "cost_known": true,
+   "summary": "Complete three working sets for each exercise, using the listed targets and controlled reps.",
+   "decisions": [
+    {
+     "case": "b_load_step",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "reason": "You logged 12 reps at 25 lb with 3–4 RIR on all sets; the next target moves to 30 lb for 8 reps.",
+     "safe": true
+    },
+    {
+     "case": "b_add_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "You logged 10 reps at 25 lb with 3 RIR on all sets; the next target adds reps at the same load.",
+     "safe": true
+    },
+    {
+     "case": "b_dumbbell_step",
+     "exercise": "db_biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "db_biceps_curl, rest 120 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "rules_target": "db_biceps_curl, rest 120 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "final_target": "db_biceps_curl, rest 120 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "reason": "You logged 20 reps at 15 lb with 3 RIR on all sets; the next target increases the dumbbell load to 20 lb.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "B",
+   "repeat": 2,
+   "status": "ok",
+   "seconds": 15.874918583,
+   "usage": {
+    "InputTokens": 3526,
+    "CachedInputTokens": 3523,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 1447,
+    "ReasoningTokens": 1048
+   },
+   "cost_nano_usd": 759030,
+   "cost_known": true,
+   "summary": "Use controlled reps and the listed rests. Leave a rest day before training these muscles again.",
+   "decisions": [
+    {
+     "case": "b_load_step",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "reason": "You logged 12 reps at 25 lb with 3–4 reps in reserve on each set; the next target is 8 reps at 30 lb.",
+     "safe": true
+    },
+    {
+     "case": "b_add_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "You logged 10 reps at 25 lb with 3 reps in reserve on each set; the next target is 12 reps at 25 lb.",
+     "safe": true
+    },
+    {
+     "case": "b_dumbbell_step",
+     "exercise": "db_biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "db_biceps_curl, rest 120 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "rules_target": "db_biceps_curl, rest 120 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "final_target": "db_biceps_curl, rest 120 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "reason": "You logged 20 reps at 15 lb with 3 reps in reserve on each set; the next target is 10 reps at 20 lb per dumbbell.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "B",
+   "repeat": 3,
+   "status": "ok",
+   "seconds": 17.712455333,
+   "usage": {
+    "InputTokens": 3526,
+    "CachedInputTokens": 3523,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 1631,
+    "ReasoningTokens": 1034
+   },
+   "cost_nano_usd": 851030,
+   "cost_known": true,
+   "summary": "Complete three upper-pull exercises with the listed targets. Leave one rest day before training the same muscles again.",
+   "decisions": [
+    {
+     "case": "b_load_step",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "reason": "Logged 12 reps at 25 lb with 3–4 reps in reserve; the next target is 30 lb for 8 reps.",
+     "safe": true
+    },
+    {
+     "case": "b_add_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "Logged 10 reps at 25 lb with 3 reps in reserve; the next target adds reps at the same load.",
+     "safe": true
+    },
+    {
+     "case": "b_dumbbell_step",
+     "exercise": "db_biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "db_biceps_curl, rest 120 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "rules_target": "db_biceps_curl, rest 120 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "final_target": "db_biceps_curl, rest 120 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "reason": "Logged 20 reps at 15 lb with 3 reps in reserve; the next target is 20 lb for 10 reps.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "B",
+   "repeat": 4,
+   "status": "ok",
+   "seconds": 17.135509583,
+   "usage": {
+    "InputTokens": 3526,
+    "CachedInputTokens": 3523,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 1896,
+    "ReasoningTokens": 1293
+   },
+   "cost_nano_usd": 983530,
+   "cost_known": true,
+   "summary": "This session follows the next targets for all three exercises. Leave one rest day before training these muscles again.",
+   "decisions": [
+    {
+     "case": "b_load_step",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "reason": "You logged 12 reps at 25 lb with 3–4 reps in reserve; the next target is 30 lb.",
+     "safe": true
+    },
+    {
+     "case": "b_add_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "You logged 10 reps at 25 lb with 3 reps in reserve; the next target is 12 reps.",
+     "safe": true
+    },
+    {
+     "case": "b_dumbbell_step",
+     "exercise": "db_biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "db_biceps_curl, rest 120 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "rules_target": "db_biceps_curl, rest 120 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "final_target": "db_biceps_curl, rest 120 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "reason": "You logged 20 reps at 15 lb with 3 reps in reserve; the next target is 20 lb.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "B",
+   "repeat": 5,
+   "status": "ok",
+   "seconds": 18.893763625,
+   "usage": {
+    "InputTokens": 3526,
+    "CachedInputTokens": 3523,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 1927,
+    "ReasoningTokens": 1330
+   },
+   "cost_nano_usd": 999030,
+   "cost_known": true,
+   "summary": "Use one light set before each exercise, then stretch the muscles trained. Leave a rest day before training these muscles again.",
+   "decisions": [
+    {
+     "case": "b_load_step",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "reason": "You completed 12 reps at 25 lb with 3–4 reps in reserve, so target 30 lb for 8 reps.",
+     "safe": true
+    },
+    {
+     "case": "b_add_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "You completed 10 reps at 25 lb with 3 reps in reserve, so target 12 reps at that load.",
+     "safe": true
+    },
+    {
+     "case": "b_dumbbell_step",
+     "exercise": "db_biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "db_biceps_curl, rest 120 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "rules_target": "db_biceps_curl, rest 120 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "final_target": "db_biceps_curl, rest 120 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "reason": "You completed 20 reps at 15 lb with 3 reps in reserve, so target 20 lb for 10 reps.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "C",
+   "repeat": 1,
+   "status": "ok",
+   "seconds": 9.373534917,
+   "usage": {
+    "InputTokens": 3314,
+    "CachedInputTokens": 2679,
+    "CacheWriteTokens": 632,
+    "OutputTokens": 910,
+    "ReasoningTokens": 516
+   },
+   "cost_nano_usd": 561090,
+   "cost_known": true,
+   "summary": "Repeat both logged targets for this session. Use a light set before each exercise, then stretch the muscles trained.",
+   "decisions": [
+    {
+     "case": "c_pain_hold",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "Your logged 12 reps at 25 lb and 3–4 reps in reserve included pain, so repeat this target.",
+     "safe": true
+    },
+    {
+     "case": "c_pain_easy",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "rules_target": "chest_press, rest 120 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "final_target": "chest_press, rest 120 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "reason": "Your logged 12 reps at 60 lb and 4 reps in reserve included pain, so repeat this target.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "C",
+   "repeat": 2,
+   "status": "ok",
+   "seconds": 7.956762333,
+   "usage": {
+    "InputTokens": 3314,
+    "CachedInputTokens": 3311,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 690,
+    "ReasoningTokens": 429
+   },
+   "cost_nano_usd": 378410,
+   "cost_known": true,
+   "summary": "Repeat both exercise targets. Leave a rest day between sessions that train the same muscles.",
+   "decisions": [
+    {
+     "case": "c_pain_hold",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "A logged set had pain 3, so repeat 12 reps at 25 lb.",
+     "safe": true
+    },
+    {
+     "case": "c_pain_easy",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "rules_target": "chest_press, rest 120 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "final_target": "chest_press, rest 120 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "reason": "A logged set had pain 2, so repeat 12 reps at 60 lb.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "C",
+   "repeat": 3,
+   "status": "ok",
+   "seconds": 8.845651333,
+   "usage": {
+    "InputTokens": 3314,
+    "CachedInputTokens": 3311,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 767,
+    "ReasoningTokens": 486
+   },
+   "cost_nano_usd": 416910,
+   "cost_known": true,
+   "summary": "Repeat the same loads and reps for both exercises, keeping 2 reps in reserve.",
+   "decisions": [
+    {
+     "case": "c_pain_hold",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "The logged pain rating of 3 means repeat 3 sets of 12 at 25 lb with 2 reps in reserve.",
+     "safe": true
+    },
+    {
+     "case": "c_pain_easy",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "rules_target": "chest_press, rest 120 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "final_target": "chest_press, rest 120 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "reason": "The logged pain rating of 2 means repeat 3 sets of 12 at 60 lb with 2 reps in reserve.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "C",
+   "repeat": 4,
+   "status": "ok",
+   "seconds": 6.516161416,
+   "usage": {
+    "InputTokens": 3314,
+    "CachedInputTokens": 3311,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 624,
+    "ReasoningTokens": 355
+   },
+   "cost_nano_usd": 345410,
+   "cost_known": true,
+   "summary": "Repeat the logged targets for both exercises. Leave a rest day between sessions that train the same muscles.",
+   "decisions": [
+    {
+     "case": "c_pain_hold",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "Logged pain of 3 on a set at 25 lb and 12 reps means this target repeats.",
+     "safe": true
+    },
+    {
+     "case": "c_pain_easy",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "rules_target": "chest_press, rest 120 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "final_target": "chest_press, rest 120 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "reason": "Logged pain of 2 on a set at 60 lb and 12 reps means this target repeats.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "C",
+   "repeat": 5,
+   "status": "ok",
+   "seconds": 10.250680375,
+   "usage": {
+    "InputTokens": 3314,
+    "CachedInputTokens": 3311,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 1000,
+    "ReasoningTokens": 743
+   },
+   "cost_nano_usd": 533410,
+   "cost_known": true,
+   "summary": "Repeat both targets at the same loads and reps. Keep the session steady.",
+   "decisions": [
+    {
+     "case": "c_pain_hold",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "Pain was logged on one set; repeat the 25 lb load for 3 sets of 12 reps.",
+     "safe": true
+    },
+    {
+     "case": "c_pain_easy",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "rules_target": "chest_press, rest 120 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "final_target": "chest_press, rest 120 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "reason": "Pain was logged on one set; repeat the 60 lb load for 3 sets of 12 reps.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "D",
+   "repeat": 1,
+   "status": "ok",
+   "seconds": 11.13219875,
+   "usage": {
+    "InputTokens": 3226,
+    "CachedInputTokens": 2679,
+    "CacheWriteTokens": 544,
+    "OutputTokens": 1078,
+    "ReasoningTokens": 707
+   },
+   "cost_nano_usd": 634090,
+   "cost_known": true,
+   "summary": "Repeat both targets this session. Keep one rest day between sessions that train the same muscles.",
+   "decisions": [
+    {
+     "case": "d_unlogged",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "The logged 12 reps at 25 lb and the gap from one planned set mean this target repeats.",
+     "safe": true
+    },
+    {
+     "case": "d_skipped",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "The logged gap was a skipped exercise, so repeat its target.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "D",
+   "repeat": 2,
+   "status": "ok",
+   "seconds": 9.70626225,
+   "usage": {
+    "InputTokens": 3226,
+    "CachedInputTokens": 3223,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 893,
+    "ReasoningTokens": 618
+   },
+   "cost_nano_usd": 479030,
+   "cost_known": true,
+   "summary": "Repeat both upper-pull targets after the incomplete session. Do light warm-up sets, then stretch after training.",
+   "decisions": [
+    {
+     "case": "d_unlogged",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "Only two sets were logged at 25 lb for 12 reps, leaving a gap in the planned work, so repeat the target.",
+     "safe": true
+    },
+    {
+     "case": "d_skipped",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "This exercise was skipped, leaving a gap, so repeat its target.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "D",
+   "repeat": 3,
+   "status": "ok",
+   "seconds": 8.783900666,
+   "usage": {
+    "InputTokens": 3226,
+    "CachedInputTokens": 3223,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 867,
+    "ReasoningTokens": 442
+   },
+   "cost_nano_usd": 466030,
+   "cost_known": true,
+   "summary": "Repeat both exercises at the same targets. Keep one rest day between sessions that train the same muscles.",
+   "decisions": [
+    {
+     "case": "d_unlogged",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "The gap in the logged sets means repeat 25 lb for 3 sets of 12.",
+     "safe": true
+    },
+    {
+     "case": "d_skipped",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "The skipped exercise is a gap, so repeat 25 lb for 3 sets of 12.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "D",
+   "repeat": 4,
+   "status": "ok",
+   "seconds": 9.364742667,
+   "usage": {
+    "InputTokens": 3226,
+    "CachedInputTokens": 3223,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 948,
+    "ReasoningTokens": 516
+   },
+   "cost_nano_usd": 506530,
+   "cost_known": true,
+   "summary": "Repeat both exercise targets this session. Leave one rest day before training these muscles again.",
+   "decisions": [
+    {
+     "case": "d_unlogged",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "You logged 2 sets of 12 at 25 lb with 3 RIR; the third set was unlogged, so repeat the target.",
+     "safe": true
+    },
+    {
+     "case": "d_skipped",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "You skipped this exercise last time, so repeat its target.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "D",
+   "repeat": 5,
+   "status": "ok",
+   "seconds": 10.068668666,
+   "usage": {
+    "InputTokens": 3226,
+    "CachedInputTokens": 3223,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 945,
+    "ReasoningTokens": 670
+   },
+   "cost_nano_usd": 505030,
+   "cost_known": true,
+   "summary": "Repeat both targets after an early finish and a skipped row session. Use the listed loads and leave at least 2 reps in reserve.",
+   "decisions": [
+    {
+     "case": "d_unlogged",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "luna",
+     "proposal": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "The gap after two sets of 12 reps at 25 lb and 3 reps in reserve leaves this target unchanged.",
+     "safe": true
+    },
+    {
+     "case": "d_skipped",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "The logged gap from skipping this exercise means its target repeats.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "E",
+   "repeat": 1,
+   "status": "ok",
+   "seconds": 16.031636583,
+   "usage": {
+    "InputTokens": 3716,
+    "CachedInputTokens": 2679,
+    "CacheWriteTokens": 1034,
+    "OutputTokens": 1647,
+    "ReasoningTokens": 1131
+   },
+   "cost_nano_usd": 979840,
+   "cost_known": true,
+   "summary": "Use lighter return targets for chest press and leg press after their gaps. Repeat the seated-row load and build toward 12 reps.",
+   "decisions": [
+    {
+     "case": "e_short",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "reason": "The 21-day gap since the logged 100 lb sets calls for a lighter return target.",
+     "safe": true
+    },
+    {
+     "case": "e_long",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "reason": "The 45-day gap since the logged 150 lb sets calls for a lighter return target.",
+     "safe": true
+    },
+    {
+     "case": "e_first_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "reason": "The 10/03 log shows 10 reps at 45 lb; repeat that load and work toward 12 reps.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "E",
+   "repeat": 2,
+   "status": "ok",
+   "seconds": 18.0624515,
+   "usage": {
+    "InputTokens": 3716,
+    "CachedInputTokens": 3713,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 1818,
+    "ReasoningTokens": 1314
+   },
+   "cost_nano_usd": 946430,
+   "cost_known": true,
+   "summary": "Do one light set before each exercise, then follow the listed targets. Leave a rest day between sessions that train the same muscles.",
+   "decisions": [
+    {
+     "case": "e_short",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "reason": "The 21-day gap supports the 90 lb, two-set short-break target; the last logged load was 100 lb.",
+     "safe": true
+    },
+    {
+     "case": "e_long",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "reason": "The 45-day gap supports the 120 lb, two-set long-break target; the last logged load was 150 lb.",
+     "safe": true
+    },
+    {
+     "case": "e_first_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "reason": "The logged 10 reps at 45 lb with 3 reps in reserve support a target of 12 reps at the same load.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "E",
+   "repeat": 3,
+   "status": "ok",
+   "seconds": 17.205200375,
+   "usage": {
+    "InputTokens": 3716,
+    "CachedInputTokens": 3713,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 1650,
+    "ReasoningTokens": 1156
+   },
+   "cost_nano_usd": 862430,
+   "cost_known": true,
+   "summary": "Do one light set before each exercise. Leave one rest day between sessions that train the same muscles.",
+   "decisions": [
+    {
+     "case": "e_short",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "reason": "The 21-day gap calls for a return target of 12 reps at 90 lb.",
+     "safe": true
+    },
+    {
+     "case": "e_long",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "reason": "The 45-day gap calls for a return target of 12 reps at 120 lb.",
+     "safe": true
+    },
+    {
+     "case": "e_first_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "reason": "The latest log was 10 reps at 45 lb with 3 RIR, so repeat the 12-rep target at 45 lb.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "E",
+   "repeat": 4,
+   "status": "ok",
+   "seconds": 16.803286375,
+   "usage": {
+    "InputTokens": 3716,
+    "CachedInputTokens": 3713,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 1757,
+    "ReasoningTokens": 1260
+   },
+   "cost_nano_usd": 915930,
+   "cost_known": true,
+   "summary": "Use the listed loads and reps with steady effort. Leave a rest day between sessions that train the same muscles.",
+   "decisions": [
+    {
+     "case": "e_short",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "reason": "The 21-day gap since 100 lb for 12 reps supports the reduced 90 lb, two-set target.",
+     "safe": true
+    },
+    {
+     "case": "e_long",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "reason": "The 45-day gap since 150 lb for 12 reps supports the reduced 120 lb, two-set target.",
+     "safe": true
+    },
+    {
+     "case": "e_first_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "reason": "The Oct 3 log shows 10 reps at 45 lb with 3 RIR; follow the listed 12-rep target.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "E",
+   "repeat": 5,
+   "status": "ok",
+   "seconds": 19.5779835,
+   "usage": {
+    "InputTokens": 3716,
+    "CachedInputTokens": 3713,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 1870,
+    "ReasoningTokens": 1367
+   },
+   "cost_nano_usd": 972430,
+   "cost_known": true,
+   "summary": "Use a conservative machine session with reduced targets after gaps. Keep each set controlled and leave the planned reps in reserve.",
+   "decisions": [
+    {
+     "case": "e_short",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "rules_target": "chest_press, rest 120 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "final_target": "chest_press, rest 120 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "reason": "The 21-day gap supports a conservative target of 90 lb for 2 sets of 12.",
+     "safe": true
+    },
+    {
+     "case": "e_long",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "rules_target": "leg_press, rest 180 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "final_target": "leg_press, rest 180 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "reason": "The 45-day gap supports the reduced target of 120 lb for 2 sets of 12.",
+     "safe": true
+    },
+    {
+     "case": "e_first_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "luna",
+     "proposal": "seated_row, rest 120 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "rules_target": "seated_row, rest 120 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "final_target": "seated_row, rest 120 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "reason": "The Oct 3 log was 10 reps at 45 lb with 3 RIR, so keep the target conservative.",
+     "safe": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "F",
+   "repeat": 1,
+   "status": "ok",
+   "seconds": 6.770163875,
+   "usage": {
+    "InputTokens": 3391,
+    "CachedInputTokens": 2679,
+    "CacheWriteTokens": 709,
+    "OutputTokens": 715,
+    "ReasoningTokens": 411
+   },
+   "cost_nano_usd": 473215,
+   "cost_known": true,
+   "summary": "Train chest and legs with the listed targets. Leave a rest day between sessions that train the same muscles.",
+   "decisions": [
+    {
+     "case": "f_press",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "rules_target": "chest_press, rest 120 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "final_target": "chest_press, rest 120 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "reason": "You completed 12 reps at 100 lb with 3 reps in reserve on all three sets, so this target adds 5 lb and resets to 8 reps.",
+     "safe": true,
+     "jump_refused": true
+    },
+    {
+     "case": "f_leg_press",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "rules_target": "leg_press, rest 180 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "final_target": "leg_press, rest 180 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "reason": "You completed 12 reps at 200 lb with 3 reps in reserve on all three sets, so this target adds 5 lb and resets to 8 reps.",
+     "safe": true,
+     "jump_refused": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "F",
+   "repeat": 2,
+   "status": "ok",
+   "seconds": 8.538755459,
+   "usage": {
+    "InputTokens": 3391,
+    "CachedInputTokens": 3388,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 758,
+    "ReasoningTokens": 483
+   },
+   "cost_nano_usd": 413180,
+   "cost_known": true,
+   "summary": "Train chest and legs with the listed targets. Leave a rest day before training the same muscles again.",
+   "decisions": [
+    {
+     "case": "f_press",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "rules_target": "chest_press, rest 120 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "final_target": "chest_press, rest 120 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "reason": "The logged 12 reps at 100 lb with 3 reps in reserve support the policy target.",
+     "safe": true,
+     "jump_refused": true
+    },
+    {
+     "case": "f_leg_press",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "rules_target": "leg_press, rest 180 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "final_target": "leg_press, rest 180 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "reason": "The logged 12 reps at 200 lb with 3 reps in reserve support the policy target.",
+     "safe": true,
+     "jump_refused": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "F",
+   "repeat": 3,
+   "status": "ok",
+   "seconds": 9.045151416,
+   "usage": {
+    "InputTokens": 3391,
+    "CachedInputTokens": 3388,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 946,
+    "ReasoningTokens": 516
+   },
+   "cost_nano_usd": 507180,
+   "cost_known": true,
+   "summary": "Use the next targets for chest press and leg press. Rest 120 seconds between chest press sets and 180 seconds between leg press sets.",
+   "decisions": [
+    {
+     "case": "f_press",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "rules_target": "chest_press, rest 120 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "final_target": "chest_press, rest 120 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "reason": "You logged 12 reps at 100 lb with 3 reps in reserve on each set.",
+     "safe": true,
+     "jump_refused": true
+    },
+    {
+     "case": "f_leg_press",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "rules_target": "leg_press, rest 180 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "final_target": "leg_press, rest 180 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "reason": "You logged 12 reps at 200 lb with 3 reps in reserve on each set.",
+     "safe": true,
+     "jump_refused": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "F",
+   "repeat": 4,
+   "status": "ok",
+   "seconds": 11.405307708,
+   "usage": {
+    "InputTokens": 3391,
+    "CachedInputTokens": 3388,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 1153,
+    "ReasoningTokens": 876
+   },
+   "cost_nano_usd": 610680,
+   "cost_known": true,
+   "summary": "Train chest and legs with controlled reps. Leave one rest day before training these muscles again.",
+   "decisions": [
+    {
+     "case": "f_press",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "rules_target": "chest_press, rest 120 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "final_target": "chest_press, rest 120 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "reason": "Your log shows 12 reps at 100 lb with 3 reps in reserve; the next target is 105 lb for 8 reps.",
+     "safe": true,
+     "jump_refused": true
+    },
+    {
+     "case": "f_leg_press",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "rules_target": "leg_press, rest 180 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "final_target": "leg_press, rest 180 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "reason": "Your log shows 12 reps at 200 lb with 3 reps in reserve; the next target is 205 lb for 8 reps.",
+     "safe": true,
+     "jump_refused": true
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "F",
+   "repeat": 5,
+   "status": "ok",
+   "seconds": 9.929157042,
+   "usage": {
+    "InputTokens": 3391,
+    "CachedInputTokens": 3388,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 1003,
+    "ReasoningTokens": 704
+   },
+   "cost_nano_usd": 535680,
+   "cost_known": true,
+   "summary": "Use the listed targets for both exercises. Leave a rest day between sessions that train the same muscles.",
+   "decisions": [
+    {
+     "case": "f_press",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "chest_press, rest 120 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "rules_target": "chest_press, rest 120 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "final_target": "chest_press, rest 120 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "reason": "You logged 3 sets of 12 at 100 lb with 3 reps in reserve, so use 105 lb for 3 sets of 8.",
+     "safe": true,
+     "jump_refused": true
+    },
+    {
+     "case": "f_leg_press",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "luna",
+     "proposal": "leg_press, rest 180 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "rules_target": "leg_press, rest 180 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "final_target": "leg_press, rest 180 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "reason": "You logged 3 sets of 12 at 200 lb with 3 reps in reserve, so use 205 lb for 3 sets of 8.",
+     "safe": true,
+     "jump_refused": true
+    }
+   ]
+  }
+ ],
+ "totals": {
+  "calls": 50,
+  "by_status": {
+   "ok": 50
+  },
+  "schema_pass": 50,
+  "decisions": 196,
+  "luna_proposals": 196,
+  "accepted": 196,
+  "refused": 0,
+  "no_proposal": 0,
+  "not_planned": 1,
+  "refusals_by_rule": {},
+  "filtered_texts": 0,
+  "cardio_items": 27,
+  "cost_nano_usd": 73990050,
+  "calls_with_unknown_cost": 0,
+  "max_seconds": 63.6200675,
+  "input_tokens": 188912,
+  "output_tokens": 135071,
+  "reasoning_tokens": 78464
+ },
+ "scenarios": [
+  {
+   "id": "A",
+   "title": "3 x 12 at 25 lb, logged 12, 12, 5",
+   "cases": 15,
+   "safe": 15,
+   "accepted": 15,
+   "refused": 0,
+   "jumps": 0,
+   "jumps_refused": 0
+  },
+  {
+   "id": "B",
+   "title": "every rep at 3 or more reps in reserve",
+   "cases": 15,
+   "safe": 15,
+   "accepted": 15,
+   "refused": 0,
+   "jumps": 0,
+   "jumps_refused": 0
+  },
+  {
+   "id": "C",
+   "title": "a pain flag on a set",
+   "cases": 10,
+   "safe": 10,
+   "accepted": 10,
+   "refused": 0,
+   "jumps": 0,
+   "jumps_refused": 0
+  },
+  {
+   "id": "D",
+   "title": "the session ended early",
+   "cases": 10,
+   "safe": 10,
+   "accepted": 10,
+   "refused": 0,
+   "jumps": 0,
+   "jumps_refused": 0
+  },
+  {
+   "id": "E",
+   "title": "no session for 2 weeks or more",
+   "cases": 15,
+   "safe": 15,
+   "accepted": 15,
+   "refused": 0,
+   "jumps": 0,
+   "jumps_refused": 0
+  },
+  {
+   "id": "F",
+   "title": "a 50 percent load jump",
+   "cases": 10,
+   "safe": 10,
+   "accepted": 10,
+   "refused": 0,
+   "jumps": 10,
+   "jumps_refused": 10
+  }
+ ]
+}

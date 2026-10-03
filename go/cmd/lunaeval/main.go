@@ -6,6 +6,9 @@
 // command writes a JSON report with the schema pass rate, the policy
 // refusals, the grade of each scenario, and the cost.
 //
+// The -effort flag replaces the reasoning effort of each role, so two
+// runs can compare two efforts with the same calls.
+//
 // With no -live flag, the command uses the fake provider, and it costs
 // nothing. With -live, it calls OpenAI, and each call costs money. A
 // live run needs the approval of the owner, with its cap, at run time
@@ -22,6 +25,7 @@ import (
 	"io"
 	"os"
 	"sort"
+	"strings"
 
 	"github.com/nkramber/workout-app/go/internal/ai"
 )
@@ -43,6 +47,7 @@ func run(ctx context.Context, args []string, getenv func(string) string, stdout 
 	repeats := fs.Int("repeats", 5, "the calls of each scenario")
 	workers := fs.Int("workers", 4, "the calls at the same time")
 	out := fs.String("out", "", "the path of the JSON report (required)")
+	effort := fs.String("effort", "", "the reasoning effort of each call, one of "+strings.Join(ai.Efforts, ", ")+" (default: the effort of the role)")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -51,6 +56,9 @@ func run(ctx context.Context, args []string, getenv func(string) string, stdout 
 	}
 	if *repeats < 1 || *workers < 1 {
 		return errors.New("-repeats and -workers must be 1 or more")
+	}
+	if *effort != "" && !ai.ValidEffort(*effort) {
+		return fmt.Errorf("-effort %q: want one of %s", *effort, strings.Join(ai.Efforts, ", "))
 	}
 	// The cap is the cap of the user and of the project of the run.
 	caps, err := ai.CapsFromEnv(func(string) string { return *capUSD })
@@ -70,7 +78,7 @@ func run(ctx context.Context, args []string, getenv func(string) string, stdout 
 	if err != nil {
 		return err
 	}
-	client := &ai.Client{Provider: provider, Cap: ai.NewMemoryCap(caps)}
+	client := &ai.Client{Provider: provider, Cap: ai.NewMemoryCap(caps), Effort: *effort}
 	rep, err := Run(ctx, client, profiles, Scenarios(), *repeats, *workers)
 	if err != nil {
 		return err

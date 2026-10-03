@@ -68,11 +68,14 @@ type Retry struct {
 // Client calls the roles of Luna through a provider, with a cap hook.
 // Record, when it is not nil, gets the cost record of each call (D-25).
 // Timeout, when it is more than 0, replaces the time limit of the role.
+// Effort, when it is not "", replaces the effort of the role. It must be
+// one of Efforts. Only the evaluation of go/cmd/lunaeval sets it.
 type Client struct {
 	Provider Provider
 	Cap      CapHook
 	Record   func(CostRecord)
 	Timeout  time.Duration
+	Effort   string
 }
 
 // Result is the outcome of one call. Plan is nil unless Status is
@@ -109,6 +112,12 @@ func (c *Client) Revise(ctx context.Context, req Request) (Result, error) {
 func (c *Client) call(ctx context.Context, role Role, req Request) (Result, error) {
 	if c.Provider == nil || c.Cap == nil {
 		return Result{}, errors.New("ai: the client needs a provider and a cap hook")
+	}
+	if c.Effort != "" {
+		if !ValidEffort(c.Effort) {
+			return Result{}, fmt.Errorf("ai: effort %q: want one of %v", c.Effort, Efforts)
+		}
+		role.Effort = c.Effort
 	}
 	if req.Sessions < 1 || req.Sessions > role.MaxSessions {
 		return Result{}, fmt.Errorf("ai: %d sessions: want 1 to %d for the %s", req.Sessions, role.MaxSessions, role.Name)

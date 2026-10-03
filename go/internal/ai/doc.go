@@ -1,5 +1,5 @@
 // Package ai holds the Luna role layer (D-22, D-24). The planner and
-// the reviser call OpenAI Luna at medium effort with a strict JSON
+// the reviser call OpenAI Luna at xhigh effort with a strict JSON
 // schema. A call site names a role, and the role gives the model id, so
 // no model id appears at a call site. The fake provider stands
 // in for Luna in each test, and no test calls OpenAI.

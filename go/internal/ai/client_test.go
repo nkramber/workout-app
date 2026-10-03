@@ -139,7 +139,7 @@ func TestAcceptance(t *testing.T) {
 			for _, in := range req.Exercises {
 				id := in.Exercise.ID
 				prop := res.Proposal(0, id)
-				if prop.Model != Planner().Model || prop.Effort != "medium" || prop.PromptHash != PromptHash(Planner()) {
+				if prop.Model != Planner().Model || prop.Effort != Planner().Effort || prop.PromptHash != PromptHash(Planner()) {
 					t.Errorf("%s: proposal names model %q, effort %q, hash %q", id, prop.Model, prop.Effort, prop.PromptHash)
 				}
 				rec, err := policy.Decide(in, prop)
@@ -258,7 +258,7 @@ func TestCostRecord(t *testing.T) {
 				t.Fatalf("status %q, %d records: want %q and one record", res.Status, len(recs), tc.status)
 			}
 			r := recs[0]
-			if r.User != "uid-test-1" || r.Role != RolePlanner || r.Model != Planner().Model || r.Effort != "medium" || r.Status != tc.status || r.Known != tc.known {
+			if r.User != "uid-test-1" || r.Role != RolePlanner || r.Model != Planner().Model || r.Effort != Planner().Effort || r.Status != tc.status || r.Known != tc.known {
 				t.Fatalf("record %+v", r)
 			}
 			want := r.Reserved
@@ -422,6 +422,39 @@ func TestRevise(t *testing.T) {
 	}
 }
 
+// TestEffort: the effort of the client replaces the effort of the role
+// in the call, the result, and the cost record. The prompt and its hash
+// do not change.
+func TestEffort(t *testing.T) {
+	fake := &Fake{}
+	var rec CostRecord
+	c := &Client{Provider: fake, Cap: bigCap(), Effort: "high", Record: func(r CostRecord) { rec = r }}
+	res, err := c.Plan(context.Background(), request(t))
+	if err != nil || res.Status != StatusOK {
+		t.Fatalf("status %q err %v", res.Status, err)
+	}
+	call := fake.Calls()[0]
+	if call.Role.Effort != "high" || res.Effort != "high" || rec.Effort != "high" {
+		t.Fatalf("effort: call %q, result %q, record %q: want high", call.Role.Effort, res.Effort, rec.Effort)
+	}
+	if call.Instructions != Instructions(Planner()) || res.PromptHash != PromptHash(Planner()) {
+		t.Fatal("the effort changed the prompt")
+	}
+	if Planner().Effort == "high" {
+		t.Fatal("the client changed the role")
+	}
+	for _, e := range Efforts {
+		if !ValidEffort(e) {
+			t.Errorf("ValidEffort(%q) = false", e)
+		}
+	}
+	for _, e := range []string{"extra-high", "Medium", "minimal"} {
+		if ValidEffort(e) {
+			t.Errorf("ValidEffort(%q) = true", e)
+		}
+	}
+}
+
 // TestRequestErrors: a bad request or a client with no provider or no
 // cap hook makes no call.
 func TestRequestErrors(t *testing.T) {
@@ -453,6 +486,7 @@ func TestRequestErrors(t *testing.T) {
 		{"0 sessions", ok, false, zero},
 		{"2 sessions of the reviser", ok, true, two},
 		{"bad policy input", ok, false, badIn},
+		{"unknown effort", &Client{Provider: fake, Cap: bigCap(), Effort: "extra-high"}, false, request(t)},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			call := tc.c.Plan
