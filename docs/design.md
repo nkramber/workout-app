@@ -52,7 +52,7 @@ An estimate is in the range of the weights of the machine, as the policy input r
 
 The owner saves a machine as a draft, then confirms it on a review screen. A plan reads confirmed machines alone. A change of the weights makes a confirmed machine a draft again (Decision, D-49, D-193). A cardio machine has no weights, so its save confirms it (Decision, D-246).
 
-A second save of a machine replaces its one entry, and a change of the estimates alone keeps the confirmation (Decision, D-200). The confirmation sends the weights that the review screen showed, and the server refuses it when the stored weights are different (Decision, D-201). In Phase 4, each change is a direct call to the API, and PR-32 of Phase 6 adds the offline copy and the outbox (Decision, D-196, D-250).
+A second save of a machine replaces its one entry, and a change of the estimates alone keeps the confirmation (Decision, D-200). The confirmation sends the weights that the review screen showed, and the server refuses it when the stored weights are different (Decision, D-201). In Phase 4, each change was a direct call to the API. Since Phase 6, the phone keeps an offline copy of the inventory, and each change goes into the outbox (Decision, D-196, D-250, D-272). A confirmation with no connection waits in the outbox. When the stored weights are different at the sync, the server refuses it, and the machine is a draft again (Decision, D-273).
 
 No phase of the roadmap holds photo recognition now (Decision, D-111). The recognition spike gave a no-go, because Luna gave too many wrong answers with a high stated confidence (Decision, D-107, and `docs/research/recognition-spike.md`). When a later decision adds a photo phase, these rules apply:
 
@@ -93,6 +93,10 @@ A workout starts from the next session of the plan that the owner did not do yet
 The rest timer shows on the screen only, because the app sends no notifications (Decision, D-61). The timer reads a stored end time, so it is correct after a screen lock. A Screen Wake Lock keeps the screen on during a workout. The app requests the lock again at each tap, focus, and return. When the phone refuses the lock, the screen shows a notice with the error name (Decision, D-265, D-271).
 
 The phone keeps each log and its outbox entry first, and sends the outbox to the workout service later (Decision, D-77, D-132). One call applies 100 entries or fewer, and each entry applies one time alone, keyed by its client op id (Decision, D-259). The server keeps each applied op id with no end date, so a replay changes nothing (Decision, D-257). For a workout entry, the phone wins (Decision, D-258).
+
+The phone sends the outbox while the app is open alone, because iOS has no background sync for a web app (Decision, D-21). The sync runs at the open, at each focus and return, at each reconnect, and after each new entry. After a failure, it tries again after 5 s, 15 s, 60 s, and then each 5 minutes (Decision, D-277). One sync holds the workout entries and the inventory entries in the order of the op ids (Decision, D-275).
+
+The phone moves an entry that the server refused to a separate list, and the owner dismisses it (Decision, D-274). A line below the header of each screen shows the state of the sync (Decision, D-276). The phone keeps copies of the catalog, the inventory, the plan, and the profile, so a workout starts with no connection (Decision, D-278).
 
 The server stores each logged session as one Firestore document at `users/{uid}/workouts/{workoutId}`, with the link to its plan session (Decision, D-248, D-256). It checks each set with the bounds of D-164, and each cardio log with the fields of D-123. A cardio log holds the true duration, with no least time (Decision, D-260). A note has 280 characters or fewer (Decision, D-261). A refused entry changes nothing, and the other entries of the batch still apply.
 

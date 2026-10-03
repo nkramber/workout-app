@@ -1,15 +1,16 @@
 # Workout App - the web client
 
-This folder holds the web client of the owner. It holds the installable shell (work area 2.2), the inventory screens (4.1), the onboarding screen (5.1), the plan screen (5.2), and the workout screen (6.1, 6.2). The stack is the Decktome React stack (D-84): React, Vite, `vite-plugin-pwa`, TanStack Query with Connect Query, and Tailwind. The folder is one npm package (D-135). The app has the phone layout alone (D-20).
+This folder holds the web client of the owner. It holds the installable shell (work area 2.2), the inventory screens (4.1), the onboarding screen (5.1), and the plan screen (5.2). It also holds the workout screen (6.1, 6.2) and the outbox sync (6.3). The stack is the Decktome React stack (D-84): React, Vite, `vite-plugin-pwa`, TanStack Query with Connect Query, and Tailwind. The folder is one npm package (D-135). The app has the phone layout alone (D-20).
 
 | Path | Content |
 |---|---|
 | `web/src/app.tsx` | The sign-in page for a signed-out owner. For a signed-in owner, the onboarding screen while no profile exists, then the home screen, the workout screen, the plan screen, the inventory screens, and the profile screen |
-| `web/src/shell.tsx` | The shell that fills the whole screen (D-120) |
+| `web/src/shell.tsx`, `web/src/sync-line.tsx` | The shell that fills the whole screen (D-120), and the line of the sync below its header (D-276) |
 | `web/src/pages` | The sign-in page, the home screen, the onboarding screen of `web/src/pages/profile.tsx`, the plan screen of `web/src/pages/plan.tsx`, and the workout screen of `web/src/pages/workout.tsx` |
 | `web/src/pages/inventory` | The inventory screens: the list, the catalog list and the text entry, the weights, and the review screen |
 | `web/src/lib/inventory.ts` | The catalog order, the A to Z order of the inventory list, the search of the catalog names, and the checks of the weights, the estimates, and the notes |
-| `web/src/lib/inventory-api.ts`, `web/src/lib/errors.ts` | The calls that change the inventory, and the error text of a failed call |
+| `web/src/lib/inventory-api.ts`, `web/src/lib/errors.ts` | The changes of the inventory in the outbox, the inventory of the phone with the changes that wait on it (D-272, D-273), and the error text of a failed call |
+| `web/src/lib/sync.ts`, `web/src/lib/sync-engine.ts` | The sync of the outbox, the offline copies, and the state of the sync (D-274 to D-278) |
 | `web/src/lib/profile.ts`, `web/src/lib/profile-api.ts` | The form state and the checks of the profile, the text of the injury warning, and the save of the profile |
 | `web/src/lib/plan.ts`, `web/src/lib/plan-api.ts` | The texts of the progress and of the errors of a plan request, the formats of a set and of the rest, and the streams of a plan request and of an exclusion |
 | `web/src/lib/workout.ts` | The start of a workout, the set log, the cardio log, the skip of an exercise, the edit of a set, the end of a workout, each with its outbox entry. Also the calibration step, the rest timer, and the steps of the plus and minus buttons |
@@ -20,7 +21,7 @@ This folder holds the web client of the owner. It holds the installable shell (w
 | `web/src/lib/pwa.ts`, `web/src/lib/update-check.ts` | The service worker and its update strategy (D-133) |
 | `web/src/lib/storage.ts` | The persistent storage request (D-134) |
 | `web/src/gen` | The generated code of the contract. `make proto` writes it, and Git keeps it. |
-| `web/e2e` | The browser tests of the acceptance stories of work areas 2.2, 4.1, 5.1, 5.2, and 6.1 |
+| `web/e2e` | The browser tests of the acceptance stories of work areas 2.2, 4.1, 5.1, 5.2, 6.1, 6.2, and 6.3 |
 
 ## The screen
 
@@ -42,7 +43,7 @@ The home screen opens the equipment inventory (work area 4.1). The screens read 
 - Each exercise of the machine gets one optional estimate, from the lightest to the heaviest weight (D-192, D-198).
 - The review screen confirms the weights that it shows (D-201), and removes the machine.
 
-Each load is a whole number of tenths of a pound, as in the contract. Each change is a direct call to the API. With no connection, the screen shows an error, and the server keeps no change (D-196). A server fault, the code `internal`, shows "The server failed." (D-206). The inventory has no offline copy until Phase 6.
+Each load is a whole number of tenths of a pound, as in the contract. The screens read the offline copies of the catalog and of the inventory, so they work with no connection (D-250). Each change goes into the outbox, and shows at once with "Waiting to sync" (D-272). A confirmation with no connection shows the machine as confirmed. When the server refuses it because the weights changed, the machine is a draft again, and the line of the sync shows the refusal (D-273).
 
 ## The onboarding screen
 
@@ -97,7 +98,19 @@ While a workout is open, the plan screen refuses a new plan and an exclusion (D-
 
 Dexie on IndexedDB holds the local state. Each change and its outbox entry go into one transaction (D-132). An outbox entry holds a UUIDv7 op id, the entity and its id, and the base version. It also holds the payload, the time, the attempts, and the schema version.
 
-Version 2 of the store adds the workouts, the sets, and the cardio logs. The payload of each workout entry is the JSON form of `WorkoutHeader`, `SetEntry`, or `CardioEntry` of `proto/workoutapp/v1/workout_service.proto`, with the whole new state of the entity. The op ids of the phone rise strictly, so the outbox keeps the order of two changes of one millisecond. Work area 6.3 adds the sync call.
+Version 2 of the store adds the workouts, the sets, and the cardio logs. The payload of each workout entry is the JSON form of `WorkoutHeader`, `SetEntry`, or `CardioEntry` of `proto/workoutapp/v1/workout_service.proto`, with the whole new state of the entity. The payload of an inventory entry is the JSON form of the payload field of `OutboxEntry`, such as `{"saveMachine": {...}}`. The op ids of the phone rise strictly, so the outbox keeps the order of two changes of one millisecond.
+
+Version 3 adds the refused entries and the offline copies. It removes the settings of the skeleton and their outbox entries.
+
+## The sync
+
+`web/src/lib/sync.ts` sends the outbox through `SyncOutbox`, in batches of 100 entries or fewer, in the order of the op ids (D-259, D-275). The server applies each entry one time by its op id. So a batch that the phone sends again after a dropped answer changes nothing (D-257). The phone removes each applied entry, and keeps the server version on its entity. It moves each refused entry to a separate list, and never sends it again (D-274).
+
+The sync runs while the app is open alone, because iOS has no background sync for a web app (D-21). It runs at the open, at each focus and return, at each reconnect, and after each new entry. After a failure, it tries again after 5 s, 15 s, 60 s, and then each 5 minutes (D-277). A plan request and an exclusion run a sync first, so the plan reads each change of the inventory.
+
+After each drain, the sync reads the catalog, the inventory, and the plan again, and keeps a copy of each. The server wins, and the screens put the entries that wait on the new copy (D-258). The plan screen and the profile gate keep their copies too. So with no connection, the app opens, and a workout starts from the copies (D-278).
+
+The line below the header shows "Synced", the count of the entries that wait, "Offline", "Sync failed", and the count of the refused entries (D-276). A tap opens the detail with "Sync now", and each refused entry with "Dismiss".
 
 The first sign-in on a device asks for persistent storage (D-134). The home screen shows the result and the use of the store.
 
