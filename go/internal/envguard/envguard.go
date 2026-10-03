@@ -3,17 +3,23 @@
 // Firebase Admin SDK accepts an unsigned ID token, so one wrong variable
 // opens the API to a forged token. The guard refuses each variable whose
 // name ends in _EMULATOR_HOST, so a new emulator needs no change here.
+// It also refuses each name of LocalOnly, such as the switch to the fake
+// provider of Luna (D-24).
 package envguard
 
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"sort"
 	"strings"
 )
 
 // ErrEmulatorOnCloudRun is the refusal of Check.
-var ErrEmulatorOnCloudRun = errors.New("an emulator variable is set on Cloud Run")
+var ErrEmulatorOnCloudRun = errors.New("an emulator or local-only variable is set on Cloud Run")
+
+// LocalOnly holds the other names that only a local run can set.
+var LocalOnly = []string{"LUNA_FAKE_PROVIDER"}
 
 // OnCloudRun reports whether the process runs on Cloud Run. Cloud Run
 // sets K_SERVICE in each service container.
@@ -32,7 +38,7 @@ func Check(environ []string, getenv func(string) string) error {
 	var names []string
 	for _, kv := range environ {
 		name, _, _ := strings.Cut(kv, "=")
-		if strings.HasSuffix(name, "_EMULATOR_HOST") {
+		if strings.HasSuffix(name, "_EMULATOR_HOST") || slices.Contains(LocalOnly, name) {
 			names = append(names, name)
 		}
 	}

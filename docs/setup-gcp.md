@@ -2,7 +2,7 @@
 
 This document gives the live state of the project `nk-workout-app-prod`, and the steps that make it again. The structure follows `decktome:docs/setup-gcp.md`. `docs/deploy-and-rollback.md` gives the deploy and the rollback.
 
-The date of this version is 2026-10-02. The session of work area 2.3 made each part with the approval of the owner at run time, and it read each part back. The session of PR-21 changed the role of `api-runtime` (D-206).
+The date of this version is 2026-10-02. The session of work area 2.3 made each part with the approval of the owner at run time, and it read each part back. The session of PR-21 changed the role of `api-runtime` (D-206). The owner approved two changes of the session of PR-26: the planner values of the service `api`, and the TTL policy of the error records.
 
 CAUTION: do not write an account email, a uid, or a secret value into this file. The repository is public (D-106).
 
@@ -17,10 +17,12 @@ CAUTION: do not write an account email, a uid, or a secret value into this file.
 | Browser key | `identitytoolkit` and `securetoken` alone, from the two Firebase domains of the project and ports 4173 and 5173 of `localhost` and `127.0.0.1` | D-117, D-137 |
 | Firestore | Default database, Standard edition, Native mode, `us-central1`, delete protection on | D-76, D-140 |
 | Firestore rules | `firestore.rules`: each client read and write is refused | D-77 |
+| Firestore TTL | The field `expire_at` of the collection group `aiErrors`, so each error record goes after 90 days | D-236 |
 | Point-in-time recovery | On, with a window of 7 days | D-124 |
 | Backups | A daily schedule, and each backup stays 10 days | D-124 |
 | Allowlist | One document in `allowlist`, with the uid of the owner as its id | D-75, D-131 |
-| Cloud Run | Service `api` in `us-central1`, request billing, min instances 0, max instances 2, CPU boost | D-141 |
+| Cloud Run | Service `api` in `us-central1`, request billing, min instances 0, max instances 2, CPU boost, request timeout 420 s | D-141, D-231 |
+| Service configuration | `OPENAI_API_KEY` from `openai-api-key:latest`, `LUNA_CAP_USER_USD=1`, and `LUNA_CAP_PROJECT_USD=2`. A deploy names the image alone, so these values carry over. | D-24, D-188 |
 | Secret Manager | Secret `openai-api-key`. The owner added version 1 on 2026-10-01 in a local terminal. | D-24, D-187 |
 | Artifact Registry | Docker repository `workout-app` in `us-central1` | - |
 | Deploy lock | Bucket `nk-workout-app-prod-deploy-lock` in `us-central1`, with public access prevention, and a rule that deletes each object after one day | D-143 |
@@ -88,6 +90,7 @@ CAUTION: the location of a database is permanent. Check `us-central1` before the
 3. Run `gcloud firestore databases update --database='(default)' --enable-pitr`.
 4. Run `gcloud firestore databases update --database='(default)' --delete-protection`.
 5. Run `gcloud firestore backups schedules create --database='(default)' --recurrence=daily --retention=10d`.
+6. Run `gcloud firestore fields ttls update expire_at --collection-group=aiErrors --enable-ttl` (D-236).
 
 ### 4.4 The API side
 
@@ -105,6 +108,14 @@ gcloud run deploy api --project nk-workout-app-prod --region us-central1 \
   --service-account api-runtime@nk-workout-app-prod.iam.gserviceaccount.com \
   --allow-unauthenticated --cpu-throttling --min-instances 0 --max-instances 2 --cpu-boost \
   --set-env-vars GOOGLE_CLOUD_PROJECT=nk-workout-app-prod,ALLOWED_ORIGIN=https://nk-workout-app-prod.web.app
+```
+
+Then give the service the key, the caps, and the request timeout. The API refuses to start without the key and the caps (D-25):
+
+```
+gcloud run services update api --project nk-workout-app-prod --region us-central1 \
+  --update-secrets=OPENAI_API_KEY=openai-api-key:latest \
+  --update-env-vars=LUNA_CAP_USER_USD=1,LUNA_CAP_PROJECT_USD=2 --timeout=420
 ```
 
 The first image is a placeholder, because the API deploys from `main` alone (D-14). The API checks each token itself, so the service lets each caller in (D-82). The fixed URL of the service is `https://api-665413986587.us-central1.run.app`, and `cloudbuild/web.yaml` names it.
@@ -130,6 +141,8 @@ curl -s -o /dev/null -w '%{http_code}\n' -X PATCH "${H[@]}" -H 'Content-Type: ap
 ## 5. Cost
 
 The owner expects about 1 USD each month in Phase 2. The main parts are Firestore storage, the point-in-time recovery storage, the backups, and the images. Cloud Run at min instances 0 costs nothing while it waits. Cloud Build gives 2,500 build-minutes each month at no cost, and three builds of one merge use about 10 minutes (assumption, not measured).
+
+From Phase 5, the planner calls cost money too. The caps of D-188 hold them to 2 USD each month for the project.
 
 The budget sends an email to the billing admins, and it does not stop spend (PC-82). The owner skipped the Cloud Run spend cap (D-141). The cap is a Preview feature that the console alone sets (PC-83, read on 2026-09-29).
 

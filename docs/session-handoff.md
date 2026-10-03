@@ -4,25 +4,26 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-02. Roadmap PR-25 of `docs/roadmaps/phase-5-onboarding-and-plan.md`, on branch `feat/pr-25-cap-store`, from base `a1b88d4`. Work area 5.2.
+Date: 2026-10-03. Roadmap PR-26 of `docs/roadmaps/phase-5-onboarding-and-plan.md`, on branch `feat/pr-26-plan-api`, from base `42fb3da`. Work area 5.2.
 
-Before the work, the session read the deploy of `a1b88d4`. The build `deploy-web` `b57b45ae` gave `SUCCESS`, and the live `/version.json` names `a1b88d4`. The merge changed no file in `go/`, so the live `/version` stays at `2e22c27` (D-137).
+Before the work, the session read the deploy of `42fb3da`. The build `deploy-api` `57d3db5f` gave `SUCCESS` at 00:34:00Z on 2026-10-03, and the live `/version` names `42fb3da`. The live `/version.json` stays at `a1b88d4` (D-137).
 
-The owner approved the milestone before the first edit (D-12), and answered Q-238 and Q-239 (D-224, D-225).
+The owner approved the milestone before the first edit (D-12). The answers of Q-240 to Q-251 changed it (D-226 to D-238), and the owner approved the revised milestone. The pull request holds:
 
-The pull request holds:
+- the plan service of `proto/workoutapp/v1/plan_service.proto`, with a server stream of the progress (D-231, D-237),
+- prompt v3 with the profile, the training days, and the bounds of D-232 and D-233,
+- 4 calls at most, a retry with the cause and the failed output, and an error with no change after the last failure (D-230, D-235),
+- the policy check of each exercise and the decision record (D-23, D-176), and a start at 70 percent of an estimate (D-238),
+- the all-or-nothing exclusion (D-234), the stores of D-226, and the error records of D-236,
+- the key and the caps in `go/cmd/api`.
 
-- the lasting cap hook `go/internal/capstore`, with the spend of each calendar month in UTC in Firestore (D-189, D-190, D-224),
-- a reservation of the worst-case cost before each call and a charge after it, each in one transaction for the user and the project,
-- the worst-case charge of a failed call (D-225), and the flag `Unsettled` of a cost record when the charge does not reach the store,
-- a `context.Context` in `ai.CapHook`, and an error from its settle function,
-- the cap text of `go/internal/ai/cost.go`, `go/internal/ai/doc.go`, and `go/README.md`.
+The owner approved two live changes. The service `api` got the key, the caps, and a request timeout of 420 s, and `aiErrors` got its TTL policy. `docs/setup-gcp.md` records both. `cloudbuild/api.yaml` stays as it is, because a deploy names the image alone.
 
-The emulator tests of `go/internal/capstore/firestore_emulator_test.go` hold the acceptance story. After a restart, a planner call over the cap gets `capped`, and no call reaches the fake provider. `make go-test` and `make emulator-test` passed.
+The emulator test `TestPlanAcceptanceStory` holds the acceptance story. `make go-test` and `make emulator-test` passed.
 
-Codex review: `docs/reviews/pr-26.md` says Ready for owner merge for effective head `96c8d663c7ed7f121edc4243d99762fea34c6ed7`. No finding is open.
+Codex review: round 1 gave "Changes required" at `07acb3c` with P2-1, a stale sentence of `go/README.md`. The author found full merit and corrected it. Round 2 approves effective head `26f7970`. The earlier finding is fixed. `docs/reviews/pr-27-response.md` holds the answer.
 
-State: pending the owner merge. Next action: get the owner confirmation, then turn on the auto-merge. After the merge, read the deploy of the API first. Then start PR-26, the plan API, in a clean session.
+State: the Codex review approves effective head `26f7970`. The review gate and pull request contract check passed after publication. Next action: the owner confirms the merge. After the merge, read the deploy of the API first, because the new revision starts only with the values of the service.
 
 ## Facts that expire
 
@@ -36,13 +37,15 @@ State: pending the owner merge. Next action: get the owner confirmation, then tu
 | The OpenAI usage policies page returns HTTP 403. The owner accepted a copy printed on 2025-11-07 (D-93). | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
 | `gpt-6-luna` accepts the strict JSON schema of the plan through the Responses API. 60 of 60 plans passed the schema. | 2026-09-28 | `docs/research/luna-plan-spike.md` |
 | `gpt-6-luna` accepts an image with a strict JSON schema. One photo at 1536 px costs 0.00037 USD. | 2026-09-28 | `docs/research/recognition-spike.md` |
-| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `2e22c27`, three triggers, and the allowlist entry. | 2026-10-02 | `docs/setup-gcp.md`, `/version` |
+| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `42fb3da`, three triggers, and the allowlist entry. | 2026-10-03 | `docs/setup-gcp.md`, `/version` |
+| The service `api` revision `api-00011-8v4` holds `OPENAI_API_KEY` from `openai-api-key:latest`, `LUNA_CAP_USER_USD=1`, `LUNA_CAP_PROJECT_USD=2`, and a request timeout of 420 s. The TTL policy of `aiErrors.expire_at` is `ACTIVE`. | 2026-10-03 | `gcloud run services describe`, `gcloud firestore fields ttls list` |
+| A Cloud Run service with a secret needs the accessor role for its service identity alone. The page lists `roles/run.admin` for the deployer. | 2026-10-02 | Cloud Run docs, "Configure secrets for services" |
 | The secret `openai-api-key` has version 1, enabled. A free call to the OpenAI model list with it gave HTTP 200 and lists `gpt-6-luna`. | 2026-10-01 | `gcloud secrets versions list`, `curl` |
 | `gpt-6-luna` at medium effort passed the schema `luna_plan_v2` in 50 of 50 calls. A planner call cost 0.0017 USD on average, and the longest call took 33.0 s. | 2026-10-02 | `docs/research/phase-3-check.md` |
 | The bucket `nk-workout-app-prod-deploy-lock` exists, and each deployer account holds `roles/storage.objectUser` on it alone. | 2026-09-29 | `gcloud storage buckets describe`, `get-iam-policy` |
 | `workout-app-prod` is in use by another Google Cloud project. | 2026-09-29 | `gcloud projects create` |
 | The old project `gym-route-dev` is `DELETE_REQUESTED` since 2026-09-30T03:19:47Z. `gcloud projects undelete` can restore it for 30 days. Its site still gave HTTP 200 at 04:38:56Z. | 2026-09-30 | `gcloud projects describe`, `curl` |
-| The live `/version` names `2e22c2774dff177363d6d049b070429300a61054`, from the build `deploy-api` `d2933354`. The live `/version.json` names `a1b88d40c8c6c65d8fc958abff94453cbbf6687d`, from the build `deploy-web` `b57b45ae`. The rules release of `df79c16` has the update time 02:33:00Z, read 2026-09-30. | 2026-10-02 | `curl`, `gcloud builds list` |
+| The live `/version` names `42fb3da27975099f1b318303aa8d3c53bdb1742e`, from the build `deploy-api` `57d3db5f`, and at 01:20:37Z from the revision `api-00011-8v4`. The live `/version.json` names `a1b88d40c8c6c65d8fc958abff94453cbbf6687d`, from the build `deploy-web` `b57b45ae`. The rules release of `df79c16` has the update time 02:33:00Z, read 2026-09-30. | 2026-10-02 | `curl`, `gcloud builds list` |
 | In the Firestore emulator v1.22.0, 10 transactions at the same time on one document abort with "Transaction lock timeout" after about 3 s, and the Go client tries again. With 5 attempts, a test of 10 transactions took up to 19 s. | 2026-10-02 | `go/internal/capstore/firestore_emulator_test.go` |
 | `api-runtime` holds `roles/datastore.user`, and no other project role. | 2026-10-02 | `gcloud projects get-iam-policy` |
 | With `context.setOffline(true)` of Playwright 1.63.0, a call of the API fails in WebKit and in Chromium. Connect gives the code `unknown` with a `TypeError` as its cause. | 2026-10-02 | `web/e2e/inventory.spec.ts` |
@@ -67,11 +70,28 @@ State: pending the owner merge. Next action: get the owner confirmation, then tu
 
 ## Next steps, in order
 
-1. Close PR-25: CI, the Codex review, the owner confirmation, and the merge.
-2. Read the deploy of the API of the merge of PR-25 (D-137).
-3. Start PR-26, the plan API, in a clean session (D-207). The owner approves its milestone first (D-12).
+1. Close PR-26: CI, the Codex review, the owner confirmation, and the merge.
+2. Read the deploy of the API of the merge of PR-26 (D-137). The new revision must start with the values of the service.
+3. Start PR-27, the plan screens, in a clean session (D-207). The owner approves its milestone first (D-12).
 
 ## Session records
+
+### Session 27 - 2026-10-02
+
+Author provider: Claude Code
+
+Branch: `feat/pr-26-plan-api`. Role: author.
+
+Completed:
+
+- Read the deploy of `42fb3da`.
+- The owner approved the milestone before the first edit (D-12), answered Q-240 to Q-251 (D-226 to D-238), and approved the revised milestone.
+- Wrote the plan service, `go/internal/plan`, `go/internal/plansvc`, prompt v3, and the API wiring, with unit tests and emulator tests.
+- With the approval of the owner, changed the service `api` and the TTL policy. Changed the design, both roadmaps, the registers, `go/README.md`, `docs/setup-gcp.md`, and `AGENTS.md`.
+
+Open work:
+
+- CI, the Codex review, the owner confirmation, and the merge of PR-26.
 
 ### Session 26 - 2026-10-02
 
@@ -87,7 +107,7 @@ Completed:
 
 Open work:
 
-- The Codex review, the owner confirmation, and the merge of PR-25.
+- None. GitHub PR 26 merged as `42fb3da`.
 
 ### Session 25 - 2026-10-02
 
@@ -104,20 +124,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 25 merged as `a1b88d4`.
-
-### Session 24 - 2026-10-02
-
-Author provider: Claude Code
-
-Branch: `feat/pr-23-profile-api`. Role: author.
-
-Completed:
-
-- The owner approved the milestone before the first edit (D-12), and answered Q-227 to Q-235 (D-213 to D-221).
-- Answered Codex findings P1-1 and P2-1 of round 1 with full merit.
-- Wrote the profile service, the store, the checks, the two tables, and `profile.ForPlan`, with unit tests and emulator tests.
-- Added the research of both tables to `docs/research/exercise-safety.md`. Changed the design, both roadmaps, the registers, `go/README.md`, and `AGENTS.md`.
-
-Open work:
-
-- None. GitHub PR 24 merged as `2e22c27`.

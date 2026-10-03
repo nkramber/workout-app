@@ -8,7 +8,7 @@ Each statement has a label. **Fact** means a verified fact with a source in `doc
 
 Workout App is a personal workout app for one person, the owner (Decision, D-67). The owner tells the app the muscles to train, the schedule, the experience, the injuries, and the goals. The owner selects each machine of the gym from a catalog, or enters it as text, and confirms it (Decision, D-49, D-110). No phase of the roadmap holds photo recognition now (Decision, D-111). The app builds a workout plan, guides each workout, records each set, and adapts the next targets from the history.
 
-The core of the app is **a thin LLM over a strict policy** (Decision, D-22, D-23). OpenAI `gpt-6-luna` at medium effort proposes each plan and each revision (Decision, D-24). A deterministic, versioned policy checks every set, load, and change before the owner sees it. When Luna fails or proposes a value that the policy refuses, a rules fallback gives a safe target. This thesis copies the Decktome thesis, where deterministic code checks every card that the model names.
+The core of the app is **a thin LLM over a strict policy** (Decision, D-22, D-23). OpenAI `gpt-6-luna` at medium effort proposes each plan and each revision (Decision, D-24). A deterministic, versioned policy checks every set, load, and change before the owner sees it. When the policy refuses a value of Luna, a rules fallback gives a safe target. When Luna gives no valid plan, the API retries the call, and after the last failure the request gives an error and changes nothing (Decision, D-230). This thesis copies the Decktome thesis, where deterministic code checks every card that the model names.
 
 Workout App is an installable, phone-first web app on a default Firebase Hosting URL (Decision, D-17). It never goes to an app store, and no native app exists. It has one phone layout, and nobody designs or tests a desktop layout (Decision, D-20).
 
@@ -65,6 +65,10 @@ The catalog of D-155 gives each machine and each exercise a stable id, a kind, a
 ### 3.3 Plan
 
 The plan adapts after each session and has no fixed block (Decision, D-43). It holds warm-up, resistance work, rest periods, cooldown, optional cardio, and mobility and recovery guidance (Decision, D-44). The guidance stays inside the fitness boundary (Decision, D-36). Instructions are text only (Decision, D-73). The owner can exclude an exercise with an optional reason, and Luna plans again under the policy (Decision, D-48).
+
+A plan holds one session for each training day of one week (Decision, D-211). Each session holds 8 resistance exercises or fewer, and an optional cardio of 5 to 30 minutes (Decision, D-232, D-233). A plan starts each new exercise at 70 percent of its estimate, because the profile does not record a break (Decision, D-238).
+
+The API keeps the plan at `users/{uid}/plan/active` and the exclusions at `users/{uid}/exclusions/active` (Decision, D-226). A new plan replaces the old plan only when its request completes (Decision, D-227). The reason of an exclusion has 200 characters or fewer, and it stays on the server (Decision, D-228, D-229). An exclusion and its new plan save together, or nothing changes (Decision, D-234). A request can take up to 4 calls of Luna, so the API streams each step, and the app shows the progress (Decision, D-231, D-237).
 
 Luna writes one plan summary and one short reason for each exercise, with a length limit (Decision, D-182). Session titles come from a template. The warm-up, the cool-down, and the mobility and recovery texts come from a versioned catalog, and Luna selects each item by id (Decision, D-152). A filter of blocked claims reads each text of Luna, and a template text replaces a blocked text (Decision, D-183).
 
@@ -160,7 +164,7 @@ The policy is in `go/internal/policy` (Decision, D-157). It has one version, and
 - The check of a proposal. The policy refuses a proposal outside a bound (Decision, D-23). Outside a calibration session, it also refuses a proposal that is harder than its target at the same load (Decision, D-186).
 - The start of a new exercise with 3 working sets, and the calibration of its first 3 sessions (Decision, D-150, D-177, D-178, D-180).
 - The return after a break of 14 days or more, and the first sessions after it (Decision, D-37, D-151, D-179).
-- The rules fallback. When Luna gives no proposal, or the policy refuses its proposal, the target comes from the rules alone (Decision, D-23).
+- The rules fallback of one exercise. When the policy refuses a proposal, or Luna gives none for the exercise, the target comes from the rules alone (Decision, D-23). A plan request with no valid output of Luna gets no fallback plan (Decision, D-230).
 - The decision record of each plan decision, with the fields of D-176. The record is workout data, so it never goes into a log (Decision, D-80, D-176).
 
 The policy has no reactive deload (Decision, D-175). The draft in `tools/spikes/luna_plan/policy.py` is the spike record alone.
@@ -174,7 +178,9 @@ The role layer is in `go/internal/ai` (Decision, D-157). It holds these parts:
 - The filter of blocked claims on each text of Luna (Decision, D-183).
 - The fake provider for tests. No test calls OpenAI (Decision, D-24).
 
-A malformed output, a refusal of the model, a time-out, an error, or a call over the cap gives no proposal. The policy then gives the rules fallback (Decision, D-23).
+A malformed output, a refusal of the model, a time-out, or an error gives no plan. The plan API of `go/internal/plan` then retries the call. Each retry sends the cause and the failed output, and Luna makes a fresh plan (Decision, D-235). A request makes 4 calls at most. After the last failure, or after a call over the cap, the request gives an error and no plan changes (Decision, D-230, D-231).
+
+Each failed attempt gets an error record in the top-level collection `aiErrors` (Decision, D-236). In a valid plan, the policy decides each exercise, and a refused proposal gets the rules target (Decision, D-23, D-176).
 
 The command `go/cmd/lunaeval` sends synthetic profiles and the scenarios of section 5 of the high-level roadmap through the layer and the policy. A live run needs the approval of the owner (Decision, D-25). `docs/research/phase-3-check.md` holds the result of the Phase 3 run.
 
@@ -205,7 +211,8 @@ Workout App stores data about one person, the owner (Decision, D-67). The owner 
 
 - The repository is public. No personal data, email address, photo, or workout log goes into it. The author credit that the license of a test image requires is the one exception (Decision, D-106).
 - Telemetry holds ids only (Decision, D-80).
-- A planner call sends the experience, the goal template, the muscle groups, the free text, and the cardio preference alone. The age, the height, the weight, and the injury text stay on the server (Decision, D-209).
+- A planner call sends the experience, the goal template, the muscle groups, the free text, and the cardio preference alone. The age, the height, the weight, the injury text, and the reason of an exclusion stay on the server (Decision, D-209, D-229).
+- An error record holds the output of a failed call of Luna, which can repeat the free text. So no log, metric, or error report reads it, and a Firestore TTL deletes it after 90 days (Decision, D-80, D-236).
 - The API sends OpenAI requests with the response store turned off (Recommendation, from `docs/research/platform-cloud-and-ai.md`). The OpenAI provider of `go/internal/ai` does this. A call sends no note of the owner and no user id.
 - The app takes no photo now (Decision, D-110). In a later photo phase, the app removes photo metadata before upload, and the server deletes each photo after the confirmation (Decision, D-52).
 - Secrets live in Secret Manager, never in the repository.

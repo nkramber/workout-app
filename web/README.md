@@ -78,6 +78,6 @@ The service worker waits after an update, and the app shows "Update ready" (D-13
 3. Build the app.
 4. Run the browser tests in WebKit and in Chromium, each with phone emulation.
 
-The browser tests start the Auth and Firestore emulators of `firebase.json`. They also start the API of `go/` on port 8480, and a build of the app on port 4273. No call reaches a real project (D-115). The tests make each account on the Auth emulator and write its allowlist document on the Firestore emulator.
+The browser tests start the Auth and Firestore emulators of `firebase.json`. They also start the API of `go/` on port 8480, and a build of the app on port 4273. No call reaches a real project (D-115). The API uses the fake provider of Luna, so no test calls OpenAI (D-24). The tests make each account on the Auth emulator and write its allowlist document on the Firestore emulator.
 
 Playwright can make a pinch in Chromium alone. So the pinch test runs in Chromium, and WebKit reads the viewport meta. A headless browser has no Home Screen and no status bar. So the device check of PR-11 read the bottom edge and the blur band on the iPhone. A Chromium test sets the safe area through the DevTools protocol, and it reads the space above the title.

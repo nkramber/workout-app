@@ -8,7 +8,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `go/cmd/lunaeval` | The Luna evaluation of Phase 3: synthetic profiles and the scenarios A to F through the layer and the policy (D-184 to D-186) |
 | `go/internal/auth` | The Firebase ID token check, the allowlist check, and CORS |
 | `go/internal/allowlist` | The invite allowlist of uids in Firestore (D-131) |
-| `go/internal/envguard` | The start guard against an emulator variable on Cloud Run (D-129) |
+| `go/internal/envguard` | The start guard against an emulator variable or the fake provider on Cloud Run (D-129) |
 | `go/internal/usersvc` | The `GetMe` call |
 | `go/internal/inventory` | The inventory of the owner: the machines and the notes, the checks, the draft and confirmed states, the Firestore store, and `ForPlan` (D-46, D-193, D-197) |
 | `go/internal/inventorysvc` | The calls of `InventoryService` |
@@ -17,6 +17,8 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `go/internal/domain` | The types of the workout domain, the catalog of D-155, the injury areas and the muscle groups with their tables (D-218, D-219), and the check of each type (D-157) |
 | `go/internal/policy` | The versioned safety policy: the bounds of a target, the rounding of a load, the start and the calibration of a new exercise, the return after a break, the next target, the check of a proposal, the rules fallback, and the decision record (D-23, D-38, D-176) |
 | `go/internal/ai` | The Luna role layer: the planner and reviser roles, the plan schema, the prompt, the guidance catalog, the filter of blocked claims, the cost records, the cap hook, the OpenAI provider, and the fake provider (D-24, D-25, D-152, D-183) |
+| `go/internal/plan` | The plan of the owner: the planner request, 4 calls at most with the cause of each failure, the policy check of each exercise, the exclusions, the Firestore stores, and the error records (D-226 to D-238) |
+| `go/internal/plansvc` | The calls of `PlanService`, with a server stream of the progress (D-237) |
 | `go/internal/capstore` | The lasting cap hook: the spend of each calendar month in UTC in Firestore, with a reservation before each call and a charge after it (D-189, D-190, D-224, D-225) |
 | `go/gen` | The generated code. `make proto` writes it, and Git keeps it. |
 
@@ -28,8 +30,11 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `GOOGLE_CLOUD_PROJECT` | The Firebase project of the tokens and of Firestore. The API does not start without it. |
 | `ALLOWED_ORIGIN` | The one origin of the web app (D-82). Empty means no cross-origin call. |
 | `FIREBASE_AUTH_EMULATOR_HOST`, `FIRESTORE_EMULATOR_HOST` | The local emulators. On Cloud Run, the API refuses each variable with a name that ends in `_EMULATOR_HOST` (D-129). |
+| `OPENAI_API_KEY` | The key of the planner calls. On Cloud Run it comes from the secret `openai-api-key`. The API does not start without it. The emulator tests give the fake provider in its place. |
+| `LUNA_CAP_USER_USD`, `LUNA_CAP_PROJECT_USD` | The monthly AI caps, below. The API does not start without them. |
+| `LUNA_FAKE_PROVIDER` | `1` gives the fake provider of Luna in place of OpenAI, so a local run makes no paid call (D-24). The browser tests set it. On Cloud Run, the API refuses it. |
 
-`go/internal/ai` reads the caps of D-25 from `LUNA_CAP_USER_USD` and `LUNA_CAP_PROJECT_USD`, in US dollars, such as `0.25`. A value that is not set stops the start, and 0 refuses each call. D-188 gives 1 USD for the user and 2 USD for the project, for each calendar month in UTC (D-190). The API does not call Luna yet, so it reads neither variable.
+`go/internal/ai` reads the caps of D-25 from `LUNA_CAP_USER_USD` and `LUNA_CAP_PROJECT_USD`, in US dollars, such as `0.25`. A value that is not set stops the start, and 0 refuses each call. D-188 gives 1 USD for the user and 2 USD for the project, for each calendar month in UTC (D-190). The API reads both variables at its start, and the cap hook of `go/internal/capstore` applies them to each planner call. A plan request over a cap gives an error at once (D-230).
 
 `go/internal/capstore` holds the spend of each month in Firestore (D-189). The paths are `users/{uid}/aiSpend/{YYYY-MM}` for the user and `aiSpend/{YYYY-MM}` for the project (D-224). Each document holds the settled charge and the open reservations, in billionths of a US dollar:
 
@@ -39,6 +44,15 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 - A new month uses new documents, so its spend starts at 0.
 
 `go/internal/ai` keeps `MemoryCap` for the tests and for `go/cmd/lunaeval`. A new process starts it at 0.
+
+## The plan
+
+`go/internal/plan` keeps the plan at `users/{uid}/plan/active` and the exclusions at `users/{uid}/exclusions/active` (D-226). A save writes both in one transaction, and it refuses a save when another request changed the exclusions (D-234).
+
+- A request plans the confirmed machines alone, with no exercise of an injured area and no excluded exercise (D-49, D-208, D-229).
+- An invalid output gets a retry with its cause and its output, 4 calls at most (D-230, D-231, D-235). A call over the cap ends the request at once.
+- Each failed attempt adds a document to the top-level collection `aiErrors`. Its field `expire_at` drives the TTL of 90 days (D-236). The document holds the output of Luna, so no log reads it (D-80).
+- The policy decides each exercise of a valid plan, and the plan stores each decision record (D-23, D-176).
 
 ## The Luna evaluation
 
