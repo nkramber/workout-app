@@ -21,7 +21,7 @@ The owner approved two live changes. The service `api` got the key, the caps, an
 
 The emulator test `TestPlanAcceptanceStory` holds the acceptance story. `make go-test` and `make emulator-test` passed.
 
-State: CI and the Codex review are open. Next action: push, wait for CI, then run `make codex-review`. After the merge, read the deploy of the API first, because the new revision starts only with the values of the service.
+State: CI passed except `review-gate`, which awaits this record. Codex review: Changes required at head `07acb3cc098aecae85bea190b79e877d8d29b8c6`. Open finding: P2-1. Next action: correct `go/README.md`, then request a new Codex review. After the merge, read the deploy of the API first, because the new revision starts only with the values of the service.
 
 ## Facts that expire
 
