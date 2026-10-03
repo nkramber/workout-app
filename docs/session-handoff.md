@@ -8,7 +8,7 @@ Date: 2026-10-03. Roadmap PR-27 of `docs/roadmaps/phase-5-onboarding-and-plan.md
 
 Before the work, the session read the deploy of `0a7b742`. The build `deploy-api` `00f1f9dc` and the build `deploy-web` `7a2a7fa0` gave `SUCCESS` at about 02:09Z on 2026-10-03. The live `/version` and the live `/version.json` both name `0a7b742` (D-137). The revision `api-00012-l67` kept the key, the caps, and the request timeout of 420 s.
 
-The owner approved the milestone before the first edit (D-12), and answered Q-252 to Q-254 (D-239 to D-241). The pull request holds:
+The owner approved the milestone before the first edit (D-12), and answered Q-252 to Q-255 (D-239 to D-241). The pull request holds:
 
 - the plan screen of `web/src/pages/plan.tsx`, with each part of a plan in text (D-44, D-73),
 - the request of a plan through the stream of `RequestPlan`, with the progress texts of D-239 and the error texts of D-240,
@@ -17,7 +17,9 @@ The owner approved the milestone before the first edit (D-12), and answered Q-25
 
 The browser test "the owner requests a plan, sees each part, excludes an exercise, and sees the new plan" of `web/e2e/plan.spec.ts` holds the acceptance story. `make go-test` and `make web` passed.
 
-State: Codex reviewed effective head `26f1283e484fa4691f35d4831942435efac6007b` and found P2-1 and P2-2 in `docs/reviews/pr-28.md`. Verdict: Changes required. Next action: correct both findings, run the required checks, and request a new Codex review.
+Codex review: round 1 gave "Changes required" at `26f1283`. P2-1 is an overflow of the fake delay. P2-2 is the error of no allowed exercise with no "Your plan did not change.". The author found full merit for both. The owner added the sentence (Q-255). `docs/reviews/pr-28-response.md` holds the answer.
+
+State: the corrections are on the branch. Next action: wait for CI, then run `make codex-review` for round 2.
 
 The live check on the iPhone needs the `deploy-web` build of the merge (D-212). The next session reads the deploy, states the expected cost, and asks the owner. After the approval, the owner requests one plan in the live app, and that session records the result as the exit evidence of Phase 5.
 
@@ -82,8 +84,9 @@ Branch: `feat/pr-27-plan-screens`. Role: author.
 Completed:
 
 - Read the deploys of `0a7b742`.
-- The owner approved the milestone before the first edit (D-12), and answered Q-252 to Q-254 (D-239 to D-241).
+- The owner approved the milestone before the first edit (D-12), and answered Q-252 to Q-255 (D-239 to D-241).
 - Wrote the plan screen, the stream hook, and the texts, with unit tests and browser tests. Changed the fake provider and the start guard, with Go tests. Changed the design, both roadmaps, the registers, both READMEs, and `AGENTS.md`.
+- Answered Codex findings P2-1 and P2-2 of round 1 with full merit.
 
 Open work:
 
