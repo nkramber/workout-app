@@ -20,7 +20,7 @@ The owner approved the milestone, then widened it with the cardio rule (D-12, D-
 
 `make contract`, `make go-test`, `make emulator-test`, `make web`, and `make verify` passed.
 
-Codex round 1 gave "Changes required" at `f75610a` with P2-1, and round 2 withdrew it. Round 2 gave "Changes required" at `a20f04b` with P2-2: a workout and a set with the same id shared one version. The fix keys each version by the entity and its id. Codex round 3 marked P2-2 fixed and gave "Ready for owner merge" at `f9e09d0`.
+Codex round 1 gave "Changes required" at `f75610a` with P2-1, and round 2 withdrew it. Round 2 gave "Changes required" at `a20f04b` with P2-2: a workout and a set with the same id shared one version. The fix keys each version by the entity and its id. Codex round 3 marked P2-2 fixed and gave "Ready for owner merge" at `f9e09d0`. State: pending the owner merge. Next action: ask the owner to confirm the merge (D-13).
 
 `docs/reviews/pr-30-response.md` holds the answers. All product checks and the fresh `review-gate` check pass at `a259775`. The review record approves effective head `f9e09d0`, with no open findings. State: ready for owner merge. Next action: the owner reads the record and confirms the merge.
 
@@ -75,7 +75,7 @@ The merge changes `go/` and `web/`, so it deploys both. The session of PR-30 rea
 
 ## Next steps, in order
 
-1. Close PR-29: CI, the Codex review, the owner confirmation, and the merge.
+1. Close PR-29: the owner confirmation and the merge.
 2. Start PR-30 in a clean session (D-12). Read the deploys of the merge of PR-29 first (D-137).
 
 ## Session records
@@ -93,10 +93,11 @@ Completed:
 - Wrote the workout service, `go/internal/workout`, and `go/internal/workoutsvc`, with unit tests and emulator tests.
 - Changed the cardio rule in the prompt, the output check, the fake provider, and the plan screen, with tests.
 - Changed the registers, both roadmaps, the design, `go/README.md`, and `AGENTS.md`.
+- Refuted Codex finding P2-1, which Codex withdrew, and answered P2-2 with full merit.
 
 Open work:
 
-- CI, the Codex review, the owner confirmation, and the merge of PR-29.
+- The owner confirmation and the merge of PR-29.
 
 ### Session 29 - 2026-10-03
 
