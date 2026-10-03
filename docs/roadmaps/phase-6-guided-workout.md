@@ -97,7 +97,9 @@ The session of PR-32 read these facts on 2026-10-03:
 - The build `deploy-web` `b386e8a9` gave SUCCESS at 18:41:00Z. The build `deploy-api` `481821e0` gave SUCCESS at 18:42:37Z.
 - The live `/version` and the live `/version.json` both named `7ed7c0f`, and the revision `api-00017-dnm` served all traffic (D-137).
 
-The session stated the expected cost of one live plan at xhigh with `luna-prompt-v5`, and the owner approved it (D-212). The plan must hold `calibration_loads` with a row for each weight of the machine, and policy version 4 (D-267).
+The session stated the expected cost of one live plan at xhigh with `luna-prompt-v5`, and the owner approved it (D-212). At 20:08Z the owner requested one plan on the iPhone. The API made 1 planner call at xhigh, with the status `ok` and a cost of 0.0023 USD. The plan has policy version 4, 1 attempt, and 2 sessions with 5 and 4 exercises.
+
+Each of the 9 exercises has one calibration set, and `calibration_loads` with a row for each weight of its machine (D-267). A machine has 29 rows, and the cable station has 15 rows.
 
 ## 2. Owner answers for this phase
 

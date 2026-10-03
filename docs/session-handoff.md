@@ -8,7 +8,7 @@ Date: 2026-10-03. Roadmap PR-32 of `docs/roadmaps/phase-6-guided-workout.md`, on
 
 Before the work, the session read the deploy of `7ed7c0f`. The build `deploy-web` `b386e8a9` and the build `deploy-api` `481821e0` gave `SUCCESS`. The live `/version` and `/version.json` both name `7ed7c0f`, and the revision `api-00017-dnm` serves all traffic (D-137).
 
-The owner approved the live check of one plan at xhigh of `luna-prompt-v5` (D-212). Until 20:02Z, the API logs showed no plan request. The session reads the result when it comes: `calibration_loads` with a row for each weight of the machine (D-267), and policy version 4. The owner also reports the wake lock after a return (D-271), and one calibration set log (D-268).
+The owner approved the live check of one plan at xhigh of `luna-prompt-v5` (D-212). At 20:08Z, the API made 1 planner call of 0.0023 USD. The plan has policy version 4, and each of the 9 exercises has a row of `calibration_loads` for each weight of its machine (D-267). Section 1.7 of the roadmap records the check. The owner reports the wake lock after a return (D-271), and one calibration set log (D-268).
 
 The owner approved the milestone before the first edit (D-12), and answered Q-286 to Q-292 (D-272 to D-278). The pull request holds:
 
@@ -41,7 +41,7 @@ After the merge, the changes to `go/` and `web/` deploy. The next session reads 
 | A Cloud Run service with a secret needs the accessor role for its service identity alone. The page lists `roles/run.admin` for the deployer. | 2026-10-02 | Cloud Run docs, "Configure secrets for services" |
 | The secret `openai-api-key` has version 1, enabled. A free call to the OpenAI model list with it gave HTTP 200 and lists `gpt-6-luna`. | 2026-10-01 | `gcloud secrets versions list`, `curl` |
 | With the same 50 calls of `go/cmd/lunaeval`, xhigh cost 0.0740 USD and medium 0.0426 USD. The longest xhigh call took 63.6 s, and each effort passed 50 of 50. | 2026-10-03 | `docs/research/luna-effort-check.md` |
-| A live plan at xhigh of `luna-prompt-v5` took 1 call of 0.0019 USD, with 2 sessions of 5 and 4 exercises, and 25 minutes of cardio in each session. Each reason said that the exercise is new. | 2026-10-03 | `gcloud logging read`, `users/{uid}/plan/active` |
+| A live plan at xhigh of `luna-prompt-v5` and policy version 4 took 1 call of 0.0023 USD, with 2 sessions of 5 and 4 exercises. Each exercise has a calibration row for each weight of its machine. | 2026-10-03 | `gcloud logging read`, `users/{uid}/plan/active` |
 | WebKit fixed the Screen Wake Lock for Home Screen apps in iOS 18.4. On iOS 27.0, the lock worked in the Home Screen app of the probe, from Chrome 154. | 2026-10-03 | PC-2, PC-8, `docs/research/iphone-platform-spike.md` |
 | In the Home Screen app on iOS 27.0 with Chrome 154, `100dvh` leaves out the band of the status bar. A shell of `100dvh` ended 62 pt above the bottom edge of an iPhone 16 Pro. | 2026-10-03 | The screenshot of the owner, `web/src/lib/app-height.ts` |
 | Chromium of Playwright 1.63.0 does not apply the display mode `standalone` of `Emulation.setEmulatedMedia`. | 2026-10-03 | `web/e2e/shell.spec.ts` |
