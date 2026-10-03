@@ -19,9 +19,9 @@ The owner approved a milestone of six concerns before the first edit (D-12), and
 - the calibration step on the workout screen, with 0 to 6+ reps in reserve (D-268),
 - the wake lock request at each tap, focus, `pageshow` event, and return, with the error name in the notice (D-271).
 
-State: Codex round 1 gave "Changes required" at `deb04a7`, and the record is `docs/reviews/pr-32.md`. P2-1 has full merit: the table now applies to the logged weight. P2-2 has no merit, because the contract, the domain model, and D-170 refuse a skip with a logged set. `docs/reviews/pr-32-response.md` holds the answers. `make contract`, `make go-test`, `make emulator-test`, `make web`, and `make verify` passed after the answers.
+State: The Codex review record now covers `7eaf4f6`. P2-1 is fixed. The review withdrew P2-2 because the API contract and domain model reject a skip with a logged set. Product checks pass on this head. A local emulator check failed once with a lock timeout, then passed on retry.
 
-Next action: push the answers, wait for CI, and run `make codex-review PR=32` for round 2 (D-8).
+Next action: wait for the review-gate check, then ask the owner to confirm the merge (D-13).
 
 After the merge, the changes to `go/` and `web/` deploy. The next session reads both deploys first. The owner then requests a new plan, because a plan made before the merge has no calibration loads (D-212). The owner checks the wake lock after a return to the app, and logs one calibration set on the iPhone.
 
