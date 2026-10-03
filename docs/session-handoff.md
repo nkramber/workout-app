@@ -21,9 +21,9 @@ The owner approved the milestone before the first edit (D-12), and answered Q-27
 
 `make contract`, `make go-test`, `make emulator-test`, `make web`, and `make verify` passed.
 
-State: PR-30 (GitHub #31) is open. Codex round 2 gives "Ready for owner merge" at `ef2634a`. The two findings are fixed, and the local web and verification checks pass. All GitHub checks passed on metadata head `af69e22`. The review record is `docs/reviews/pr-31.md`.
+State: PR-30 (GitHub #31) is open. Codex round 2 gives "Ready for owner merge" at `ef2634a`. The two findings are fixed, and the local web and verification checks pass. All GitHub checks passed on metadata head `56f36ea`. The review record is `docs/reviews/pr-31.md`.
 
-Next action: wait for checks on the final metadata push, then ask the owner to confirm the merge (D-13).
+Next action: ask the owner to confirm the merge (D-13).
 
 The merge changes `go/` and `web/`, so it deploys both. The session of PR-31 reads both deploys first. Then one live plan of prompt v5 checks the reason of a new exercise (D-212). The owner also checks the wake lock and a set log on the iPhone.
 
