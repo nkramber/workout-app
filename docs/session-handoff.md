@@ -21,7 +21,9 @@ The owner approved the milestone before the first edit (D-12), and answered Q-27
 
 `make contract`, `make go-test`, `make emulator-test`, `make web`, and `make verify` passed.
 
-State: the pull request is open, before the Codex review. Next action: wait for CI, then run `make codex-review` (D-8).
+State: PR-30 (GitHub #31) is open. Codex reviewed effective head `1ef826c` and found P2-1 and P2-2. Verdict: Changes required.
+
+Next action: correct P2-1 and P2-2, push the new head, and request a new Codex review.
 
 The merge changes `go/` and `web/`, so it deploys both. The session of PR-31 reads both deploys first. Then one live plan of prompt v5 checks the reason of a new exercise (D-212). The owner also checks the wake lock and a set log on the iPhone.
 
