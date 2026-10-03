@@ -1,6 +1,6 @@
 # Roadmaps
 
-This folder holds the roadmaps of Workout App. The date of this version is 2026-10-02.
+This folder holds the roadmaps of Workout App. The date of this version is 2026-10-03.
 
 ## Files
 
@@ -13,6 +13,7 @@ This folder holds the roadmaps of Workout App. The date of this version is 2026-
 | `docs/roadmaps/phase-3-workout-domain.md` | The focused roadmap of Phase 3: PR-12 to PR-17 |
 | `docs/roadmaps/phase-4-equipment-inventory.md` | The focused roadmap of Phase 4: PR-18 to PR-21 |
 | `docs/roadmaps/phase-5-onboarding-and-plan.md` | The focused roadmap of Phase 5: PR-22 to PR-27 |
+| `docs/roadmaps/phase-6-guided-workout.md` | The focused roadmap of Phase 6: PR-28 to PR-32 |
 
 A focused roadmap for one phase gets a file named `phase-<n>-<short-name>.md` in this folder.
 

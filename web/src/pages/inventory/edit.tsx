@@ -9,8 +9,8 @@ import {
   formatPounds,
   guessStep,
   parsePounds,
-  rangeWeights,
   removeWeight,
+  weightsToSave,
   type Kind,
 } from "../../lib/inventory";
 import { useInventoryApi } from "../../lib/inventory-api";
@@ -23,8 +23,9 @@ const text = (tenths: number | undefined) => (tenths ? formatPounds(tenths) : ""
 // form follows the kind of the machine:
 //
 //   - a machine or the cable station: the lightest weight, the heaviest
-//     weight, and the step make the list, then the owner adds or removes
-//     single weights (D-195),
+//     weight, and the step. The save makes the list (D-245). On a later
+//     visit, the owner adds or removes single weights (D-195), and a
+//     change of the range makes a new list at the save,
 //   - the dumbbells: the dumbbell set (D-155),
 //   - a cardio machine: no weights and no estimate.
 //
@@ -50,6 +51,7 @@ export function EditScreen({ catalog, inventory, go, machineId }: ScreenProps & 
   );
   const [step, setStep] = useState(text(stored?.dumbbells?.stepTenthLb ?? guessStep(storedList) ?? undefined));
   const [weights, setWeights] = useState<number[]>([...storedList]);
+  const [range] = useState(() => [lightest, heaviest, step].join("|"));
   const [single, setSingle] = useState("");
   const [estimates, setEstimates] = useState<Record<string, string>>(() =>
     Object.fromEntries((stored?.estimates ?? []).map((e) => [e.exerciseId, formatPounds(e.loadTenthLb)])),
@@ -72,14 +74,6 @@ export function EditScreen({ catalog, inventory, go, machineId }: ScreenProps & 
     stepTenthLb: dumbbells.value.step,
   }) : [];
 
-  const makeList = () => {
-    const r = rangeWeights(parsePounds(lightest), parsePounds(heaviest), parsePounds(step));
-    if (r.ok) {
-      setWeights(r.value);
-      action.setError("");
-    } else action.setError(r.error);
-  };
-
   const addSingle = () => {
     const r = addWeight(weights, parsePounds(single));
     if (r.ok) {
@@ -90,9 +84,15 @@ export function EditScreen({ catalog, inventory, go, machineId }: ScreenProps & 
   };
 
   const save = async () => {
-    if (stack && weights.length === 0) {
-      action.setError("Make the list of weights first.");
-      return;
+    let list = weights;
+    if (stack) {
+      const changed = [lightest, heaviest, step].join("|") !== range;
+      const r = weightsToSave(weights, parsePounds(lightest), parsePounds(heaviest), parsePounds(step), changed);
+      if (!r.ok) {
+        action.setError(r.error);
+        return;
+      }
+      list = r.value;
     }
     if (dumbbells && !dumbbells.ok) {
       action.setError(dumbbells.error);
@@ -101,7 +101,7 @@ export function EditScreen({ catalog, inventory, go, machineId }: ScreenProps & 
     const chosen: { exerciseId: string; loadTenthLb: number }[] = [];
     if (kind !== "cardio") {
       for (const e of exercises) {
-        const r = checkEstimate(estimates[e.id] ?? "", loads);
+        const r = checkEstimate(estimates[e.id] ?? "", stack ? list : loads);
         if (!r.ok) {
           action.setError(`${e.name}: ${r.error}`);
           return;
@@ -112,7 +112,7 @@ export function EditScreen({ catalog, inventory, go, machineId }: ScreenProps & 
     const ok = await action.run(() =>
       api.saveMachine({
         machineId,
-        weightsTenthLb: stack ? weights : [],
+        weightsTenthLb: stack ? list : [],
         dumbbells:
           dumbbells?.ok
             ? {
@@ -157,11 +157,17 @@ export function EditScreen({ catalog, inventory, go, machineId }: ScreenProps & 
               {loads.length} pairs of dumbbells.
             </p>
           )}
-          {stack && (
+          {stack && storedList.length === 0 && (
+            <p className="text-sm text-slate-400" data-testid="list-hint">
+              Save makes the list of weights from these three values.
+            </p>
+          )}
+          {stack && storedList.length > 0 && (
             <>
-              <button type="button" className={`${secondary} w-full`} onClick={makeList}>
-                Make the list
-              </button>
+              <p className="text-sm text-slate-400" data-testid="list-hint">
+                Tap a weight to remove it, or add one weight. A change of the three values makes a new list when you
+                save.
+              </p>
               <ul className="flex flex-wrap gap-2" aria-label="Weight list" data-testid="weight-list">
                 {weights.map((w) => (
                   <li key={w}>

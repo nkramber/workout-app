@@ -183,12 +183,16 @@ func (inv Inventory) noteIndex(id string) int {
 // SaveMachine adds the machine as a draft, or replaces the one entry of
 // the machine (D-200). A confirmed machine stays confirmed when its
 // weights do not change, and becomes a draft when they change (D-193).
-// The estimates of m replace the stored estimates, and the state of m
-// is not read.
+// A cardio machine has no weights to read, so the save confirms it
+// (D-246). The estimates of m replace the stored estimates, and the
+// state of m is not read.
 func (inv Inventory) SaveMachine(c domain.Catalog, m Machine) (Inventory, error) {
 	out := inv.clone()
 	m = m.clone()
 	m.State = Draft
+	if d, ok := c.Machine(m.Entry.Machine); ok && d.Kind == domain.KindCardio {
+		m.State = Confirmed
+	}
 	if i := out.machineIndex(m.Entry.Machine); i >= 0 {
 		if old := out.Machines[i]; old.State == Confirmed && SameWeights(old.Entry, m.Entry) {
 			m.State = Confirmed

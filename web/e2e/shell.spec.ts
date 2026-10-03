@@ -129,6 +129,54 @@ test.describe("in Chromium", () => {
   });
 });
 
+// The live fault of PR-28: in the Home Screen app, the shell of 100dvh
+// ended 62 pt above the bottom edge, and the bottom safe area added an
+// empty band below the main region. Chromium sets the safe area through
+// the DevTools protocol alone, and no browser here sets the display mode,
+// so a script makes matchMedia give the standalone mode. The owner reads
+// the phone after the deploy.
+test("the main region reaches the bottom edge, and its padding holds the bottom safe area", async ({ page, browserName }) => {
+  test.skip(browserName !== "chromium", "Chromium alone sets the safe area through the DevTools protocol");
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send("Emulation.setSafeAreaInsetsOverride", { insets: { bottom: 34 } });
+  await page.goto("/");
+  await expect(page.getByTestId("shell")).toBeVisible();
+  const got = await page.evaluate(() => {
+    const main = document.querySelector("main")!;
+    return { bottom: main.getBoundingClientRect().bottom, padding: getComputedStyle(main).paddingBottom, innerHeight: window.innerHeight };
+  });
+  expect(got.bottom, "a band stays below the main region").toBeCloseTo(got.innerHeight, 0);
+  expect(got.padding).toBe(`${16 + 34}px`);
+});
+
+test("the Home Screen app takes the height of the screen, and a tab takes 100dvh", async ({ page }) => {
+  const height = () =>
+    page.evaluate(() => ({
+      shell: document.querySelector('[data-testid="shell"]')!.getBoundingClientRect().height,
+      innerHeight: window.innerHeight,
+      screen: Math.max(screen.width, screen.height),
+      variable: document.documentElement.style.getPropertyValue("--app-height"),
+    }));
+
+  await page.goto("/");
+  await expect(page.getByTestId("shell")).toBeVisible();
+  const tab = await height();
+  expect(tab.variable).toBe("");
+  expect(tab.shell).toBeCloseTo(tab.innerHeight, 0);
+
+  await page.addInitScript(() => {
+    const real = window.matchMedia.bind(window);
+    window.matchMedia = (query: string) =>
+      query === "(display-mode: standalone)" ? ({ ...real(query), matches: true, media: query } as MediaQueryList) : real(query);
+  });
+  await page.reload();
+  await expect(page.getByTestId("shell")).toBeVisible();
+  const app = await height();
+  const want = Math.max(app.screen, app.innerHeight);
+  expect(app.variable).toBe(`${want}px`);
+  expect(app.shell).toBeCloseTo(want, 0);
+});
+
 test("the shell fills the whole screen, and the main region is the one part that scrolls", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByTestId("shell")).toBeVisible();

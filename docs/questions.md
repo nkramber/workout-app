@@ -449,6 +449,23 @@ The live check of D-203 failed on 2026-10-02. The app showed "The API did not an
 | Q-254 | How do the browser tests get a full plan and a visible progress from the local API? | A fuller reply of the fake, a local delay switch, and a route stub for two errors. | Answered | D-241 |
 | Q-255 | Does the error of no allowed exercise say that the plan did not change? | Yes. The owner added "Your plan did not change." after the review of PR-27. | Answered | D-240 |
 
+## Questions of the Phase 6 roadmap session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-256 | Where does the comparison of the medium and xhigh efforts go? | Into PR-28, with a paid run at each effort. | Answered | D-242 |
+| Q-257 | Where does a change of the Luna role go? | Into PR-28. | Answered | D-243 |
+| Q-258 | Does PR-28 also hold the fixes of the live check? | Yes, all in PR-28, over a split under D-10. | Answered | D-244 |
+| Q-259 | When does the app make the weight list? | At the save, with no button. | Answered | D-245 |
+| Q-260 | How does the owner confirm a cardio machine? | The save confirms it. | Answered | D-246 |
+| Q-261 | How does Phase 6 split into pull requests? | Four, with the API first: PR-29 to PR-32. | Answered | D-247 |
+| Q-262 | Which session of the plan does a workout start? | The next one that the owner did not do, and the owner can pick another. | Answered | D-248 |
+| Q-263 | How does the owner log a set in three taps or fewer? | Reps and weight from the target, and one tap on the reps in reserve. | Answered | D-249 |
+| Q-264 | Do the changes of the inventory go through the outbox? | Yes, in PR-32. | Answered | D-250 |
+| Q-265 | How does the owner report a warning symptom during a workout? | A button "Report a symptom" on each workout screen. | Answered | D-251 |
+| Q-266 | What happens to a plan request during a workout? | The plan screen refuses it until the workout ends. | Answered | D-252 |
+| Q-267 | Which reasoning effort does Luna use? | xhigh, for both roles. | Answered | D-253 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |

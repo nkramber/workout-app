@@ -5,8 +5,10 @@ import { makeOwner, signIn, stopAndOpen, uniqueEmail } from "./support";
 // The acceptance story of work area 4.1. Each test runs in WebKit and in
 // Chromium with phone emulation, against the API of go/ and the Firestore
 // emulator. The owner adds a machine by selection and a machine by text
-// entry, and confirms both. A change of the weights makes a confirmed
-// machine a draft again. A text with no match stays as a note. Each test
+// entry, and confirms both. The save makes the weight list (D-245), and
+// the save of a cardio machine confirms it (D-246). A change of the
+// weights makes a confirmed machine a draft again. A text with no match
+// stays as a note. Each test
 // uses its own account, so it starts with an empty inventory.
 
 async function openInventory(page: Page, info: TestInfo) {
@@ -27,12 +29,11 @@ const weightButtons = (page: Page) => page.getByTestId("weight-list").getByRole(
 const state = (page: Page) => page.getByTestId("machine-state");
 
 // fillRange enters the lightest weight, the heaviest weight, and the step
-// of a stack, and makes the list (D-195).
+// of a stack. The save makes the list (D-195, D-245).
 async function fillRange(page: Page, lightest: string, heaviest: string, step: string) {
   await page.getByLabel("Lightest (lb)").fill(lightest);
   await page.getByLabel("Heaviest (lb)").fill(heaviest);
   await page.getByLabel("Step (lb)").fill(step);
-  await button(page, "Make the list").click();
 }
 
 // addStack adds a machine of the catalog list with a range of weights,
@@ -59,14 +60,26 @@ test("the owner adds a machine by selection and a machine by text entry, and con
   }
   await page.getByTestId("catalog-chest_press").click();
 
-  // The range makes the list, then the owner removes and adds one weight.
+  // A save with no range makes no list, and tells the owner why.
+  await expect(page.getByTestId("list-hint")).toHaveText("Save makes the list of weights from these three values.");
+  await button(page, "Save").click();
+  await expect(page.getByTestId("change-error")).toHaveText(/^Enter the lightest weight, the heaviest weight, and the step/);
+
+  // The save makes the list from the range, with no other step (D-245).
   await fillRange(page, "10", "100", "10");
+  await expect(weightButtons(page)).toHaveCount(0);
+  await page.getByLabel("Chest press (lb)").fill("40");
+  await button(page, "Save").click();
+  await expect(state(page)).toHaveText("Draft");
+  await expect(page.getByTestId("shown-weights")).toHaveText("10, 20, 30, 40, 50, 60, 70, 80, 90, 100 lb");
+
+  // On a later visit, the owner removes and adds one weight (D-195).
+  await button(page, "Change").click();
   await expect(weightButtons(page)).toHaveCount(10);
   await page.getByRole("button", { name: "Remove 50 lb" }).click();
   await page.getByLabel("One weight (lb)").fill("52.5");
   await button(page, "Add").click();
   await expect(weightButtons(page)).toHaveCount(10);
-  await page.getByLabel("Chest press (lb)").fill("40");
   await button(page, "Save").click();
 
   // The review screen shows the stored weights, and confirms them.
@@ -122,6 +135,12 @@ test("a change of the weights makes a confirmed machine a draft again, and a cha
   await button(page, "Save").click();
   await expect(state(page)).toHaveText("Draft");
   await expect(page.getByTestId("shown-weights")).toHaveText("50, 100, 150, 200, 250 lb");
+
+  // A change of the range makes a new list at the save (D-245).
+  await button(page, "Change").click();
+  await page.getByLabel("Heaviest (lb)").fill("350");
+  await button(page, "Save").click();
+  await expect(page.getByTestId("shown-weights")).toHaveText("50, 100, 150, 200, 250, 300, 350 lb");
   await button(page, "Back").click();
   await expect(page.getByTestId("machine-leg_press").getByTestId("machine-state")).toHaveText("Draft");
 });
@@ -141,7 +160,7 @@ test("a text with no match stays as a note, and the owner removes the note", asy
   await expect(page.getByText("No note.")).toBeVisible();
 });
 
-test("the dumbbells use the dumbbell set, and a cardio machine has no weights", async ({ page }, info) => {
+test("the dumbbells use the dumbbell set, and the save of a cardio machine confirms it", async ({ page }, info) => {
   await openInventory(page, info);
 
   await button(page, "Add a machine").click();
@@ -150,7 +169,7 @@ test("the dumbbells use the dumbbell set, and a cardio machine has no weights", 
   await page.getByLabel("Heaviest (lb)").fill("50");
   await page.getByLabel("Step (lb)").fill("5");
   await expect(page.getByTestId("dumbbell-count")).toHaveText("10 pairs of dumbbells.");
-  await expect(button(page, "Make the list")).toHaveCount(0);
+  await expect(page.getByTestId("list-hint")).toHaveCount(0);
   await page.getByLabel("Dumbbell goblet squat (lb)").fill("25");
   await button(page, "Save").click();
   await expect(page.getByTestId("shown-weights")).toHaveText("5 to 50 lb, step 5 lb (10 pairs)");
@@ -163,9 +182,15 @@ test("the dumbbells use the dumbbell set, and a cardio machine has no weights", 
   await expect(page.getByTestId("no-weights")).toBeVisible();
   await expect(page.getByRole("region", { name: "Estimates" })).toHaveCount(0);
   await button(page, "Save").click();
-  await expect(page.getByTestId("shown-weights")).toHaveText("No weights");
-  await button(page, "Confirm these weights").click();
+
+  // A cardio machine has no weights to read, so the save confirms it (D-246).
   await expect(state(page)).toHaveText("Confirmed");
+  await expect(page.getByTestId("shown-weights")).toHaveText("A cardio machine has no weights");
+  await expect(button(page, "Confirm these weights")).toHaveCount(0);
+  await expect(button(page, "Confirm this machine")).toHaveCount(0);
+  await expect(button(page, "Change")).toHaveCount(0);
+  await button(page, "Back").click();
+  await expect(page.getByTestId("machine-treadmill").getByTestId("machine-state")).toHaveText("Confirmed");
 });
 
 test("the review screen removes a machine", async ({ page }, info) => {

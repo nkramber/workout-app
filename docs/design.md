@@ -1,6 +1,6 @@
 # Workout App - design
 
-This document holds the product thesis, the target experience, the system context, the safety boundaries, and the privacy posture of Workout App. It is the design reference for `docs/roadmaps/high-level-roadmap.md`. The date of this version is 2026-10-02.
+This document holds the product thesis, the target experience, the system context, the safety boundaries, and the privacy posture of Workout App. It is the design reference for `docs/roadmaps/high-level-roadmap.md`. The date of this version is 2026-10-03.
 
 Each statement has a label. **Fact** means a verified fact with a source in `docs/research/`. **Decision** means an owner decision in `docs/decisions.md`. **Recommendation** means a proposal that the owner did not accept yet. **Assumption** means a belief that nobody verified yet. **Open** means a question in `docs/questions.md`.
 
@@ -8,7 +8,7 @@ Each statement has a label. **Fact** means a verified fact with a source in `doc
 
 Workout App is a personal workout app for one person, the owner (Decision, D-67). The owner tells the app the muscles to train, the schedule, the experience, the injuries, and the goals. The owner selects each machine of the gym from a catalog, or enters it as text, and confirms it (Decision, D-49, D-110). No phase of the roadmap holds photo recognition now (Decision, D-111). The app builds a workout plan, guides each workout, records each set, and adapts the next targets from the history.
 
-The core of the app is **a thin LLM over a strict policy** (Decision, D-22, D-23). OpenAI `gpt-6-luna` at medium effort proposes each plan and each revision (Decision, D-24). A deterministic, versioned policy checks every set, load, and change before the owner sees it. When the policy refuses a value of Luna, a rules fallback gives a safe target. When Luna gives no valid plan, the API retries the call, and after the last failure the request gives an error and changes nothing (Decision, D-230). This thesis copies the Decktome thesis, where deterministic code checks every card that the model names.
+The core of the app is **a thin LLM over a strict policy** (Decision, D-22, D-23). OpenAI `gpt-6-luna` at xhigh effort proposes each plan and each revision (Decision, D-24, D-253). A deterministic, versioned policy checks every set, load, and change before the owner sees it. When the policy refuses a value of Luna, a rules fallback gives a safe target. When Luna gives no valid plan, the API retries the call, and after the last failure the request gives an error and changes nothing (Decision, D-230). This thesis copies the Decktome thesis, where deterministic code checks every card that the model names.
 
 Workout App is an installable, phone-first web app on a default Firebase Hosting URL (Decision, D-17). It never goes to an app store, and no native app exists. It has one phone layout, and nobody designs or tests a desktop layout (Decision, D-20).
 
@@ -46,11 +46,13 @@ The API stores the profile in one Firestore document at `users/{uid}/profile/act
 
 The owner selects each machine from the catalog, or enters it as text (Decision, D-51, D-55, D-110). A text searches the names of the catalog, and the owner selects the match. A text with no match stays as a note in the inventory, and no plan uses a note (Decision, D-191). The catalog list shows the machines by kind: the machines, the cable station, the dumbbells, and the cardio machines (Decision, D-202). Each kind group and the inventory list show the machines A to Z by name (Decision, D-205).
 
-The owner enters the weights of a stack as the lightest weight, the heaviest weight, and the step. The app makes the list, and the owner can add or remove a weight (Decision, D-195). The owner can give a current load estimate for each exercise of the machine (Decision, D-41, D-192).
+The owner enters the weights of a stack as the lightest weight, the heaviest weight, and the step. The save makes the list, and on a later visit the owner can add or remove a weight (Decision, D-195, D-245). The owner can give a current load estimate for each exercise of the machine (Decision, D-41, D-192).
 
 An estimate is in the range of the weights of the machine, as the policy input reads it. The server refuses a change of the weights that puts an estimate outside that range (Decision, D-198). A weight of a stack is 1,000 lb or less, and a list holds 200 weights or fewer. A note holds 1 to 200 characters, and the inventory holds 50 notes or fewer (Decision, D-199).
 
-The owner saves a machine as a draft, then confirms it on a review screen. A plan reads confirmed machines alone. A change of the weights makes a confirmed machine a draft again (Decision, D-49, D-193). A second save of a machine replaces its one entry, and a change of the estimates alone keeps the confirmation (Decision, D-200). The confirmation sends the weights that the review screen showed, and the server refuses it when the stored weights are different (Decision, D-201). In Phase 4, each change is a direct call to the API, and Phase 6 adds the offline copy (Decision, D-196).
+The owner saves a machine as a draft, then confirms it on a review screen. A plan reads confirmed machines alone. A change of the weights makes a confirmed machine a draft again (Decision, D-49, D-193). A cardio machine has no weights, so its save confirms it (Decision, D-246).
+
+A second save of a machine replaces its one entry, and a change of the estimates alone keeps the confirmation (Decision, D-200). The confirmation sends the weights that the review screen showed, and the server refuses it when the stored weights are different (Decision, D-201). In Phase 4, each change is a direct call to the API, and PR-32 of Phase 6 adds the offline copy and the outbox (Decision, D-196, D-250).
 
 No phase of the roadmap holds photo recognition now (Decision, D-111). The recognition spike gave a no-go, because Luna gave too many wrong answers with a high stated confidence (Decision, D-107, and `docs/research/recognition-spike.md`). When a later decision adds a photo phase, these rules apply:
 
@@ -173,7 +175,7 @@ The policy has no reactive deload (Decision, D-175). The draft in `tools/spikes/
 
 The role layer is in `go/internal/ai` (Decision, D-157). It holds these parts:
 
-- The planner and the reviser roles on `gpt-6-luna` at medium effort. The role holds the model id, so a call site names a role alone (Decision, D-22, D-24).
+- The planner and the reviser roles on `gpt-6-luna` at xhigh effort (D-253). The role holds the model id, so a call site names a role alone (Decision, D-22, D-24).
 - The strict plan schema. Its enums hold the ids of the catalog of D-155 and of the guidance catalog, so a valid output names no unknown id (Decision, D-152).
 - The prompt, with the boundary of D-36 and the dated copy of the usage policies of D-93, and each rule of the policy.
 - A cost record for each call, and a cap hook that reserves the worst-case cost before the call. The hook refuses a call over the cap. The cap values come from the configuration. The caps are 1 USD for the user and 2 USD for the project, for each calendar month in UTC (Decision, D-25, D-188, D-190). The API uses the lasting cap hook of `go/internal/capstore`. It keeps the spend of each month in Firestore, so a new instance of the API does not reset it (Decision, D-189, D-224). A failed call charges the reserved worst-case cost (Decision, D-225).

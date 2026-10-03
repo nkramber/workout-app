@@ -2,11 +2,14 @@ import type { ReactNode } from "react";
 
 import { UpdateBanner } from "./update-banner";
 
-// The shell fills the whole window of the Home Screen app, with no gap at
-// the bottom edge (D-120). Its height is the dynamic viewport height
-// (`h-dvh`), and it pads itself with the safe areas of the screen. The
-// main region is the one part that scrolls (decktome:D-625). The app has
-// the phone layout alone (D-20).
+// The shell fills the whole screen of the Home Screen app, with no gap at
+// the bottom edge (D-120). Its height is `--app-height` of
+// src/lib/app-height.ts in the Home Screen app, and the dynamic viewport
+// height (`100dvh`) in a browser tab. It pads itself with the top and
+// side safe areas. The main region is the one part that scrolls
+// (decktome:D-625), and it reaches the bottom edge. Its bottom padding
+// holds the bottom safe area, so the content scrolls below the home
+// indicator and ends above it. The app has the phone layout alone (D-20).
 //
 // Since iOS 26, the Home Screen app blurs a band of the page below the
 // status bar, and the page can not turn the blur off. So the header adds
@@ -17,13 +20,13 @@ export function Shell({ children }: { children: ReactNode }) {
   return (
     <div
       data-testid="shell"
-      className="flex h-dvh flex-col bg-[#0b1220] pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]"
+      className="flex h-[var(--app-height,100dvh)] flex-col bg-[#0b1220] pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]"
     >
       <header className="flex items-center justify-between border-b border-slate-800 px-4 pt-[calc(0.75rem+min(env(safe-area-inset-top),16px))] pb-3">
         <h1 className="text-lg font-semibold text-slate-100">Workout App</h1>
       </header>
       <UpdateBanner />
-      <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4">{children}</main>
+      <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">{children}</main>
     </div>
   );
 }

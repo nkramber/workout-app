@@ -70,6 +70,8 @@ OPENAI_API_KEY="$(gcloud secrets versions access latest --secret=openai-api-key 
   go run ./cmd/lunaeval -live -cap 2 -out ../docs/research/phase-3-check/results.json
 ```
 
+The flag `-effort` sets the reasoning effort of each call, so two runs can compare two efforts with the same calls. With no flag, each call uses the effort of its role. `docs/research/luna-effort-check.md` used it for medium and xhigh (D-242).
+
 The command writes the report and a summary of ids and numbers. The report holds synthetic data alone.
 
 The build writes the commit into the binary with `-ldflags "-X main.commit=<sha>"`. The route `GET /version` gives it as `{"commit": "<sha>"}`, with no sign-in. The route does not use `/healthz`, because that path does not answer on a `run.app` URL (`decktome:cloudbuild/api.yaml`).

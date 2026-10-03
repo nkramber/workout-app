@@ -4,26 +4,24 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-03. Roadmap PR-27 of `docs/roadmaps/phase-5-onboarding-and-plan.md`, on branch `feat/pr-27-plan-screens`, from base `0a7b742`. Work area 5.2.
+Date: 2026-10-03. Roadmap PR-28 of `docs/roadmaps/phase-6-guided-workout.md`, on branch `docs/pr-28-phase-6-roadmap`, from base `9d6f8eb`. GitHub PR 29.
 
-Before the work, the session read the deploy of `0a7b742`. The build `deploy-api` `00f1f9dc` and the build `deploy-web` `7a2a7fa0` gave `SUCCESS` at about 02:09Z on 2026-10-03. The live `/version` and the live `/version.json` both name `0a7b742` (D-137). The revision `api-00012-l67` kept the key, the caps, and the request timeout of 420 s.
+Before the work, the session read the deploy of `9d6f8eb`. The build `deploy-api` `cb49ad85` and the build `deploy-web` `7345e0d5` gave `SUCCESS`, and the live `/version` and `/version.json` both name `9d6f8eb` (D-137).
 
-The owner approved the milestone before the first edit (D-12), and answered Q-252 to Q-255 (D-239 to D-241). The pull request holds:
+The owner approved the live check (D-212). Request 2 gave a plan of 9 exercises from Luna, with no violation, in 1 call of 0.00104 USD. Section 1.1 of the roadmap records it as the exit evidence of Phase 5.
 
-- the plan screen of `web/src/pages/plan.tsx`, with each part of a plan in text (D-44, D-73),
-- the request of a plan through the stream of `RequestPlan`, with the progress texts of D-239 and the error texts of D-240,
-- the exclusion of an exercise with an optional reason of 200 characters or fewer, through `ExcludeExercise` (D-48, D-228),
-- the fuller default reply of the fake provider, and the local switch `LUNA_FAKE_DELAY_MS` that the API refuses on Cloud Run (D-241).
+The owner approved the milestone, then widened it to "the Phase 5 live check and its follow-ups" (D-12, D-244). The pull request holds:
 
-The browser test "the owner requests a plan, sees each part, excludes an exercise, and sees the new plan" of `web/e2e/plan.spec.ts` holds the acceptance story. `make go-test` and `make web` passed.
+- the Phase 6 roadmap, with PR-29 to PR-32 (D-247 to D-252),
+- the flag `-effort` of `go/cmd/lunaeval`, two paid runs of 0.1166 USD in total, the report `docs/research/luna-effort-check.md`, and the effort xhigh of both roles (D-242, D-243, D-253),
+- the weight list at the save (D-245), and the confirmation of a cardio machine at the save (D-246),
+- the shell to the bottom edge of the Home Screen app (D-120). The live shell of `100dvh` ended 62 pt above the bottom edge.
 
-Codex review: round 1 gave "Changes required" at `26f1283`. P2-1 is an overflow of the fake delay. P2-2 is the error of no allowed exercise with no "Your plan did not change.". The author found full merit for both, and the owner added the sentence (Q-255).
+`make verify`, `make go-test`, `make emulator-test`, and `make web` passed.
 
-Round 2 at `a56c522` found both fixed. It found P2-3, an old index in the high-level roadmap, with full merit. It also found P2-4, a provider name in the body, and the author refuted it under D-14. `docs/reviews/pr-28-response.md` holds each answer.
+State: the review record gives `Ready for owner merge` at `3317cde`, and `review-gate` passes. Pending the owner merge. Next action: ask the owner to confirm the merge (D-13).
 
-State: Codex reviewed effective head `f68220766ffb88fd0ae03b34772b5a11e1a15a90`. P2-1, P2-2, and P2-3 are fixed. This review withdraws P2-4. Verdict: Ready for owner merge. Next action: wait for the review-gate check to pass, then ask the owner to confirm the merge.
-
-The live check on the iPhone needs the `deploy-web` build of the merge (D-212). The next session reads the deploy, states the expected cost, and asks the owner. After the approval, the owner requests one plan in the live app, and that session records the result as the exit evidence of Phase 5.
+The merge changes `go/` and `web/`, so it deploys both. The session of PR-29 reads both deploys, then asks the owner for one live plan at xhigh (D-212). The owner also reads the bottom edge of the plan screen on the iPhone.
 
 ## Facts that expire
 
@@ -37,15 +35,18 @@ The live check on the iPhone needs the `deploy-web` build of the merge (D-212). 
 | The OpenAI usage policies page returns HTTP 403. The owner accepted a copy printed on 2025-11-07 (D-93). | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
 | `gpt-6-luna` accepts the strict JSON schema of the plan through the Responses API. 60 of 60 plans passed the schema. | 2026-09-28 | `docs/research/luna-plan-spike.md` |
 | `gpt-6-luna` accepts an image with a strict JSON schema. One photo at 1536 px costs 0.00037 USD. | 2026-09-28 | `docs/research/recognition-spike.md` |
-| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `0a7b742`, three triggers, and the allowlist entry. | 2026-10-03 | `docs/setup-gcp.md`, `/version` |
-| The service `api` revision `api-00012-l67` holds `OPENAI_API_KEY` from `openai-api-key:latest`, `LUNA_CAP_USER_USD=1`, `LUNA_CAP_PROJECT_USD=2`, and a request timeout of 420 s. The TTL policy of `aiErrors.expire_at` is `ACTIVE`. | 2026-10-03 | `gcloud run services describe`, `gcloud firestore fields ttls list` |
+| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `9d6f8eb`, three triggers, and the allowlist entry. | 2026-10-03 | `docs/setup-gcp.md`, `/version` |
+| The service `api` revision `api-00013-w8w` holds `OPENAI_API_KEY` from `openai-api-key:latest`, `LUNA_CAP_USER_USD=1`, `LUNA_CAP_PROJECT_USD=2`, and a request timeout of 420 s. The TTL policy of `aiErrors.expire_at` is `ACTIVE`. | 2026-10-03 | `gcloud run services describe`, `gcloud firestore fields ttls list` |
 | A Cloud Run service with a secret needs the accessor role for its service identity alone. The page lists `roles/run.admin` for the deployer. | 2026-10-02 | Cloud Run docs, "Configure secrets for services" |
 | The secret `openai-api-key` has version 1, enabled. A free call to the OpenAI model list with it gave HTTP 200 and lists `gpt-6-luna`. | 2026-10-01 | `gcloud secrets versions list`, `curl` |
+| With the same 50 calls of `go/cmd/lunaeval`, xhigh cost 0.0740 USD and medium 0.0426 USD. The longest xhigh call took 63.6 s, and each effort passed 50 of 50. | 2026-10-03 | `docs/research/luna-effort-check.md` |
+| In the Home Screen app on iOS 27.0 with Chrome 154, `100dvh` leaves out the band of the status bar. A shell of `100dvh` ended 62 pt above the bottom edge of an iPhone 16 Pro. | 2026-10-03 | The screenshot of the owner, `web/src/lib/app-height.ts` |
+| Chromium of Playwright 1.63.0 does not apply the display mode `standalone` of `Emulation.setEmulatedMedia`. | 2026-10-03 | `web/e2e/shell.spec.ts` |
 | `gpt-6-luna` at medium effort passed the schema `luna_plan_v2` in 50 of 50 calls. A planner call cost 0.0017 USD on average, and the longest call took 33.0 s. | 2026-10-02 | `docs/research/phase-3-check.md` |
 | The bucket `nk-workout-app-prod-deploy-lock` exists, and each deployer account holds `roles/storage.objectUser` on it alone. | 2026-09-29 | `gcloud storage buckets describe`, `get-iam-policy` |
 | `workout-app-prod` is in use by another Google Cloud project. | 2026-09-29 | `gcloud projects create` |
 | The old project `gym-route-dev` is `DELETE_REQUESTED` since 2026-09-30T03:19:47Z. `gcloud projects undelete` can restore it for 30 days. Its site still gave HTTP 200 at 04:38:56Z. | 2026-09-30 | `gcloud projects describe`, `curl` |
-| The live `/version` and the live `/version.json` name `0a7b742b9048ca9393e65bf537d6577b41d94369`, from the builds `deploy-api` `00f1f9dc` and `deploy-web` `7a2a7fa0`. The rules release of `df79c16` has the update time 02:33:00Z, read 2026-09-30. | 2026-10-03 | `curl`, `gcloud builds list` |
+| The live `/version` and the live `/version.json` name `9d6f8ebdb3dc3532a99ad4858d65056c1851eba0`, from the builds `deploy-api` `cb49ad85` and `deploy-web` `7345e0d5`. The rules release of `df79c16` has the update time 02:33:00Z, read 2026-09-30. | 2026-10-03 | `curl`, `gcloud builds list` |
 | In the Firestore emulator v1.22.0, 10 transactions at the same time on one document abort with "Transaction lock timeout" after about 3 s, and the Go client tries again. With 5 attempts, a test of 10 transactions took up to 19 s. | 2026-10-02 | `go/internal/capstore/firestore_emulator_test.go` |
 | `api-runtime` holds `roles/datastore.user`, and no other project role. | 2026-10-02 | `gcloud projects get-iam-policy` |
 | With `context.setOffline(true)` of Playwright 1.63.0, a call of the API fails in WebKit and in Chromium. Connect gives the code `unknown` with a `TypeError` as its cause. | 2026-10-02 | `web/e2e/inventory.spec.ts` |
@@ -70,12 +71,29 @@ The live check on the iPhone needs the `deploy-web` build of the merge (D-212). 
 
 ## Next steps, in order
 
-1. Close PR-27: CI, the Codex review, the owner confirmation, and the merge.
-2. Read the deploys of the merge of PR-27 (D-137). Then state the expected cost of the live check, and ask the owner (D-212).
-3. After the approval, the owner requests one plan on the iPhone. Record the result as the exit evidence of Phase 5.
-4. Start the Phase 6 roadmap in a clean session (D-12).
+1. Close PR-28: the owner confirmation and the merge.
+2. Start PR-29 in a clean session (D-12). Read the deploys of the merge of PR-28 first (D-137).
+3. State the expected cost of one live plan at xhigh, and ask the owner (D-212). After the approval, the owner requests a plan and reads the bottom edge.
 
 ## Session records
+
+### Session 29 - 2026-10-03
+
+Author provider: Claude Code
+
+Branch: `docs/pr-28-phase-6-roadmap`. Role: author.
+
+Completed:
+
+- Read the deploys of `9d6f8eb`, and read the live check of D-212 in Firestore and the logs, with ids alone.
+- The owner approved the milestone and widened it (D-12, D-244), and answered Q-256 to Q-267 (D-242 to D-253).
+- Wrote the effort flag with tests, ran the two paid runs after the approval, and wrote the report. Set the effort to xhigh.
+- Changed the weight list, the cardio confirmation, and the shell, with unit, emulator, and browser tests.
+- Wrote the Phase 6 roadmap, and changed the registers, the design, the high-level roadmap, both READMEs, and `AGENTS.md`.
+
+Open work:
+
+- The owner confirmation and the merge of PR-28.
 
 ### Session 28 - 2026-10-03
 
@@ -92,7 +110,7 @@ Completed:
 
 Open work:
 
-- CI, the Codex review, the owner confirmation, and the merge of PR-27.
+- None. GitHub PR 28 merged as `9d6f8eb`.
 
 ### Session 27 - 2026-10-02
 
@@ -110,19 +128,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 27 merged as `0a7b742`.
-
-### Session 26 - 2026-10-02
-
-Author provider: Claude Code
-
-Branch: `feat/pr-25-cap-store`. Role: author.
-
-Completed:
-
-- Read the deploy of `a1b88d4`.
-- The owner approved the milestone before the first edit (D-12), and answered Q-238 and Q-239 (D-224, D-225).
-- Wrote the lasting cap hook, with unit tests and emulator tests. Changed the cap hook interface of `go/internal/ai`, the design, both roadmaps, the registers, `go/README.md`, and `AGENTS.md`.
-
-Open work:
-
-- None. GitHub PR 26 merged as `42fb3da`.

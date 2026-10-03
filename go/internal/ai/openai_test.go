@@ -46,7 +46,7 @@ func TestOpenAIRequest(t *testing.T) {
 		if r.Method != http.MethodPost || r.Header.Get("Authorization") != "Bearer "+testKey || r.Header.Get("Content-Type") != "application/json" {
 			t.Errorf("request %s %v", r.Method, r.Header)
 		}
-		if b["model"] != Planner().Model || b["reasoning"].(map[string]any)["effort"] != "medium" || b["store"] != false {
+		if b["model"] != Planner().Model || b["reasoning"].(map[string]any)["effort"] != "xhigh" || b["store"] != false {
 			t.Errorf("body model %v reasoning %v store %v", b["model"], b["reasoning"], b["store"])
 		}
 		if b["instructions"] != c.Instructions || b["input"] != string(c.Input) || b["max_output_tokens"] != float64(Planner().MaxOutputTokens) {

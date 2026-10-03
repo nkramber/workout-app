@@ -195,6 +195,16 @@ func TestSaveMachineStates(t *testing.T) {
 		t.Fatalf("the inventory holds %d entries, want one entry for the machine", len(inv.Machines))
 	}
 
+	// A cardio machine has no weights, so the save confirms it (D-246).
+	treadmill := Machine{Entry: domain.InventoryEntry{Machine: "treadmill"}}
+	inv = mustSave(t, inv, treadmill)
+	if s := stateOf(t, inv, "treadmill"); s != Confirmed {
+		t.Fatalf("a saved cardio machine is %s, want confirmed", s)
+	}
+	if s := stateOf(t, mustSave(t, inv, treadmill), "treadmill"); s != Confirmed {
+		t.Fatalf("a second save of a cardio machine gave %s, want confirmed", s)
+	}
+
 	// A change of the dumbbell set makes a draft again.
 	inv = mustConfirm(t, mustSave(t, inv, dumbbells()), dumbbells().Entry)
 	more := dumbbells()

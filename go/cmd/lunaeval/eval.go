@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	_ "embed"
 	"encoding/json"
@@ -197,7 +198,7 @@ func Run(ctx context.Context, c *ai.Client, profiles []Profile, scenarios []Scen
 		}
 	}
 	rep := Report{
-		Model: ai.Planner().Model, Effort: ai.Planner().Effort, PromptVersion: ai.PromptVersion,
+		Model: ai.Planner().Model, Effort: cmp.Or(c.Effort, ai.Planner().Effort), PromptVersion: ai.PromptVersion,
 		PromptHashes: map[string]string{}, SchemaName: ai.SchemaName,
 		PolicyVersion: policy.Version, FilterVersion: ai.FilterVersion, Repeats: repeats, Calls: calls,
 	}

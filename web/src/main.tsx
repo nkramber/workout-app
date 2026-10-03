@@ -7,6 +7,7 @@ import { createRoot } from "react-dom/client";
 
 import { App } from "./app";
 import { transport } from "./lib/api";
+import { watchAppHeight } from "./lib/app-height";
 import { startServiceWorker } from "./lib/pwa";
 
 // One query client for the app. A failed call does not retry by itself,
@@ -14,6 +15,8 @@ import { startServiceWorker } from "./lib/pwa";
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false, staleTime: 30_000 } },
 });
+
+watchAppHeight();
 
 const root = document.getElementById("root");
 if (!root) throw new Error("root element not found");

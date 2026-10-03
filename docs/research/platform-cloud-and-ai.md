@@ -10,7 +10,7 @@ Date of this document: 2026-09-28. Access dates of the sources: 2026-09-27 and 2
 
 This document gives the platform, cloud, and AI choices of Workout App a cited base. Workout App is an installable, phone-first web app on a default Firebase Hosting URL. It never goes to an app store, and no native app exists (D-17). A desktop browser shows the one phone layout (D-20). The owner accepted the limits of a web app on iOS (D-21). The app serves the owner alone (D-67).
 
-Chrome on iPhone leads, and it uses the WebKit engine (D-29). The web client uses React 19.3, Vite 8, vite-plugin-pwa, TanStack Query with connect-query, and Tailwind 4 (D-84). Luna, the OpenAI model `gpt-6-luna` at medium effort, plans, revises, and reads equipment photos through a role layer with a fake provider (D-22, D-24). A deterministic policy checks every output (D-23). Google Cloud holds one development project in `us-central1` (D-18, D-76).
+Chrome on iPhone leads, and it uses the WebKit engine (D-29). The web client uses React 19.3, Vite 8, vite-plugin-pwa, TanStack Query with connect-query, and Tailwind 4 (D-84). Luna, the OpenAI model `gpt-6-luna` at xhigh effort (D-253), plans, revises, and reads equipment photos through a role layer with a fake provider (D-22, D-24). A deterministic policy checks every output (D-23). Google Cloud holds one development project in `us-central1` (D-18, D-76).
 
 ### 1.2 Method
 
@@ -363,7 +363,7 @@ A catalog of fixed-path resistance and cardio machine types (D-45) can fit in on
 | Self-consistency picks the most consistent of several sampled answers. | PC-53 |
 | Conformal prediction sizes a candidate set to reach a chosen coverage on calibration data. | PC-54 |
 | A reject option trades coverage for a lower error rate. | PC-55 |
-| The Luna model page lists no logprobs. With effort other than none, OpenAI tells callers to remove logprobs options. D-24 fixes the effort at medium. | PC-61, PC-66 |
+| The Luna model page lists no logprobs. With effort other than none, OpenAI tells callers to remove logprobs options. D-24 fixed the effort at medium, and D-253 changed it to xhigh. | PC-61, PC-66 |
 
 The evidence on text tasks points both ways. For VLMs and degraded photos, it is consistently negative, and gym photos have dim light, glare, and odd angles. So the stated confidence of Luna is at most one weak signal. Logprobs are not available at medium effort. The researchers propose these signals instead:
 
