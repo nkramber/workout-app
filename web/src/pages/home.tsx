@@ -21,12 +21,14 @@ export function HomePage({
   onOpenProfile,
   onOpenPlan,
   onOpenWorkout,
+  onOpenLockTest,
 }: {
   onSignOut: () => void;
   onOpenInventory: () => void;
   onOpenProfile: () => void;
   onOpenPlan: () => void;
   onOpenWorkout: () => void;
+  onOpenLockTest: () => void;
 }) {
   const me = useQuery(UserService.method.getMe, {});
   const pending = useLiveQuery(() => db.outbox.count(), [], null);
@@ -105,6 +107,13 @@ export function HomePage({
         <Row label="Storage used" testId="storage-usage">
           {storage === null ? "…" : `${megabytes(storage.usage)} of ${megabytes(storage.quota)}`}
         </Row>
+        <button
+          type="button"
+          onClick={onOpenLockTest}
+          className="min-h-11 w-full rounded-lg border border-slate-700 px-4 font-medium text-slate-100 active:bg-slate-800"
+        >
+          Screen lock test
+        </button>
       </section>
 
       <button

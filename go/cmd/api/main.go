@@ -207,7 +207,7 @@ func newHandler(v auth.Verifier, a auth.Allowlist, store inventory.Store, profil
 	mux.Handle(workoutappv1connect.NewInventoryServiceHandler(inventorysvc.New(store), signedIn))
 	mux.Handle(workoutappv1connect.NewProfileServiceHandler(profilesvc.New(profiles), signedIn))
 	mux.Handle(workoutappv1connect.NewPlanServiceHandler(plansvc.New(maker), signedIn))
-	mux.Handle(workoutappv1connect.NewWorkoutServiceHandler(workoutsvc.New(workouts), signedIn))
+	mux.Handle(workoutappv1connect.NewWorkoutServiceHandler(workoutsvc.New(workouts, store), signedIn))
 	body, _ := json.Marshal(map[string]string{"commit": buildCommit})
 	mux.HandleFunc("GET "+VersionPath, func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

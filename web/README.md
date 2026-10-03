@@ -1,26 +1,27 @@
 # Workout App - the web client
 
-This folder holds the web client of the owner. It holds the installable shell (work area 2.2), the inventory screens (4.1), the onboarding screen (5.1), the plan screen (5.2), and the workout screen (6.1, 6.2). The stack is the Decktome React stack (D-84): React, Vite, `vite-plugin-pwa`, TanStack Query with Connect Query, and Tailwind. The folder is one npm package (D-135). The app has the phone layout alone (D-20).
+This folder holds the web client of the owner. It holds the installable shell (work area 2.2), the inventory screens (4.1), the onboarding screen (5.1), and the plan screen (5.2). It also holds the workout screen (6.1, 6.2) and the outbox sync (6.3). The stack is the Decktome React stack (D-84): React, Vite, `vite-plugin-pwa`, TanStack Query with Connect Query, and Tailwind. The folder is one npm package (D-135). The app has the phone layout alone (D-20).
 
 | Path | Content |
 |---|---|
 | `web/src/app.tsx` | The sign-in page for a signed-out owner. For a signed-in owner, the onboarding screen while no profile exists, then the home screen, the workout screen, the plan screen, the inventory screens, and the profile screen |
-| `web/src/shell.tsx` | The shell that fills the whole screen (D-120) |
+| `web/src/shell.tsx`, `web/src/sync-line.tsx` | The shell that fills the whole screen (D-120), and the line of the sync below its header (D-276) |
 | `web/src/pages` | The sign-in page, the home screen, the onboarding screen of `web/src/pages/profile.tsx`, the plan screen of `web/src/pages/plan.tsx`, and the workout screen of `web/src/pages/workout.tsx` |
 | `web/src/pages/inventory` | The inventory screens: the list, the catalog list and the text entry, the weights, and the review screen |
 | `web/src/lib/inventory.ts` | The catalog order, the A to Z order of the inventory list, the search of the catalog names, and the checks of the weights, the estimates, and the notes |
-| `web/src/lib/inventory-api.ts`, `web/src/lib/errors.ts` | The calls that change the inventory, and the error text of a failed call |
+| `web/src/lib/inventory-api.ts`, `web/src/lib/errors.ts` | The changes of the inventory in the outbox, the inventory of the phone with the changes that wait on it (D-272, D-273), and the error text of a failed call |
+| `web/src/lib/sync.ts`, `web/src/lib/sync-engine.ts` | The sync of the outbox, the offline copies, and the state of the sync (D-274 to D-278) |
 | `web/src/lib/profile.ts`, `web/src/lib/profile-api.ts` | The form state and the checks of the profile, the text of the injury warning, and the save of the profile |
 | `web/src/lib/plan.ts`, `web/src/lib/plan-api.ts` | The texts of the progress and of the errors of a plan request, the formats of a set and of the rest, and the streams of a plan request and of an exclusion |
 | `web/src/lib/workout.ts` | The start of a workout, the set log, the cardio log, the skip of an exercise, the edit of a set, the end of a workout, each with its outbox entry. Also the calibration step, the rest timer, and the steps of the plus and minus buttons |
-| `web/src/lib/symptoms.ts`, `web/src/lib/wake-lock.ts` | The list of symptoms and the text of each warning (D-263), and the screen wake lock (D-265, D-271) |
+| `web/src/lib/symptoms.ts`, `web/src/lib/wake-lock.ts`, `web/src/lib/lock-test.ts` | The list of symptoms and the text of each warning (D-263), the screen wake lock (D-265, D-271), and the probe of the screen lock with no tap (D-282) |
 | `web/src/lib/firebase.ts` | Firebase Authentication with email and password (D-75) |
 | `web/src/lib/api.ts` | The Connect transport, with the ID token of the owner on each call |
 | `web/src/lib/db.ts` | The offline store and the outbox (D-62, D-77, D-132) |
 | `web/src/lib/pwa.ts`, `web/src/lib/update-check.ts` | The service worker and its update strategy (D-133) |
 | `web/src/lib/storage.ts` | The persistent storage request (D-134) |
 | `web/src/gen` | The generated code of the contract. `make proto` writes it, and Git keeps it. |
-| `web/e2e` | The browser tests of the acceptance stories of work areas 2.2, 4.1, 5.1, 5.2, and 6.1 |
+| `web/e2e` | The browser tests of the acceptance stories of work areas 2.2, 4.1, 5.1, 5.2, 6.1, 6.2, and 6.3 |
 
 ## The screen
 
@@ -42,7 +43,7 @@ The home screen opens the equipment inventory (work area 4.1). The screens read 
 - Each exercise of the machine gets one optional estimate, from the lightest to the heaviest weight (D-192, D-198).
 - The review screen confirms the weights that it shows (D-201), and removes the machine.
 
-Each load is a whole number of tenths of a pound, as in the contract. Each change is a direct call to the API. With no connection, the screen shows an error, and the server keeps no change (D-196). A server fault, the code `internal`, shows "The server failed." (D-206). The inventory has no offline copy until Phase 6.
+Each load is a whole number of tenths of a pound, as in the contract. The screens read the offline copies of the catalog and of the inventory, so they work with no connection (D-250). Each change goes into the outbox, and shows at once with "Waiting to sync" (D-272). A confirmation with no connection shows the machine as confirmed. When the server refuses it because the weights changed, the machine is a draft again, and the line of the sync shows the refusal (D-273).
 
 ## The onboarding screen
 
@@ -82,7 +83,7 @@ The start copies the targets of the session and the weights of each machine to t
 - The plus and minus buttons change the reps by 1. They move the weight to the next weight of the list of the machine (D-264).
 - A tap on the reps in reserve logs the set. So the owner logs a set in one tap. A working set offers 0, 1, 2, 3, or 4+, and a calibration set offers 0 to 6+ (D-268).
 - After the calibration set, each working set gets the load of the calibration table (D-267). The plan holds the 4 loads for each weight of the machine, so the table applies to the weight that the owner logged (D-249). The set log shows the note "The calibration set gave this load". A plan of policy version 3 gives the load of the plan. A weight that the machine did not have at the time of the plan does too.
-- The log of a set starts the rest timer with the rest of the target (D-59, D-172). The timer reads a stored end time in the `meta` table. So it is correct after a screen lock and after a stop of the app. "-15 s", "+15 s", and "Dismiss" change it, and it never goes below 0 (D-270). At 0 it shows "Rest done" in another color, with no sound and no notification (D-58, D-61).
+- The log of a set starts the rest timer with the rest of the target, 60 seconds since policy version 5 (D-59, D-172, D-279). The timer reads a stored end time in the `meta` table. So it is correct after a screen lock and after a stop of the app. "-15 s", "+15 s", and "Dismiss" change it, and it never goes below 0 (D-270). At 0 it shows "Rest done" in another color, with no sound and no notification (D-58, D-61).
 - After the last set of an exercise, the screen shows the next machine for 10 seconds, then advances. "Go now" advances at once (D-60, D-269).
 - "Skip this exercise" asks for a confirmation, and writes the skip in the header (D-63, D-170). The owner can pick a skipped exercise again in the list.
 - Each logged set has "Edit". The edit keeps the id, the kind, and the time of the set, and writes a new outbox entry with the whole new state (D-63).
@@ -93,11 +94,25 @@ The start copies the targets of the session and the weights of each machine to t
 
 While a workout is open, the plan screen refuses a new plan and an exclusion (D-252). The app holds the screen wake lock from the start of a workout to its end, on each screen. It asks for the lock again at each tap, focus, and `pageshow` event, and when the app comes back to the front (D-271). When the phone releases the lock while the app shows, the app asks one more time. When the phone refuses the lock, the workout screen shows "The screen can turn off. Tap the screen to try again." with the error name (D-265).
 
+The "Screen lock test" button under Diagnostics opens a screen of `web/src/lib/lock-test.ts` (D-280, D-282). It runs one method at a time, with no tap after a return. The methods are the Wake Lock API, a silent video that the phone records from a canvas, and a live silent canvas stream. Its log shows what the phone did. After the deploy, the owner runs it on the iPhone, and picks the method of the next pull request.
+
 ## The offline store
 
 Dexie on IndexedDB holds the local state. Each change and its outbox entry go into one transaction (D-132). An outbox entry holds a UUIDv7 op id, the entity and its id, and the base version. It also holds the payload, the time, the attempts, and the schema version.
 
-Version 2 of the store adds the workouts, the sets, and the cardio logs. The payload of each workout entry is the JSON form of `WorkoutHeader`, `SetEntry`, or `CardioEntry` of `proto/workoutapp/v1/workout_service.proto`, with the whole new state of the entity. The op ids of the phone rise strictly, so the outbox keeps the order of two changes of one millisecond. Work area 6.3 adds the sync call.
+Version 2 of the store adds the workouts, the sets, and the cardio logs. The payload of each workout entry is the JSON form of `WorkoutHeader`, `SetEntry`, or `CardioEntry` of `proto/workoutapp/v1/workout_service.proto`, with the whole new state of the entity. The payload of an inventory entry is the JSON form of the payload field of `OutboxEntry`, such as `{"saveMachine": {...}}`. The op ids of the phone rise strictly, so the outbox keeps the order of two changes of one millisecond.
+
+Version 3 adds the refused entries and the offline copies. It removes the settings of the skeleton and their outbox entries.
+
+## The sync
+
+`web/src/lib/sync.ts` sends the outbox through `SyncOutbox`, in batches of 100 entries or fewer, in the order of the op ids (D-259, D-275). The server applies each entry one time by its op id. So a batch that the phone sends again after a dropped answer changes nothing (D-257). The phone removes each applied entry, and keeps the server version on its entity. It moves each refused entry to a separate list, and never sends it again (D-274).
+
+The sync runs while the app is open alone, because iOS has no background sync for a web app (D-21). It runs at the open, at each focus and return, at each reconnect, and after each new entry. After a failure, it tries again after 5 s, 15 s, 60 s, and then each 5 minutes (D-277). A plan request and an exclusion run a sync first, so the plan reads each change of the inventory.
+
+After each drain, the sync reads the catalog, the inventory, and the plan again, and keeps a copy of each. The server wins, and the screens put the entries that wait on the new copy (D-258). The plan screen and the profile gate keep their copies too. So with no connection, the app opens, and a workout starts from the copies (D-278).
+
+The line below the header shows "Synced", the count of the entries that wait, "Offline", "Sync failed", and the count of the refused entries (D-276). A tap opens the detail with "Sync now", and each refused entry with "Dismiss".
 
 The first sign-in on a device asks for persistent storage (D-134). The home screen shows the result and the use of the store.
 

@@ -1,13 +1,13 @@
 import { expect, test, type Page } from "@playwright/test";
 
-import { makePlanOwner, signIn, stopAndOpen, uniqueEmail } from "./support";
+import { callApi, controlApi, holdSync, makePlanOwner, reopenOffline, signIn, stopAndOpen, syncLine, uniqueEmail } from "./support";
 
 // The workout screen and the set log of work area 6.1. The API uses the
 // fake provider of Luna (D-241), so each plan has 3 sessions with the
 // chest press and the seated row, and 20 minutes on the treadmill. Each
 // machine has the weights 10 to 200 lb, in steps of 10 lb. No test calls
-// OpenAI (D-24). The phone keeps each log, and no test needs the sync of
-// PR-32.
+// OpenAI (D-24). The phone keeps each log. A test that reads the outbox
+// holds the sync, so the entries stay (work area 6.3).
 
 const MACHINES = ["chest_press", "seated_row", "treadmill"];
 
@@ -36,6 +36,7 @@ const outbox = (page: Page) =>
 test("the owner starts the next session, logs a set in three taps, reports a symptom, and keeps the workout", async ({ page, context, request }, info) => {
   const email = uniqueEmail("workout", info);
   await makePlanOwner(request, email, MACHINES);
+  await holdSync(page);
   await openWithPlan(page, email);
 
   // Tap 1: the workout screen. Tap 2: the next session (D-248).
@@ -138,6 +139,7 @@ test("the plus and minus buttons change the reps and step the weight on the list
 test("the cardio log holds the duration and the effort, and the optional fields", async ({ page, request }, info) => {
   const email = uniqueEmail("workout-cardio", info);
   await makePlanOwner(request, email, MACHINES);
+  await holdSync(page);
   await openWithPlan(page, email);
   await button(page, "Workout").click();
   await button(page, "Start Session 1").click();
@@ -220,8 +222,8 @@ test("the plan screen refuses a new plan and an exclusion during a workout", asy
 
 // The rest timer, the preview, and the automatic advance of work area 6.2.
 // The fake plan starts the chest press at the lightest weight, 10 lb,
-// with one calibration set and 3 working sets, and a rest of 2 minutes
-// (D-150, D-172).
+// with one calibration set and 3 working sets, and a rest of 60 seconds
+// (D-150, D-279).
 
 // lock sends the app to the back as a screen lock does, moves the clock
 // of the page by ms with no timer, and brings the app back. The phone
@@ -254,11 +256,11 @@ test("the rest timer is correct after a screen lock, and the next machine comes 
 
   // The log of a set starts the timer with the rest of the target (D-59).
   await button(page, "3 in reserve").click();
-  await expect(restLeft(page)).toHaveText(/^(2:00|1:59)$/);
+  await expect(restLeft(page)).toHaveText(/^(1:00|0:59)$/);
   await expect(page.getByTestId("rest-state")).toHaveText("Rest");
 
-  // A lock of 75 s leaves 45 s.
-  await lockFor(page, 75_000);
+  // A lock of 15 s leaves 45 s.
+  await lockFor(page, 15_000);
   await expect(restLeft(page)).toHaveText(/^0:4[3-5]$/);
 
   // The controls of D-270.
@@ -292,7 +294,7 @@ test("the rest timer is correct after a screen lock, and the next machine comes 
   await page.clock.fastForward(10_000);
   await expect(preview).toHaveCount(0);
   await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Seated row");
-  await expect(restLeft(page)).toHaveText(/^1:[45]\d$/);
+  await expect(restLeft(page)).toHaveText(/^0:[45]\d$/);
 });
 
 // The calibration step of D-267 with no network: 6+ reps in reserve on
@@ -301,6 +303,7 @@ test("the rest timer is correct after a screen lock, and the next machine comes 
 test("the calibration set gives the working load with no network, go now advances, and a set can be edited", async ({ page, context, request }, info) => {
   const email = uniqueEmail("workout-calibration", info);
   await makePlanOwner(request, email, MACHINES);
+  await holdSync(page);
   await openWithPlan(page, email);
   await button(page, "Workout").click();
   await button(page, "Start Session 1").click();
@@ -343,6 +346,7 @@ test("the calibration set gives the working load with no network, go now advance
 test("a skip and finish now give the correct session log", async ({ page, request }, info) => {
   const email = uniqueEmail("workout-skip", info);
   await makePlanOwner(request, email, MACHINES);
+  await holdSync(page);
   await openWithPlan(page, email);
   await button(page, "Workout").click();
   await button(page, "Start Session 1").click();
@@ -408,4 +412,111 @@ test("a refused wake lock shows the error name, and a tap gets the lock again", 
   await page.evaluate(() => ((window as unknown as { wakeRefuse: boolean }).wakeRefuse = false));
   await page.getByRole("heading", { name: "Session 1", exact: true }).click();
   await expect(page.getByTestId("wake-off")).toHaveCount(0);
+});
+
+// The state of the workout screen: the preview of the next machine, the
+// next set of the set log, or the end of the strength work. The page reads
+// it in one step, because the set log leaves the screen when the preview
+// comes, and a second read of a locator would wait for it.
+function screenState(page: Page): Promise<string> {
+  return page.evaluate(() => {
+    if (document.querySelector('[data-testid="next-preview"]')) return "preview";
+    const log = document.querySelector('[data-testid="set-logger"]');
+    if (!log) return "done";
+    const name = log.querySelector('[data-testid="logger-exercise"]')?.textContent;
+    const label = log.querySelector('[data-testid="set-label"]')?.textContent;
+    return `${name}: ${label}`;
+  });
+}
+
+// logSets logs the next sets at 3 reps in reserve, and goes past each
+// preview, until the strength work ends or `count` sets are logged. It
+// gives the count of logged sets.
+async function logSets(page: Page, count = Infinity): Promise<number> {
+  await expect(logger(page).or(page.getByTestId("next-preview"))).toBeVisible();
+  let logged = 0;
+  while (logged < count) {
+    const state = await screenState(page);
+    if (state === "done") break;
+    if (state === "preview") await button(page, "Go now").click();
+    else {
+      await button(page, "3 in reserve").click();
+      logged++;
+    }
+    try {
+      await expect.poll(() => screenState(page)).not.toBe(state);
+    } catch {
+      // The error holds the screen, so a failure in CI shows its cause.
+      const shown = await page.getByTestId("shell").ariaSnapshot();
+      throw new Error(`the screen stayed at "${state}" after ${logged} sets:\n${shown}`);
+    }
+  }
+  return logged;
+}
+
+type ServerWorkout = { workoutId: string; finished?: boolean; exercises: { exerciseId: string; sets?: { setId: string }[] }[]; cardio?: unknown[] };
+
+// The acceptance story of PR-32 (work area 6.3). The owner opens the app
+// with no connection, and completes a full workout from the offline
+// copies (D-278), with a stop of the app after two sets. WebKit of
+// Playwright can not open a page with no connection, so there the app
+// stays open (see reopenOffline). At the
+// reconnect, the server applies the first sync call, but its answer does
+// not reach the phone. The phone sends the batch again, and the server
+// holds each set one time (D-257).
+test("a full workout with no connection, a stop of the app, and a dropped answer gives each set on the server one time", async ({ page, context, request, browserName }, info) => {
+  const api = await controlApi(context);
+  const email = uniqueEmail("workout-offline", info);
+  await makePlanOwner(request, email, MACHINES);
+  await openWithPlan(page, email);
+  await expect(syncLine(page)).toHaveText("Synced");
+
+  await context.setOffline(true);
+  ({ page } = await reopenOffline(context, browserName));
+  await button(page, "Workout").click();
+  await button(page, "Start Session 1").click();
+  let logged = await logSets(page, 2);
+  expect(logged).toBe(2);
+
+  let stopped: boolean;
+  ({ page, stopped } = await reopenOffline(context, browserName));
+  if (stopped) await button(page, "Continue workout").click();
+  logged += await logSets(page);
+  const card = page.getByTestId("cardio-card");
+  await button(page, "Effort 6").click();
+  await button(page, "Log cardio").click();
+  await expect(card.getByTestId("cardio-logged")).toBeVisible();
+  await button(page, "Finish workout").click();
+  await expect(button(page, "Workout")).toBeVisible();
+  const waiting = logged + 3; // the sets, the cardio log, and the start and the end of the workout
+  await expect(syncLine(page)).toHaveText(`Offline · ${waiting} waiting`);
+
+  // The first sync call reaches the server, and its answer drops.
+  let dropped = 0;
+  api.sync = async (route) => {
+    if (dropped > 0) return route.fallback();
+    dropped++;
+    await route.fetch();
+    await route.abort("connectionreset");
+  };
+  await context.setOffline(false);
+  await expect.poll(() => dropped).toBe(1);
+  await expect(syncLine(page)).toHaveText("Synced", { timeout: 20_000 });
+
+  const phone = await page.evaluate(async () => ({
+    sets: (await window.workoutAppE2E!.sets()).map((s) => ({ id: s.id, version: s.version })),
+    outbox: (await window.workoutAppE2E!.pendingOutbox()).length,
+  }));
+  expect(phone.outbox).toBe(0);
+  expect(phone.sets).toHaveLength(logged);
+  expect(phone.sets.every((s) => s.version >= 1)).toBe(true);
+
+  const { workouts } = await callApi<{ workouts: ServerWorkout[] }>(request, email, "WorkoutService/ListWorkouts", {});
+  expect(workouts).toHaveLength(1);
+  expect(workouts[0].finished).toBe(true);
+  expect(workouts[0].cardio).toHaveLength(1);
+  const serverSets = workouts[0].exercises.flatMap((e) => (e.sets ?? []).map((s) => s.setId));
+  expect(serverSets).toHaveLength(logged);
+  expect(new Set(serverSets).size).toBe(logged);
+  expect([...serverSets].sort()).toEqual(phone.sets.map((s) => s.id).sort());
 });

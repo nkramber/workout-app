@@ -1,4 +1,4 @@
-policy version: 4
+policy version: 5
 exercise: chest_press
 model: "fake-model", effort: "medium", prompt hash: "prompt-hash"
 proposal:
@@ -11,7 +11,7 @@ violation: load.ceiling working[1]: load 150 lb: want 105 lb or less
 violation: load.ceiling working[2]: load 150 lb: want 105 lb or less
 source: rules, cause: "refused"
 rules: fallback.rules, progress.load-step
-target: chest_press, rest 120 s
+target: chest_press, rest 60 s
   working[0]: 8 reps at 105 lb, 2 RIR
   working[1]: 8 reps at 105 lb, 2 RIR
   working[2]: 8 reps at 105 lb, 2 RIR

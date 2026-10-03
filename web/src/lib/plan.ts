@@ -3,6 +3,7 @@ import { Code, ConnectError } from "@connectrpc/connect";
 import type { PlanProgress, PlannedSet } from "../gen/workoutapp/v1/plan_service_pb";
 import { isNoConnection } from "./errors";
 import { formatPounds } from "./inventory";
+import { InventoryNotSyncedError } from "./sync";
 
 // The texts and the formats of the plan screen (work area 5.2). The owner
 // chose the text of each progress step (D-239) and of each error (D-240).
@@ -51,6 +52,10 @@ export const NO_EXERCISE =
   "No confirmed machine gives an exercise that you can do. Your plan did not change. Confirm a machine, or change the injuries in your profile.";
 export const NOT_EXCLUDED = "The exercise is not excluded.";
 
+// NOT_SYNCED is the text of a plan request that stopped before its call,
+// because an inventory change waits in the outbox (D-272).
+const NOT_SYNCED = "Your equipment changes did not reach the server. Your plan did not change. Try again when the line above says Synced.";
+
 // planErrorText gives the text of a failed plan request (D-230, D-240).
 // The server gives UNAVAILABLE after the last failed call, and only after
 // progress events. With no progress event, UNAVAILABLE comes from the
@@ -65,6 +70,7 @@ export function planErrorText(
 }
 
 function baseText(err: unknown, sawProgress: boolean, isOnline: boolean | undefined): string {
+  if (err instanceof InventoryNotSyncedError) return NOT_SYNCED;
   const code = ConnectError.from(err).code;
   if (code === Code.Unavailable && sawProgress && isOnline !== false) return NO_VALID_PLAN;
   if (isNoConnection(err, isOnline)) return "No connection. Try again when the phone is online.";

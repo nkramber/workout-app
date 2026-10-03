@@ -19,7 +19,7 @@ package policy
 import "errors"
 
 // Version is the version of the policy. Change it when a rule changes.
-const Version = 4
+const Version = 5
 
 // ErrInput is the error that each input error matches with errors.Is.
 var ErrInput = errors.New("policy input")

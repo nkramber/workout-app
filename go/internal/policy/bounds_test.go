@@ -58,8 +58,8 @@ func TestRanges(t *testing.T) {
 			t.Errorf("DefaultRest(%s) = %d: outside %v", e.ID, DefaultRest(e), RestLimits)
 		}
 	}
-	if DefaultRest(exercise(t, "leg_press")) != 180 || DefaultRest(exercise(t, "chest_press")) != 120 {
-		t.Error("DefaultRest: want 180 s for the leg press and 120 s for the chest press")
+	if DefaultRest(exercise(t, "leg_press")) != 60 || DefaultRest(exercise(t, "chest_press")) != 60 {
+		t.Error("DefaultRest: want 60 s for the leg press and for the chest press (D-279)")
 	}
 }
 

@@ -89,6 +89,20 @@ The reason of each of the 9 exercises is "This exercise is new.", with no gap, s
 
 The owner then found two faults on the workout screen of PR-30. First, a calibration set did not change the load of the working sets, so it was only one more set. Second, the screen showed "The screen can turn off." after the owner left the app and came back. PR-31 holds both corrections (D-266 to D-268, D-271).
 
+### 1.7 The deploy of PR-31
+
+The session of PR-32 read these facts on 2026-10-03:
+
+- PR-31 merged to `main` as `7ed7c0f`.
+- The build `deploy-web` `b386e8a9` gave SUCCESS at 18:41:00Z. The build `deploy-api` `481821e0` gave SUCCESS at 18:42:37Z.
+- The live `/version` and the live `/version.json` both named `7ed7c0f`, and the revision `api-00017-dnm` served all traffic (D-137).
+
+The session stated the expected cost of one live plan at xhigh with `luna-prompt-v5`, and the owner approved it (D-212). At 20:08Z the owner requested one plan on the iPhone. The API made 1 planner call at xhigh, with the status `ok` and a cost of 0.0023 USD. The plan has policy version 4, 1 attempt, and 2 sessions with 5 and 4 exercises.
+
+Each of the 9 exercises has one calibration set, and `calibration_loads` with a row for each weight of its machine (D-267). A machine has 29 rows, and the cable station has 15 rows.
+
+The owner logged a calibration set on the iPhone, and the log was correct (D-268). After a return to the app, the screen lock still needed a tap (D-271). The owner asked for 60 seconds of rest, and for a probe of the screen lock with no tap. PR-32 holds both (D-279 to D-282).
+
 ## 2. Owner answers for this phase
 
 | Question | Answer | Decision |
@@ -123,6 +137,17 @@ The owner then found two faults on the workout screen of PR-30. First, a calibra
 | Q-283, the time of the preview | 10 seconds, with "Go now". | D-269 |
 | Q-284, the controls of the timer | "-15 s", "+15 s", and "Dismiss". | D-270 |
 | Q-285, the wake lock after a return | A request at each tap, focus, `pageshow` event, and return. | D-271 |
+| Q-286, the inventory entries of the sync | Through `SyncOutbox`, each entry one time by its op id. | D-272 |
+| Q-287, a confirmation with no connection | The outbox keeps it with the weights of the review screen. | D-273 |
+| Q-288, an entry that the server refused | A separate list on the phone, with a count and "Dismiss". | D-274 |
+| Q-289, the order of the entries in one sync | One order: the order of the op ids. | D-275 |
+| Q-290, the state of the sync | A line of the shell on each screen. | D-276 |
+| Q-291, the retry after a failed sync | At each open, focus, and reconnect, and after 5 s, 15 s, 60 s, then each 5 minutes. | D-277 |
+| Q-292, the offline copy of the plan | Yes, in PR-32. | D-278 |
+| Q-293, the rest of each exercise | 60 seconds, the leg press too. | D-279 |
+| Q-294, the screen lock with no tap | A probe of each method, then the owner picks one. | D-280 |
+| Q-295, the place of these changes | PR-32. | D-281 |
+| Q-296, the run of the probe | A "Screen lock test" screen. The next pull request applies the method. | D-282 |
 
 No open question blocks PR-32. Section 4 names the questions that each session asks. Q-194 and Q-202 stay open for Phase 7. Q-103 stays open for the deferred photo work.
 
@@ -245,8 +270,15 @@ Concerns:
 - the sync of the outbox through the call of PR-29: on open, on focus, and on reconnect,
 - no sync while the app is closed, because iOS has no background sync (D-21),
 - a retry after a failed sync, and the removal of each entry that the server applied,
-- the offline copy of the inventory, with its changes in the outbox (D-196, D-250),
-- the state of the sync on the screen, so the owner knows when each log reached the server.
+- the offline copy of the inventory, with its changes in the outbox through `SyncOutbox`, and the confirmation with no connection (D-196, D-250, D-272, D-273),
+- the state of the sync on the screen, so the owner knows when each log reached the server (D-276),
+- the offline copies of the catalog and the plan, so a workout starts with no connection (D-278). The profile gate keeps a copy of the profile for the same reason,
+- a rest of 60 seconds for each exercise, with policy version 5 (D-279),
+- a "Screen lock test" screen under Diagnostics that tries each method with no tap (D-280 to D-282).
+
+The owner answered the questions of the session (D-272 to D-278). One sync holds all entries in the order of the op ids (D-275), and a refused entry goes to a separate list (D-274). A reconnect starts the delays of the retry again.
+
+In Playwright, WebKit refuses each navigation of an offline context. So the stop of the app with no connection runs in Chromium alone, and in WebKit the app stays open (`web/e2e/support.ts`).
 
 Acceptance story: the offline tests replay a full workout with a dropped connection and a stop of the app. After the reconnect, the server holds each set one time. An inventory change with no connection reaches the server after the reconnect.
 
@@ -254,7 +286,7 @@ Checks: `make web`, `make go-test`, `make emulator-test`, and `make verify`, fre
 
 After the deploy of the merge, the owner completes a full workout on the iPhone with no connection, and then opens the app online. The Phase 7 roadmap session records the result (recommendation, as this roadmap does for Phase 5).
 
-Questions for the session: the confirmation of a machine with no connection (D-201). Also the place on the phone of an entry that the server refused. Also the order of the inventory entries and the workout entries in one sync.
+Questions for the session: the confirmation of a machine with no connection (D-201). Also the place on the phone of an entry that the server refused. Also the order of the inventory entries and the workout entries in one sync. The owner answered them (D-273 to D-275).
 
 ## 5. Exit of the phase
 

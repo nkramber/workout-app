@@ -43,6 +43,21 @@ export function StateBadge({ state }: { state: MachineState }) {
   );
 }
 
+// localErrorText is the message of a change that the phone did not keep.
+// A change of the inventory goes into the outbox with no call (D-250).
+export function localErrorText(): string {
+  return "The phone did not save the change. Try again.";
+}
+
+// WaitingBadge marks an item with a change that waits in the outbox.
+export function WaitingBadge() {
+  return (
+    <span data-testid="waiting-badge" className="shrink-0 rounded bg-slate-800 px-2 py-0.5 text-xs font-medium text-slate-300">
+      Waiting to sync
+    </span>
+  );
+}
+
 export function ErrorText({ children, testId = "change-error" }: { children: ReactNode; testId?: string }) {
   if (!children) return null;
   return (
@@ -54,8 +69,9 @@ export function ErrorText({ children, testId = "change-error" }: { children: Rea
 
 // useAction runs one change at a time. It keeps the busy state, so the
 // screen turns off its buttons during a call, and the error text of the
-// last failed call.
-export function useAction() {
+// last failed call. errorText gives that text. The default is the text of
+// a call to the API.
+export function useAction(errorText: (err: unknown) => string = changeErrorText) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const run = async (fn: () => Promise<void>): Promise<boolean> => {
@@ -65,7 +81,7 @@ export function useAction() {
       await fn();
       return true;
     } catch (err) {
-      setError(changeErrorText(err));
+      setError(errorText(err));
       return false;
     } finally {
       setBusy(false);

@@ -15,7 +15,7 @@ import {
 } from "../../lib/inventory";
 import { useInventoryApi } from "../../lib/inventory-api";
 import type { ScreenProps } from "./types";
-import { ErrorText, field, primary, secondary, Title, useAction } from "./ui";
+import { ErrorText, field, primary, secondary, Title, localErrorText, useAction } from "./ui";
 
 const text = (tenths: number | undefined) => (tenths ? formatPounds(tenths) : "");
 
@@ -36,7 +36,7 @@ const text = (tenths: number | undefined) => (tenths ? formatPounds(tenths) : ""
 // (D-193, D-200). After the save, the review screen shows the machine.
 export function EditScreen({ catalog, inventory, go, machineId }: ScreenProps & { machineId: string }) {
   const api = useInventoryApi();
-  const action = useAction();
+  const action = useAction(localErrorText);
   const machine = catalog.machines.find((m) => m.id === machineId);
   const stored = inventory?.machines.find((m) => m.machineId === machineId);
   const kind = (machine?.kind ?? "cardio") as Kind;

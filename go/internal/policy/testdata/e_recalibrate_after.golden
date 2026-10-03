@@ -1,6 +1,6 @@
-policy version: 4
+policy version: 5
 rules: calibration.reps-only, calibration.set
-target: chest_press, rest 120 s
+target: chest_press, rest 60 s
   calibration[0]: 12 reps at 75 lb
   working[0]: 12 reps at 75 lb, 3 RIR
   working[1]: 12 reps at 75 lb, 3 RIR

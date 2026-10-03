@@ -590,7 +590,9 @@ export const MachineStateSchema: GenEnum<MachineState> = /*@__PURE__*/
 /**
  * InventoryService holds the one active inventory of the caller (work area
  * 4.2, D-46). Every call needs a Firebase ID token of a uid on the invite
- * allowlist (D-75, D-131). Each change is a direct call (D-196).
+ * allowlist (D-75, D-131). The web client sends each change through
+ * SyncOutbox of WorkoutService, with the same rules (D-250, D-272). The
+ * direct calls of this service stay for the tests and the tools.
  *
  * A load is a whole number of tenths of a pound, so 12.5 lb is 125 (D-122,
  * D-160). The server reads each machine against the catalog of GetCatalog,

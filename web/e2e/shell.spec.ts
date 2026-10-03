@@ -204,28 +204,6 @@ test("the shell fills the whole screen, and the main region is the one part that
   expect(got.mainOverflow).toBe("auto");
 });
 
-test("a change and its outbox entry go into the offline store together, and stay after a stop", async ({ page, context }, info) => {
-  const email = uniqueEmail("outbox", info);
-  await makeOwner(page.request, email);
-  await page.goto("/");
-  await signIn(page, email);
-  await expect(page.getByTestId("outbox-count")).toHaveText("0");
-
-  const entry = await page.evaluate(() => window.workoutAppE2E!.saveSetting("rest-seconds", 90));
-  expect(entry).toMatchObject({ entity: "setting", entityId: "rest-seconds", baseVersion: 0, payload: 90, attempts: 0, schemaVersion: 1 });
-  expect(entry.opId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
-  await expect(page.getByTestId("outbox-count")).toHaveText("1");
-
-  const again = await stopAndOpen(context);
-  await expect(again.getByTestId("outbox-count")).toHaveText("1");
-  const stored = await again.evaluate(async () => ({
-    outbox: await window.workoutAppE2E!.pendingOutbox(),
-    settings: await window.workoutAppE2E!.settings(),
-  }));
-  expect(stored.outbox).toEqual([entry]);
-  expect(stored.settings).toEqual([{ id: "rest-seconds", value: 90, version: 0, updatedAt: entry.at }]);
-});
-
 test("the first sign-in asks for persistent storage and shows the state", async ({ page }, info) => {
   const email = uniqueEmail("storage", info);
   await makeOwner(page.request, email);

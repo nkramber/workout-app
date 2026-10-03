@@ -172,6 +172,10 @@ func (brokenStore) Update(context.Context, string, func(inventory.Inventory) (in
 	return inventory.Inventory{}, errors.New("rpc error: projects/p/databases/(default)/documents/users/uid-a")
 }
 
+func (brokenStore) ApplyOp(context.Context, string, inventory.Op, func(inventory.Inventory) (inventory.Inventory, error)) (bool, error) {
+	return false, errors.New("rpc error: projects/p/databases/(default)/documents/users/uid-a")
+}
+
 // TestStoreErrorIsHidden gives the caller a fixed text for a store
 // error, so no path or uid leaves the server.
 func TestStoreErrorIsHidden(t *testing.T) {

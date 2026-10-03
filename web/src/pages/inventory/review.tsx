@@ -1,22 +1,22 @@
-import { Code, ConnectError } from "@connectrpc/connect";
 import { useState } from "react";
 
 import { MachineState } from "../../gen/workoutapp/v1/inventory_service_pb";
 import { dumbbellWeights, formatPounds } from "../../lib/inventory";
 import { useInventoryApi } from "../../lib/inventory-api";
 import type { ScreenProps } from "./types";
-import { danger, ErrorText, primary, secondary, StateBadge, Title, useAction } from "./ui";
+import { danger, ErrorText, primary, secondary, StateBadge, Title, localErrorText, useAction, WaitingBadge } from "./ui";
 
 // ReviewScreen shows the stored machine: its identity, each weight, and
 // each estimate. The owner confirms a draft here (D-193). The confirmation
-// sends the weights that this screen shows. When the stored weights are
-// different, the server refuses it, and the screen reads the inventory
-// again (D-201). A cardio machine has no weights, so its save confirms it
+// goes into the outbox with the weights that this screen shows. When the
+// stored weights are different, the server refuses it, the machine shows
+// as a draft again, and the line of the sync shows the refusal (D-201,
+// D-273). A cardio machine has no weights, so its save confirms it
 // (D-246). A cardio draft from before that rule gets a confirmation with
 // no text about weights. The owner also removes the machine here.
-export function ReviewScreen({ catalog, inventory, go, machineId }: ScreenProps & { machineId: string }) {
+export function ReviewScreen({ catalog, inventory, pending, go, machineId }: ScreenProps & { machineId: string }) {
   const api = useInventoryApi();
-  const action = useAction();
+  const action = useAction(localErrorText);
   const [removing, setRemoving] = useState(false);
   const machine = catalog.machines.find((m) => m.id === machineId);
   const stored = inventory?.machines.find((m) => m.machineId === machineId);
@@ -45,14 +45,7 @@ export function ReviewScreen({ catalog, inventory, go, machineId }: ScreenProps 
   const cardio = machine.kind === "cardio";
 
   const confirm = async () => {
-    await action.run(async () => {
-      try {
-        await api.confirmMachine({ machineId, weightsTenthLb: shownWeights, dumbbells: shownDumbbells });
-      } catch (err) {
-        if (ConnectError.from(err).code === Code.FailedPrecondition) await api.reload();
-        throw err;
-      }
-    });
+    await action.run(() => api.confirmMachine({ machineId, weightsTenthLb: shownWeights, dumbbells: shownDumbbells }));
   };
 
   const remove = async () => {
@@ -66,6 +59,7 @@ export function ReviewScreen({ catalog, inventory, go, machineId }: ScreenProps 
       <div className="flex items-center gap-2 text-sm">
         <span className="text-slate-400">State</span>
         <StateBadge state={stored.state} />
+        {pending.machines.has(machineId) && <WaitingBadge />}
       </div>
 
       <section className="space-y-2" aria-label="Weights">

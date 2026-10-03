@@ -16,7 +16,10 @@ import { UpdateBanner } from "./update-banner";
 // 16 px above its text when a status bar covers the page, the least space
 // that keeps the title out of the band. With no top safe area, as in a
 // browser tab, it adds nothing.
-export function Shell({ children }: { children: ReactNode }) {
+//
+// The status slot below the header holds the line of the sync for a
+// signed-in owner (D-276).
+export function Shell({ children, status }: { children: ReactNode; status?: ReactNode }) {
   return (
     <div
       data-testid="shell"
@@ -25,6 +28,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <header className="flex items-center justify-between border-b border-slate-800 px-4 pt-[calc(0.75rem+min(env(safe-area-inset-top),16px))] pb-3">
         <h1 className="text-lg font-semibold text-slate-100">Workout App</h1>
       </header>
+      {status}
       <UpdateBanner />
       <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">{children}</main>
     </div>

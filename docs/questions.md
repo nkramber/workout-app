@@ -494,6 +494,22 @@ The live check of D-203 failed on 2026-10-02. The app showed "The API did not an
 | Q-284 | Which controls does the rest timer have (D-59)? | "-15 s", "+15 s", and "Dismiss". | Answered | D-270 |
 | Q-285 | The screen showed "The screen can turn off." after the owner left the app and came back. How does the app get the lock again? | At each tap, focus, `pageshow` event, and return, with the error name in the notice. | Answered | D-271 |
 
+## Questions of the outbox sync session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-286 | `SyncOutbox` reads workout, set, and cardio entries alone, and a replay of `SaveNote` with an empty id adds a second note. How do the inventory entries of the outbox reach the server (D-250)? | Through `SyncOutbox`, with each entry applied one time by its op id. | Answered | D-272 |
+| Q-287 | How does the confirmation of a machine work with no connection (D-201)? | The outbox keeps it with the weights of the review screen. | Answered | D-273 |
+| Q-288 | Where on the phone does an entry that the server refused go? | Into a separate local list, with a count and a detail view. | Answered | D-274 |
+| Q-289 | In one sync, what is the order of the inventory entries and the workout entries? | One order, the order of the op ids. | Answered | D-275 |
+| Q-290 | Where does the state of the sync show on the screen? | In a line of the shell on each screen. | Answered | D-276 |
+| Q-291 | After a failed sync while the app is open, when does the phone try again? | At each open, focus, and reconnect, and on a timer. | Answered | D-277 |
+| Q-292 | The start of a workout reads the plan from the server. With no connection at the open of the app, no workout can start. Does PR-32 add an offline copy of the plan? | Yes. | Answered | D-278 |
+| Q-293 | The owner asked for 60 seconds of rest between sets. Which exercises does it cover (D-172)? | Every exercise, the leg press too. | Answered | D-279 |
+| Q-294 | On the iPhone, the screen lock needs a tap after a return to the app (D-271). What comes next? | A probe of each method with no tap, then the owner picks one. | Answered | D-280 |
+| Q-295 | Where do the change of the rest and the probe of the screen lock go? | Into PR-32. | Answered | D-281 |
+| Q-296 | The probe needs an HTTPS page, and a deploy comes from `main` alone (D-14). How does the probe run? | A "Screen lock test" screen in PR-32. After the deploy, the owner runs it, and the next pull request applies the method. | Answered | D-282 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |

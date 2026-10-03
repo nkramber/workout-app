@@ -20,7 +20,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `go/internal/plan` | The plan of the owner: the planner request, 4 calls at most with the cause of each failure, the policy check of each exercise, the exclusions, the Firestore stores, and the error records (D-226 to D-238) |
 | `go/internal/plansvc` | The calls of `PlanService`, with a server stream of the progress (D-237) |
 | `go/internal/workout` | The logged sessions of the owner: the outbox entries, the check of each log, the apply of each entry one time, and the Firestore store (D-132, D-256 to D-261) |
-| `go/internal/workoutsvc` | The calls of `WorkoutService`: `SyncOutbox` and `ListWorkouts` |
+| `go/internal/workoutsvc` | The calls of `WorkoutService`: `SyncOutbox`, with the workout entries and the inventory entries, and `ListWorkouts` |
 | `go/internal/capstore` | The lasting cap hook: the spend of each calendar month in UTC in Firestore, with a reservation before each call and a charge after it (D-189, D-190, D-224, D-225) |
 | `go/gen` | The generated code. `make proto` writes it, and Git keeps it. |
 
@@ -57,6 +57,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 - Each failed attempt adds a document to the top-level collection `aiErrors`. Its field `expire_at` drives the TTL of 90 days (D-236). The document holds the output of Luna, so no log reads it (D-80).
 - The policy decides each exercise of a valid plan, and the plan stores each decision record (D-23, D-176).
 - An exercise with a calibration set also stores `calibration_loads` from `policy.CalibrationTable`. Each row gives a weight of the machine and the working load after each result (D-267). The phone applies the table with no network. A plan of policy version 3 has no such field.
+- Policy version 5 gives 60 seconds of rest to each exercise, the leg press too, in each plan (D-279). An exercise with history does not keep an older rest.
 
 ## The workout log
 
@@ -66,6 +67,8 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 - Each entry applies in its own transaction. The transaction reads the op id first, so a replay gives the stored version and changes nothing.
 - An entry holds the whole new state of its entity: `workout`, `set`, or `cardio`. For a workout entry, the phone wins, and the server does not refuse a different base version (D-258).
 - A bad entry gets the code `invalid_argument`. A set or a cardio log of an unknown workout gets `failed_precondition`. Neither one changes a document, and the other entries of the batch still apply.
+- An inventory entry, `machine` or `note`, applies with the rules of `InventoryService` (D-272). `inventory.Store.ApplyOp` writes the inventory and the op id in one transaction, in the same `ops` collection. The workout entries and the inventory entries share one order (D-275).
+- A confirmation of other weights, or of an unknown machine, gets `failed_precondition`, and the machine stays as it was (D-201, D-273). The phone makes the id of a new note, so a replay of a note adds no second note.
 - A set uses the bounds of D-164. A cardio log uses the fields of D-123, with no least time (D-260). A note has 280 characters or fewer (D-261).
 - The planner gives each session 20 to 30 minutes of cardio when the profile likes a cardio exercise (D-255). The fake provider gives 20 minutes.
 - In `luna-prompt-v5`, the reason of an exercise with an empty history says that the exercise is new, and names no gap (D-262).

@@ -70,7 +70,7 @@ func (x EntryResult_Status) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use EntryResult_Status.Descriptor instead.
 func (EntryResult_Status) EnumDescriptor() ([]byte, []int) {
-	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{5, 0}
+	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{10, 0}
 }
 
 // OutboxEntry is one entry of the outbox of the phone, in the form of D-132.
@@ -83,13 +83,19 @@ type OutboxEntry struct {
 	// The client op id: a UUIDv7 that the phone makes, in the lower-case
 	// form of RFC 9562.
 	OpId string `protobuf:"bytes,1,opt,name=op_id,json=opId,proto3" json:"op_id,omitempty"`
-	// The entity: "workout", "set", or "cardio". The payload must agree.
+	// The entity: "workout", "set", "cardio", "machine", or "note". The
+	// payload must agree: a "machine" entry holds save_machine,
+	// confirm_machine, or remove_machine, and a "note" entry holds save_note
+	// or remove_note (D-272).
 	Entity string `protobuf:"bytes,2,opt,name=entity,proto3" json:"entity,omitempty"`
-	// The id of the entity: a UUID that the phone makes. For a "workout"
-	// entry, it is the workout id.
+	// The id of the entity. For a "workout", "set", "cardio", or "note"
+	// entry, it is a UUID that the phone makes. For a "workout" entry, it is
+	// the workout id. For a "machine" entry, it is the catalog id of the
+	// machine.
 	EntityId string `protobuf:"bytes,3,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
 	// The server version of the entity that the change starts from, 0 before
-	// the first sync.
+	// the first sync. The inventory has no version, so an inventory entry
+	// gives 0.
 	BaseVersion int64 `protobuf:"varint,4,opt,name=base_version,json=baseVersion,proto3" json:"base_version,omitempty"`
 	// The time of the change on the phone, in RFC 3339 form. The sets of an
 	// exercise keep the order of this time.
@@ -101,6 +107,11 @@ type OutboxEntry struct {
 	//	*OutboxEntry_Workout
 	//	*OutboxEntry_Set
 	//	*OutboxEntry_Cardio
+	//	*OutboxEntry_SaveMachine
+	//	*OutboxEntry_ConfirmMachine
+	//	*OutboxEntry_RemoveMachine
+	//	*OutboxEntry_SaveNote
+	//	*OutboxEntry_RemoveNote
 	Payload       isOutboxEntry_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -212,6 +223,51 @@ func (x *OutboxEntry) GetCardio() *CardioEntry {
 	return nil
 }
 
+func (x *OutboxEntry) GetSaveMachine() *MachineSave {
+	if x != nil {
+		if x, ok := x.Payload.(*OutboxEntry_SaveMachine); ok {
+			return x.SaveMachine
+		}
+	}
+	return nil
+}
+
+func (x *OutboxEntry) GetConfirmMachine() *MachineConfirm {
+	if x != nil {
+		if x, ok := x.Payload.(*OutboxEntry_ConfirmMachine); ok {
+			return x.ConfirmMachine
+		}
+	}
+	return nil
+}
+
+func (x *OutboxEntry) GetRemoveMachine() *MachineRemove {
+	if x != nil {
+		if x, ok := x.Payload.(*OutboxEntry_RemoveMachine); ok {
+			return x.RemoveMachine
+		}
+	}
+	return nil
+}
+
+func (x *OutboxEntry) GetSaveNote() *NoteSave {
+	if x != nil {
+		if x, ok := x.Payload.(*OutboxEntry_SaveNote); ok {
+			return x.SaveNote
+		}
+	}
+	return nil
+}
+
+func (x *OutboxEntry) GetRemoveNote() *NoteRemove {
+	if x != nil {
+		if x, ok := x.Payload.(*OutboxEntry_RemoveNote); ok {
+			return x.RemoveNote
+		}
+	}
+	return nil
+}
+
 type isOutboxEntry_Payload interface {
 	isOutboxEntry_Payload()
 }
@@ -228,11 +284,290 @@ type OutboxEntry_Cardio struct {
 	Cardio *CardioEntry `protobuf:"bytes,9,opt,name=cardio,proto3,oneof"`
 }
 
+type OutboxEntry_SaveMachine struct {
+	SaveMachine *MachineSave `protobuf:"bytes,10,opt,name=save_machine,json=saveMachine,proto3,oneof"`
+}
+
+type OutboxEntry_ConfirmMachine struct {
+	ConfirmMachine *MachineConfirm `protobuf:"bytes,11,opt,name=confirm_machine,json=confirmMachine,proto3,oneof"`
+}
+
+type OutboxEntry_RemoveMachine struct {
+	RemoveMachine *MachineRemove `protobuf:"bytes,12,opt,name=remove_machine,json=removeMachine,proto3,oneof"`
+}
+
+type OutboxEntry_SaveNote struct {
+	SaveNote *NoteSave `protobuf:"bytes,13,opt,name=save_note,json=saveNote,proto3,oneof"`
+}
+
+type OutboxEntry_RemoveNote struct {
+	RemoveNote *NoteRemove `protobuf:"bytes,14,opt,name=remove_note,json=removeNote,proto3,oneof"`
+}
+
 func (*OutboxEntry_Workout) isOutboxEntry_Payload() {}
 
 func (*OutboxEntry_Set) isOutboxEntry_Payload() {}
 
 func (*OutboxEntry_Cardio) isOutboxEntry_Payload() {}
+
+func (*OutboxEntry_SaveMachine) isOutboxEntry_Payload() {}
+
+func (*OutboxEntry_ConfirmMachine) isOutboxEntry_Payload() {}
+
+func (*OutboxEntry_RemoveMachine) isOutboxEntry_Payload() {}
+
+func (*OutboxEntry_SaveNote) isOutboxEntry_Payload() {}
+
+func (*OutboxEntry_RemoveNote) isOutboxEntry_Payload() {}
+
+// MachineSave adds a machine to the inventory as a draft, or replaces its
+// one entry, with the rules of SaveMachine of InventoryService (D-193,
+// D-200). The entity id of its entry is the catalog id of the machine.
+type MachineSave struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The weights of a machine or of the cable station, lightest first.
+	WeightsTenthLb []int32 `protobuf:"varint,1,rep,packed,name=weights_tenth_lb,json=weightsTenthLb,proto3" json:"weights_tenth_lb,omitempty"`
+	// The dumbbell set of the dumbbells alone.
+	Dumbbells *DumbbellSet `protobuf:"bytes,2,opt,name=dumbbells,proto3" json:"dumbbells,omitempty"`
+	// The estimates. The entry replaces each stored estimate.
+	Estimates     []*Estimate `protobuf:"bytes,3,rep,name=estimates,proto3" json:"estimates,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MachineSave) Reset() {
+	*x = MachineSave{}
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MachineSave) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MachineSave) ProtoMessage() {}
+
+func (x *MachineSave) ProtoReflect() protoreflect.Message {
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MachineSave.ProtoReflect.Descriptor instead.
+func (*MachineSave) Descriptor() ([]byte, []int) {
+	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *MachineSave) GetWeightsTenthLb() []int32 {
+	if x != nil {
+		return x.WeightsTenthLb
+	}
+	return nil
+}
+
+func (x *MachineSave) GetDumbbells() *DumbbellSet {
+	if x != nil {
+		return x.Dumbbells
+	}
+	return nil
+}
+
+func (x *MachineSave) GetEstimates() []*Estimate {
+	if x != nil {
+		return x.Estimates
+	}
+	return nil
+}
+
+// MachineConfirm confirms a machine with the weights that the review screen
+// showed, with the rules of ConfirmMachine of InventoryService. When the
+// stored weights are different, or the inventory has no such machine, the
+// server refuses the entry with "failed_precondition", and the machine
+// stays as it was (D-201, D-273).
+type MachineConfirm struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The weights that the review screen showed.
+	WeightsTenthLb []int32 `protobuf:"varint,1,rep,packed,name=weights_tenth_lb,json=weightsTenthLb,proto3" json:"weights_tenth_lb,omitempty"`
+	// The dumbbell set that the review screen showed.
+	Dumbbells     *DumbbellSet `protobuf:"bytes,2,opt,name=dumbbells,proto3" json:"dumbbells,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MachineConfirm) Reset() {
+	*x = MachineConfirm{}
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MachineConfirm) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MachineConfirm) ProtoMessage() {}
+
+func (x *MachineConfirm) ProtoReflect() protoreflect.Message {
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MachineConfirm.ProtoReflect.Descriptor instead.
+func (*MachineConfirm) Descriptor() ([]byte, []int) {
+	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *MachineConfirm) GetWeightsTenthLb() []int32 {
+	if x != nil {
+		return x.WeightsTenthLb
+	}
+	return nil
+}
+
+func (x *MachineConfirm) GetDumbbells() *DumbbellSet {
+	if x != nil {
+		return x.Dumbbells
+	}
+	return nil
+}
+
+// MachineRemove removes a machine. The removal of a machine that the
+// inventory does not hold applies, and changes nothing.
+type MachineRemove struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MachineRemove) Reset() {
+	*x = MachineRemove{}
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MachineRemove) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MachineRemove) ProtoMessage() {}
+
+func (x *MachineRemove) ProtoReflect() protoreflect.Message {
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MachineRemove.ProtoReflect.Descriptor instead.
+func (*MachineRemove) Descriptor() ([]byte, []int) {
+	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{3}
+}
+
+// NoteSave adds a note with the entity id of its entry, or replaces the text
+// of that note (D-191, D-272).
+type NoteSave struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The text, from 1 to 200 characters after the trim of the spaces at
+	// each end (D-199).
+	Text          string `protobuf:"bytes,1,opt,name=text,proto3" json:"text,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NoteSave) Reset() {
+	*x = NoteSave{}
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NoteSave) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NoteSave) ProtoMessage() {}
+
+func (x *NoteSave) ProtoReflect() protoreflect.Message {
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NoteSave.ProtoReflect.Descriptor instead.
+func (*NoteSave) Descriptor() ([]byte, []int) {
+	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *NoteSave) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
+// NoteRemove removes a note. The removal of an unknown note applies, and
+// changes nothing.
+type NoteRemove struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NoteRemove) Reset() {
+	*x = NoteRemove{}
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NoteRemove) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NoteRemove) ProtoMessage() {}
+
+func (x *NoteRemove) ProtoReflect() protoreflect.Message {
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NoteRemove.ProtoReflect.Descriptor instead.
+func (*NoteRemove) Descriptor() ([]byte, []int) {
+	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{5}
+}
 
 // PlanLink names the session of the plan that a workout started from
 // (D-248). A plan has no id, so its creation time names it.
@@ -248,7 +583,7 @@ type PlanLink struct {
 
 func (x *PlanLink) Reset() {
 	*x = PlanLink{}
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[1]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -260,7 +595,7 @@ func (x *PlanLink) String() string {
 func (*PlanLink) ProtoMessage() {}
 
 func (x *PlanLink) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[1]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -273,7 +608,7 @@ func (x *PlanLink) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlanLink.ProtoReflect.Descriptor instead.
 func (*PlanLink) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{1}
+	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *PlanLink) GetPlanCreatedAt() string {
@@ -309,7 +644,7 @@ type WorkoutHeader struct {
 
 func (x *WorkoutHeader) Reset() {
 	*x = WorkoutHeader{}
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[2]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -321,7 +656,7 @@ func (x *WorkoutHeader) String() string {
 func (*WorkoutHeader) ProtoMessage() {}
 
 func (x *WorkoutHeader) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[2]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -334,7 +669,7 @@ func (x *WorkoutHeader) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WorkoutHeader.ProtoReflect.Descriptor instead.
 func (*WorkoutHeader) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{2}
+	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *WorkoutHeader) GetDate() string {
@@ -398,7 +733,7 @@ type SetEntry struct {
 
 func (x *SetEntry) Reset() {
 	*x = SetEntry{}
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[3]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -410,7 +745,7 @@ func (x *SetEntry) String() string {
 func (*SetEntry) ProtoMessage() {}
 
 func (x *SetEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[3]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -423,7 +758,7 @@ func (x *SetEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetEntry.ProtoReflect.Descriptor instead.
 func (*SetEntry) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{3}
+	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *SetEntry) GetWorkoutId() string {
@@ -508,7 +843,7 @@ type CardioEntry struct {
 
 func (x *CardioEntry) Reset() {
 	*x = CardioEntry{}
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[4]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -520,7 +855,7 @@ func (x *CardioEntry) String() string {
 func (*CardioEntry) ProtoMessage() {}
 
 func (x *CardioEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[4]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -533,7 +868,7 @@ func (x *CardioEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CardioEntry.ProtoReflect.Descriptor instead.
 func (*CardioEntry) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{4}
+	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *CardioEntry) GetWorkoutId() string {
@@ -597,10 +932,13 @@ type EntryResult struct {
 	state  protoimpl.MessageState `protogen:"open.v1"`
 	OpId   string                 `protobuf:"bytes,1,opt,name=op_id,json=opId,proto3" json:"op_id,omitempty"`
 	Status EntryResult_Status     `protobuf:"varint,2,opt,name=status,proto3,enum=workoutapp.v1.EntryResult_Status" json:"status,omitempty"`
-	// The server version of the entity after the entry, for an applied entry.
+	// The server version of the entity after the entry, for an applied
+	// workout, set, or cardio entry. An inventory entry gives 0.
 	Version int64 `protobuf:"varint,3,opt,name=version,proto3" json:"version,omitempty"`
 	// The code of a refusal: "invalid_argument" for a bad entry, or
-	// "failed_precondition" for a set or a cardio log of an unknown workout.
+	// "failed_precondition" for a set or a cardio log of an unknown workout,
+	// and for a confirmation of an unknown machine or of weights that are
+	// not the stored weights.
 	Code string `protobuf:"bytes,4,opt,name=code,proto3" json:"code,omitempty"`
 	// The cause of a refusal, with ids and numbers alone (D-80).
 	Message       string `protobuf:"bytes,5,opt,name=message,proto3" json:"message,omitempty"`
@@ -610,7 +948,7 @@ type EntryResult struct {
 
 func (x *EntryResult) Reset() {
 	*x = EntryResult{}
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[5]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -622,7 +960,7 @@ func (x *EntryResult) String() string {
 func (*EntryResult) ProtoMessage() {}
 
 func (x *EntryResult) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[5]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -635,7 +973,7 @@ func (x *EntryResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EntryResult.ProtoReflect.Descriptor instead.
 func (*EntryResult) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{5}
+	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *EntryResult) GetOpId() string {
@@ -682,7 +1020,7 @@ type SyncOutboxRequest struct {
 
 func (x *SyncOutboxRequest) Reset() {
 	*x = SyncOutboxRequest{}
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[6]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -694,7 +1032,7 @@ func (x *SyncOutboxRequest) String() string {
 func (*SyncOutboxRequest) ProtoMessage() {}
 
 func (x *SyncOutboxRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[6]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -707,7 +1045,7 @@ func (x *SyncOutboxRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncOutboxRequest.ProtoReflect.Descriptor instead.
 func (*SyncOutboxRequest) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{6}
+	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *SyncOutboxRequest) GetEntries() []*OutboxEntry {
@@ -727,7 +1065,7 @@ type SyncOutboxResponse struct {
 
 func (x *SyncOutboxResponse) Reset() {
 	*x = SyncOutboxResponse{}
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[7]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -739,7 +1077,7 @@ func (x *SyncOutboxResponse) String() string {
 func (*SyncOutboxResponse) ProtoMessage() {}
 
 func (x *SyncOutboxResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[7]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -752,7 +1090,7 @@ func (x *SyncOutboxResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncOutboxResponse.ProtoReflect.Descriptor instead.
 func (*SyncOutboxResponse) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{7}
+	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *SyncOutboxResponse) GetResults() []*EntryResult {
@@ -778,7 +1116,7 @@ type LoggedSet struct {
 
 func (x *LoggedSet) Reset() {
 	*x = LoggedSet{}
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[8]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -790,7 +1128,7 @@ func (x *LoggedSet) String() string {
 func (*LoggedSet) ProtoMessage() {}
 
 func (x *LoggedSet) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[8]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -803,7 +1141,7 @@ func (x *LoggedSet) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoggedSet.ProtoReflect.Descriptor instead.
 func (*LoggedSet) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{8}
+	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *LoggedSet) GetSetId() string {
@@ -867,7 +1205,7 @@ type LoggedExercise struct {
 
 func (x *LoggedExercise) Reset() {
 	*x = LoggedExercise{}
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[9]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -879,7 +1217,7 @@ func (x *LoggedExercise) String() string {
 func (*LoggedExercise) ProtoMessage() {}
 
 func (x *LoggedExercise) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[9]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -892,7 +1230,7 @@ func (x *LoggedExercise) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoggedExercise.ProtoReflect.Descriptor instead.
 func (*LoggedExercise) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{9}
+	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *LoggedExercise) GetExerciseId() string {
@@ -933,7 +1271,7 @@ type LoggedCardio struct {
 
 func (x *LoggedCardio) Reset() {
 	*x = LoggedCardio{}
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[10]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -945,7 +1283,7 @@ func (x *LoggedCardio) String() string {
 func (*LoggedCardio) ProtoMessage() {}
 
 func (x *LoggedCardio) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[10]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -958,7 +1296,7 @@ func (x *LoggedCardio) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoggedCardio.ProtoReflect.Descriptor instead.
 func (*LoggedCardio) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{10}
+	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *LoggedCardio) GetCardioId() string {
@@ -1036,7 +1374,7 @@ type Workout struct {
 
 func (x *Workout) Reset() {
 	*x = Workout{}
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[11]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1048,7 +1386,7 @@ func (x *Workout) String() string {
 func (*Workout) ProtoMessage() {}
 
 func (x *Workout) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[11]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1061,7 +1399,7 @@ func (x *Workout) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Workout.ProtoReflect.Descriptor instead.
 func (*Workout) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{11}
+	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *Workout) GetWorkoutId() string {
@@ -1125,7 +1463,7 @@ type ListWorkoutsRequest struct {
 
 func (x *ListWorkoutsRequest) Reset() {
 	*x = ListWorkoutsRequest{}
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[12]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1137,7 +1475,7 @@ func (x *ListWorkoutsRequest) String() string {
 func (*ListWorkoutsRequest) ProtoMessage() {}
 
 func (x *ListWorkoutsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[12]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1150,7 +1488,7 @@ func (x *ListWorkoutsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWorkoutsRequest.ProtoReflect.Descriptor instead.
 func (*ListWorkoutsRequest) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{12}
+	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ListWorkoutsRequest) GetLimit() int32 {
@@ -1178,7 +1516,7 @@ type ListWorkoutsResponse struct {
 
 func (x *ListWorkoutsResponse) Reset() {
 	*x = ListWorkoutsResponse{}
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[13]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1190,7 +1528,7 @@ func (x *ListWorkoutsResponse) String() string {
 func (*ListWorkoutsResponse) ProtoMessage() {}
 
 func (x *ListWorkoutsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[13]
+	mi := &file_workoutapp_v1_workout_service_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1203,7 +1541,7 @@ func (x *ListWorkoutsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListWorkoutsResponse.ProtoReflect.Descriptor instead.
 func (*ListWorkoutsResponse) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{13}
+	return file_workoutapp_v1_workout_service_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ListWorkoutsResponse) GetWorkouts() []*Workout {
@@ -1224,7 +1562,7 @@ var File_workoutapp_v1_workout_service_proto protoreflect.FileDescriptor
 
 const file_workoutapp_v1_workout_service_proto_rawDesc = "" +
 	"\n" +
-	"#workoutapp/v1/workout_service.proto\x12\rworkoutapp.v1\"\xd9\x02\n" +
+	"#workoutapp/v1/workout_service.proto\x12\rworkoutapp.v1\x1a%workoutapp/v1/inventory_service.proto\"\xa1\x05\n" +
 	"\vOutboxEntry\x12\x13\n" +
 	"\x05op_id\x18\x01 \x01(\tR\x04opId\x12\x16\n" +
 	"\x06entity\x18\x02 \x01(\tR\x06entity\x12\x1b\n" +
@@ -1234,8 +1572,27 @@ const file_workoutapp_v1_workout_service_proto_rawDesc = "" +
 	"\x0eschema_version\x18\x06 \x01(\x05R\rschemaVersion\x128\n" +
 	"\aworkout\x18\a \x01(\v2\x1c.workoutapp.v1.WorkoutHeaderH\x00R\aworkout\x12+\n" +
 	"\x03set\x18\b \x01(\v2\x17.workoutapp.v1.SetEntryH\x00R\x03set\x124\n" +
-	"\x06cardio\x18\t \x01(\v2\x1a.workoutapp.v1.CardioEntryH\x00R\x06cardioB\t\n" +
-	"\apayload\"W\n" +
+	"\x06cardio\x18\t \x01(\v2\x1a.workoutapp.v1.CardioEntryH\x00R\x06cardio\x12?\n" +
+	"\fsave_machine\x18\n" +
+	" \x01(\v2\x1a.workoutapp.v1.MachineSaveH\x00R\vsaveMachine\x12H\n" +
+	"\x0fconfirm_machine\x18\v \x01(\v2\x1d.workoutapp.v1.MachineConfirmH\x00R\x0econfirmMachine\x12E\n" +
+	"\x0eremove_machine\x18\f \x01(\v2\x1c.workoutapp.v1.MachineRemoveH\x00R\rremoveMachine\x126\n" +
+	"\tsave_note\x18\r \x01(\v2\x17.workoutapp.v1.NoteSaveH\x00R\bsaveNote\x12<\n" +
+	"\vremove_note\x18\x0e \x01(\v2\x19.workoutapp.v1.NoteRemoveH\x00R\n" +
+	"removeNoteB\t\n" +
+	"\apayload\"\xa8\x01\n" +
+	"\vMachineSave\x12(\n" +
+	"\x10weights_tenth_lb\x18\x01 \x03(\x05R\x0eweightsTenthLb\x128\n" +
+	"\tdumbbells\x18\x02 \x01(\v2\x1a.workoutapp.v1.DumbbellSetR\tdumbbells\x125\n" +
+	"\testimates\x18\x03 \x03(\v2\x17.workoutapp.v1.EstimateR\testimates\"t\n" +
+	"\x0eMachineConfirm\x12(\n" +
+	"\x10weights_tenth_lb\x18\x01 \x03(\x05R\x0eweightsTenthLb\x128\n" +
+	"\tdumbbells\x18\x02 \x01(\v2\x1a.workoutapp.v1.DumbbellSetR\tdumbbells\"\x0f\n" +
+	"\rMachineRemove\"\x1e\n" +
+	"\bNoteSave\x12\x12\n" +
+	"\x04text\x18\x01 \x01(\tR\x04text\"\f\n" +
+	"\n" +
+	"NoteRemove\"W\n" +
 	"\bPlanLink\x12&\n" +
 	"\x0fplan_created_at\x18\x01 \x01(\tR\rplanCreatedAt\x12#\n" +
 	"\rsession_index\x18\x02 \x01(\x05R\fsessionIndex\"\xbf\x01\n" +
@@ -1352,46 +1709,61 @@ func file_workoutapp_v1_workout_service_proto_rawDescGZIP() []byte {
 }
 
 var file_workoutapp_v1_workout_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_workoutapp_v1_workout_service_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_workoutapp_v1_workout_service_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_workoutapp_v1_workout_service_proto_goTypes = []any{
 	(EntryResult_Status)(0),      // 0: workoutapp.v1.EntryResult.Status
 	(*OutboxEntry)(nil),          // 1: workoutapp.v1.OutboxEntry
-	(*PlanLink)(nil),             // 2: workoutapp.v1.PlanLink
-	(*WorkoutHeader)(nil),        // 3: workoutapp.v1.WorkoutHeader
-	(*SetEntry)(nil),             // 4: workoutapp.v1.SetEntry
-	(*CardioEntry)(nil),          // 5: workoutapp.v1.CardioEntry
-	(*EntryResult)(nil),          // 6: workoutapp.v1.EntryResult
-	(*SyncOutboxRequest)(nil),    // 7: workoutapp.v1.SyncOutboxRequest
-	(*SyncOutboxResponse)(nil),   // 8: workoutapp.v1.SyncOutboxResponse
-	(*LoggedSet)(nil),            // 9: workoutapp.v1.LoggedSet
-	(*LoggedExercise)(nil),       // 10: workoutapp.v1.LoggedExercise
-	(*LoggedCardio)(nil),         // 11: workoutapp.v1.LoggedCardio
-	(*Workout)(nil),              // 12: workoutapp.v1.Workout
-	(*ListWorkoutsRequest)(nil),  // 13: workoutapp.v1.ListWorkoutsRequest
-	(*ListWorkoutsResponse)(nil), // 14: workoutapp.v1.ListWorkoutsResponse
+	(*MachineSave)(nil),          // 2: workoutapp.v1.MachineSave
+	(*MachineConfirm)(nil),       // 3: workoutapp.v1.MachineConfirm
+	(*MachineRemove)(nil),        // 4: workoutapp.v1.MachineRemove
+	(*NoteSave)(nil),             // 5: workoutapp.v1.NoteSave
+	(*NoteRemove)(nil),           // 6: workoutapp.v1.NoteRemove
+	(*PlanLink)(nil),             // 7: workoutapp.v1.PlanLink
+	(*WorkoutHeader)(nil),        // 8: workoutapp.v1.WorkoutHeader
+	(*SetEntry)(nil),             // 9: workoutapp.v1.SetEntry
+	(*CardioEntry)(nil),          // 10: workoutapp.v1.CardioEntry
+	(*EntryResult)(nil),          // 11: workoutapp.v1.EntryResult
+	(*SyncOutboxRequest)(nil),    // 12: workoutapp.v1.SyncOutboxRequest
+	(*SyncOutboxResponse)(nil),   // 13: workoutapp.v1.SyncOutboxResponse
+	(*LoggedSet)(nil),            // 14: workoutapp.v1.LoggedSet
+	(*LoggedExercise)(nil),       // 15: workoutapp.v1.LoggedExercise
+	(*LoggedCardio)(nil),         // 16: workoutapp.v1.LoggedCardio
+	(*Workout)(nil),              // 17: workoutapp.v1.Workout
+	(*ListWorkoutsRequest)(nil),  // 18: workoutapp.v1.ListWorkoutsRequest
+	(*ListWorkoutsResponse)(nil), // 19: workoutapp.v1.ListWorkoutsResponse
+	(*DumbbellSet)(nil),          // 20: workoutapp.v1.DumbbellSet
+	(*Estimate)(nil),             // 21: workoutapp.v1.Estimate
 }
 var file_workoutapp_v1_workout_service_proto_depIdxs = []int32{
-	3,  // 0: workoutapp.v1.OutboxEntry.workout:type_name -> workoutapp.v1.WorkoutHeader
-	4,  // 1: workoutapp.v1.OutboxEntry.set:type_name -> workoutapp.v1.SetEntry
-	5,  // 2: workoutapp.v1.OutboxEntry.cardio:type_name -> workoutapp.v1.CardioEntry
-	2,  // 3: workoutapp.v1.WorkoutHeader.plan:type_name -> workoutapp.v1.PlanLink
-	0,  // 4: workoutapp.v1.EntryResult.status:type_name -> workoutapp.v1.EntryResult.Status
-	1,  // 5: workoutapp.v1.SyncOutboxRequest.entries:type_name -> workoutapp.v1.OutboxEntry
-	6,  // 6: workoutapp.v1.SyncOutboxResponse.results:type_name -> workoutapp.v1.EntryResult
-	9,  // 7: workoutapp.v1.LoggedExercise.sets:type_name -> workoutapp.v1.LoggedSet
-	2,  // 8: workoutapp.v1.Workout.plan:type_name -> workoutapp.v1.PlanLink
-	10, // 9: workoutapp.v1.Workout.exercises:type_name -> workoutapp.v1.LoggedExercise
-	11, // 10: workoutapp.v1.Workout.cardio:type_name -> workoutapp.v1.LoggedCardio
-	12, // 11: workoutapp.v1.ListWorkoutsResponse.workouts:type_name -> workoutapp.v1.Workout
-	7,  // 12: workoutapp.v1.WorkoutService.SyncOutbox:input_type -> workoutapp.v1.SyncOutboxRequest
-	13, // 13: workoutapp.v1.WorkoutService.ListWorkouts:input_type -> workoutapp.v1.ListWorkoutsRequest
-	8,  // 14: workoutapp.v1.WorkoutService.SyncOutbox:output_type -> workoutapp.v1.SyncOutboxResponse
-	14, // 15: workoutapp.v1.WorkoutService.ListWorkouts:output_type -> workoutapp.v1.ListWorkoutsResponse
-	14, // [14:16] is the sub-list for method output_type
-	12, // [12:14] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	8,  // 0: workoutapp.v1.OutboxEntry.workout:type_name -> workoutapp.v1.WorkoutHeader
+	9,  // 1: workoutapp.v1.OutboxEntry.set:type_name -> workoutapp.v1.SetEntry
+	10, // 2: workoutapp.v1.OutboxEntry.cardio:type_name -> workoutapp.v1.CardioEntry
+	2,  // 3: workoutapp.v1.OutboxEntry.save_machine:type_name -> workoutapp.v1.MachineSave
+	3,  // 4: workoutapp.v1.OutboxEntry.confirm_machine:type_name -> workoutapp.v1.MachineConfirm
+	4,  // 5: workoutapp.v1.OutboxEntry.remove_machine:type_name -> workoutapp.v1.MachineRemove
+	5,  // 6: workoutapp.v1.OutboxEntry.save_note:type_name -> workoutapp.v1.NoteSave
+	6,  // 7: workoutapp.v1.OutboxEntry.remove_note:type_name -> workoutapp.v1.NoteRemove
+	20, // 8: workoutapp.v1.MachineSave.dumbbells:type_name -> workoutapp.v1.DumbbellSet
+	21, // 9: workoutapp.v1.MachineSave.estimates:type_name -> workoutapp.v1.Estimate
+	20, // 10: workoutapp.v1.MachineConfirm.dumbbells:type_name -> workoutapp.v1.DumbbellSet
+	7,  // 11: workoutapp.v1.WorkoutHeader.plan:type_name -> workoutapp.v1.PlanLink
+	0,  // 12: workoutapp.v1.EntryResult.status:type_name -> workoutapp.v1.EntryResult.Status
+	1,  // 13: workoutapp.v1.SyncOutboxRequest.entries:type_name -> workoutapp.v1.OutboxEntry
+	11, // 14: workoutapp.v1.SyncOutboxResponse.results:type_name -> workoutapp.v1.EntryResult
+	14, // 15: workoutapp.v1.LoggedExercise.sets:type_name -> workoutapp.v1.LoggedSet
+	7,  // 16: workoutapp.v1.Workout.plan:type_name -> workoutapp.v1.PlanLink
+	15, // 17: workoutapp.v1.Workout.exercises:type_name -> workoutapp.v1.LoggedExercise
+	16, // 18: workoutapp.v1.Workout.cardio:type_name -> workoutapp.v1.LoggedCardio
+	17, // 19: workoutapp.v1.ListWorkoutsResponse.workouts:type_name -> workoutapp.v1.Workout
+	12, // 20: workoutapp.v1.WorkoutService.SyncOutbox:input_type -> workoutapp.v1.SyncOutboxRequest
+	18, // 21: workoutapp.v1.WorkoutService.ListWorkouts:input_type -> workoutapp.v1.ListWorkoutsRequest
+	13, // 22: workoutapp.v1.WorkoutService.SyncOutbox:output_type -> workoutapp.v1.SyncOutboxResponse
+	19, // 23: workoutapp.v1.WorkoutService.ListWorkouts:output_type -> workoutapp.v1.ListWorkoutsResponse
+	22, // [22:24] is the sub-list for method output_type
+	20, // [20:22] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_workoutapp_v1_workout_service_proto_init() }
@@ -1399,22 +1771,28 @@ func file_workoutapp_v1_workout_service_proto_init() {
 	if File_workoutapp_v1_workout_service_proto != nil {
 		return
 	}
+	file_workoutapp_v1_inventory_service_proto_init()
 	file_workoutapp_v1_workout_service_proto_msgTypes[0].OneofWrappers = []any{
 		(*OutboxEntry_Workout)(nil),
 		(*OutboxEntry_Set)(nil),
 		(*OutboxEntry_Cardio)(nil),
+		(*OutboxEntry_SaveMachine)(nil),
+		(*OutboxEntry_ConfirmMachine)(nil),
+		(*OutboxEntry_RemoveMachine)(nil),
+		(*OutboxEntry_SaveNote)(nil),
+		(*OutboxEntry_RemoveNote)(nil),
 	}
-	file_workoutapp_v1_workout_service_proto_msgTypes[3].OneofWrappers = []any{}
-	file_workoutapp_v1_workout_service_proto_msgTypes[4].OneofWrappers = []any{}
 	file_workoutapp_v1_workout_service_proto_msgTypes[8].OneofWrappers = []any{}
-	file_workoutapp_v1_workout_service_proto_msgTypes[10].OneofWrappers = []any{}
+	file_workoutapp_v1_workout_service_proto_msgTypes[9].OneofWrappers = []any{}
+	file_workoutapp_v1_workout_service_proto_msgTypes[13].OneofWrappers = []any{}
+	file_workoutapp_v1_workout_service_proto_msgTypes[15].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_workoutapp_v1_workout_service_proto_rawDesc), len(file_workoutapp_v1_workout_service_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   14,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

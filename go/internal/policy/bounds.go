@@ -23,11 +23,8 @@ var RepLimits = Range{6, 20}
 // RestLimits are the limits of the rest of a target, in seconds (D-172).
 var RestLimits = Range{60, 180}
 
-// The default rest, in seconds (D-172).
-const (
-	RestDefault  = 120
-	RestLegPress = 180
-)
+// RestDefault is the rest of each exercise, in seconds (D-172, D-279).
+const RestDefault = 60
 
 // The exercises with their own rep range or reps in reserve (D-167,
 // D-171).
@@ -71,13 +68,9 @@ func RIRRange(e domain.Exercise) Range {
 
 func isPress(e domain.Exercise) bool { return dumbbellPress[e.ID] }
 
-// DefaultRest gives the default rest of an exercise in seconds (D-172).
-func DefaultRest(e domain.Exercise) int {
-	if e.ID == "leg_press" {
-		return RestLegPress
-	}
-	return RestDefault
-}
+// DefaultRest gives the rest of an exercise in seconds. Each exercise
+// rests 60 seconds, the leg press too (D-279).
+func DefaultRest(domain.Exercise) int { return RestDefault }
 
 // Violation is one rule that a proposal breaks. Where names the place,
 // such as "working[2]". Detail holds ids and numbers alone (D-80).
