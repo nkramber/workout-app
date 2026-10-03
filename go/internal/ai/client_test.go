@@ -225,7 +225,7 @@ func TestCapRefuses(t *testing.T) {
 func TestCapProject(t *testing.T) {
 	worst := Planner().worst(1)
 	cap := NewMemoryCap(Caps{User: USD, Project: 1})
-	if _, err := cap.Reserve("a", worst); !errors.Is(err, ErrCap) {
+	if _, err := cap.Reserve(context.Background(), "a", worst); !errors.Is(err, ErrCap) {
 		t.Fatalf("err %v: want ErrCap", err)
 	}
 }
@@ -278,6 +278,43 @@ func TestCostRecord(t *testing.T) {
 			b, _ := json.Marshal(r)
 			if strings.Contains(string(b), "logged sets") || strings.Contains(string(b), "private note") {
 				t.Fatalf("the cost record holds text: %s", b)
+			}
+		})
+	}
+}
+
+// failingCap is a cap hook whose store fails. With reserveErr, Reserve
+// fails. Otherwise settle fails.
+type failingCap struct{ reserveErr error }
+
+func (f failingCap) Reserve(context.Context, string, NanoUSD) (func(NanoUSD) error, error) {
+	if f.reserveErr != nil {
+		return nil, f.reserveErr
+	}
+	return func(NanoUSD) error { return errors.New("store: unavailable") }, nil
+}
+
+// TestCapStoreFailure: a Reserve that fails stops the call, and the
+// client sends nothing. A settle that fails marks the record, and the
+// reservation stays in the cap.
+func TestCapStoreFailure(t *testing.T) {
+	fake := &Fake{}
+	down := errors.New("store: unavailable")
+	_, err := (&Client{Provider: fake, Cap: failingCap{reserveErr: down}}).Plan(context.Background(), request(t))
+	if !errors.Is(err, down) || len(fake.Calls()) != 0 {
+		t.Fatalf("err %v with %d calls: want the store error and no call", err, len(fake.Calls()))
+	}
+	for _, tc := range []struct {
+		name string
+		fake *Fake
+	}{
+		{"ok", &Fake{}},
+		{"error", &Fake{Reply: func(Call) (Reply, error) { return Reply{}, errors.New("openai: HTTP 500") }}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			res, err := (&Client{Provider: tc.fake, Cap: failingCap{}}).Plan(context.Background(), request(t))
+			if err != nil || !res.Cost.Unsettled {
+				t.Fatalf("err %v, record %+v: want an unsettled record", err, res.Cost)
 			}
 		})
 	}

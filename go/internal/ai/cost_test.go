@@ -1,6 +1,7 @@
 package ai
 
 import (
+	"context"
 	"errors"
 	"sync"
 	"testing"
@@ -41,26 +42,29 @@ func TestCapsFromEnv(t *testing.T) {
 }
 
 func TestMemoryCap(t *testing.T) {
+	ctx := context.Background()
 	m := NewMemoryCap(Caps{User: 100, Project: 150})
-	settle, err := m.Reserve("a", 80)
+	settle, err := m.Reserve(ctx, "a", 80)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := m.Reserve("a", 30); !errors.Is(err, ErrCap) {
+	if _, err := m.Reserve(ctx, "a", 30); !errors.Is(err, ErrCap) {
 		t.Fatalf("err %v: the user cap holds the reservation", err)
 	}
-	if _, err := m.Reserve("b", 80); !errors.Is(err, ErrCap) {
+	if _, err := m.Reserve(ctx, "b", 80); !errors.Is(err, ErrCap) {
 		t.Fatalf("err %v: the project cap holds the reservation", err)
 	}
-	settle(20)
-	settle(70) // a second settle changes nothing
+	if err := settle(20); err != nil {
+		t.Fatal(err)
+	}
+	_ = settle(70) // a second settle changes nothing
 	if u, p := m.Spent("a"); u != 20 || p != 20 {
 		t.Fatalf("spent %d %d: want 20 20", u, p)
 	}
-	if _, err := m.Reserve("b", 100); err != nil {
+	if _, err := m.Reserve(ctx, "b", 100); err != nil {
 		t.Fatalf("err %v", err)
 	}
-	if _, err := m.Reserve("a", 31); !errors.Is(err, ErrCap) {
+	if _, err := m.Reserve(ctx, "a", 31); !errors.Is(err, ErrCap) {
 		t.Fatalf("err %v: the project cap holds 120 of 150", err)
 	}
 }
@@ -68,17 +72,18 @@ func TestMemoryCap(t *testing.T) {
 // TestMemoryCapParallel: the spend never passes the cap with many
 // goroutines.
 func TestMemoryCapParallel(t *testing.T) {
+	ctx := context.Background()
 	m := NewMemoryCap(Caps{User: 1000, Project: 1000})
 	var wg sync.WaitGroup
 	var mu sync.Mutex
 	ok := 0
 	for range 100 {
 		wg.Go(func() {
-			if settle, err := m.Reserve("a", 30); err == nil {
+			if settle, err := m.Reserve(ctx, "a", 30); err == nil {
 				mu.Lock()
 				ok++
 				mu.Unlock()
-				settle(30)
+				_ = settle(30)
 			}
 		})
 	}

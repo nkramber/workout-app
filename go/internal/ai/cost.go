@@ -1,6 +1,7 @@
 package ai
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strconv"
@@ -71,7 +72,9 @@ func (r Role) worst(n int) NanoUSD {
 // alone, so it can go into a log (D-80). Reserved is the worst-case
 // cost that the cap hook reserved. Cost is the cost from the usage.
 // When the call failed, the charge is not known, and Cost is the
-// reserved cost.
+// reserved cost (D-225). Unsettled is true when the cap hook could not
+// replace the reservation with Cost. The hook then keeps the reserved
+// cost, so the spend can be too high but never too low.
 type CostRecord struct {
 	User       string
 	Role       RoleName
@@ -83,6 +86,7 @@ type CostRecord struct {
 	Reserved   NanoUSD
 	Cost       NanoUSD
 	Known      bool
+	Unsettled  bool
 }
 
 // ErrCap is the error of a call that the cap can not cover (D-25).
@@ -90,14 +94,18 @@ var ErrCap = errors.New("ai: the cap can not cover the call")
 
 // CapHook reserves the worst-case cost of a call before the call
 // (D-25). Reserve gives ErrCap for a call over the cap, and the client
-// then makes no call. After the call, the client gives the cost to
-// settle, one time.
+// then makes no call. Another error also stops the call. After the
+// call, the client gives the cost to settle, one time. Settle replaces
+// the reservation with the cost. When settle gives an error, the
+// reservation stays.
 type CapHook interface {
-	Reserve(user string, worst NanoUSD) (settle func(cost NanoUSD), err error)
+	Reserve(ctx context.Context, user string, worst NanoUSD) (settle func(cost NanoUSD) error, err error)
 }
 
-// Caps holds the cap of one user and the cap of the project (D-25).
-// Q-98 gives the values in Phase 4, so they come from the configuration.
+// Caps holds the cap of one user and the cap of the project for one
+// period (D-25). The period is the calendar month in UTC (D-190). D-188
+// gives 1 USD for the user and 2 USD for the project, and the values
+// come from the configuration.
 type Caps struct {
 	User    NanoUSD
 	Project NanoUSD
@@ -155,8 +163,9 @@ func digits(s string) bool {
 }
 
 // MemoryCap is a cap hook that holds the spend in memory, for one
-// period. Phase 4 gives the store and the period of the caps (Q-98).
-// It is safe for use by more than one goroutine.
+// period, for the tests and for go/cmd/lunaeval. A new process starts
+// at 0, so the API uses the lasting store of go/internal/capstore
+// (D-189). It is safe for use by more than one goroutine.
 type MemoryCap struct {
 	mu      sync.Mutex
 	caps    Caps
@@ -172,7 +181,7 @@ func NewMemoryCap(c Caps) *MemoryCap {
 // Reserve reserves the worst-case cost of a call, or gives ErrCap when
 // the spend and the reservations of the user or of the project can not
 // cover it.
-func (m *MemoryCap) Reserve(user string, worst NanoUSD) (func(NanoUSD), error) {
+func (m *MemoryCap) Reserve(_ context.Context, user string, worst NanoUSD) (func(NanoUSD) error, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if m.user[user]+worst > m.caps.User || m.project+worst > m.caps.Project {
@@ -181,13 +190,14 @@ func (m *MemoryCap) Reserve(user string, worst NanoUSD) (func(NanoUSD), error) {
 	m.user[user] += worst
 	m.project += worst
 	var once sync.Once
-	return func(cost NanoUSD) {
+	return func(cost NanoUSD) error {
 		once.Do(func() {
 			m.mu.Lock()
 			defer m.mu.Unlock()
 			m.user[user] += cost - worst
 			m.project += cost - worst
 		})
+		return nil
 	}, nil
 }
 

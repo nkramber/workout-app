@@ -143,7 +143,7 @@ Acceptance story: after a restart of the API, an emulator test refuses a call ov
 
 Checks: `make go-test`, `make emulator-test`, and `make verify`, free. Codex reviews PR-25.
 
-Questions for the session: the Firestore path of the spend, and the charge of a failed call with an unknown cost.
+Questions for the session: the Firestore path of the spend, and the charge of a failed call with an unknown cost. The owner answered them as Q-238 and Q-239 (D-224, D-225).
 
 ### PR-26 - The plan API
 

@@ -6,7 +6,9 @@
 //
 // Each call has a cost record, and a cap hook reserves the worst-case
 // cost before the call. The hook refuses a call over the cap, and the
-// cap values come from the configuration (D-25).
+// cap values come from the configuration (D-25). The API uses the
+// lasting hook of "go/internal/capstore", which keeps the spend of each
+// month in Firestore (D-189).
 //
 // Luna writes one plan summary and one short reason for each exercise
 // (D-182). A versioned filter of blocked claims reads each such text,
