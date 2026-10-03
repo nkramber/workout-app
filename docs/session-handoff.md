@@ -20,7 +20,7 @@ The owner approved the milestone, then widened it with the cardio rule (D-12, D-
 
 `make contract`, `make go-test`, `make emulator-test`, `make web`, and `make verify` passed.
 
-State: Codex reviewed effective head `f75610a` and found P2-1. The verdict is Changes required. Next action: correct the missing-plan panic, add its regression test, and run a new review after the author pushes the fix.
+Codex round 1 gave "Changes required" at `f75610a` with P2-1, a panic for a header with no plan link. The author found no merit, because the getters of the generated code accept a nil plan, and a test already proved the refusal. `docs/reviews/pr-30-response.md` holds the answer. State: the pull request waits for CI and Codex round 2. Next action: run `make codex-review PR=30` after CI is green (D-8).
 
 The merge changes `go/` and `web/`, so it deploys both. The session of PR-30 reads both deploys first. The next live plan gives 20 to 30 minutes of cardio in each session. The stored plan of 10 minutes stays until the owner requests a new one.
 

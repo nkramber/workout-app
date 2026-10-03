@@ -145,6 +145,11 @@ func TestSyncOutboxRefuses(t *testing.T) {
 			t.Errorf("result %d = %v, want %s", i, r, want)
 		}
 	}
+	// A header with no plan link reaches the check of the entry: the
+	// getters of the generated code read a nil plan as empty (D-248).
+	if m := results[5].GetMessage(); !strings.Contains(m, "plan link") {
+		t.Fatalf("the header with no plan link gives %q, want the plan link check", m)
+	}
 	if got := list(t, s); len(got) != 0 {
 		t.Fatalf("the refused entries stored %v", got)
 	}
