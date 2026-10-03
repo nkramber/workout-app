@@ -1,24 +1,26 @@
 # Workout App - the web client
 
-This folder holds the web client: the installable shell (work area 2.2), the inventory screens (4.1), the onboarding screen (5.1), and the plan screen (5.2). The stack is the Decktome React stack (D-84): React, Vite, `vite-plugin-pwa`, TanStack Query with Connect Query, and Tailwind. The folder is one npm package (D-135). The app has the phone layout alone (D-20).
+This folder holds the web client of the owner. It holds the installable shell (work area 2.2), the inventory screens (4.1), the onboarding screen (5.1), the plan screen (5.2), and the workout screen (6.1). The stack is the Decktome React stack (D-84): React, Vite, `vite-plugin-pwa`, TanStack Query with Connect Query, and Tailwind. The folder is one npm package (D-135). The app has the phone layout alone (D-20).
 
 | Path | Content |
 |---|---|
-| `web/src/app.tsx` | The sign-in page for a signed-out owner. For a signed-in owner, the onboarding screen while no profile exists, then the home screen, the plan screen, the inventory screens, and the profile screen |
+| `web/src/app.tsx` | The sign-in page for a signed-out owner. For a signed-in owner, the onboarding screen while no profile exists, then the home screen, the workout screen, the plan screen, the inventory screens, and the profile screen |
 | `web/src/shell.tsx` | The shell that fills the whole screen (D-120) |
-| `web/src/pages` | The sign-in page, the home screen, the onboarding screen of `web/src/pages/profile.tsx`, and the plan screen of `web/src/pages/plan.tsx` |
+| `web/src/pages` | The sign-in page, the home screen, the onboarding screen of `web/src/pages/profile.tsx`, the plan screen of `web/src/pages/plan.tsx`, and the workout screen of `web/src/pages/workout.tsx` |
 | `web/src/pages/inventory` | The inventory screens: the list, the catalog list and the text entry, the weights, and the review screen |
 | `web/src/lib/inventory.ts` | The catalog order, the A to Z order of the inventory list, the search of the catalog names, and the checks of the weights, the estimates, and the notes |
 | `web/src/lib/inventory-api.ts`, `web/src/lib/errors.ts` | The calls that change the inventory, and the error text of a failed call |
 | `web/src/lib/profile.ts`, `web/src/lib/profile-api.ts` | The form state and the checks of the profile, the text of the injury warning, and the save of the profile |
 | `web/src/lib/plan.ts`, `web/src/lib/plan-api.ts` | The texts of the progress and of the errors of a plan request, the formats of a set and of the rest, and the streams of a plan request and of an exclusion |
+| `web/src/lib/workout.ts` | The start of a workout, the set log, the cardio log, the end of a workout, each with its outbox entry, and the steps of the plus and minus buttons |
+| `web/src/lib/symptoms.ts`, `web/src/lib/wake-lock.ts` | The list of symptoms and the text of each warning (D-263), and the screen wake lock (D-265) |
 | `web/src/lib/firebase.ts` | Firebase Authentication with email and password (D-75) |
 | `web/src/lib/api.ts` | The Connect transport, with the ID token of the owner on each call |
 | `web/src/lib/db.ts` | The offline store and the outbox (D-62, D-77, D-132) |
 | `web/src/lib/pwa.ts`, `web/src/lib/update-check.ts` | The service worker and its update strategy (D-133) |
 | `web/src/lib/storage.ts` | The persistent storage request (D-134) |
 | `web/src/gen` | The generated code of the contract. `make proto` writes it, and Git keeps it. |
-| `web/e2e` | The browser tests of the acceptance stories of work areas 2.2, 4.1, 5.1, and 5.2 |
+| `web/e2e` | The browser tests of the acceptance stories of work areas 2.2, 4.1, 5.1, 5.2, and 6.1 |
 
 ## The screen
 
@@ -70,15 +72,33 @@ Both calls are server streams. While a call runs, the screen goes to the top and
 
 A failed call shows the text of its error, and the screen reads `GetPlan` again (D-240). The server gives `UNAVAILABLE` after the last failed call. So `UNAVAILABLE` after a progress event is the error of no valid plan, and `UNAVAILABLE` with no progress event is an error of the network.
 
+## The workout screen
+
+The home screen has a "Workout" button. With an open workout on the phone, the button is "Continue workout". The screen reads `GetPlan`, `GetCatalog`, and `GetInventory`, and offers the next session of the plan that the owner did not do yet. The owner can also pick another session (D-248). The next session is the first session with the fewest finished workouts, so the week starts again after its last session.
+
+The start copies the targets of the session and the weights of each machine to the phone. After the start, the workout needs no network (D-62). The phone holds one open workout at most.
+
+- The set log shows the next set of the current exercise: the calibration sets first, then the working sets. The reps and the weight come from the target (D-249).
+- The plus and minus buttons change the reps by 1. They move the weight to the next weight of the list of the machine (D-264).
+- A tap on the reps in reserve (0, 1, 2, 3, or 4+) logs the set. So the owner logs a set in one tap.
+- "Add pain or a note" shows the optional pain rating from 0 to 10 and a note of 280 characters or fewer (D-57, D-162, D-261). A pain rating of 1 or more shows the pain warning (D-169).
+- The cardio card logs the minutes and the effort from 1 to 10. The distance, the resistance level, pain, and a note are optional (D-123, D-165).
+- "Report a symptom" shows the seven symptoms of D-263. A pick shows the warning. The owner continues after the confirmation, or uses "Finish now" (D-40, D-153, D-251). The phone keeps no symptom report.
+- "Finish now" asks for a confirmation when an exercise has no logged set. Each such exercise counts as skipped, and the workout ends early (D-63).
+
+While a workout is open, the plan screen refuses a new plan and an exclusion (D-252). The app holds the screen wake lock from the start of a workout to its end, on each screen. It asks for the lock again when the app comes back to the front. When the phone refuses the lock, the workout screen shows "The screen can turn off." (D-265).
+
 ## The offline store
 
-Dexie on IndexedDB holds the local state. Each change and its outbox entry go into one transaction (D-132). An outbox entry holds a UUIDv7 op id, the entity and its id, and the base version. It also holds the payload, the time, the attempts, and the schema version. The one entity of Phase 2 is a setting. Phase 3 adds the entities of the domain model, and Phase 6 adds the sync call.
+Dexie on IndexedDB holds the local state. Each change and its outbox entry go into one transaction (D-132). An outbox entry holds a UUIDv7 op id, the entity and its id, and the base version. It also holds the payload, the time, the attempts, and the schema version.
+
+Version 2 of the store adds the workouts, the sets, and the cardio logs. The payload of each workout entry is the JSON form of `WorkoutHeader`, `SetEntry`, or `CardioEntry` of `proto/workoutapp/v1/workout_service.proto`, with the whole new state of the entity. The op ids of the phone rise strictly, so the outbox keeps the order of two changes of one millisecond. Work area 6.3 adds the sync call.
 
 The first sign-in on a device asks for persistent storage (D-134). The home screen shows the result and the use of the store.
 
 ## Updates
 
-The service worker waits after an update, and the app shows "Update ready" (D-133). The owner applies the update with the button. The app never applies an update during a workout. Phase 4 adds the workout state. The app checks for an update each hour and at each return to view.
+The service worker waits after an update, and the app shows "Update ready" (D-133). The owner applies the update with the button. The app never applies an update during a workout. While a workout is open on the phone, the banner says "Update ready after the workout", with no button. The app checks for an update each hour and at each return to view.
 
 ## Environment
 

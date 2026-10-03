@@ -63,6 +63,18 @@ The session stated the expected cost of one live plan at xhigh, and the owner ap
 
 The owner then asked for 20 to 30 minutes of cardio in each session, and PR-29 holds the change (D-254, D-255).
 
+### 1.5 The live check of the cardio rule
+
+The session of PR-30 read these facts on 2026-10-03:
+
+- PR-29 merged to `main` as `ac739c1`.
+- The build `deploy-web` `5ba685fe` gave SUCCESS at 07:56:55Z. The build `deploy-api` `65ad6292` gave SUCCESS at 07:58:06Z.
+- The live `/version` and the live `/version.json` both named `ac739c1`, and the revision `api-00015-5tp` served all traffic (D-137).
+
+The session stated the expected cost of one live plan at xhigh with `luna-prompt-v4`, and the owner approved it (D-212). At 08:02Z the owner requested one plan on the iPhone. The API made 1 planner call at xhigh, with the status `ok` and a cost of 0.0039 USD. The plan has 2 sessions with 6 exercises each, 1 attempt, and no violation. Each session has 20 minutes of cardio, so the rule of D-255 holds.
+
+Each of the 12 exercises had the reason "The exercise log has a gap". The owner has no log yet, so each exercise had its start target (D-150). The evidence list of prompt v4 had no item for a new exercise, so Luna named a gap. Prompt v5 of PR-30 corrects the reason (D-262).
+
 ## 2. Owner answers for this phase
 
 | Question | Answer | Decision |
@@ -87,8 +99,12 @@ The owner then asked for 20 to 30 minutes of cardio in each session, and PR-29 h
 | Q-273, the size of a batch | 100 entries. | D-259 |
 | Q-274, the least time of a cardio log | None. The log holds the true duration. | D-260 |
 | Q-275, the length of a note | 280 characters. | D-261 |
+| Q-276, the reason of a new exercise | Prompt v5, in PR-30. | D-262 |
+| Q-277, the symptoms and the warnings | Seven symptoms. "You reported <symptom>. Stop this exercise." | D-263 |
+| Q-278, the step of the weight buttons | The next weight of the list of the machine. | D-264 |
+| Q-279, the wake lock | The Screen Wake Lock API, with a notice when the phone refuses it. | D-265 |
 
-No open question blocks PR-29. Section 4 names the questions that each session asks. Q-194 and Q-202 stay open for Phase 7. Q-103 stays open for the deferred photo work.
+No open question blocks PR-31 or PR-32. Section 4 names the questions that each session asks. Q-194 and Q-202 stay open for Phase 7. Q-103 stays open for the deferred photo work.
 
 ## 3. Rules for each pull request of this phase
 
@@ -113,8 +129,8 @@ The PR-<n> order is the order of work. Each pull request needs the one before it
 |---|---|---|---|
 | PR-28 | all | `docs: the Phase 6 focused roadmap (PR-28)` | the two runs of the effort check (D-242) |
 | PR-29 | 6.1, 6.3 | `feat: the workout log API and store (PR-29)` | the live plan at xhigh before the work (D-212) |
-| PR-30 | 6.1 | `feat: the workout screen and set log (PR-30)` | none |
-| PR-31 | 6.2 | `feat: the rest timer and automatic advance (PR-31)` | none |
+| PR-30 | 6.1 | `feat: the workout screen and set log (PR-30)` | the live plan at xhigh before the work (D-212) |
+| PR-31 | 6.2 | `feat: the rest timer and automatic advance (PR-31)` | the live plan of prompt v5 before the work (D-212) |
 | PR-32 | 6.3 | `feat: the outbox sync (PR-32)` | none |
 
 ### PR-28 - The Phase 6 focused roadmap
@@ -166,13 +182,16 @@ Concerns:
 - the button "Report a symptom" on each workout screen, with the warning of D-153 and the confirmation of D-40 (D-251),
 - the refusal of a new plan and of an exclusion while a workout is in progress (D-252),
 - the wake lock, so the screen stays on during a workout,
-- each log and its outbox entry in one Dexie transaction (D-132), with the entities and payloads of `proto/workoutapp/v1/workout_service.proto`. The sync comes in PR-32.
+- each log and its outbox entry in one Dexie transaction (D-132), with the entities and payloads of `proto/workoutapp/v1/workout_service.proto`. The sync comes in PR-32,
+- the reason of a new exercise in prompt v5, after the live check of section 1.5 (D-262).
+
+An open workout also holds the update of the app, as D-133 says.
 
 Acceptance story: the browser tests start the next session, and log a set in three taps or fewer. A symptom report shows the warning, and the owner continues after the confirmation. After a stop and an open of the app, the workout and each logged set stay on the phone.
 
 Checks: `make web`, `make verify`, and the Go checks of PR-29 when `go/` changes, free. Codex reviews PR-30.
 
-Questions for the session: the fixed list of symptoms and the text of each warning (D-153). Also the support of the wake lock in the Home Screen app on iOS 27 with Chrome 154 (research, with the date of each fact). Also the step of the plus and minus buttons of the weight.
+Answers of the session: the symptoms and the warnings of D-263, the step of the weight buttons of D-264, and the wake lock of D-265. On 2026-09-29, the device checklist showed that the wake lock works in the Home Screen app on iOS 27.0 (`docs/research/iphone-platform-spike.md`). Chrome 154 added that app, and a request after the background worked. WebKit fixed the lock for Home Screen apps in iOS 18.4, on 2025-03-31 (PC-2, PC-8).
 
 ### PR-31 - The rest timer and automatic advance
 
@@ -182,10 +201,12 @@ Concerns:
 
 - the rest timer from a stored end time. It starts when the owner logs a set, and the owner can change or dismiss it (D-59). The rest comes from the target (D-172),
 - the preview of the next machine after the last set of an exercise, then the automatic advance (D-60),
-- the edit of a logged set, the skip of an exercise, and "finish now", which ends the session early (D-63, D-170),
+- the edit of a logged set and the skip of an exercise (D-63, D-170). PR-30 gives "finish now", which ends the session early,
 - visual cues alone, and no notification (D-58, D-61).
 
 Acceptance story: the UI tests prove that the timer shows the correct time after a screen lock and a return. The advance comes after the last set. A skip and "finish now" give the correct session log.
+
+Before the work, the session reads the deploys of PR-30. Then one live plan of `luna-prompt-v5` checks the reason of a new exercise (D-212, D-262).
 
 Checks: `make web` and `make verify`, free. Codex reviews PR-31.
 

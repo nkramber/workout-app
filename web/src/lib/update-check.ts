@@ -9,8 +9,8 @@
 // app also asks each hour and on each return to view, as in Decktome.
 export const swUpdateIntervalMs = 60 * 60 * 1000;
 
-// updateAllowed says if the app can apply a waiting update now. Phase 4
-// adds the workout screen and its state. Until then no workout runs.
+// updateAllowed says if the app can apply a waiting update now: never
+// while a workout is open on the phone (work area 6.1).
 export function updateAllowed(workoutActive: boolean): boolean {
   return !workoutActive;
 }

@@ -1,17 +1,20 @@
+import { useLiveQuery } from "dexie-react-hooks";
 import { useSyncExternalStore } from "react";
 
+import { db } from "./lib/db";
 import { applyWaitingUpdate, subscribeUpdate, updateWaiting } from "./lib/pwa";
 import { updateAllowed } from "./lib/update-check";
-
-// The workout screen of Phase 4 sets this state. Until then no workout
-// runs, so the owner can apply each update.
-const workoutActive = false;
+import { activeWorkout } from "./lib/workout";
 
 // UpdateBanner shows "Update ready" when a new service worker waits
 // (REC-3, D-133). The owner applies it with the button. During a workout
 // the banner stays, and the button waits until the workout ends.
 export function UpdateBanner() {
   const waiting = useSyncExternalStore(subscribeUpdate, updateWaiting);
+  // An open workout on the phone holds the update. While the store
+  // loads, the banner holds it too.
+  const workout = useLiveQuery(() => activeWorkout(db), [], null);
+  const workoutActive = workout !== undefined;
   if (!waiting) return null;
   const allowed = updateAllowed(workoutActive);
   return (

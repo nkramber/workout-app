@@ -1,22 +1,28 @@
 import { useQuery } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
+import { useLiveQuery } from "dexie-react-hooks";
 import type { User } from "firebase/auth";
 import { useEffect, useState } from "react";
 
 import { ProfileService } from "./gen/workoutapp/v1/profile_service_pb";
+import { db } from "./lib/db";
 import { loadErrorText } from "./lib/errors";
 import { authErrorCode, signOutOfApp, watchUser } from "./lib/firebase";
+import { useWakeLock } from "./lib/wake-lock";
+import { activeWorkout } from "./lib/workout";
 import { HomePage } from "./pages/home";
 import { InventoryPage } from "./pages/inventory";
 import { PlanPage } from "./pages/plan";
 import { ErrorText, secondary } from "./pages/inventory/ui";
 import { ProfilePage } from "./pages/profile";
 import { SignInPage } from "./pages/sign-in";
+import { WorkoutPage } from "./pages/workout";
 import { Shell } from "./shell";
 
 // App shows the sign-in page to a signed-out owner. A signed-in owner gets
 // the home screen, and from it the equipment inventory (work area 4.1),
-// the profile (work area 5.1), and the plan (work area 5.2).
+// the profile (work area 5.1), the plan (work area 5.2), and the workout
+// (work area 6.1).
 export function App() {
   const queryClient = useQueryClient();
   const [user, setUser] = useState<User | null | undefined>(undefined);
@@ -49,10 +55,14 @@ export function App() {
 
 // SignedIn reads the profile first. With no saved profile, it opens the
 // onboarding screen before the home screen (D-223). The save puts the
-// profile in the query cache, so the home screen then shows.
+// profile in the query cache, so the home screen then shows. The screen
+// wake lock holds from the start of a workout to its end, on each screen
+// (D-265).
 function SignedIn({ onSignOut }: { onSignOut: () => void }) {
   const profile = useQuery(ProfileService.method.getProfile, {});
-  const [page, setPage] = useState<"home" | "inventory" | "profile" | "plan">("home");
+  const workout = useLiveQuery(() => activeWorkout(db), [], null);
+  const wake = useWakeLock(!!workout);
+  const [page, setPage] = useState<"home" | "inventory" | "profile" | "plan" | "workout">("home");
 
   if (profile.error) {
     return (
@@ -80,6 +90,8 @@ function SignedIn({ onSignOut }: { onSignOut: () => void }) {
       return <ProfilePage onBack={home} />;
     case "plan":
       return <PlanPage onBack={home} />;
+    case "workout":
+      return <WorkoutPage onBack={home} wake={wake} />;
     case "home":
       return (
         <HomePage
@@ -87,6 +99,7 @@ function SignedIn({ onSignOut }: { onSignOut: () => void }) {
           onOpenInventory={() => setPage("inventory")}
           onOpenProfile={() => setPage("profile")}
           onOpenPlan={() => setPage("plan")}
+          onOpenWorkout={() => setPage("workout")}
         />
       );
   }

@@ -74,7 +74,7 @@ The API keeps the plan at `users/{uid}/plan/active` and the exclusions at `users
 
 The home screen opens the plan screen. While a request runs, the screen shows the text of each step, with the try number and the cause of a retry (Decision, D-239). Each error of a request has a plain text that says that the plan did not change (Decision, D-240).
 
-Luna writes one plan summary and one short reason for each exercise, with a length limit (Decision, D-182). Session titles come from a template. The warm-up, the cool-down, and the mobility and recovery texts come from a versioned catalog, and Luna selects each item by id (Decision, D-152). A filter of blocked claims reads each text of Luna, and a template text replaces a blocked text (Decision, D-183).
+Luna writes one plan summary and one short reason for each exercise, with a length limit (Decision, D-182). A new exercise has no logged evidence, so its reason says that it is new (Decision, D-262). Session titles come from a template. The warm-up, the cool-down, and the mobility and recovery texts come from a versioned catalog, and Luna selects each item by id (Decision, D-152). A filter of blocked claims reads each text of Luna, and a template text replaces a blocked text (Decision, D-183).
 
 ### 3.4 Guided workout
 
@@ -87,7 +87,9 @@ The workout screen shows one machine at a time. The design targets one-handed us
 5. A busy machine gives a skip, not a substitute (Decision, D-47).
 6. "Finish now" skips the remaining exercises and records the session as ended early (Decision, D-63).
 
-The rest timer shows on the screen only, because the app sends no notifications (Decision, D-61). A Screen Wake Lock keeps the screen on during a workout (Recommendation, from `docs/research/platform-cloud-and-ai.md`).
+A workout starts from the next session of the plan that the owner did not do yet, or from another session (Decision, D-248). The reps and the weight of a set come from the target, and a tap on the reps in reserve logs the set (Decision, D-249). The plus and minus buttons of the weight move to the next weight of the machine (Decision, D-264). Each workout screen has the button "Report a symptom". It shows seven symptoms, and a pick shows the warning (Decision, D-251, D-263). While a workout is open, the plan screen refuses a new plan and an exclusion (Decision, D-252).
+
+The rest timer shows on the screen only, because the app sends no notifications (Decision, D-61). A Screen Wake Lock keeps the screen on during a workout. When the phone refuses the lock, the screen shows a notice (Decision, D-265).
 
 The phone keeps each log and its outbox entry first, and sends the outbox to the workout service later (Decision, D-77, D-132). One call applies 100 entries or fewer, and each entry applies one time alone, keyed by its client op id (Decision, D-259). The server keeps each applied op id with no end date, so a replay changes nothing (Decision, D-257). For a workout entry, the phone wins (Decision, D-258).
 

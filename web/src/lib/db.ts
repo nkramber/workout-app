@@ -1,12 +1,12 @@
 import { Dexie, type EntityTable } from "dexie";
 
-import { uuidv7 } from "./uuidv7";
+import { nextId } from "./uuidv7";
 
 // The offline store of the phone (D-62, D-77). Dexie on IndexedDB holds
 // the local state and the outbox (REC-1, D-132). Each change and its
 // outbox entry go into one transaction, so the phone never keeps a change
 // that it can not sync, and never syncs a change that it did not keep.
-// The sync call of the outbox comes in Phase 6.
+// The sync call of the outbox comes in PR-32.
 
 // The version of the outbox entry form. The server of Phase 6 reads it.
 export const OUTBOX_SCHEMA_VERSION = 1;
@@ -37,10 +37,81 @@ export type Setting = {
 // storage request (REC-5, D-134). It never syncs.
 export type Meta = { key: string; value: unknown };
 
+// A target set of a workout, copied from the plan at the start, so the
+// workout needs no network after its start (D-62). A load is in tenths
+// of a pound (D-160). A calibration set has an RIR target of 0 (D-150).
+export type TargetSet = { reps: number; loadTenthLb: number; rirTarget: number };
+
+// An exercise of a workout: the targets of the plan session, and the
+// weights of its machine at the start, for the plus and minus buttons
+// (D-264).
+export type WorkoutExercise = {
+  exerciseId: string;
+  name: string;
+  restSeconds: number;
+  calibrationSets: TargetSet[];
+  workingSets: TargetSet[];
+  weights: number[];
+};
+
+// A workout on the phone (work area 6.1). It holds the session of the
+// plan that it started from (D-248), and the state of the header of
+// `proto/workoutapp/v1/workout_service.proto`. `version` is the last
+// server version that the phone knows, and the sync of PR-32 sets it.
+export type WorkoutRecord = {
+  id: string;
+  date: string;
+  planCreatedAt: string;
+  sessionIndex: number;
+  title: string;
+  exercises: WorkoutExercise[];
+  cardio: { exerciseId: string; name: string; minutes: number } | null;
+  skippedExerciseIds: string[];
+  endedEarly: boolean;
+  finished: boolean;
+  startedAt: string;
+  version: number;
+};
+
+// A logged set (D-57, D-164, D-249). No value of `pain` means no report
+// (D-162).
+export type SetRecord = {
+  id: string;
+  workoutId: string;
+  exerciseId: string;
+  kind: "working" | "calibration";
+  reps: number;
+  weightTenthsLb: number;
+  rir: number;
+  pain?: number;
+  note: string;
+  at: string;
+  version: number;
+};
+
+// A cardio log (D-123, D-165). Each optional field has no value when the
+// owner gives none.
+export type CardioRecord = {
+  id: string;
+  workoutId: string;
+  exerciseId: string;
+  durationSeconds: number;
+  effort: number;
+  distanceTenthsMi?: number;
+  resistance?: number;
+  pain?: number;
+  note: string;
+  at: string;
+  version: number;
+};
+
 export class WorkoutAppDB extends Dexie {
   settings!: EntityTable<Setting, "id">;
   outbox!: EntityTable<OutboxEntry, "opId">;
   meta!: EntityTable<Meta, "key">;
+  workouts!: EntityTable<WorkoutRecord, "id">;
+  sets!: EntityTable<SetRecord, "id">;
+  cardio!: EntityTable<CardioRecord, "id">;
 
   constructor(name = "workout-app") {
     super(name);
@@ -48,6 +119,13 @@ export class WorkoutAppDB extends Dexie {
       settings: "id",
       outbox: "opId, at",
       meta: "key",
+    });
+    // Version 2 adds the workout log of work area 6.1. The earlier tables
+    // and their data stay.
+    this.version(2).stores({
+      workouts: "id, startedAt",
+      sets: "id, workoutId, at",
+      cardio: "id, workoutId, at",
     });
   }
 }
@@ -79,7 +157,7 @@ export function saveSetting(store: WorkoutAppDB, id: string, value: unknown, now
       const baseVersion = (await store.settings.get(id))?.version ?? 0;
       await store.settings.put({ id, value, version: baseVersion, updatedAt: at });
       const entry: OutboxEntry = {
-        opId: uuidv7(now.getTime()),
+        opId: nextId(now.getTime()),
         entity: "setting",
         entityId: id,
         baseVersion,
