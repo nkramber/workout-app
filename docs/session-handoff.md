@@ -4,26 +4,28 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-03. Roadmap PR-31 of `docs/roadmaps/phase-6-guided-workout.md`, GitHub #32, on branch `feat/pr-31-rest-timer`, from base `eaa18b6`.
+Date: 2026-10-03. Roadmap PR-32 of `docs/roadmaps/phase-6-guided-workout.md`, on branch `feat/pr-32-outbox-sync`, from base `7ed7c0f`. No pull request is open yet, and the branch is not on origin.
 
-Before the work, the session read the deploy of `eaa18b6`. The build `deploy-web` `247ef56d` and the build `deploy-api` `715c817d` gave `SUCCESS`, and the live `/version` and `/version.json` both name `eaa18b6` (D-137).
+Before the work, the session read the deploy of `7ed7c0f`. The build `deploy-web` `b386e8a9` and the build `deploy-api` `481821e0` gave `SUCCESS`. The live `/version` and `/version.json` both name `7ed7c0f`, and the revision `api-00017-dnm` serves all traffic (D-137).
 
-The owner approved the live check (D-212). One plan at xhigh of `luna-prompt-v5` took 1 call of 0.0019 USD, with 25 minutes of cardio in each session (D-255). Each of the 9 reasons is "This exercise is new.", with no gap (D-262). Section 1.6 of the roadmap records the check.
+The owner approved the live check of one plan at xhigh of `luna-prompt-v5` (D-212). At 19:44Z, the API logs showed no plan request yet. The session reads the result when it comes: `calibration_loads` with a row for each weight of the machine (D-267), and policy version 4. The owner also reports the wake lock after a return (D-271), and one calibration set log (D-268).
 
-The owner approved a milestone of six concerns before the first edit (D-12), and answered Q-280 to Q-285 (D-266 to D-271). The pull request holds:
+The owner approved the milestone before the first edit (D-12), and answered Q-286 to Q-292 (D-272 to D-278).
 
-- the rest timer from a stored end time, with "-15 s", "+15 s", and "Dismiss" (D-59, D-270),
-- the preview of the next machine for 10 seconds, with "Go now", then the automatic advance (D-60, D-269),
-- the skip of an exercise and the edit of a set, each with its outbox entry, and the new rule of "finish now" (D-63),
-- one calibration set in each session, with policy version 4 and a table row for each weight of the machine in the plan (D-267),
-- the calibration step on the workout screen, with 0 to 6+ reps in reserve (D-268),
-- the wake lock request at each tap, focus, `pageshow` event, and return, with the error name in the notice (D-271).
+Done, in two local commits:
 
-State: The Codex review record now covers `7eaf4f6`. P2-1 is fixed. The review withdrew P2-2 because the API contract and domain model reject a skip with a logged set. Product checks pass on this head. A local emulator check failed once with a lock timeout, then passed on retry. The review record and this hand-off are on the branch.
+- `SyncOutbox` applies the inventory entries, with Go unit tests and emulator tests (D-272).
+- The web client has the sync engine and the line of the sync in the shell, with 138 unit tests.
+- The phone keeps copies of the catalog, the inventory, the plan, and the profile, and puts each inventory change in the outbox.
 
-Next action: wait for the review-gate check, then ask the owner to confirm the merge (D-13).
+Open work:
 
-After the merge, the changes to `go/` and `web/` deploy. The next session reads both deploys first. The owner then requests a new plan, because a plan made before the merge has no calibration loads (D-212). The owner checks the wake lock after a return to the app, and logs one calibration set on the iPhone.
+1. Change the browser tests. Hold the sync in each test that reads the outbox.
+2. Replace the tests of D-196 in `web/e2e/inventory.spec.ts` and the setting test in `web/e2e/shell.spec.ts`. Add the offline acceptance tests.
+3. Change the documents: the roadmaps, the design, both READMEs, `AGENTS.md`, and the research.
+4. Run `make web`, `make go-test`, `make emulator-test`, and `make verify`, then push and open the pull request.
+
+Next action: read the live plan when the owner requests it, then do items 1 and 2.
 
 ## Facts that expire
 
