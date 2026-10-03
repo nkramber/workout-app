@@ -38,4 +38,4 @@ The trigger reproduces. A Stop during the 1 s that `silentSource` records left `
 
 Correction: `web/src/pages/lock-test.tsx` gives each start a run number, and Stop and the exit of the screen add 1 to it. When the source is ready, a start with an old number stops its source and starts no probe. A failure of such a start shows no error (D-282).
 
-Regression check: `web/e2e/lock-test.spec.ts`, "a stop while the video file prepares starts no probe", taps Stop at once, and reads the log and the video after 2 s. On the old code in Chromium, it failed with 2 lines of the log for 1. With the correction, it passed 2 of 2 runs in WebKit and in Chromium.
+Regression check: `web/e2e/lock-test.spec.ts`, "a stop while the video file prepares starts no probe", taps Stop at once, and reads the log and the video after 2 s. On the old code in Chromium, it failed with 2 lines of the log for 1. With the correction, it passed 2 of 2 runs in WebKit and in Chromium. In CI, WebKit on Linux refuses the start of the video file at once. No preparation runs there, so the test skips with that reason.
