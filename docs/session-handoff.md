@@ -17,9 +17,11 @@ The owner approved the milestone before the first edit (D-12), and answered Q-25
 
 The browser test "the owner requests a plan, sees each part, excludes an exercise, and sees the new plan" of `web/e2e/plan.spec.ts` holds the acceptance story. `make go-test` and `make web` passed.
 
-Review round 2 records "Changes required" for effective head `a56c5226576e609d42adf6c9a2b764a85951e072`. P2-1 and P2-2 are fixed. P2-3 and P2-4 stay open. `docs/reviews/pr-28.md` holds the review.
+Codex review: round 1 gave "Changes required" at `26f1283`. P2-1 is an overflow of the fake delay. P2-2 is the error of no allowed exercise with no "Your plan did not change.". The author found full merit for both, and the owner added the sentence (Q-255).
 
-State: the correction commits are on the branch. Next action: answer P2-3 and P2-4, then request a new review.
+Round 2 at `a56c522` found both fixed. It found P2-3, an old index in the high-level roadmap, with full merit. It also found P2-4, a provider name in the body, and the author refuted it under D-14. `docs/reviews/pr-28-response.md` holds each answer.
+
+State: the corrections are on the branch. Next action: wait for CI, then run `make codex-review` for round 3.
 
 The live check on the iPhone needs the `deploy-web` build of the merge (D-212). The next session reads the deploy, states the expected cost, and asks the owner. After the approval, the owner requests one plan in the live app, and that session records the result as the exit evidence of Phase 5.
 
@@ -86,7 +88,7 @@ Completed:
 - Read the deploys of `0a7b742`.
 - The owner approved the milestone before the first edit (D-12), and answered Q-252 to Q-255 (D-239 to D-241).
 - Wrote the plan screen, the stream hook, and the texts, with unit tests and browser tests. Changed the fake provider and the start guard, with Go tests. Changed the design, both roadmaps, the registers, both READMEs, and `AGENTS.md`.
-- Answered Codex findings P2-1 and P2-2 of round 1 with full merit.
+- Answered Codex findings P2-1 to P2-3 with full merit, and refuted P2-4.
 
 Open work:
 
