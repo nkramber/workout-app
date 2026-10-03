@@ -21,7 +21,7 @@ The owner then found two faults. A calibration set did not change the working lo
 
 `make contract`, `make go-test`, `make emulator-test`, `make web`, and `make verify` passed. In the first run of `make web`, 5 earlier Chromium tests waited more than 10 s for a fake plan. The second run passed 73 of 73.
 
-State: PR-31 (GitHub #32) is open. The Codex review comes next, and its record is `docs/reviews/pr-32.md`.
+State: PR-31 (GitHub #32) is open. The Codex review comes next.
 
 Next action: wait for CI, and run `make codex-review PR=32` (D-8).
 
