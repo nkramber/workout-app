@@ -42,7 +42,13 @@ test("a stop while the video file prepares starts no probe", async ({ page }, in
   await button(page, "Screen lock test").click();
 
   await button(page, "Start Silent video file").click();
-  await button(page, "Stop Silent video file").click();
+  // An engine with no MediaRecorder or no canvas stream refuses the start
+  // at once, so no preparation runs, and the case does not apply there.
+  const stopButton = button(page, "Stop Silent video file");
+  const startError = page.getByTestId("lock-test-error");
+  await expect(stopButton.or(startError)).toBeVisible();
+  if (await startError.isVisible()) test.skip(true, `the engine refused the start: ${await startError.textContent()}`);
+  await stopButton.click();
   await page.waitForTimeout(2_000);
   const log = page.getByTestId("lock-test-log").getByRole("listitem");
   await expect(log).toHaveCount(1);
