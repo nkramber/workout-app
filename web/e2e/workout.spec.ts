@@ -438,7 +438,13 @@ async function logSets(page: Page, count = Infinity): Promise<number> {
       await button(page, "3 in reserve").click();
       logged++;
     }
-    await expect.poll(() => screenState(page), { message: `the screen stayed at "${state}" after ${logged} sets` }).not.toBe(state);
+    try {
+      await expect.poll(() => screenState(page)).not.toBe(state);
+    } catch {
+      // The error holds the screen, so a failure in CI shows its cause.
+      const shown = await page.getByTestId("shell").ariaSnapshot();
+      throw new Error(`the screen stayed at "${state}" after ${logged} sets:\n${shown}`);
+    }
   }
   return logged;
 }
