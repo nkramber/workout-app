@@ -23,7 +23,7 @@ The emulator test `TestPlanAcceptanceStory` holds the acceptance story. `make go
 
 Codex review: round 1 gave "Changes required" at `07acb3c` with P2-1, a stale sentence of `go/README.md`. The author found full merit and corrected it. Round 2 approves effective head `26f7970`. The earlier finding is fixed. `docs/reviews/pr-27-response.md` holds the answer.
 
-State: the review record and this hand-off need publication. The review gate failed on the earlier verdict and head. Next action: commit and push the review record and hand-off, then confirm that the review gate passes. The owner confirms the merge. After the merge, read the deploy of the API first, because the new revision starts only with the values of the service.
+State: commit `14b61b9` holds the review record and this hand-off. The review gate ran before that commit and failed on the earlier verdict and head. Next action: confirm that the review gate passes for the published record. The owner confirms the merge. After the merge, read the deploy of the API first, because the new revision starts only with the values of the service.
 
 ## Facts that expire
 
