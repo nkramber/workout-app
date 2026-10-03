@@ -19,9 +19,9 @@ The owner approved the milestone (D-12), answered Q-286 to Q-292 (D-272 to D-278
 - a "Screen lock test" screen under Diagnostics (D-280 to D-282),
 - the offline acceptance tests in `web/e2e/workout.spec.ts` and `web/e2e/inventory.spec.ts`.
 
-Codex round 1 gave "Changes required" with P2-1, a plan request after a failed sync. Round 2 found P2-1 fixed, and gave P2-2, a video probe that a Stop did not stop during its preparation. The author found full merit in both. `docs/reviews/pr-33-response.md` holds the answers, and `docs/reviews/pr-33.md` is the record.
+Codex rounds 1 and 2 gave "Changes required" with P2-1 and P2-2. Both findings are fixed. The current Codex record approves effective head `ea2182a8680e1ef9656cf2082c01e4b42a53617e`. The author must wait for the new `review-gate` result and owner confirmation.
 
-Next action: wait for CI, then run Codex round 3 (D-8).
+Next action: wait for the `review-gate` result, then ask the owner to confirm the merge.
 
 After the merge, the next session reads both deploys. The owner completes a full workout on the iPhone with no connection (exit of Phase 6), and runs the "Screen lock test". The next pull request applies the method that the owner picks (D-282).
 
@@ -102,7 +102,7 @@ Completed:
 
 Open work:
 
-- The Codex review, the owner confirmation, and the merge of PR-32.
+- The `review-gate` result, the owner confirmation, and the merge of PR-32.
 
 ### Session 32 - 2026-10-03
 
