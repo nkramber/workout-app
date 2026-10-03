@@ -13,6 +13,7 @@ import {
   restText,
   setText,
 } from "./plan";
+import { InventoryNotSyncedError } from "./sync";
 
 const call = (attempt: number, previousStatus = "") => ({ step: "call", attempt, maxAttempts: 4, previousStatus });
 
@@ -91,5 +92,13 @@ describe("formats", () => {
   it("counts the characters of the trimmed reason, as the server does", () => {
     expect(reasonLength("  knee  ")).toBe(4);
     expect(reasonLength("💪".repeat(MAX_REASON_CHARS))).toBe(MAX_REASON_CHARS);
+  });
+});
+
+describe("planErrorText of a change that waits", () => {
+  it("says that the equipment changes did not reach the server (D-272)", () => {
+    const text = "Your equipment changes did not reach the server. Your plan did not change. Try again when the line above says Synced.";
+    expect(planErrorText(new InventoryNotSyncedError())).toBe(text);
+    expect(planErrorText(new InventoryNotSyncedError(), { exclude: true })).toBe(`The exercise is not excluded. ${text}`);
   });
 });

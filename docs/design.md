@@ -92,6 +92,8 @@ A workout starts from the next session of the plan that the owner did not do yet
 
 The rest timer shows on the screen only, because the app sends no notifications (Decision, D-61). The timer reads a stored end time, so it is correct after a screen lock. A Screen Wake Lock keeps the screen on during a workout. The app requests the lock again at each tap, focus, and return. When the phone refuses the lock, the screen shows a notice with the error name (Decision, D-265, D-271).
 
+On the iPhone, the lock needs a tap after each return. A "Screen lock test" screen tries each method with no tap, and the owner picks one after a test on the iPhone (Decision, D-280, D-282).
+
 The phone keeps each log and its outbox entry first, and sends the outbox to the workout service later (Decision, D-77, D-132). One call applies 100 entries or fewer, and each entry applies one time alone, keyed by its client op id (Decision, D-259). The server keeps each applied op id with no end date, so a replay changes nothing (Decision, D-257). For a workout entry, the phone wins (Decision, D-258).
 
 The phone sends the outbox while the app is open alone, because iOS has no background sync for a web app (Decision, D-21). The sync runs at the open, at each focus and return, at each reconnect, and after each new entry. After a failure, it tries again after 5 s, 15 s, 60 s, and then each 5 minutes (Decision, D-277). One sync holds the workout entries and the inventory entries in the order of the op ids (Decision, D-275).
@@ -173,6 +175,7 @@ These rules hold for every phase. The label names the source of each rule.
 The policy is in `go/internal/policy` (Decision, D-157). It has one version, and each rule has an id and the decisions and evidence that support it (Decision, D-38). It holds these rules:
 
 - The bounds of a target: the reps, the reps in reserve, the rest, and a weight of the machine (Decision, D-37, D-54, D-167, D-171, D-172).
+- The rest of each exercise: each plan gives 60 seconds, the leg press too, with policy version 5 (Decision, D-279).
 - The rounding of a load to 5 lb, with the halfway rule and the weight of the machine (Decision, D-65, D-148, D-149).
 - The next target: double progression with one 5 lb step, missed reps, pain, a lighter weight, and sets with no log (Decision, D-147, D-168 to D-170, D-173, D-174).
 - The fixed warning text of a pain report (Decision, D-153, D-169).

@@ -101,6 +101,8 @@ The session stated the expected cost of one live plan at xhigh with `luna-prompt
 
 Each of the 9 exercises has one calibration set, and `calibration_loads` with a row for each weight of its machine (D-267). A machine has 29 rows, and the cable station has 15 rows.
 
+The owner logged a calibration set on the iPhone, and the log was correct (D-268). After a return to the app, the screen lock still needed a tap (D-271). The owner asked for 60 seconds of rest, and for a probe of the screen lock with no tap. PR-32 holds both (D-279 to D-282).
+
 ## 2. Owner answers for this phase
 
 | Question | Answer | Decision |
@@ -142,6 +144,10 @@ Each of the 9 exercises has one calibration set, and `calibration_loads` with a 
 | Q-290, the state of the sync | A line of the shell on each screen. | D-276 |
 | Q-291, the retry after a failed sync | At each open, focus, and reconnect, and after 5 s, 15 s, 60 s, then each 5 minutes. | D-277 |
 | Q-292, the offline copy of the plan | Yes, in PR-32. | D-278 |
+| Q-293, the rest of each exercise | 60 seconds, the leg press too. | D-279 |
+| Q-294, the screen lock with no tap | A probe of each method, then the owner picks one. | D-280 |
+| Q-295, the place of these changes | PR-32. | D-281 |
+| Q-296, the run of the probe | A "Screen lock test" screen. The next pull request applies the method. | D-282 |
 
 No open question blocks PR-32. Section 4 names the questions that each session asks. Q-194 and Q-202 stay open for Phase 7. Q-103 stays open for the deferred photo work.
 
@@ -266,7 +272,9 @@ Concerns:
 - a retry after a failed sync, and the removal of each entry that the server applied,
 - the offline copy of the inventory, with its changes in the outbox through `SyncOutbox`, and the confirmation with no connection (D-196, D-250, D-272, D-273),
 - the state of the sync on the screen, so the owner knows when each log reached the server (D-276),
-- the offline copies of the catalog and the plan, so a workout starts with no connection (D-278). The profile gate keeps a copy of the profile for the same reason.
+- the offline copies of the catalog and the plan, so a workout starts with no connection (D-278). The profile gate keeps a copy of the profile for the same reason,
+- a rest of 60 seconds for each exercise, with policy version 5 (D-279),
+- a "Screen lock test" screen under Diagnostics that tries each method with no tap (D-280 to D-282).
 
 The owner answered the questions of the session (D-272 to D-278). One sync holds all entries in the order of the op ids (D-275), and a refused entry goes to a separate list (D-274). A reconnect starts the delays of the retry again.
 

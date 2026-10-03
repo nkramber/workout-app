@@ -418,3 +418,23 @@ export function noCopyText(error: "offline" | "failed"): string {
     ? "No connection. The phone has no copy yet. Try again when the phone is online."
     : "The sync failed, and the phone has no copy yet. Try again.";
 }
+
+// InventoryNotSyncedError tells that an inventory entry still waits in
+// the outbox after a sync. A plan reads the inventory of the server, so a
+// plan request stops before its call (D-193, D-272).
+export class InventoryNotSyncedError extends Error {
+  constructor() {
+    super("an inventory change waits in the outbox");
+    this.name = "InventoryNotSyncedError";
+  }
+}
+
+// syncBeforePlan runs a sync, then throws InventoryNotSyncedError when an
+// inventory entry still waits in the outbox. An entry that the server
+// refused left the outbox, and the plan then reads the inventory of the
+// server, which wins (D-258).
+export async function syncBeforePlan(store: WorkoutAppDB, sync: () => Promise<void>): Promise<void> {
+  await sync();
+  const waiting = await withReopen(store, () => store.outbox.filter((e) => INVENTORY_ENTITIES.has(e.entity)).count());
+  if (waiting > 0) throw new InventoryNotSyncedError();
+}

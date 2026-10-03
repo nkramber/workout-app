@@ -342,14 +342,15 @@ type builder struct {
 }
 
 // newBuilder starts from the last target, inside each bound: the reps
-// in the rep range, the reps in reserve in their range, the rest in its
-// limits, and each load a valid load of the machine (RuleLoadRepair).
+// in the rep range, the reps in reserve in their range, and each load a
+// valid load of the machine (RuleLoadRepair). Each plan gives the rest of
+// D-279 again, so a rest of an older policy does not stay.
 func newBuilder(in Input, last domain.PlannedExercise) *builder {
 	b := &builder{in: in, available: in.Entry.Available()}
 	reps, rir := RepRange(in.Exercise), RIRRange(in.Exercise)
 	b.target = domain.PlannedExercise{
 		Exercise:    in.Exercise.ID,
-		RestSeconds: RestLimits.clamp(last.RestSeconds),
+		RestSeconds: DefaultRest(in.Exercise),
 	}
 	repaired := false
 	for _, s := range last.Working {

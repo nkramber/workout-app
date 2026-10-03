@@ -74,7 +74,7 @@ var rules = []Rule{
 	{RuleRepBounds, "Each target set has 6 to 20 reps. The rep range of the exercise sets the target inside these limits.", []string{"D-167", "EV-20", "EV-21", "EV-27"}},
 	{RuleRIRBounds, "Each target set has 1 to 3 reps in reserve. No target is failure.", []string{"D-37", "EV-1", "EV-23"}},
 	{RuleRIRPress, "The flat, incline, and seated dumbbell press target 2 to 3 reps in reserve.", []string{"D-171", "EV-27", "EV-28", "EV-76", "EV-77", "EV-79"}},
-	{RuleRestBounds, "Each exercise rests 60 to 180 seconds. The default is 120 seconds, and 180 seconds for the leg press.", []string{"D-172", "D-59", "EV-35", "EV-36", "EV-37"}},
+	{RuleRestBounds, "Each exercise rests 60 to 180 seconds. Each plan gives 60 seconds to each exercise, the leg press too.", []string{"D-172", "D-279", "D-59", "EV-35", "EV-36", "EV-37"}},
 	{RuleLoadAvailable, "Each load is an available weight of the machine. A dumbbell load is the load of one dumbbell, and the input refuses a dumbbell set above 100 lb.", []string{"D-54", "D-149", "D-155", "D-166"}},
 	{RuleLoadRounding, "Each load is a multiple of 5 lb, or the weight that D-149 selects for a multiple of 5 lb.", []string{"D-65", "D-148", "D-149"}},
 	{RuleLoadCeiling, "A proposed load is not more than the load of the next target of the policy. So a proposal adds at most one 5 lb step, and adds no load when the policy holds or lowers it.", []string{"D-23", "D-147"}},

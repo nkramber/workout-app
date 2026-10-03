@@ -222,8 +222,8 @@ test("the plan screen refuses a new plan and an exclusion during a workout", asy
 
 // The rest timer, the preview, and the automatic advance of work area 6.2.
 // The fake plan starts the chest press at the lightest weight, 10 lb,
-// with one calibration set and 3 working sets, and a rest of 2 minutes
-// (D-150, D-172).
+// with one calibration set and 3 working sets, and a rest of 60 seconds
+// (D-150, D-279).
 
 // lock sends the app to the back as a screen lock does, moves the clock
 // of the page by ms with no timer, and brings the app back. The phone
@@ -256,11 +256,11 @@ test("the rest timer is correct after a screen lock, and the next machine comes 
 
   // The log of a set starts the timer with the rest of the target (D-59).
   await button(page, "3 in reserve").click();
-  await expect(restLeft(page)).toHaveText(/^(2:00|1:59)$/);
+  await expect(restLeft(page)).toHaveText(/^(1:00|0:59)$/);
   await expect(page.getByTestId("rest-state")).toHaveText("Rest");
 
-  // A lock of 75 s leaves 45 s.
-  await lockFor(page, 75_000);
+  // A lock of 15 s leaves 45 s.
+  await lockFor(page, 15_000);
   await expect(restLeft(page)).toHaveText(/^0:4[3-5]$/);
 
   // The controls of D-270.
@@ -294,7 +294,7 @@ test("the rest timer is correct after a screen lock, and the next machine comes 
   await page.clock.fastForward(10_000);
   await expect(preview).toHaveCount(0);
   await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Seated row");
-  await expect(restLeft(page)).toHaveText(/^1:[45]\d$/);
+  await expect(restLeft(page)).toHaveText(/^0:[45]\d$/);
 });
 
 // The calibration step of D-267 with no network: 6+ reps in reserve on

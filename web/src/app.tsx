@@ -15,6 +15,7 @@ import { useWakeLock } from "./lib/wake-lock";
 import { activeWorkout } from "./lib/workout";
 import { HomePage } from "./pages/home";
 import { InventoryPage } from "./pages/inventory";
+import { LockTestPage } from "./pages/lock-test";
 import { PlanPage } from "./pages/plan";
 import { ErrorText, secondary } from "./pages/inventory/ui";
 import { ProfilePage } from "./pages/profile";
@@ -71,7 +72,7 @@ function SignedIn({ onSignOut }: { onSignOut: () => void }) {
   const profileCopy = useLiveQuery(() => withReopen(db, () => db.copies.get("profile")), [], undefined);
   const workout = useLiveQuery(() => activeWorkout(db), [], null);
   const wake = useWakeLock(!!workout);
-  const [page, setPage] = useState<"home" | "inventory" | "profile" | "plan" | "workout">("home");
+  const [page, setPage] = useState<"home" | "inventory" | "profile" | "plan" | "workout" | "lock-test">("home");
   useEffect(() => {
     if (profile.data?.profile) void keepCopy(db, "profile", toJson(GetProfileResponseSchema, profile.data));
   }, [profile.data]);
@@ -105,6 +106,8 @@ function SignedIn({ onSignOut }: { onSignOut: () => void }) {
       return <PlanPage onBack={home} />;
     case "workout":
       return <WorkoutPage onBack={home} wake={wake} />;
+    case "lock-test":
+      return <LockTestPage onBack={home} />;
     case "home":
       return (
         <HomePage
@@ -113,6 +116,7 @@ function SignedIn({ onSignOut }: { onSignOut: () => void }) {
           onOpenProfile={() => setPage("profile")}
           onOpenPlan={() => setPage("plan")}
           onOpenWorkout={() => setPage("workout")}
+          onOpenLockTest={() => setPage("lock-test")}
         />
       );
   }

@@ -22,8 +22,10 @@ import {
   refusedReason,
   RETRY_DELAYS_MS,
   SyncEngine,
+  syncBeforePlan,
   syncLineText,
   toMessage,
+  InventoryNotSyncedError,
   type SyncClient,
   type SyncEnv,
 } from "./sync";
@@ -465,5 +467,27 @@ describe("refusedLabel and refusedReason", () => {
     expect(refusedReason(entry("machine", { confirmMachine: {} }), "failed_precondition")).toMatch(/other weights/);
     expect(refusedReason(entry("set", {}), "failed_precondition")).toBe("The server holds no such workout.");
     expect(refusedReason(entry("set", {}), "invalid_argument")).toBe("The server did not accept the values.");
+  });
+});
+
+describe("syncBeforePlan", () => {
+  it("stops a plan request while an inventory change waits after a failed sync (D-272)", async () => {
+    const server = new FakeServer();
+    server.down = true;
+    await saveMachine(store, { machineId: "leg_press", weightsTenthLb: [100, 200] }, now);
+    const engine = new SyncEngine(store, server, testEnv);
+    await expect(syncBeforePlan(store, () => engine.syncNow())).rejects.toBeInstanceOf(InventoryNotSyncedError);
+  });
+
+  it("lets a plan request start after the sync, with workout entries that wait and a refused inventory entry", async () => {
+    const server = new FakeServer();
+    await saveNote(store, "rope handle", "", now);
+    server.refuse = (e) => (e.entity === "note" ? "invalid_argument" : "");
+    await syncBeforePlan(store, async () => {
+      await drainOutbox(store, server);
+    });
+    expect(await store.refused.count()).toBe(1);
+    await workoutWithSets(1);
+    await expect(syncBeforePlan(store, async () => {})).resolves.toBeUndefined();
   });
 });

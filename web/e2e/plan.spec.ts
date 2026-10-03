@@ -1,6 +1,6 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
 
-import { makePlanOwner, signIn, uniqueEmail } from "./support";
+import { makePlanOwner, signIn, syncLine, uniqueEmail } from "./support";
 
 // The plan screen of work area 5.2. The API uses the fake provider of
 // Luna with a wait of 1 s for each call, so each test sees the progress
@@ -167,4 +167,50 @@ test("4 failed calls and the cap give their errors, and the plan does not change
   await expect(planError(page)).toBeInViewport();
   await expect(exercise(page, "chest_press")).toHaveCount(3);
   await expect(page.getByTestId("exclusion")).toHaveCount(0);
+});
+
+// Codex finding P2-1 of PR-32: a plan reads the inventory of the server.
+// While an inventory change waits in the outbox after a failed sync, the
+// plan request stops before its call, and the screen says why (D-272).
+// After the sync passes, the request runs.
+test("a plan request waits for the inventory changes that did not sync", async ({ page, request }, info) => {
+  const email = uniqueEmail("plan-sync", info);
+  await makePlanOwner(request, email, MACHINES);
+  await page.goto("/");
+  await signIn(page, email);
+  await expect(syncLine(page)).toHaveText("Synced");
+
+  const failSync = (route: Route) =>
+    route.fulfill({
+      status: 500,
+      contentType: "application/json",
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({ code: "internal", message: "the workout store failed" }),
+    });
+  await page.route("**/workoutapp.v1.WorkoutService/SyncOutbox", failSync);
+  let planCalls = 0;
+  page.on("request", (r) => {
+    if (r.url().endsWith("/workoutapp.v1.PlanService/RequestPlan")) planCalls++;
+  });
+
+  await button(page, "Equipment").click();
+  await page.getByTestId("machine-seated_row").click();
+  await button(page, "Remove the machine").click();
+  await button(page, "Yes, remove").click();
+  await expect(syncLine(page)).toHaveText("Sync failed · 1 waiting");
+  await button(page, "Back").click();
+
+  await button(page, "Plan").click();
+  await button(page, "Make a plan").click();
+  await expect(planError(page)).toHaveText(
+    "Your equipment changes did not reach the server. Your plan did not change. Try again when the line above says Synced.",
+  );
+  expect(planCalls).toBe(0);
+
+  await page.unroute("**/workoutapp.v1.WorkoutService/SyncOutbox");
+  await button(page, "Make a plan").click();
+  await expect(page.getByTestId("plan-summary")).toHaveText("A plan at the targets of the rules.");
+  await expect(syncLine(page)).toHaveText("Synced");
+  expect(planCalls).toBe(1);
+  await expect(exercise(page, "seated_row")).toHaveCount(0);
 });

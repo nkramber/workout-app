@@ -4,25 +4,26 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-03. Roadmap PR-32 of `docs/roadmaps/phase-6-guided-workout.md`, on branch `feat/pr-32-outbox-sync`, from base `7ed7c0f`.
+Date: 2026-10-03. Roadmap PR-32 of `docs/roadmaps/phase-6-guided-workout.md`, GitHub #33, on branch `feat/pr-32-outbox-sync`, from base `7ed7c0f`.
 
 Before the work, the session read the deploy of `7ed7c0f`. The build `deploy-web` `b386e8a9` and the build `deploy-api` `481821e0` gave `SUCCESS`. The live `/version` and `/version.json` both name `7ed7c0f`, and the revision `api-00017-dnm` serves all traffic (D-137).
 
-The owner approved the live check of one plan at xhigh of `luna-prompt-v5` (D-212). At 20:08Z, the API made 1 planner call of 0.0023 USD. The plan has policy version 4, and each of the 9 exercises has a row of `calibration_loads` for each weight of its machine (D-267). Section 1.7 of the roadmap records the check. The owner reports the wake lock after a return (D-271), and one calibration set log (D-268).
+The owner approved the live check of D-212. At 20:08Z, the API made 1 planner call of 0.0023 USD. The plan has policy version 4, and each of the 9 exercises has a row of `calibration_loads` for each weight of its machine (D-267). The owner logged a calibration set correctly (D-268). After a return, the screen lock still needed a tap (D-271).
 
-The owner approved the milestone before the first edit (D-12), and answered Q-286 to Q-292 (D-272 to D-278). The pull request holds:
+The owner approved the milestone (D-12), answered Q-286 to Q-292 (D-272 to D-278), and widened it after Codex round 1 (D-279 to D-282). The pull request holds:
 
 - `SyncOutbox` with the inventory entries, each applied one time by its op id (D-272),
-- the sync engine of the phone: the triggers, the retry, the refused list, and the line of the sync (D-274 to D-277),
-- the offline copies of the catalog, the inventory, the plan, and the profile, so a workout starts with no connection (D-278),
+- the sync engine, the refused list, the line of the sync, and the offline copies (D-274 to D-278),
 - the inventory changes in the outbox, and a confirmation with no connection (D-250, D-273),
+- a rest of 60 seconds for each exercise, with policy version 5 (D-279),
+- a "Screen lock test" screen under Diagnostics (D-280 to D-282),
 - the offline acceptance tests in `web/e2e/workout.spec.ts` and `web/e2e/inventory.spec.ts`.
 
-In Playwright, WebKit can not open a page with no connection. So the stop of the app with no connection runs in Chromium alone.
+Codex round 1 gave "Changes required" with P2-1, a plan request after a failed sync. The author found full merit, and a plan request now stops while an inventory change waits. `docs/reviews/pr-33-response.md` holds the answer.
 
-Codex reviewed head `e2721cd` on 2026-10-03. The review record is `docs/reviews/pr-33.md`. Verdict: Changes required. Open finding: P2-1. The owner and author must resolve the finding, then run a new review.
+Next action: wait for CI, then run Codex round 2 (D-8).
 
-After the merge, the changes to `go/` and `web/` deploy. The next session reads both deploys first. The owner then completes a full workout on the iPhone with no connection, and opens the app online (exit of Phase 6).
+After the merge, the next session reads both deploys. The owner completes a full workout on the iPhone with no connection (exit of Phase 6), and runs the "Screen lock test". The next pull request applies the method that the owner picks (D-282).
 
 ## Facts that expire
 
@@ -77,8 +78,8 @@ After the merge, the changes to `go/` and `web/` deploy. The next session reads 
 
 ## Next steps, in order
 
-1. Close PR-32: the live check of D-212, CI, the Codex review, the owner confirmation, and the merge.
-2. After the merge, read both deploys (D-137). The owner completes a full workout on the iPhone with no connection, and opens the app online. The logs must reach Firestore (exit of Phase 6).
+1. Close PR-32: CI, the Codex review, the owner confirmation, and the merge.
+2. After the merge, read both deploys (D-137). The owner completes a full workout on the iPhone with no connection, and opens the app online. The logs must reach Firestore (exit of Phase 6). The owner runs the "Screen lock test", and picks a method (D-282).
 3. Start the Phase 7 roadmap in a clean session (D-12).
 
 ## Session records
@@ -95,11 +96,13 @@ Completed:
 - The owner approved the milestone (D-12), and answered Q-286 to Q-292 (D-272 to D-278).
 - Added the inventory entries to `SyncOutbox`, with Go unit tests and emulator tests.
 - Wrote the sync engine, the offline copies, the inventory outbox, and the line of the sync, with unit tests and browser tests.
+- Read the live check of D-212, and changed the rest to 60 seconds with policy version 5 (D-279).
+- Wrote the "Screen lock test" screen (D-282), and answered Codex finding P2-1 with full merit.
 - Changed the registers, both roadmaps, the design, both READMEs, and `AGENTS.md`.
 
 Open work:
 
-- The live check of D-212, the Codex review, the owner confirmation, and the merge of PR-32.
+- The Codex review, the owner confirmation, and the merge of PR-32.
 
 ### Session 32 - 2026-10-03
 

@@ -1,6 +1,6 @@
-policy version: 4
+policy version: 5
 rules: start.estimate, calibration.set
-target: chest_press, rest 120 s
+target: chest_press, rest 60 s
   calibration[0]: 8 reps at 70 lb
   working[0]: 8 reps at 70 lb, 3 RIR
   working[1]: 8 reps at 70 lb, 3 RIR

@@ -14,7 +14,7 @@ This folder holds the web client of the owner. It holds the installable shell (w
 | `web/src/lib/profile.ts`, `web/src/lib/profile-api.ts` | The form state and the checks of the profile, the text of the injury warning, and the save of the profile |
 | `web/src/lib/plan.ts`, `web/src/lib/plan-api.ts` | The texts of the progress and of the errors of a plan request, the formats of a set and of the rest, and the streams of a plan request and of an exclusion |
 | `web/src/lib/workout.ts` | The start of a workout, the set log, the cardio log, the skip of an exercise, the edit of a set, the end of a workout, each with its outbox entry. Also the calibration step, the rest timer, and the steps of the plus and minus buttons |
-| `web/src/lib/symptoms.ts`, `web/src/lib/wake-lock.ts` | The list of symptoms and the text of each warning (D-263), and the screen wake lock (D-265, D-271) |
+| `web/src/lib/symptoms.ts`, `web/src/lib/wake-lock.ts`, `web/src/lib/lock-test.ts` | The list of symptoms and the text of each warning (D-263), the screen wake lock (D-265, D-271), and the probe of the screen lock with no tap (D-282) |
 | `web/src/lib/firebase.ts` | Firebase Authentication with email and password (D-75) |
 | `web/src/lib/api.ts` | The Connect transport, with the ID token of the owner on each call |
 | `web/src/lib/db.ts` | The offline store and the outbox (D-62, D-77, D-132) |
@@ -83,7 +83,7 @@ The start copies the targets of the session and the weights of each machine to t
 - The plus and minus buttons change the reps by 1. They move the weight to the next weight of the list of the machine (D-264).
 - A tap on the reps in reserve logs the set. So the owner logs a set in one tap. A working set offers 0, 1, 2, 3, or 4+, and a calibration set offers 0 to 6+ (D-268).
 - After the calibration set, each working set gets the load of the calibration table (D-267). The plan holds the 4 loads for each weight of the machine, so the table applies to the weight that the owner logged (D-249). The set log shows the note "The calibration set gave this load". A plan of policy version 3 gives the load of the plan. A weight that the machine did not have at the time of the plan does too.
-- The log of a set starts the rest timer with the rest of the target (D-59, D-172). The timer reads a stored end time in the `meta` table. So it is correct after a screen lock and after a stop of the app. "-15 s", "+15 s", and "Dismiss" change it, and it never goes below 0 (D-270). At 0 it shows "Rest done" in another color, with no sound and no notification (D-58, D-61).
+- The log of a set starts the rest timer with the rest of the target, 60 seconds since policy version 5 (D-59, D-172, D-279). The timer reads a stored end time in the `meta` table. So it is correct after a screen lock and after a stop of the app. "-15 s", "+15 s", and "Dismiss" change it, and it never goes below 0 (D-270). At 0 it shows "Rest done" in another color, with no sound and no notification (D-58, D-61).
 - After the last set of an exercise, the screen shows the next machine for 10 seconds, then advances. "Go now" advances at once (D-60, D-269).
 - "Skip this exercise" asks for a confirmation, and writes the skip in the header (D-63, D-170). The owner can pick a skipped exercise again in the list.
 - Each logged set has "Edit". The edit keeps the id, the kind, and the time of the set, and writes a new outbox entry with the whole new state (D-63).
@@ -93,6 +93,8 @@ The start copies the targets of the session and the weights of each machine to t
 - "Finish now" asks for a confirmation when an exercise that the owner did not skip has a set with no log. The workout then ends early, and each exercise with no logged set counts as skipped (D-63).
 
 While a workout is open, the plan screen refuses a new plan and an exclusion (D-252). The app holds the screen wake lock from the start of a workout to its end, on each screen. It asks for the lock again at each tap, focus, and `pageshow` event, and when the app comes back to the front (D-271). When the phone releases the lock while the app shows, the app asks one more time. When the phone refuses the lock, the workout screen shows "The screen can turn off. Tap the screen to try again." with the error name (D-265).
+
+The "Screen lock test" button under Diagnostics opens a screen of `web/src/lib/lock-test.ts` (D-280, D-282). It runs one method at a time, with no tap after a return. The methods are the Wake Lock API, a silent video that the phone records from a canvas, and a live silent canvas stream. Its log shows what the phone did. After the deploy, the owner runs it on the iPhone, and picks the method of the next pull request.
 
 ## The offline store
 
