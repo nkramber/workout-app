@@ -1,15 +1,16 @@
 import { sortByName } from "../../lib/inventory";
 import { useInventoryApi } from "../../lib/inventory-api";
 import type { ScreenProps } from "./types";
-import { ErrorText, primary, secondary, StateBadge, Title, useAction, weightSummary } from "./ui";
+import { ErrorText, primary, secondary, StateBadge, Title, localErrorText, useAction, WaitingBadge, weightSummary } from "./ui";
 
 // ListScreen shows each machine of the inventory with its state, and each
 // note. The machines show A to Z by name (D-205). A tap on a machine opens
 // its review screen. A plan reads the confirmed machines alone, and no
-// plan reads a note (D-191, D-193).
-export function ListScreen({ catalog, inventory, go, onBack }: ScreenProps & { onBack: () => void }) {
+// plan reads a note (D-191, D-193). An item with a change that waits in
+// the outbox shows "Waiting to sync".
+export function ListScreen({ catalog, inventory, pending, go, onBack }: ScreenProps & { onBack: () => void }) {
   const api = useInventoryApi();
-  const action = useAction();
+  const action = useAction(localErrorText);
   const names = new Map(catalog.machines.map((m) => [m.id, m.name]));
   const machines = sortByName(inventory?.machines ?? [], names);
   const notes = inventory?.notes ?? [];
@@ -38,7 +39,10 @@ export function ListScreen({ catalog, inventory, go, onBack }: ScreenProps & { o
                   <span className="block text-slate-100">{names.get(m.machineId) ?? m.machineId}</span>
                   <span className="block text-sm text-slate-400">{weightSummary(m)}</span>
                 </span>
-                <StateBadge state={m.state} />
+                <span className="flex shrink-0 flex-col items-end gap-1">
+                  <StateBadge state={m.state} />
+                  {pending.machines.has(m.machineId) && <WaitingBadge />}
+                </span>
               </button>
             </li>
           ))}
@@ -56,7 +60,14 @@ export function ListScreen({ catalog, inventory, go, onBack }: ScreenProps & { o
               data-testid="note"
               className="flex items-center justify-between gap-3 rounded-lg border border-slate-800 px-3 py-2"
             >
-              <span className="min-w-0 break-words text-slate-100">{n.text}</span>
+              <span className="min-w-0 break-words text-slate-100">
+                {n.text}
+                {pending.notes.has(n.id) && (
+                  <span className="ml-2 align-middle">
+                    <WaitingBadge />
+                  </span>
+                )}
+              </span>
               <button
                 type="button"
                 disabled={action.busy}

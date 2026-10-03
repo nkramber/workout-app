@@ -1,12 +1,15 @@
+import { toJson } from "@bufbuild/protobuf";
 import { useQuery } from "@connectrpc/connect-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLiveQuery } from "dexie-react-hooks";
 import type { User } from "firebase/auth";
 import { useEffect, useState } from "react";
 
-import { ProfileService } from "./gen/workoutapp/v1/profile_service_pb";
-import { db } from "./lib/db";
-import { loadErrorText } from "./lib/errors";
+import { GetProfileResponseSchema, ProfileService } from "./gen/workoutapp/v1/profile_service_pb";
+import { db, withReopen } from "./lib/db";
+import { isNoConnection, loadErrorText } from "./lib/errors";
+import { keepCopy } from "./lib/sync";
+import { useSync } from "./lib/sync-engine";
 import { authErrorCode, signOutOfApp, watchUser } from "./lib/firebase";
 import { useWakeLock } from "./lib/wake-lock";
 import { activeWorkout } from "./lib/workout";
@@ -18,6 +21,7 @@ import { ProfilePage } from "./pages/profile";
 import { SignInPage } from "./pages/sign-in";
 import { WorkoutPage } from "./pages/workout";
 import { Shell } from "./shell";
+import { SyncLine } from "./sync-line";
 
 // App shows the sign-in page to a signed-out owner. A signed-in owner gets
 // the home screen, and from it the equipment inventory (work area 4.1),
@@ -50,21 +54,30 @@ export function App() {
   } else {
     body = <SignedIn key={user.uid} onSignOut={() => void signOut()} />;
   }
-  return <Shell>{body}</Shell>;
+  return <Shell status={user ? <SyncLine /> : null}>{body}</Shell>;
 }
 
 // SignedIn reads the profile first. With no saved profile, it opens the
 // onboarding screen before the home screen (D-223). The save puts the
 // profile in the query cache, so the home screen then shows. The screen
 // wake lock holds from the start of a workout to its end, on each screen
-// (D-265).
+// (D-265). The sync of the outbox runs while the owner is signed in
+// (D-277). Each read of the profile goes into its offline copy. With no
+// connection, a copy that holds a saved profile opens the home screen,
+// so a workout starts with no connection (D-278).
 function SignedIn({ onSignOut }: { onSignOut: () => void }) {
+  useSync();
   const profile = useQuery(ProfileService.method.getProfile, {});
+  const profileCopy = useLiveQuery(() => withReopen(db, () => db.copies.get("profile")), [], undefined);
   const workout = useLiveQuery(() => activeWorkout(db), [], null);
   const wake = useWakeLock(!!workout);
   const [page, setPage] = useState<"home" | "inventory" | "profile" | "plan" | "workout">("home");
+  useEffect(() => {
+    if (profile.data?.profile) void keepCopy(db, "profile", toJson(GetProfileResponseSchema, profile.data));
+  }, [profile.data]);
+  const offline = !!profile.error && isNoConnection(profile.error) && !!(profileCopy?.json as { profile?: unknown } | undefined)?.profile;
 
-  if (profile.error) {
+  if (profile.error && !offline) {
     return (
       <div className="space-y-4">
         <ErrorText testId="profile-load-error">{loadErrorText(profile.error)}</ErrorText>
@@ -79,8 +92,8 @@ function SignedIn({ onSignOut }: { onSignOut: () => void }) {
       </div>
     );
   }
-  if (!profile.data) return <p className="text-slate-400">Loading…</p>;
-  if (!profile.data.profile) return <ProfilePage onSignOut={onSignOut} />;
+  if (!profile.data && !offline) return <p className="text-slate-400">Loading…</p>;
+  if (profile.data && !profile.data.profile) return <ProfilePage onSignOut={onSignOut} />;
 
   const home = () => setPage("home");
   switch (page) {

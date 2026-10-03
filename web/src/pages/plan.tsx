@@ -1,8 +1,10 @@
+import { toJson } from "@bufbuild/protobuf";
 import { useQuery } from "@connectrpc/connect-query";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import {
+  GetPlanResponseSchema,
   PlanService,
   type Exclusion,
   type GuidanceItem,
@@ -23,6 +25,7 @@ import {
   setText,
 } from "../lib/plan";
 import { usePlanApi } from "../lib/plan-api";
+import { keepCopy } from "../lib/sync";
 import { activeWorkout } from "../lib/workout";
 import { danger, ErrorText, field, primary, secondary, Title } from "./inventory/ui";
 
@@ -37,6 +40,11 @@ import { danger, ErrorText, field, primary, secondary, Title } from "./inventory
 // and an exclusion (D-252).
 export function PlanPage({ onBack }: { onBack: () => void }) {
   const plan = useQuery(PlanService.method.getPlan, {});
+  // Each read of the plan goes into the offline copy, so the workout
+  // starts with no connection (D-278).
+  useEffect(() => {
+    if (plan.data) void keepCopy(db, "plan", toJson(GetPlanResponseSchema, plan.data));
+  }, [plan.data]);
 
   if (plan.error) {
     return (

@@ -1,12 +1,11 @@
 import { Dexie, type EntityTable } from "dexie";
 
-import { nextId } from "./uuidv7";
 
 // The offline store of the phone (D-62, D-77). Dexie on IndexedDB holds
 // the local state and the outbox (REC-1, D-132). Each change and its
 // outbox entry go into one transaction, so the phone never keeps a change
 // that it can not sync, and never syncs a change that it did not keep.
-// The sync call of the outbox comes in PR-32.
+// src/lib/sync.ts sends the outbox to the server (work area 6.3).
 
 // The version of the outbox entry form. The server of Phase 6 reads it.
 export const OUTBOX_SCHEMA_VERSION = 1;
@@ -23,15 +22,22 @@ export type OutboxEntry = {
   schemaVersion: number;
 };
 
-// A setting is the one entity of the skeleton. Phase 3 adds the entities
-// of the domain model. `version` is the last server version that the
-// phone knows, and the sync of Phase 6 sets it.
-export type Setting = {
-  id: string;
-  value: unknown;
-  version: number;
-  updatedAt: string;
-};
+// A refused entry: an outbox entry that the server refused, with the
+// code and the cause of the refusal (D-274). The phone moved it out of
+// the outbox, and never sends it again, because a retry gets the same
+// refusal. The owner dismisses it. The cause holds ids and numbers alone
+// (D-80).
+export type RefusedEntry = OutboxEntry & { code: string; message: string; refusedAt: string };
+
+// The offline copies of the answers of the server (D-250, D-278): the
+// catalog, the inventory, the plan, and the profile. `json` is the JSON
+// form of GetCatalogResponse, GetInventoryResponse, GetPlanResponse, or
+// GetProfileResponse. The profile copy lets the profile gate of the app
+// open with no connection. A copy
+// changes only after a read of the server, and never syncs. The screens
+// show the inventory copy with the inventory entries of the outbox on it.
+export type CopyKey = "catalog" | "inventory" | "plan" | "profile";
+export type Copy = { key: CopyKey; json: unknown; savedAt: string };
 
 // A local fact of the phone, such as the result of the persistent
 // storage request (REC-5, D-134). It never syncs.
@@ -119,8 +125,9 @@ export type CardioRecord = {
 };
 
 export class WorkoutAppDB extends Dexie {
-  settings!: EntityTable<Setting, "id">;
   outbox!: EntityTable<OutboxEntry, "opId">;
+  refused!: EntityTable<RefusedEntry, "opId">;
+  copies!: EntityTable<Copy, "key">;
   meta!: EntityTable<Meta, "key">;
   workouts!: EntityTable<WorkoutRecord, "id">;
   sets!: EntityTable<SetRecord, "id">;
@@ -140,6 +147,17 @@ export class WorkoutAppDB extends Dexie {
       sets: "id, workoutId, at",
       cardio: "id, workoutId, at",
     });
+    // Version 3 adds the refused entries and the offline copies of the
+    // sync (work area 6.3). It removes the settings of the skeleton, and
+    // their outbox entries, because the server knows no such entity.
+    this.version(3)
+      .stores({ settings: null, refused: "opId, at", copies: "key" })
+      .upgrade((tx) =>
+        tx
+          .table("outbox")
+          .filter((e: OutboxEntry) => e.entity === "setting")
+          .delete(),
+      );
   }
 }
 
@@ -161,30 +179,8 @@ export async function withReopen<T>(store: WorkoutAppDB, work: () => Promise<T>)
   }
 }
 
-// saveSetting writes a setting and its outbox entry in one transaction.
-// When one write fails, Dexie rolls back both.
-export function saveSetting(store: WorkoutAppDB, id: string, value: unknown, now: Date = new Date()): Promise<OutboxEntry> {
-  return withReopen(store, () =>
-    store.transaction("rw", store.settings, store.outbox, async () => {
-      const at = now.toISOString();
-      const baseVersion = (await store.settings.get(id))?.version ?? 0;
-      await store.settings.put({ id, value, version: baseVersion, updatedAt: at });
-      const entry: OutboxEntry = {
-        opId: nextId(now.getTime()),
-        entity: "setting",
-        entityId: id,
-        baseVersion,
-        payload: value,
-        at,
-        attempts: 0,
-        schemaVersion: OUTBOX_SCHEMA_VERSION,
-      };
-      await store.outbox.add(entry);
-      return entry;
-    }),
-  );
-}
-
+// pendingOutbox gives the outbox in the order of the op ids, which is the
+// order of the sync (D-275).
 export function pendingOutbox(store: WorkoutAppDB): Promise<OutboxEntry[]> {
-  return withReopen(store, () => store.outbox.orderBy("at").toArray());
+  return withReopen(store, () => store.outbox.toArray());
 }

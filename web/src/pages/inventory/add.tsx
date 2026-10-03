@@ -4,7 +4,7 @@ import type { CatalogMachine } from "../../gen/workoutapp/v1/inventory_service_p
 import { checkNote, groupByKind, MAX_NOTE_CHARS, searchCatalog } from "../../lib/inventory";
 import { useInventoryApi } from "../../lib/inventory-api";
 import type { ScreenProps } from "./types";
-import { ErrorText, field, secondary, Title, useAction } from "./ui";
+import { ErrorText, field, secondary, Title, localErrorText, useAction } from "./ui";
 
 // AddScreen adds a machine in one of two ways (D-51, D-55):
 //
@@ -17,7 +17,7 @@ import { ErrorText, field, secondary, Title, useAction } from "./ui";
 // inventory holds one entry for each machine (D-200).
 export function AddScreen({ catalog, inventory, go }: ScreenProps) {
   const api = useInventoryApi();
-  const action = useAction();
+  const action = useAction(localErrorText);
   const [text, setText] = useState("");
   const held = new Set((inventory?.machines ?? []).map((m) => m.machineId));
 

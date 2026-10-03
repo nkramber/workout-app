@@ -1,14 +1,15 @@
-import { useQuery } from "@connectrpc/connect-query";
+import { fromJson, type JsonValue } from "@bufbuild/protobuf";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useId, useState, type ReactNode } from "react";
 
-import { InventoryService } from "../gen/workoutapp/v1/inventory_service_pb";
-import { PlanService, type Plan } from "../gen/workoutapp/v1/plan_service_pb";
-import { db, type CardioRecord, type SetRecord, type WorkoutExercise, type WorkoutRecord } from "../lib/db";
-import { loadErrorText } from "../lib/errors";
+import { GetPlanResponseSchema, type Plan } from "../gen/workoutapp/v1/plan_service_pb";
+import { db, withReopen, type CardioRecord, type SetRecord, type WorkoutExercise, type WorkoutRecord } from "../lib/db";
 import { available, formatPounds } from "../lib/inventory";
+import { useOfflineInventory } from "../lib/inventory-api";
 import { restText, setText } from "../lib/plan";
 import { PAIN_WARNING, SYMPTOMS, symptomWarning } from "../lib/symptoms";
+import { noCopyText } from "../lib/sync";
+import { engine, useSyncWhenMissing } from "../lib/sync-engine";
 import type { WakeStatus } from "../lib/wake-lock";
 import {
   activeWorkout,
@@ -59,40 +60,35 @@ export function WorkoutPage({ onBack, wake }: { onBack: () => void; wake: WakeSt
   return <StartWorkout onBack={onBack} />;
 }
 
-// StartWorkout reads the plan and the weights of each machine, then
-// starts the next session, or the session that the owner picks.
+// StartWorkout reads the offline copies of the plan, the catalog, and the
+// inventory, so a workout starts with no connection (D-278). Then it
+// starts the next session, or the session that the owner picks. With no
+// copy yet, it asks the sync for one.
 function StartWorkout({ onBack }: { onBack: () => void }) {
-  const plan = useQuery(PlanService.method.getPlan, {});
-  const catalog = useQuery(InventoryService.method.getCatalog, {}, { staleTime: Infinity });
-  const inventory = useQuery(InventoryService.method.getInventory, {});
-  const createdAt = plan.data?.plan?.createdAt ?? "";
+  const planCopy = useLiveQuery(() => withReopen(db, async () => (await db.copies.get("plan")) ?? null), [], undefined);
+  const inventory = useOfflineInventory();
+  const sync = useSyncWhenMissing(planCopy === null || inventory === null);
+  const plan = planCopy ? fromJson(GetPlanResponseSchema, planCopy.json as JsonValue, { ignoreUnknownFields: true }) : null;
+  const createdAt = plan?.plan?.createdAt ?? "";
   const done = useLiveQuery(() => (createdAt ? doneSessions(db, createdAt) : Promise.resolve([])), [createdAt], null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
-  const loadError = plan.error ?? catalog.error ?? inventory.error;
-  if (loadError) {
+  if (planCopy === undefined || inventory === undefined || done === null) return <p className="text-slate-400">Loading…</p>;
+  if (!plan || !inventory) {
+    if (sync.running || !sync.error) return <p className="text-slate-400">Loading…</p>;
     return (
       <div className="space-y-4">
         <Title onBack={onBack}>Workout</Title>
-        <ErrorText testId="load-error">{loadErrorText(loadError)}</ErrorText>
-        <button
-          type="button"
-          className={secondary}
-          onClick={() => {
-            void plan.refetch();
-            void catalog.refetch();
-            void inventory.refetch();
-          }}
-        >
+        <ErrorText testId="load-error">{noCopyText(sync.error)}</ErrorText>
+        <button type="button" className={secondary} onClick={() => void engine.syncNow()}>
           Try again
         </button>
       </div>
     );
   }
-  if (!plan.data || !catalog.data || !inventory.data || done === null) return <p className="text-slate-400">Loading…</p>;
 
-  const p = plan.data.plan;
+  const p = plan.plan;
   if (!p || p.sessions.length === 0) {
     return (
       <div className="space-y-4">
@@ -104,8 +100,8 @@ function StartWorkout({ onBack }: { onBack: () => void }) {
     );
   }
 
-  const machineOf = new Map(catalog.data.exercises.map((e) => [e.id, e.machineId]));
-  const machines = new Map((inventory.data.inventory?.machines ?? []).map((m) => [m.machineId, m]));
+  const machineOf = new Map(inventory.catalog.exercises.map((e) => [e.id, e.machineId]));
+  const machines = new Map(inventory.inventory.machines.map((m) => [m.machineId, m]));
   const weights = (exerciseId: string) => {
     const m = machines.get(machineOf.get(exerciseId) ?? "");
     return m ? available(m) : [];
