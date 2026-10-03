@@ -21,7 +21,7 @@ Codex review: round 1 gave "Changes required" at `26f1283`. P2-1 is an overflow 
 
 Round 2 at `a56c522` found both fixed. It found P2-3, an old index in the high-level roadmap, with full merit. It also found P2-4, a provider name in the body, and the author refuted it under D-14. `docs/reviews/pr-28-response.md` holds each answer.
 
-State: the corrections are on the branch. Next action: wait for CI, then run `make codex-review` for round 3.
+State: Codex reviewed effective head `f68220766ffb88fd0ae03b34772b5a11e1a15a90`. P2-1, P2-2, and P2-3 are fixed. This review withdraws P2-4. Verdict: Ready for owner merge. Next action: wait for the review-gate check to pass, then ask the owner to confirm the merge.
 
 The live check on the iPhone needs the `deploy-web` build of the merge (D-212). The next session reads the deploy, states the expected cost, and asks the owner. After the approval, the owner requests one plan in the live app, and that session records the result as the exit evidence of Phase 5.
 
