@@ -70,6 +70,8 @@ A plan holds one session for each training day of one week (Decision, D-211). Ea
 
 The API keeps the plan at `users/{uid}/plan/active` and the exclusions at `users/{uid}/exclusions/active` (Decision, D-226). A new plan replaces the old plan only when its request completes (Decision, D-227). The reason of an exclusion has 200 characters or fewer, and it stays on the server (Decision, D-228, D-229). An exclusion and its new plan save together, or nothing changes (Decision, D-234). A request can take up to 4 calls of Luna, so the API streams each step, and the app shows the progress (Decision, D-231, D-237).
 
+The home screen opens the plan screen. While a request runs, the screen shows the text of each step, with the try number and the cause of a retry (Decision, D-239). Each error of a request has a plain text that says that the plan did not change (Decision, D-240).
+
 Luna writes one plan summary and one short reason for each exercise, with a length limit (Decision, D-182). Session titles come from a template. The warm-up, the cool-down, and the mobility and recovery texts come from a versioned catalog, and Luna selects each item by id (Decision, D-152). A filter of blocked claims reads each text of Luna, and a template text replaces a blocked text (Decision, D-183).
 
 ### 3.4 Guided workout

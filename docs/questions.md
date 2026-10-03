@@ -440,6 +440,14 @@ The live check of D-203 failed on 2026-10-02. The app showed "The API did not an
 | Q-250 | What does an error record hold, and for how long? | The ids, the cause, the cost, and the output of Luna, for 90 days. | Answered | D-236 |
 | Q-251 | Does the plan API treat a new exercise as a return after a long break? | Yes, always: 70 percent of each estimate. | Answered | D-238 |
 
+## Questions of the plan screens session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-252 | Which text does the plan screen show for each step of the progress? | Texts that name Luna, the try number, and the cause of a retry. | Answered | D-239 |
+| Q-253 | Which text does the plan screen show for each error of a plan request? | Plain and specific texts, each with "Your plan did not change." | Answered | D-240 |
+| Q-254 | How do the browser tests get a full plan and a visible progress from the local API? | A fuller reply of the fake, a local delay switch, and a route stub for two errors. | Answered | D-241 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |
