@@ -22,7 +22,7 @@ The owner approved the milestone, then widened it with the cardio rule (D-12, D-
 
 Codex round 1 gave "Changes required" at `f75610a` with P2-1, and round 2 withdrew it. Round 2 gave "Changes required" at `a20f04b` with P2-2: a workout and a set with the same id shared one version. The fix keys each version by the entity and its id. Codex round 3 marked P2-2 fixed and gave "Ready for owner merge" at `f9e09d0`.
 
-`docs/reviews/pr-30-response.md` holds the answers. All product checks pass. The current `review-gate` check reads the earlier verdict and head. State: the review record awaits publication and a fresh gate check. Next action: publish the review record, verify the new gate result, then wait for the owner confirmation.
+`docs/reviews/pr-30-response.md` holds the answers. All product checks and the fresh `review-gate` check pass at `a259775`. The review record approves effective head `f9e09d0`, with no open findings. State: ready for owner merge. Next action: the owner reads the record and confirms the merge.
 
 The merge changes `go/` and `web/`, so it deploys both. The session of PR-30 reads both deploys first. The next live plan gives 20 to 30 minutes of cardio in each session. The stored plan of 10 minutes stays until the owner requests a new one.
 
