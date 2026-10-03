@@ -304,61 +304,81 @@ func TestCalibrationSessions(t *testing.T) {
 	}
 }
 
-// The calibration table of D-150, with at most 3 changes.
-func TestCalibrate(t *testing.T) {
+// A log with more than one calibration set, from a policy before
+// version 4, gives the working load of its first calibration set alone
+// (D-267).
+func TestEffectiveFirstCalibrationSet(t *testing.T) {
+	lb := domain.Pounds
+	in := machineInput(t, "leg_extension", stack(10, 150, 5))
+	in.Estimate = lb(50)
+	d, err := Next(in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	o := done(d.Target)
+	if o.Log.Sets[0].Kind != domain.SetCalibration {
+		t.Fatalf("first set %+v, want a calibration set", o.Log.Sets[0])
+	}
+	o.Log.Sets[0].RIR = 5
+	extra := o.Log.Sets[0]
+	extra.RIR = 9
+	o.Log.Sets = append([]domain.SetLog{o.Log.Sets[0], extra}, o.Log.Sets[1:]...)
+	in.History = []Outcome{o}
+	if got := in.effective()[0].Target.Working[0].Load; got != lb(55) {
+		t.Fatalf("working load %s, want 55 lb from the first calibration set", got)
+	}
+}
+
+// The calibration table of D-150 gives the load of the working sets
+// after the one calibration set of a session (D-267).
+func TestCalibration(t *testing.T) {
 	lb := domain.Pounds
 	in := machineInput(t, "leg_extension", []domain.Load{lb(10), lb(14), lb(20), lb(25), lb(30), lb(35), lb(40), lb(45), lb(50)})
-	cal := func(rirs ...int) []domain.SetLog {
-		var out []domain.SetLog
-		for _, r := range rirs {
-			out = append(out, domain.SetLog{Kind: domain.SetCalibration, Reps: 8, Weight: lb(25), RIR: r})
-		}
-		return out
-	}
-	pain := cal(4)
-	p := domain.Pain(2)
-	pain[0].Pain = &p
-	for _, tc := range []struct {
-		name    string
-		first   domain.Load
-		sets    []domain.SetLog
-		load    domain.Load
-		again   bool
-		changes int
-	}{
-		{"no set", lb(25), nil, lb(25), true, 0},
-		{"on target 3", lb(25), cal(3), lb(25), false, 0},
-		{"on target 4", lb(25), cal(4), lb(25), false, 0},
-		{"rir 5", lb(25), cal(5), lb(30), true, 1},
-		{"rir 6", lb(25), cal(6), lb(35), true, 1},
-		{"rir 2", lb(25), cal(2), lb(20), true, 1},
-		{"pain", lb(25), pain, lb(20), true, 1},
-		{"down to 14 lb", lb(20), cal(1), lb(14), true, 1},
-		{"no lighter weight", lb(10), cal(0), lb(10), false, 0},
-		{"no heavier weight", lb(50), cal(8), lb(50), false, 0},
-		{"three changes", lb(10), cal(9, 9, 9, 9), lb(40), false, 3},
-		{"ended", lb(25), cal(3, 9, 9), lb(25), false, 0},
-		{"up then on target", lb(25), cal(6, 4, 9), lb(35), false, 1},
-	} {
-		c, err := Calibrate(in, tc.first, tc.sets)
-		if err != nil {
-			t.Fatalf("%s: %v", tc.name, err)
-		}
-		if c.Load != tc.load || c.Again != tc.again || c.Changes != tc.changes || c.Rule != RuleCalibrationTable || c.Reason == "" {
-			t.Errorf("%s: Calibrate = %+v, want %s, again %v, %d changes", tc.name, c, tc.load, tc.again, tc.changes)
-		}
-	}
 	for _, tc := range []struct {
 		name  string
 		first domain.Load
-		sets  []domain.SetLog
+		want  CalibrationLoads
 	}{
-		{"first not on the stack", lb(15), nil},
-		{"working set", lb(25), []domain.SetLog{set(8, lb(25), 3)}},
-		{"bad set", lb(25), []domain.SetLog{{Kind: domain.SetCalibration, Reps: -1, Weight: lb(25)}}},
+		{"middle of the stack", lb(25), CalibrationLoads{Down: lb(20), Keep: lb(25), UpOne: lb(30), UpTwo: lb(35)}},
+		{"down to 14 lb", lb(20), CalibrationLoads{Down: lb(14), Keep: lb(20), UpOne: lb(25), UpTwo: lb(30)}},
+		{"no lighter weight", lb(10), CalibrationLoads{Down: lb(10), Keep: lb(10), UpOne: lb(14), UpTwo: lb(20)}},
+		{"no heavier weight", lb(50), CalibrationLoads{Down: lb(45), Keep: lb(50), UpOne: lb(50), UpTwo: lb(50)}},
+		{"one heavier weight", lb(45), CalibrationLoads{Down: lb(40), Keep: lb(45), UpOne: lb(50), UpTwo: lb(50)}},
 	} {
-		if _, err := Calibrate(in, tc.first, tc.sets); !errors.Is(err, ErrInput) {
-			t.Errorf("%s: Calibrate error %v, want ErrInput", tc.name, err)
+		c, err := Calibration(in, tc.first)
+		if err != nil {
+			t.Fatalf("%s: %v", tc.name, err)
+		}
+		if c != tc.want {
+			t.Errorf("%s: Calibration = %+v, want %+v", tc.name, c, tc.want)
+		}
+	}
+	if _, err := Calibration(in, lb(15)); !errors.Is(err, ErrInput) {
+		t.Errorf("a load that is not on the stack: error %v, want ErrInput", err)
+	}
+
+	c := CalibrationLoads{Down: lb(20), Keep: lb(25), UpOne: lb(30), UpTwo: lb(35)}
+	cal := func(rir int) domain.SetLog {
+		return domain.SetLog{Kind: domain.SetCalibration, Reps: 8, Weight: lb(25), RIR: rir}
+	}
+	pain := func(rir int, p domain.Pain) domain.SetLog { s := cal(rir); s.Pain = &p; return s }
+	for _, tc := range []struct {
+		name string
+		set  domain.SetLog
+		want domain.Load
+	}{
+		{"rir 0", cal(0), lb(20)},
+		{"rir 2", cal(2), lb(20)},
+		{"rir 3", cal(3), lb(25)},
+		{"rir 4", cal(4), lb(25)},
+		{"rir 5", cal(5), lb(30)},
+		{"rir 6", cal(6), lb(35)},
+		{"rir 9", cal(9), lb(35)},
+		{"pain 0 keeps", pain(4, 0), lb(25)},
+		{"pain 1 at rir 6", pain(6, 1), lb(20)},
+	} {
+		if got := c.For(tc.set); got != tc.want {
+			t.Errorf("%s: For = %s, want %s", tc.name, got, tc.want)
 		}
 	}
 }

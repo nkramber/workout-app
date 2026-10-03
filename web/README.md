@@ -1,6 +1,6 @@
 # Workout App - the web client
 
-This folder holds the web client of the owner. It holds the installable shell (work area 2.2), the inventory screens (4.1), the onboarding screen (5.1), the plan screen (5.2), and the workout screen (6.1). The stack is the Decktome React stack (D-84): React, Vite, `vite-plugin-pwa`, TanStack Query with Connect Query, and Tailwind. The folder is one npm package (D-135). The app has the phone layout alone (D-20).
+This folder holds the web client of the owner. It holds the installable shell (work area 2.2), the inventory screens (4.1), the onboarding screen (5.1), the plan screen (5.2), and the workout screen (6.1, 6.2). The stack is the Decktome React stack (D-84): React, Vite, `vite-plugin-pwa`, TanStack Query with Connect Query, and Tailwind. The folder is one npm package (D-135). The app has the phone layout alone (D-20).
 
 | Path | Content |
 |---|---|
@@ -12,8 +12,8 @@ This folder holds the web client of the owner. It holds the installable shell (w
 | `web/src/lib/inventory-api.ts`, `web/src/lib/errors.ts` | The calls that change the inventory, and the error text of a failed call |
 | `web/src/lib/profile.ts`, `web/src/lib/profile-api.ts` | The form state and the checks of the profile, the text of the injury warning, and the save of the profile |
 | `web/src/lib/plan.ts`, `web/src/lib/plan-api.ts` | The texts of the progress and of the errors of a plan request, the formats of a set and of the rest, and the streams of a plan request and of an exclusion |
-| `web/src/lib/workout.ts` | The start of a workout, the set log, the cardio log, the end of a workout, each with its outbox entry, and the steps of the plus and minus buttons |
-| `web/src/lib/symptoms.ts`, `web/src/lib/wake-lock.ts` | The list of symptoms and the text of each warning (D-263), and the screen wake lock (D-265) |
+| `web/src/lib/workout.ts` | The start of a workout, the set log, the cardio log, the skip of an exercise, the edit of a set, the end of a workout, each with its outbox entry. Also the calibration step, the rest timer, and the steps of the plus and minus buttons |
+| `web/src/lib/symptoms.ts`, `web/src/lib/wake-lock.ts` | The list of symptoms and the text of each warning (D-263), and the screen wake lock (D-265, D-271) |
 | `web/src/lib/firebase.ts` | Firebase Authentication with email and password (D-75) |
 | `web/src/lib/api.ts` | The Connect transport, with the ID token of the owner on each call |
 | `web/src/lib/db.ts` | The offline store and the outbox (D-62, D-77, D-132) |
@@ -78,15 +78,20 @@ The home screen has a "Workout" button. With an open workout on the phone, the b
 
 The start copies the targets of the session and the weights of each machine to the phone. After the start, the workout needs no network (D-62). The phone holds one open workout at most.
 
-- The set log shows the next set of the current exercise: the calibration sets first, then the working sets. The reps and the weight come from the target (D-249).
+- The set log shows the next set of the current exercise: the calibration set first, then the working sets. The reps and the weight come from the target (D-249).
 - The plus and minus buttons change the reps by 1. They move the weight to the next weight of the list of the machine (D-264).
-- A tap on the reps in reserve (0, 1, 2, 3, or 4+) logs the set. So the owner logs a set in one tap.
+- A tap on the reps in reserve logs the set. So the owner logs a set in one tap. A working set offers 0, 1, 2, 3, or 4+, and a calibration set offers 0 to 6+ (D-268).
+- After the calibration set, each working set gets the load of the calibration table from the 4 loads of the plan (D-267). The set log shows the note "The calibration set gave this load". A calibration set at another weight than its target gives the load of the plan, because the table holds no load for that weight. A plan of policy version 3 has no loads, so its load stays.
+- The log of a set starts the rest timer with the rest of the target (D-59, D-172). The timer reads a stored end time in the `meta` table. So it is correct after a screen lock and after a stop of the app. "-15 s", "+15 s", and "Dismiss" change it, and it never goes below 0 (D-270). At 0 it shows "Rest done" in another color, with no sound and no notification (D-58, D-61).
+- After the last set of an exercise, the screen shows the next machine for 10 seconds, then advances. "Go now" advances at once (D-60, D-269).
+- "Skip this exercise" asks for a confirmation, and writes the skip in the header (D-63, D-170). The owner can pick a skipped exercise again in the list.
+- Each logged set has "Edit". The edit keeps the id, the kind, and the time of the set, and writes a new outbox entry with the whole new state (D-63).
 - "Add pain or a note" shows the optional pain rating from 0 to 10 and a note of 280 characters or fewer (D-57, D-162, D-261). A pain rating of 1 or more shows the pain warning (D-169).
 - The cardio card logs the minutes and the effort from 1 to 10. The distance, the resistance level, pain, and a note are optional (D-123, D-165). Each number must fit its `int32` field of the contract.
 - "Report a symptom" shows the seven symptoms of D-263. A pick shows the warning. The owner continues after the confirmation, or uses "Finish now" (D-40, D-153, D-251). The phone keeps no symptom report.
-- "Finish now" asks for a confirmation when an exercise has no logged set. Each such exercise counts as skipped, and the workout ends early (D-63).
+- "Finish now" asks for a confirmation when an exercise that the owner did not skip has a set with no log. The workout then ends early, and each exercise with no logged set counts as skipped (D-63).
 
-While a workout is open, the plan screen refuses a new plan and an exclusion (D-252). The app holds the screen wake lock from the start of a workout to its end, on each screen. It asks for the lock again when the app comes back to the front. When the phone releases the lock while the app shows, the app asks one more time in that visit. When the phone refuses the lock, the workout screen shows "The screen can turn off." (D-265).
+While a workout is open, the plan screen refuses a new plan and an exclusion (D-252). The app holds the screen wake lock from the start of a workout to its end, on each screen. It asks for the lock again at each tap, focus, and `pageshow` event, and when the app comes back to the front (D-271). When the phone releases the lock while the app shows, the app asks one more time. When the phone refuses the lock, the workout screen shows "The screen can turn off. Tap the screen to try again." with the error name (D-265).
 
 ## The offline store
 

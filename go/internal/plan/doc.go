@@ -61,9 +61,33 @@ type cardioDoc struct {
 }
 
 type exerciseDoc struct {
-	Target targetDoc `firestore:"target"`
-	Reason string    `firestore:"reason"`
-	Record recordDoc `firestore:"record"`
+	Target      targetDoc       `firestore:"target"`
+	Reason      string          `firestore:"reason"`
+	Record      recordDoc       `firestore:"record"`
+	Calibration *calibrationDoc `firestore:"calibration_loads"`
+}
+
+// calibrationDoc holds the loads of D-267. A plan of policy version 3
+// has none, and it reads back as nil.
+type calibrationDoc struct {
+	Down  int64 `firestore:"down_tenth_lb"`
+	Keep  int64 `firestore:"keep_tenth_lb"`
+	UpOne int64 `firestore:"up_one_tenth_lb"`
+	UpTwo int64 `firestore:"up_two_tenth_lb"`
+}
+
+func encodeCalibration(c *policy.CalibrationLoads) *calibrationDoc {
+	if c == nil {
+		return nil
+	}
+	return &calibrationDoc{int64(c.Down), int64(c.Keep), int64(c.UpOne), int64(c.UpTwo)}
+}
+
+func (d *calibrationDoc) loads() *policy.CalibrationLoads {
+	if d == nil {
+		return nil
+	}
+	return &policy.CalibrationLoads{Down: domain.Load(d.Down), Keep: domain.Load(d.Keep), UpOne: domain.Load(d.UpOne), UpTwo: domain.Load(d.UpTwo)}
 }
 
 type targetDoc struct {
@@ -125,7 +149,7 @@ func encodePlan(p Plan) planDoc {
 	for _, s := range p.Sessions {
 		sd := sessionDoc{Title: s.Title, WarmUp: string(s.WarmUp), CoolDown: string(s.CoolDown), Exercises: []exerciseDoc{}}
 		for _, e := range s.Exercises {
-			sd.Exercises = append(sd.Exercises, exerciseDoc{encodeTarget(e.Target), e.Reason, encodeRecord(e.Record)})
+			sd.Exercises = append(sd.Exercises, exerciseDoc{encodeTarget(e.Target), e.Reason, encodeRecord(e.Record), encodeCalibration(e.Calibration)})
 		}
 		if c := s.Cardio; c != nil {
 			sd.Cardio = &cardioDoc{string(c.Exercise), int64(c.Minutes)}
@@ -148,7 +172,7 @@ func (d planDoc) plan() Plan {
 	for _, sd := range d.Sessions {
 		s := Session{Title: sd.Title, WarmUp: ai.GuidanceID(sd.WarmUp), CoolDown: ai.GuidanceID(sd.CoolDown)}
 		for _, e := range sd.Exercises {
-			s.Exercises = append(s.Exercises, Exercise{e.Target.target(), e.Reason, e.Record.record()})
+			s.Exercises = append(s.Exercises, Exercise{e.Target.target(), e.Reason, e.Record.record(), e.Calibration.loads()})
 		}
 		if c := sd.Cardio; c != nil {
 			s.Cardio = &domain.PlannedCardio{Exercise: idOf(c.Exercise), Minutes: int(c.Minutes)}

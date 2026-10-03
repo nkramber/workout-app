@@ -13,11 +13,9 @@ const (
 	// StartSets is the count of working sets of a start.
 	StartSets = 3
 	// CalibrationSessions is the count of calibration sessions of a new
-	// exercise, and after a break of 91 days or more.
+	// exercise, and after a break of 91 days or more. Each one makes one
+	// change at most (D-267).
 	CalibrationSessions = 3
-	// CalibrationChanges is the most load changes of a calibration in
-	// one session.
-	CalibrationChanges = 3
 	// ReturnPercent is the percent of the estimate or of the last load
 	// after a break of 91 days or more.
 	ReturnPercent = 70
@@ -97,9 +95,9 @@ func (in Input) calibrating() bool {
 }
 
 // effective gives a copy of the history in which each calibration
-// session has the working load that its calibration set the owner to
-// (D-150). The owner logs the working sets at that load, so the rules
-// read the logs against it.
+// session has the working load that its first calibration set gave
+// (D-150, D-267). The owner logs the working sets at that load, so the
+// rules read the logs against it.
 func (in Input) effective() []Outcome {
 	out := slices.Clone(in.History)
 	available := in.Entry.Available()
@@ -108,10 +106,10 @@ func (in Input) effective() []Outcome {
 		if len(o.Target.Calibration) == 0 || len(cal) == 0 {
 			continue
 		}
-		step := calibrate(firstLoad(o.Target.Calibration[0].Load, available), cal, available)
+		load := calibrationLoads(firstLoad(o.Target.Calibration[0].Load, available), available).For(cal[0])
 		w := slices.Clone(o.Target.Working)
 		for j := range w {
-			w[j].Load = step.Load
+			w[j].Load = load
 		}
 		out[i].Target.Working = w
 	}
@@ -137,76 +135,56 @@ func firstLoad(l domain.Load, available []domain.Load) domain.Load {
 	return Select(floor(l), available)
 }
 
-// CalibrationStep is the next set of the calibration of one session
-// (D-150). Again tells that the next set is one more calibration set at
-// Load. Otherwise the working sets use Load. Reason is the text for the
-// owner, and it never goes into a log (D-80).
-type CalibrationStep struct {
-	Load    domain.Load
-	Again   bool
-	Changes int
-	Rule    RuleID
-	Reason  string
+// CalibrationLoads gives the load of the working sets of a session
+// after its one calibration set, for each result of the table of
+// RuleCalibrationTable (D-150, D-267). The plan holds it, so the phone
+// applies the table with no network (D-23). A machine with no weight
+// for a change keeps the load of the calibration set.
+type CalibrationLoads struct {
+	// Down follows 2 or fewer reps in reserve, or a pain report.
+	Down domain.Load
+	// Keep follows 3 or 4 reps in reserve.
+	Keep domain.Load
+	// UpOne follows 5 reps in reserve.
+	UpOne domain.Load
+	// UpTwo follows 6 or more reps in reserve.
+	UpTwo domain.Load
 }
 
-// Calibrate gives the next set after the calibration sets that the
-// owner logged in a session, in order. first is the load of the
-// calibration set of the target. With no logged set, the next set is
-// the calibration set at first. The table of RuleCalibrationTable gives
-// each change. The calibration ends when the load stays, when the
-// machine has no lighter or heavier weight, or after 3 changes. A later
-// set does not change an ended calibration.
-func Calibrate(in Input, first domain.Load, sets []domain.SetLog) (CalibrationStep, error) {
+// For gives the load of the working sets after a logged calibration
+// set.
+func (c CalibrationLoads) For(s domain.SetLog) domain.Load {
+	switch {
+	case s.Pain != nil && *s.Pain >= 1, s.RIR <= 2:
+		return c.Down
+	case s.RIR >= 6:
+		return c.UpTwo
+	case s.RIR == 5:
+		return c.UpOne
+	}
+	return c.Keep
+}
+
+// Calibration gives the loads of the working sets after a calibration
+// set at first, the load of the calibration set of the target.
+func Calibration(in Input, first domain.Load) (CalibrationLoads, error) {
 	if err := in.check(); err != nil {
-		return CalibrationStep{}, err
+		return CalibrationLoads{}, err
 	}
 	available := in.Entry.Available()
 	if !slices.Contains(available, first) || !Valid(first, available) {
-		return CalibrationStep{}, inputError("exercise %q: first calibration load is not a valid weight", in.Exercise.ID)
+		return CalibrationLoads{}, inputError("exercise %q: calibration load is not a valid weight", in.Exercise.ID)
 	}
-	for i, s := range sets {
-		if err := s.Check(); err != nil {
-			return CalibrationStep{}, inputError("sets[%d]: %v", i, err)
-		}
-		if s.Kind != domain.SetCalibration {
-			return CalibrationStep{}, inputError("sets[%d]: kind %q, want %q", i, s.Kind, domain.SetCalibration)
-		}
-	}
-	return calibrate(first, sets, available), nil
+	return calibrationLoads(first, available), nil
 }
 
-func calibrate(load domain.Load, sets []domain.SetLog, available []domain.Load) CalibrationStep {
-	c := CalibrationStep{Load: load, Again: true, Rule: RuleCalibrationTable}
-	for _, s := range sets {
-		steps := 0
-		switch {
-		case s.Pain != nil && *s.Pain >= 1, s.RIR <= 2:
-			steps = -1
-		case s.RIR >= 6:
-			steps = 2
-		case s.RIR == 5:
-			steps = 1
-		}
-		next := move(c.Load, steps, available)
-		if next == c.Load {
-			c.Again = false
-			if steps == 0 {
-				c.Reason = fmt.Sprintf("The calibration set was on target. The working sets use %s.", c.Load)
-			} else {
-				c.Reason = fmt.Sprintf("The machine has no weight for the change. The working sets use %s.", c.Load)
-			}
-			return c
-		}
-		c.Load = next
-		c.Changes++
-		if c.Changes == CalibrationChanges {
-			c.Again = false
-			c.Reason = fmt.Sprintf("The calibration made %d changes, the limit. The working sets use %s.", CalibrationChanges, c.Load)
-			return c
-		}
+func calibrationLoads(first domain.Load, available []domain.Load) CalibrationLoads {
+	return CalibrationLoads{
+		Down:  move(first, -1, available),
+		Keep:  first,
+		UpOne: move(first, 1, available),
+		UpTwo: move(first, 2, available),
 	}
-	c.Reason = fmt.Sprintf("Do one calibration set at %s. Stop it at 3 to 4 reps in reserve.", c.Load)
-	return c
 }
 
 // move gives the load after a change of steps of 5 lb, with the weight

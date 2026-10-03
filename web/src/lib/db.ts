@@ -42,17 +42,29 @@ export type Meta = { key: string; value: unknown };
 // of a pound (D-160). A calibration set has an RIR target of 0 (D-150).
 export type TargetSet = { reps: number; loadTenthLb: number; rirTarget: number };
 
+// The load of the working sets after the calibration set, for each
+// result of the calibration table, in tenths of a pound (D-267).
+export type CalibrationLoads = { down: number; keep: number; upOne: number; upTwo: number };
+
 // An exercise of a workout: the targets of the plan session, and the
 // weights of its machine at the start, for the plus and minus buttons
-// (D-264).
+// (D-264). A plan of policy version 3 has no calibration loads.
 export type WorkoutExercise = {
   exerciseId: string;
   name: string;
   restSeconds: number;
   calibrationSets: TargetSet[];
+  calibrationLoads?: CalibrationLoads;
   workingSets: TargetSet[];
   weights: number[];
 };
+
+// The rest timer of a workout (D-59, D-270). The meta table holds it
+// under the key REST_KEY, so it never syncs. The end time is a stored
+// time in milliseconds, so the timer is correct after a screen lock and
+// after a stop of the app.
+export type RestTimer = { workoutId: string; endsAt: number };
+export const REST_KEY = "rest";
 
 // A workout on the phone (work area 6.1). It holds the session of the
 // plan that it started from (D-248), and the state of the header of

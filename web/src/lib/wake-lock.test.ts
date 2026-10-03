@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { holdWakeLock, type WakeDocument, type WakeNavigator, type WakeState } from "./wake-lock";
+import { holdWakeLock, type WakeDocument, type WakeNavigator, type WakeState, type WakeWindow } from "./wake-lock";
 
 type FakeSentinel = {
   released: boolean;
@@ -11,26 +11,42 @@ type FakeSentinel = {
 
 // A fake lock: each request gives a sentinel. hide() releases it as the
 // phone does when the app goes to the back, and drop() releases it while
-// the app shows, as a power-save mode does.
+// the app shows, as a power-save mode does. tap(), focus(), and
+// pageshow() send the other events of D-271. With refuse, each request
+// fails until refuse is false.
 function fakes(refuse = false) {
-  const listeners = new Set<() => void>();
+  const listeners = new Map<string, Set<() => void>>();
+  const on = (t: string, fn: () => void) => {
+    if (!listeners.has(t)) listeners.set(t, new Set());
+    listeners.get(t)!.add(fn);
+  };
+  const off = (t: string, fn: () => void) => listeners.get(t)?.delete(fn);
+  const send = (t: string) => listeners.get(t)?.forEach((fn) => fn());
   const sentinels: FakeSentinel[] = [];
-  const doc: WakeDocument & { show: () => void; hide: () => void } = {
+  const state = { refuse };
+  const doc: WakeDocument & { show: () => void; hide: () => void; tap: () => void } = {
     visibilityState: "visible",
-    addEventListener: (_t, fn) => listeners.add(fn),
-    removeEventListener: (_t, fn) => listeners.delete(fn),
+    addEventListener: on,
+    removeEventListener: off,
     show() {
       this.visibilityState = "visible";
-      listeners.forEach((fn) => fn());
+      send("visibilitychange");
     },
     hide() {
       this.visibilityState = "hidden";
       sentinels.forEach((s) => s.drop());
-      listeners.forEach((fn) => fn());
+      send("visibilitychange");
     },
+    tap: () => send("pointerdown"),
+  };
+  const win: WakeWindow & { focus: () => void; pageshow: () => void } = {
+    addEventListener: on,
+    removeEventListener: off,
+    focus: () => send("focus"),
+    pageshow: () => send("pageshow"),
   };
   const request = vi.fn(async () => {
-    if (refuse) throw new DOMException("refused", "NotAllowedError");
+    if (state.refuse) throw new DOMException("refused", "NotAllowedError");
     const onRelease: (() => void)[] = [];
     const s: FakeSentinel = {
       released: false,
@@ -46,19 +62,27 @@ function fakes(refuse = false) {
     return s;
   });
   const nav: WakeNavigator = { wakeLock: { request } };
-  return { doc, nav, request, sentinels, listeners };
+  const count = () => [...listeners.values()].reduce((n, l) => n + l.size, 0);
+  return { doc, win, nav, request, sentinels, count, state };
 }
 
 const settle = () => new Promise((r) => setTimeout(r, 0));
 
-describe("holdWakeLock (D-265)", () => {
+// track gives the state list and the onState function of a test.
+function track() {
+  const states: WakeState[] = [];
+  const errors: string[] = [];
+  return { states, errors, onState: (st: WakeState, e: string) => (states.push(st), errors.push(e)) };
+}
+
+describe("holdWakeLock (D-265, D-271)", () => {
   it("holds the lock, requests it again after a return to the front, and releases it at the stop", async () => {
-    const { doc, nav, request, sentinels, listeners } = fakes();
-    const states: WakeState[] = [];
-    const stop = holdWakeLock(nav, doc, (s) => states.push(s));
+    const { doc, win, nav, request, sentinels, count } = fakes();
+    const t = track();
+    const stop = holdWakeLock(nav, doc, win, t.onState);
     await settle();
     expect(request).toHaveBeenCalledTimes(1);
-    expect(states).toEqual(["on"]);
+    expect(t.states).toEqual(["on"]);
 
     doc.hide();
     await settle();
@@ -69,52 +93,90 @@ describe("holdWakeLock (D-265)", () => {
 
     stop();
     expect(sentinels[1].release).toHaveBeenCalled();
-    expect(listeners.size).toBe(0);
+    expect(count()).toBe(0);
   });
 
-  it("requests the lock again after a release while the app shows, and gives off after a second release", async () => {
-    const { doc, nav, request, sentinels } = fakes();
-    const states: WakeState[] = [];
-    holdWakeLock(nav, doc, (s) => states.push(s));
+  it("requests the lock again after a release while the app shows, gives off after a second release, and a tap gets it back", async () => {
+    const { doc, win, nav, request, sentinels } = fakes();
+    const t = track();
+    holdWakeLock(nav, doc, win, t.onState);
     await settle();
 
     sentinels[0].drop();
     await settle();
     expect(request).toHaveBeenCalledTimes(2);
-    expect(states).toEqual(["on", "on"]);
+    expect(t.states).toEqual(["on", "on"]);
 
     sentinels[1].drop();
     await settle();
     expect(request).toHaveBeenCalledTimes(2);
-    expect(states).toEqual(["on", "on", "off"]);
+    expect(t.states).toEqual(["on", "on", "off"]);
+    expect(t.errors.at(-1)).toBe("released");
 
-    // A return to the front requests the lock again.
+    // A tap requests the lock again, with no return to the front (D-271).
+    doc.tap();
+    await settle();
+    expect(request).toHaveBeenCalledTimes(3);
+    expect(t.states.at(-1)).toBe("on");
+
+    // A tap while the lock holds makes no request.
+    doc.tap();
+    await settle();
+    expect(request).toHaveBeenCalledTimes(3);
+  });
+
+  it("gets the lock at a focus and a pageshow event after a refusal at the return", async () => {
+    const { doc, win, nav, request, state } = fakes();
+    const t = track();
+    holdWakeLock(nav, doc, win, t.onState);
+    await settle();
+
+    // The phone refuses the request of the return to the front.
+    state.refuse = true;
     doc.hide();
     doc.show();
     await settle();
+    expect(t.states.at(-1)).toBe("off");
+    expect(t.errors.at(-1)).toBe("NotAllowedError");
+
+    state.refuse = false;
+    win.focus();
+    await settle();
+    expect(t.states.at(-1)).toBe("on");
     expect(request).toHaveBeenCalledTimes(3);
-    expect(states.at(-1)).toBe("on");
+
+    doc.hide();
+    win.pageshow(); // A hidden app makes no request.
+    await settle();
+    expect(request).toHaveBeenCalledTimes(3);
+    doc.visibilityState = "visible";
+    win.pageshow();
+    await settle();
+    expect(request).toHaveBeenCalledTimes(4);
+    expect(t.states.at(-1)).toBe("on");
   });
 
-  it("gives off when the phone refuses the lock", async () => {
-    const { doc, nav } = fakes(true);
-    const states: WakeState[] = [];
-    holdWakeLock(nav, doc, (s) => states.push(s));
+  it("gives off with the error name when the phone refuses the lock", async () => {
+    const { doc, win, nav } = fakes(true);
+    const t = track();
+    holdWakeLock(nav, doc, win, t.onState);
     await settle();
-    expect(states).toEqual(["off"]);
+    expect(t.states).toEqual(["off"]);
+    expect(t.errors).toEqual(["NotAllowedError"]);
   });
 
   it("gives off when the phone has no Screen Wake Lock API", () => {
-    const { doc } = fakes();
-    const states: WakeState[] = [];
-    holdWakeLock({}, doc, (s) => states.push(s));
-    expect(states).toEqual(["off"]);
+    const { doc, win } = fakes();
+    const t = track();
+    holdWakeLock({}, doc, win, t.onState);
+    expect(t.states).toEqual(["off"]);
+    expect(t.errors).toEqual(["unsupported"]);
   });
 
   it("releases a lock that arrives after the stop", async () => {
-    const { doc, nav, sentinels } = fakes();
+    const { doc, win, nav, sentinels } = fakes();
     const onState = vi.fn();
-    const stop = holdWakeLock(nav, doc, onState);
+    const stop = holdWakeLock(nav, doc, win, onState);
     stop();
     await settle();
     expect(sentinels[0].release).toHaveBeenCalled();

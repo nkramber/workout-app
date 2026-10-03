@@ -261,7 +261,15 @@ func build(res ai.Result, inputs map[domain.ExerciseID]policy.Input, today strin
 			if err != nil {
 				return Plan{}, fmt.Errorf("plan: the policy: %w", err)
 			}
-			sess.Exercises = append(sess.Exercises, Exercise{Target: rec.Target, Reason: res.Reason(i, rec), Record: rec})
+			ex := Exercise{Target: rec.Target, Reason: res.Reason(i, rec), Record: rec}
+			if cal := rec.Target.Calibration; len(cal) > 0 {
+				loads, err := policy.Calibration(in, cal[0].Load)
+				if err != nil {
+					return Plan{}, fmt.Errorf("plan: the calibration loads: %w", err)
+				}
+				ex.Calibration = &loads
+			}
+			sess.Exercises = append(sess.Exercises, ex)
 		}
 		out.Sessions = append(out.Sessions, sess)
 	}

@@ -88,6 +88,24 @@ message PlannedExercise {
   // "luna" when the policy accepted the proposal of Luna, or "rules" when
   // the target is the target of the rules alone (D-23).
   string source = 7;
+  // The load of the working sets after the calibration set, for each result
+  // of the calibration table (D-150, D-267). The policy gives it, so the
+  // phone applies the table with no network (D-23). Only an exercise with a
+  // calibration set has it, and a plan of policy version 3 has none.
+  CalibrationLoads calibration_loads = 8;
+}
+
+// CalibrationLoads holds the load of the working sets for each result of the
+// one calibration set of a session (D-267).
+message CalibrationLoads {
+  // After 2 or fewer reps in reserve, or a pain rating of 1 or more.
+  int32 down_tenth_lb = 1;
+  // After 3 or 4 reps in reserve.
+  int32 keep_tenth_lb = 2;
+  // After 5 reps in reserve.
+  int32 up_one_tenth_lb = 3;
+  // After 6 or more reps in reserve.
+  int32 up_two_tenth_lb = 4;
 }
 
 // PlannedSet is one target set. A calibration set has no RIR target, so its

@@ -193,6 +193,11 @@ func TestCorePlan(t *testing.T) {
 			if e.Target.Exercise == "chest_press" && e.Target.Working[0].Load != domain.Pounds(70) {
 				t.Fatalf("chest press %+v, want 70 lb from an estimate of 100 lb", e.Target.Working)
 			}
+			// Each calibration set gets the loads of the table (D-267).
+			c := e.Calibration
+			if len(e.Target.Calibration) != 1 || c == nil || c.Keep != e.Target.Calibration[0].Load || c.Down > c.Keep || c.UpOne < c.Keep || c.UpTwo < c.UpOne {
+				t.Fatalf("%s: calibration %+v and loads %+v", e.Target.Exercise, e.Target.Calibration, c)
+			}
 		}
 	}
 

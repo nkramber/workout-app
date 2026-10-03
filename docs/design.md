@@ -81,15 +81,16 @@ Luna writes one plan summary and one short reason for each exercise, with a leng
 The workout screen shows one machine at a time. The design targets one-handed use: large targets, few taps, little typing, and tolerance of interruptions (Decision, D-71). The visual style is calm, focused, high-contrast, and minimal (Decision, D-70). Cues are visual only, with no audio and no vibration (Decision, D-58).
 
 1. The owner logs reps, weight, and reps in reserve for each set. Pain (0 to 10) and a note are optional (Decision, D-57, D-162).
-2. The rest timer starts when the owner logs a set. The owner can adjust or dismiss it (Decision, D-59).
-3. After the last set of an exercise, a brief preview names the next machine. Then the app advances automatically (Decision, D-60).
+2. The rest timer starts when the owner logs a set, with the rest of the target. The owner can adjust it by 15 seconds or dismiss it (Decision, D-59, D-270).
+3. After the last set of an exercise, a preview of 10 seconds names the next machine. Then the app advances automatically, and "Go now" advances at once (Decision, D-60, D-269).
 4. The owner can edit a prior set or skip an exercise (Decision, D-63).
 5. A busy machine gives a skip, not a substitute (Decision, D-47).
 6. "Finish now" skips the remaining exercises and records the session as ended early (Decision, D-63).
+7. A calibration set offers 0 to 6+ reps in reserve. Its result gives the load of the working sets one time. The policy puts the 4 loads in the plan, so the phone needs no network (Decision, D-266 to D-268).
 
 A workout starts from the next session of the plan that the owner did not do yet, or from another session (Decision, D-248). The reps and the weight of a set come from the target, and a tap on the reps in reserve logs the set (Decision, D-249). The plus and minus buttons of the weight move to the next weight of the machine (Decision, D-264). Each workout screen has the button "Report a symptom". It shows seven symptoms, and a pick shows the warning (Decision, D-251, D-263). While a workout is open, the plan screen refuses a new plan and an exclusion (Decision, D-252).
 
-The rest timer shows on the screen only, because the app sends no notifications (Decision, D-61). A Screen Wake Lock keeps the screen on during a workout. When the phone refuses the lock, the screen shows a notice (Decision, D-265).
+The rest timer shows on the screen only, because the app sends no notifications (Decision, D-61). The timer reads a stored end time, so it is correct after a screen lock. A Screen Wake Lock keeps the screen on during a workout. The app requests the lock again at each tap, focus, and return. When the phone refuses the lock, the screen shows a notice with the error name (Decision, D-265, D-271).
 
 The phone keeps each log and its outbox entry first, and sends the outbox to the workout service later (Decision, D-77, D-132). One call applies 100 entries or fewer, and each entry applies one time alone, keyed by its client op id (Decision, D-259). The server keeps each applied op id with no end date, so a replay changes nothing (Decision, D-257). For a workout entry, the phone wins (Decision, D-258).
 
@@ -99,7 +100,7 @@ The server stores each logged session as one Firestore document at `users/{uid}/
 
 After a session, Luna proposes the next targets from reps, load, reps in reserve, pain, skipped work, and gaps in the history (Decision, D-64). The policy checks the proposal. The app shows a concise reason that names the logged evidence (Decision, D-68). The owner can override a target, and the app keeps the recommendation, the override, and the reason as separate records (Decision, D-69). The engine handles missed sessions and long breaks (Decision, D-66).
 
-After a gap of 14 days or more, the load goes down by the long-break table (Decision, D-151, D-179). The first sessions back stop at 3 reps in reserve, with rep progression only. A new exercise starts with a calibration set from the estimate of the owner, or from the lightest weight (Decision, D-150, D-177, D-178).
+After a gap of 14 days or more, the load goes down by the long-break table (Decision, D-151, D-179). The first sessions back stop at 3 reps in reserve, with rep progression only. A new exercise starts with a calibration set from the estimate of the owner, or from the lightest weight (Decision, D-150, D-177, D-178). A session has one calibration set, and the calibration table gives the load of its working sets one time (Decision, D-267).
 
 Targets use one to three reps in reserve. Failure is rare, and it never occurs in the first sessions after a break (Decision, D-37). Loads round to the nearest 5 lb, up or down (Decision, D-65). A rounded jump can exceed a validated target, so the policy adds at most one 5 lb step for each exercise in each session (Decision, D-147).
 

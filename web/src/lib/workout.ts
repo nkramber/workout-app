@@ -8,9 +8,11 @@ import {
 import type { Plan } from "../gen/workoutapp/v1/plan_service_pb";
 import {
   OUTBOX_SCHEMA_VERSION,
+  REST_KEY,
   withReopen,
   type CardioRecord,
   type OutboxEntry,
+  type RestTimer,
   type SetRecord,
   type TargetSet,
   type WorkoutAppDB,
@@ -31,7 +33,8 @@ import { nextId } from "./uuidv7";
 // (D-261).
 export const MAX_NOTE_CHARS = 280;
 
-// The reps in reserve that the owner taps (D-249). "4+" logs 4.
+// The reps in reserve that the owner taps for a working set (D-249).
+// "4+" logs 4.
 export const RIR_CHOICES: readonly { label: string; value: number }[] = [
   { label: "0", value: 0 },
   { label: "1", value: 1 },
@@ -39,6 +42,38 @@ export const RIR_CHOICES: readonly { label: string; value: number }[] = [
   { label: "3", value: 3 },
   { label: "4+", value: 4 },
 ];
+
+// The reps in reserve of a calibration set, so the owner can give each
+// result of the calibration table (D-268). "6+" logs 6.
+export const CALIBRATION_RIR_CHOICES: readonly { label: string; value: number }[] = [
+  { label: "0", value: 0 },
+  { label: "1", value: 1 },
+  { label: "2", value: 2 },
+  { label: "3", value: 3 },
+  { label: "4", value: 4 },
+  { label: "5", value: 5 },
+  { label: "6+", value: 6 },
+];
+
+// rirChoices gives the reps in reserve of a kind of set.
+export function rirChoices(kind: "working" | "calibration"): readonly { label: string; value: number }[] {
+  return kind === "calibration" ? CALIBRATION_RIR_CHOICES : RIR_CHOICES;
+}
+
+// rirText gives the label of a logged reps in reserve: "4+" for a working
+// set at 4 or more, and "6+" for a calibration set at 6 or more.
+export function rirText(kind: "working" | "calibration", rir: number): string {
+  const top = kind === "calibration" ? 6 : 4;
+  return rir >= top ? `${top}+` : String(rir);
+}
+
+// PREVIEW_SECONDS is the time of the preview of the next machine before
+// the automatic advance (D-269).
+export const PREVIEW_SECONDS = 10;
+
+// REST_STEP_SECONDS is the change of one tap of "-15 s" or "+15 s"
+// (D-270).
+export const REST_STEP_SECONDS = 15;
 
 // WorkoutInProgressError: a workout is open, so the phone starts no other
 // one (D-252).
@@ -162,7 +197,12 @@ export function workoutExercises(plan: Plan, sessionIndex: number, weights: (exe
     if (list.length === 0) {
       list = [...new Set([...calibrationSets, ...workingSets].map((s) => s.loadTenthLb))].sort((a, b) => a - b);
     }
-    return { exerciseId: e.exerciseId, name: e.name, restSeconds: e.restSeconds, calibrationSets, workingSets, weights: list };
+    const out: WorkoutExercise = { exerciseId: e.exerciseId, name: e.name, restSeconds: e.restSeconds, calibrationSets, workingSets, weights: list };
+    const c = e.calibrationLoads;
+    if (c && calibrationSets.length > 0) {
+      out.calibrationLoads = { down: c.downTenthLb, keep: c.keepTenthLb, upOne: c.upOneTenthLb, upTwo: c.upTwoTenthLb };
+    }
+    return out;
   });
 }
 
@@ -247,6 +287,100 @@ export function logSet(store: WorkoutAppDB, workoutId: string, input: SetInput, 
   );
 }
 
+// skipExercise records the skip of an exercise (D-63, D-170): the new
+// header and its outbox entry go in one transaction. The planned sets
+// with no log are skipped work. A later log of a set on the exercise
+// removes the skip, because the server reads a logged set first.
+export function skipExercise(store: WorkoutAppDB, workoutId: string, exerciseId: string, now: Date = new Date()): Promise<WorkoutRecord> {
+  return withReopen(store, () =>
+    store.transaction("rw", store.workouts, store.outbox, async () => {
+      const w = await openWorkout(store, workoutId);
+      if (!w.exercises.some((e) => e.exerciseId === exerciseId)) throw new RangeError(`the workout has no exercise ${exerciseId}`);
+      if (w.skippedExerciseIds.includes(exerciseId)) return w;
+      const next: WorkoutRecord = { ...w, skippedExerciseIds: [...w.skippedExerciseIds, exerciseId] };
+      await store.workouts.put(next);
+      await store.outbox.add(entry("workout", w.id, w.version, headerPayload(next), now.toISOString(), now));
+      return next;
+    }),
+  );
+}
+
+export type SetChange = { reps: number; weightTenthsLb: number; rir: number; pain?: number; note?: string };
+
+// editSet changes a logged set of an open workout (D-63). The set keeps
+// its id, its kind, and its time, so it keeps its place in the order of
+// the sets. The new state and its outbox entry go in one transaction.
+export function editSet(store: WorkoutAppDB, setId: string, change: SetChange, now: Date = new Date()): Promise<SetRecord> {
+  return withReopen(store, () =>
+    store.transaction("rw", store.workouts, store.sets, store.outbox, async () => {
+      const old = await store.sets.get(setId);
+      if (!old) throw new WorkoutClosedError();
+      await openWorkout(store, old.workoutId);
+      const s: SetRecord = {
+        ...old,
+        reps: change.reps,
+        weightTenthsLb: change.weightTenthsLb,
+        rir: change.rir,
+        note: (change.note ?? "").trim(),
+      };
+      delete s.pain;
+      if (change.pain !== undefined) s.pain = change.pain;
+      await store.sets.put(s);
+      await store.outbox.add(entry("set", s.id, s.version, setPayload(s), now.toISOString(), now));
+      return s;
+    }),
+  );
+}
+
+// startRest starts the rest timer of a workout (D-59): it ends seconds
+// after now. A new timer replaces the old one.
+export function startRest(store: WorkoutAppDB, workoutId: string, seconds: number, now: Date = new Date()): Promise<void> {
+  const timer: RestTimer = { workoutId, endsAt: now.getTime() + Math.max(0, seconds) * 1000 };
+  return withReopen(store, async () => {
+    await store.meta.put({ key: REST_KEY, value: timer });
+  });
+}
+
+// restTimer gives the rest timer of a workout, or null.
+export function restTimer(store: WorkoutAppDB, workoutId: string): Promise<RestTimer | null> {
+  return withReopen(store, async () => {
+    const t = (await store.meta.get(REST_KEY))?.value as RestTimer | undefined;
+    return t && t.workoutId === workoutId ? t : null;
+  });
+}
+
+// adjustRest moves the end of the rest timer by seconds (D-270). The bound
+// of D-172 applies to the target alone, so the owner can make the rest
+// longer than 180 seconds. The remaining time never goes below 0.
+export function adjustRest(store: WorkoutAppDB, workoutId: string, seconds: number, now: Date = new Date()): Promise<void> {
+  return withReopen(store, () =>
+    store.transaction("rw", store.meta, async () => {
+      const t = (await store.meta.get(REST_KEY))?.value as RestTimer | undefined;
+      if (!t || t.workoutId !== workoutId) return;
+      const endsAt = Math.max(now.getTime(), Math.max(t.endsAt, now.getTime()) + seconds * 1000);
+      await store.meta.put({ key: REST_KEY, value: { workoutId, endsAt } satisfies RestTimer });
+    }),
+  );
+}
+
+// dismissRest stops the rest timer (D-59).
+export function dismissRest(store: WorkoutAppDB): Promise<void> {
+  return withReopen(store, () => store.meta.delete(REST_KEY));
+}
+
+// restLeft gives the whole seconds of rest that remain at now, 0 or
+// more. It reads the stored end time, so it is correct after a screen
+// lock (D-270).
+export function restLeft(t: RestTimer, now: number): number {
+  return Math.max(0, Math.ceil((t.endsAt - now) / 1000));
+}
+
+// clockText gives a time in seconds as "m:ss".
+export function clockText(seconds: number): string {
+  const s = Math.max(0, Math.floor(seconds));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+}
+
 export type CardioInput = {
   exerciseId: string;
   durationSeconds: number;
@@ -284,18 +418,30 @@ export function logCardio(store: WorkoutAppDB, workoutId: string, input: CardioI
   );
 }
 
-// finishWorkout ends a workout. Each exercise with no logged set is
-// skipped, and then the workout ended early, as with "finish now" (D-63).
-// The new header and its outbox entry go in one transaction.
+// openExercises gives each exercise that the owner did not skip and
+// that has a planned set with no log. "Finish now" ends these early
+// (D-63).
+export function openExercises(w: WorkoutRecord, logged: readonly SetRecord[]): WorkoutExercise[] {
+  return w.exercises.filter((e) => !w.skippedExerciseIds.includes(e.exerciseId) && nextSet(e, logged) !== null);
+}
+
+// finishWorkout ends a workout (D-63). Each exercise with no logged set
+// is skipped. The workout ended early when an exercise that the owner did
+// not skip has a planned set with no log, as with "finish now". The new
+// header and its outbox entry go in one transaction, and the rest timer
+// stops.
 export function finishWorkout(store: WorkoutAppDB, workoutId: string, now: Date = new Date()): Promise<WorkoutRecord> {
   return withReopen(store, () =>
-    store.transaction("rw", store.workouts, store.sets, store.outbox, async () => {
+    store.transaction("rw", [store.workouts, store.sets, store.outbox, store.meta], async () => {
       const w = await openWorkout(store, workoutId);
-      const logged = new Set((await store.sets.where("workoutId").equals(workoutId).toArray()).map((s) => s.exerciseId));
+      const sets = await store.sets.where("workoutId").equals(workoutId).toArray();
+      const logged = new Set(sets.map((s) => s.exerciseId));
       const skipped = w.exercises.map((e) => e.exerciseId).filter((id) => !logged.has(id));
-      const done: WorkoutRecord = { ...w, skippedExerciseIds: skipped, endedEarly: skipped.length > 0, finished: true };
+      const endedEarly = openExercises(w, sets).length > 0;
+      const done: WorkoutRecord = { ...w, skippedExerciseIds: skipped, endedEarly, finished: true };
       await store.workouts.put(done);
       await store.outbox.add(entry("workout", w.id, w.version, headerPayload(done), now.toISOString(), now));
+      await store.meta.delete(REST_KEY);
       return done;
     }),
   );
@@ -314,27 +460,51 @@ export function workoutCardio(store: WorkoutAppDB, workoutId: string): Promise<C
 
 // The next set of an exercise: the calibration sets first, then the
 // working sets (D-150). `number` counts from 1 inside its kind.
-export type NextSet = { kind: "working" | "calibration"; number: number; of: number; target: TargetSet };
+// fromCalibration is true when the calibration set gave the load of the
+// working set (D-267).
+export type NextSet = { kind: "working" | "calibration"; number: number; of: number; target: TargetSet; fromCalibration: boolean };
+
+// calibrationLoad gives the load of the working sets after a logged
+// calibration set, from the loads of the policy (D-150, D-267): 2 or
+// fewer reps in reserve or a pain rating of 1 or more go down, 3 or 4
+// keep the load, 5 goes up one step, and 6 or more go up two steps. It
+// gives null when the owner logged the set at a weight that is not the
+// load of the calibration target, because the table holds no load for
+// that weight. The policy code of `go/internal/policy/calibrate.go`
+// holds the same table.
+export function calibrationLoad(e: WorkoutExercise, s: Pick<SetRecord, "weightTenthsLb" | "rir" | "pain">): number | null {
+  const c = e.calibrationLoads;
+  if (!c || s.weightTenthsLb !== c.keep) return null;
+  if ((s.pain !== undefined && s.pain >= 1) || s.rir <= 2) return c.down;
+  if (s.rir >= 6) return c.upTwo;
+  if (s.rir === 5) return c.upOne;
+  return c.keep;
+}
 
 // nextSet gives the next planned set of an exercise, or null when each
-// planned set has a log.
+// planned set has a log. After the calibration set, each working set
+// gets the load of the calibration table (D-267).
 export function nextSet(e: WorkoutExercise, logged: readonly SetRecord[]): NextSet | null {
   const mine = logged.filter((s) => s.exerciseId === e.exerciseId);
-  const cal = mine.filter((s) => s.kind === "calibration").length;
-  if (cal < e.calibrationSets.length) {
-    return { kind: "calibration", number: cal + 1, of: e.calibrationSets.length, target: e.calibrationSets[cal] };
+  const cals = mine.filter((s) => s.kind === "calibration");
+  if (cals.length < e.calibrationSets.length) {
+    const n = cals.length;
+    return { kind: "calibration", number: n + 1, of: e.calibrationSets.length, target: e.calibrationSets[n], fromCalibration: false };
   }
   const work = mine.filter((s) => s.kind === "working").length;
   if (work < e.workingSets.length) {
-    return { kind: "working", number: work + 1, of: e.workingSets.length, target: e.workingSets[work] };
+    const target = e.workingSets[work];
+    const load = cals.length > 0 ? calibrationLoad(e, cals[0]) : null;
+    if (load === null) return { kind: "working", number: work + 1, of: e.workingSets.length, target, fromCalibration: false };
+    return { kind: "working", number: work + 1, of: e.workingSets.length, target: { ...target, loadTenthLb: load }, fromCalibration: true };
   }
   return null;
 }
 
-// currentExercise gives the first exercise with a planned set that has
-// no log, or null when each planned set has a log.
+// currentExercise gives the first exercise that the owner did not skip
+// and that has a planned set with no log, or null when none remains.
 export function currentExercise(w: WorkoutRecord, logged: readonly SetRecord[]): WorkoutExercise | null {
-  return w.exercises.find((e) => nextSet(e, logged) !== null) ?? null;
+  return openExercises(w, logged)[0] ?? null;
 }
 
 // stepWeight gives the next heavier (+1) or lighter (-1) weight of the
@@ -396,7 +566,7 @@ export function parseLevel(text: string): number | undefined | null {
 
 // loggedText gives one logged set, such as "8 reps at 20 lb, 2 in reserve".
 export function loggedText(s: Pick<SetRecord, "kind" | "reps" | "weightTenthsLb" | "rir" | "pain">): string {
-  const rir = s.rir >= 4 ? "4+" : String(s.rir);
+  const rir = rirText(s.kind, s.rir);
   const kind = s.kind === "calibration" ? "Calibration: " : "";
   const pain = s.pain !== undefined ? `, pain ${s.pain}` : "";
   return `${kind}${s.reps} ${s.reps === 1 ? "rep" : "reps"} at ${formatPounds(s.weightTenthsLb)} lb, ${rir} in reserve${pain}`;

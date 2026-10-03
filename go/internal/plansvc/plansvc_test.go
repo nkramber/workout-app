@@ -145,6 +145,12 @@ func TestRequestPlan(t *testing.T) {
 		len(e.GetCalibrationSets()) != 1 || len(e.GetWorkingSets()) != 3 || e.GetWorkingSets()[0].GetLoadTenthLb() != 100 || e.GetWorkingSets()[0].GetRirTarget() != 3 {
 		t.Fatalf("exercise %v", e)
 	}
+	// The calibration loads of D-267. The machine has 10 lb steps from
+	// 10 lb, so a hard set and one 5 lb step keep the load, and two steps
+	// give 20 lb.
+	if c := e.GetCalibrationLoads(); c.GetDownTenthLb() != 100 || c.GetKeepTenthLb() != 100 || c.GetUpOneTenthLb() != 100 || c.GetUpTwoTenthLb() != 200 {
+		t.Fatalf("calibration loads %v", c)
+	}
 
 	res, err := f.client.GetPlan(context.Background(), as("uid-a", &workoutappv1.GetPlanRequest{}))
 	if err != nil || res.Msg.GetPlan().GetCreatedAt() != p.GetCreatedAt() || len(res.Msg.GetExclusions()) != 0 {

@@ -1,4 +1,4 @@
-policy version: 3
+policy version: 4
 rules: progress.shortfall-twice
 target: biceps_curl, rest 120 s
   working[0]: 12 reps at 20 lb, 2 RIR

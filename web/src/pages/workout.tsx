@@ -1,6 +1,6 @@
 import { useQuery } from "@connectrpc/connect-query";
 import { useLiveQuery } from "dexie-react-hooks";
-import { useId, useState, type ReactNode } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 
 import { InventoryService } from "../gen/workoutapp/v1/inventory_service_pb";
 import { PlanService, type Plan } from "../gen/workoutapp/v1/plan_service_pb";
@@ -9,11 +9,15 @@ import { loadErrorText } from "../lib/errors";
 import { available, formatPounds } from "../lib/inventory";
 import { restText, setText } from "../lib/plan";
 import { PAIN_WARNING, SYMPTOMS, symptomWarning } from "../lib/symptoms";
-import type { WakeState } from "../lib/wake-lock";
+import type { WakeStatus } from "../lib/wake-lock";
 import {
   activeWorkout,
+  adjustRest,
+  clockText,
   currentExercise,
+  dismissRest,
   doneSessions,
+  editSet,
   finishWorkout,
   logCardio,
   loggedText,
@@ -22,9 +26,16 @@ import {
   nextSession,
   nextSet,
   noteLength,
+  openExercises,
   parseLevel,
   parseMiles,
-  RIR_CHOICES,
+  PREVIEW_SECONDS,
+  REST_STEP_SECONDS,
+  restLeft,
+  restTimer,
+  rirChoices,
+  skipExercise,
+  startRest,
   startWorkout,
   stepMinutes,
   stepReps,
@@ -40,7 +51,7 @@ import { danger, ErrorText, field, primary, secondary, Title } from "./inventory
 // keeps each log first, with its outbox entry (D-62, D-132), so a workout
 // needs no network after its start. The screen uses large targets and few
 // taps (D-71), and each cue is visual alone (D-58).
-export function WorkoutPage({ onBack, wake }: { onBack: () => void; wake: WakeState }) {
+export function WorkoutPage({ onBack, wake }: { onBack: () => void; wake: WakeStatus }) {
   // null while the store loads, and undefined when no workout is open.
   const active = useLiveQuery(() => activeWorkout(db), [], null);
   if (active === null) return <p className="text-slate-400">Loading…</p>;
@@ -158,26 +169,81 @@ function SessionSummary({ plan, index }: { plan: Plan; index: number }) {
   );
 }
 
-// The open dialog of the workout: the list of symptoms, or a warning.
-type Dialog = { kind: "symptoms" } | { kind: "warning"; text: string } | { kind: "finish"; skipped: number };
+// The open dialog of the workout: the list of symptoms, a warning, the
+// confirmation of "finish now" or of a skip, or the edit of a logged set.
+type Dialog =
+  | { kind: "symptoms" }
+  | { kind: "warning"; text: string }
+  | { kind: "finish"; open: number; unstarted: number }
+  | { kind: "skip"; exercise: WorkoutExercise }
+  | { kind: "edit"; set: SetRecord; exercise: WorkoutExercise };
+
+// The preview of the next machine after the last set of an exercise
+// (D-60, D-269). until is the end of the preview in milliseconds.
+type Preview = { done: string; next: string; until: number };
+
+// useNow gives the time in milliseconds. While `on` is true, it renders
+// again 4 times each second and at each return to the front, so a timer
+// reads the stored end time again after a screen lock (D-270).
+function useNow(on: boolean): number {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!on) return;
+    const tick = () => setNow(Date.now());
+    tick();
+    const t = setInterval(tick, 250);
+    document.addEventListener("visibilitychange", tick);
+    return () => {
+      clearInterval(t);
+      document.removeEventListener("visibilitychange", tick);
+    };
+  }, [on]);
+  return now;
+}
 
 // ActiveWorkout is the open workout. It shows a notice when the phone
-// refuses the screen wake lock of the app (D-265).
-function ActiveWorkout({ workout: w, wake, onBack }: { workout: WorkoutRecord; wake: WakeState; onBack: () => void }) {
+// refuses the screen wake lock of the app (D-265, D-271). A logged set
+// starts the rest timer (D-59). After the last set of an exercise, the
+// screen shows the next machine for PREVIEW_SECONDS, then advances
+// (D-60, D-269). Each cue is visual alone, and the app sends no
+// notification (D-58, D-61).
+function ActiveWorkout({ workout: w, wake, onBack }: { workout: WorkoutRecord; wake: WakeStatus; onBack: () => void }) {
   const sets = useLiveQuery(() => workoutSets(db, w.id), [w.id], null);
   const cardio = useLiveQuery(() => workoutCardio(db, w.id), [w.id], null);
+  const rest = useLiveQuery(() => restTimer(db, w.id), [w.id], null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [preview, setPreview] = useState<Preview | null>(null);
   const [dialog, setDialog] = useState<Dialog | null>(null);
   const [error, setError] = useState("");
+  const now = useNow(rest !== null || preview !== null);
+  const previewOn = preview !== null && now < preview.until;
+  useEffect(() => {
+    if (preview && !previewOn) setPreview(null);
+  }, [preview, previewOn]);
 
   if (sets === null || cardio === null) return <p className="text-slate-400">Loading…</p>;
 
   // The exercise that the owner picked, while it has a set with no log.
-  // Otherwise the first exercise with a set with no log.
+  // Otherwise the first exercise that the owner did not skip, with a set
+  // with no log.
   const picked = w.exercises.find((e) => e.exerciseId === selected);
   const exercise = picked && nextSet(picked, sets) ? picked : currentExercise(w, sets);
   const next = exercise ? nextSet(exercise, sets) : null;
-  const skipped = w.exercises.filter((e) => !sets.some((s) => s.exerciseId === e.exerciseId)).length;
+  const open = openExercises(w, sets);
+  const unstarted = open.filter((e) => !sets.some((s) => s.exerciseId === e.exerciseId)).length;
+  const previewNext = previewOn ? w.exercises.find((e) => e.exerciseId === preview.next) : undefined;
+
+  // onLogged starts the rest timer, and starts the preview after the
+  // last set of an exercise when another exercise remains.
+  const onLogged = (done: WorkoutExercise, s: SetRecord) => {
+    void startRest(db, w.id, done.restSeconds).catch(() => {});
+    const after = sets.some((x) => x.id === s.id) ? sets : [...sets, s];
+    if (nextSet(done, after) !== null) return;
+    const following = currentExercise(w, after);
+    if (!following) return;
+    setSelected(following.exerciseId);
+    setPreview({ done: done.name, next: following.exerciseId, until: Date.now() + PREVIEW_SECONDS * 1000 });
+  };
 
   const finish = async () => {
     setError("");
@@ -190,12 +256,26 @@ function ActiveWorkout({ workout: w, wake, onBack }: { workout: WorkoutRecord; w
     }
   };
 
+  const skip = async (e: WorkoutExercise) => {
+    setError("");
+    setDialog(null);
+    try {
+      await skipExercise(db, w.id, e.exerciseId);
+      setSelected(null);
+    } catch {
+      setError("The phone did not save the skip. Try again.");
+    }
+  };
+
+  const restAction = (work: () => Promise<void>) => void work().catch(() => setError("The phone did not save the rest timer. Try again."));
+
   return (
     <div className="space-y-6">
       <Title onBack={onBack}>{w.title}</Title>
-      {wake === "off" && (
+      {wake.state === "off" && (
         <p className="text-sm text-amber-300" data-testid="wake-off">
-          The screen can turn off.
+          The screen can turn off. Tap the screen to try again.{" "}
+          <span className="text-amber-400/80" data-testid="wake-error">{`(${wake.error})`}</span>
         </p>
       )}
       <ErrorText testId="workout-error">{error}</ErrorText>
@@ -204,22 +284,50 @@ function ActiveWorkout({ workout: w, wake, onBack }: { workout: WorkoutRecord; w
         Report a symptom
       </button>
 
-      {exercise && next ? (
+      {rest && (
+        <RestCard
+          left={restLeft(rest, now)}
+          onLess={() => restAction(() => adjustRest(db, w.id, -REST_STEP_SECONDS))}
+          onMore={() => restAction(() => adjustRest(db, w.id, REST_STEP_SECONDS))}
+          onDismiss={() => restAction(() => dismissRest(db))}
+        />
+      )}
+
+      {preview && previewNext ? (
+        <NextPreview
+          done={preview.done}
+          next={previewNext}
+          sets={sets}
+          seconds={Math.max(1, Math.ceil((preview.until - now) / 1000))}
+          onGo={() => setPreview(null)}
+        />
+      ) : exercise && next ? (
         <SetLogger
           key={`${exercise.exerciseId}-${next.kind}-${next.number}`}
           workoutId={w.id}
           exercise={exercise}
           next={next}
+          onLogged={(s) => onLogged(exercise, s)}
+          onSkip={() => setDialog({ kind: "skip", exercise })}
           onWarn={(text) => setDialog({ kind: "warning", text })}
           onError={setError}
         />
       ) : (
         <p className="rounded-lg border border-emerald-800 bg-emerald-950 p-3 text-emerald-100" data-testid="sets-done">
-          Each planned set has a log.
+          No planned set remains.
         </p>
       )}
 
-      <ExerciseList workout={w} sets={sets} current={exercise?.exerciseId} onPick={setSelected} />
+      <ExerciseList
+        workout={w}
+        sets={sets}
+        current={previewOn ? undefined : exercise?.exerciseId}
+        onPick={(id) => {
+          setPreview(null);
+          setSelected(id);
+        }}
+        onEdit={(set, e) => setDialog({ kind: "edit", set, exercise: e })}
+      />
 
       {w.cardio && (
         <CardioCard
@@ -234,9 +342,9 @@ function ActiveWorkout({ workout: w, wake, onBack }: { workout: WorkoutRecord; w
       <button
         type="button"
         className={`${secondary} w-full`}
-        onClick={() => (skipped > 0 ? setDialog({ kind: "finish", skipped }) : void finish())}
+        onClick={() => (open.length > 0 ? setDialog({ kind: "finish", open: open.length, unstarted }) : void finish())}
       >
-        {skipped > 0 ? "Finish now" : "Finish workout"}
+        {open.length > 0 ? "Finish now" : "Finish workout"}
       </button>
 
       {dialog?.kind === "symptoms" && (
@@ -276,9 +384,7 @@ function ActiveWorkout({ workout: w, wake, onBack }: { workout: WorkoutRecord; w
       {dialog?.kind === "finish" && (
         <Modal title="Finish now?" onClose={() => setDialog(null)}>
           <p className="text-slate-200" data-testid="finish-text">
-            {`${dialog.skipped} ${dialog.skipped === 1 ? "exercise has" : "exercises have"} no logged set. ${
-              dialog.skipped === 1 ? "It counts" : "They count"
-            } as skipped, and the workout ends early.`}
+            {finishText(dialog.open, dialog.unstarted)}
           </p>
           <div className="flex flex-col gap-3">
             <button type="button" className={`${danger} min-h-14`} onClick={() => void finish()}>
@@ -290,24 +396,133 @@ function ActiveWorkout({ workout: w, wake, onBack }: { workout: WorkoutRecord; w
           </div>
         </Modal>
       )}
+      {dialog?.kind === "skip" && (
+        <Modal title={`Skip ${dialog.exercise.name}?`} onClose={() => setDialog(null)}>
+          <p className="text-slate-200" data-testid="skip-text">
+            Each set with no log counts as skipped, and the next session repeats the target of this exercise.
+          </p>
+          <div className="flex flex-col gap-3">
+            <button type="button" className={`${danger} min-h-14`} onClick={() => void skip(dialog.exercise)}>
+              Skip
+            </button>
+            <button type="button" className={`${secondary} min-h-14`} onClick={() => setDialog(null)}>
+              Cancel
+            </button>
+          </div>
+        </Modal>
+      )}
+      {dialog?.kind === "edit" && (
+        <Modal title={`Edit: ${dialog.exercise.name}`} onClose={() => setDialog(null)}>
+          <EditSet
+            set={dialog.set}
+            exercise={dialog.exercise}
+            onDone={() => setDialog(null)}
+            onWarn={(text) => setDialog({ kind: "warning", text })}
+          />
+        </Modal>
+      )}
     </div>
+  );
+}
+
+// finishText gives the text of the confirmation of "finish now" (D-63).
+function finishText(open: number, unstarted: number): string {
+  const first = `${open} ${open === 1 ? "exercise has" : "exercises have"} a set with no log, so the workout ends early.`;
+  if (unstarted === 0) return first;
+  return `${first} ${unstarted === 1 ? "An exercise" : `${unstarted} exercises`} with no logged set ${unstarted === 1 ? "counts" : "count"} as skipped.`;
+}
+
+// RestCard shows the rest timer (D-59, D-270). It reads the stored end
+// time, so it is correct after a screen lock. At 0 the card changes
+// color and shows "Rest done", with no sound and no vibration (D-58).
+function RestCard({ left, onLess, onMore, onDismiss }: { left: number; onLess: () => void; onMore: () => void; onDismiss: () => void }) {
+  const done = left === 0;
+  const control = "min-h-14 rounded-lg border text-lg font-semibold active:bg-slate-800";
+  return (
+    <section
+      className={`space-y-3 rounded-lg border p-3 ${done ? "border-emerald-400 bg-emerald-900" : "border-slate-700"}`}
+      aria-label="Rest timer"
+      data-testid="rest-timer"
+      data-done={done}
+    >
+      <div className="flex items-baseline justify-between">
+        <span className={`text-lg font-semibold ${done ? "text-emerald-50" : "text-slate-300"}`} data-testid="rest-state">
+          {done ? "Rest done" : "Rest"}
+        </span>
+        <span role="timer" className="text-5xl font-semibold tabular-nums text-slate-50" data-testid="rest-left">
+          {clockText(left)}
+        </span>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        <button type="button" aria-label="15 seconds less rest" className={`${control} border-slate-600 text-slate-100`} onClick={onLess}>
+          −15 s
+        </button>
+        <button type="button" aria-label="15 seconds more rest" className={`${control} border-slate-600 text-slate-100`} onClick={onMore}>
+          +15 s
+        </button>
+        <button type="button" className={`${control} border-slate-600 text-slate-100`} onClick={onDismiss}>
+          Dismiss
+        </button>
+      </div>
+    </section>
+  );
+}
+
+// NextPreview shows the next machine after the last set of an exercise
+// (D-60, D-269). "Go now" advances at once.
+function NextPreview({
+  done,
+  next,
+  sets,
+  seconds,
+  onGo,
+}: {
+  done: string;
+  next: WorkoutExercise;
+  sets: SetRecord[];
+  seconds: number;
+  onGo: () => void;
+}) {
+  const first = nextSet(next, sets);
+  return (
+    <section className="space-y-3 rounded-lg border border-emerald-700 bg-emerald-950 p-3" aria-label="Next machine" data-testid="next-preview">
+      <p className="font-semibold text-emerald-100" data-testid="preview-done">{`${done} is done.`}</p>
+      <div>
+        <p className="text-xl font-semibold text-slate-50" data-testid="preview-next">{`Next: ${next.name}`}</p>
+        {first && (
+          <p className="text-sm text-slate-300" data-testid="preview-target">
+            {`${first.kind === "calibration" ? "Calibration set" : "Set"} ${first.number} of ${first.of}: ${setText(first.target, first.kind === "calibration")}.`}
+          </p>
+        )}
+      </div>
+      <p className="text-sm text-slate-400" data-testid="preview-seconds">{`The next machine shows in ${seconds} s.`}</p>
+      <button type="button" className={`${primary} min-h-14 w-full`} onClick={onGo}>
+        Go now
+      </button>
+    </section>
   );
 }
 
 // SetLogger logs the next set of an exercise (D-249). The reps and the
 // weight come from the target, and the plus and minus buttons change
-// them. A tap on the reps in reserve logs the set. Pain and a note are
-// optional, behind one tap (D-57, D-162).
+// them. A tap on the reps in reserve logs the set. A calibration set
+// offers 0 to 6+ (D-268), and after it the working sets get the load of
+// the calibration table (D-267). Pain and a note are optional, behind
+// one tap (D-57, D-162).
 function SetLogger({
   workoutId,
   exercise,
   next,
+  onLogged,
+  onSkip,
   onWarn,
   onError,
 }: {
   workoutId: string;
   exercise: WorkoutExercise;
   next: NextSet;
+  onLogged: (s: SetRecord) => void;
+  onSkip: () => void;
   onWarn: (text: string) => void;
   onError: (text: string) => void;
 }) {
@@ -324,7 +539,8 @@ function SetLogger({
     setBusy(true);
     onError("");
     try {
-      await logSet(db, workoutId, { exerciseId: exercise.exerciseId, kind: next.kind, reps, weightTenthsLb: weight, rir, pain, note });
+      const s = await logSet(db, workoutId, { exerciseId: exercise.exerciseId, kind: next.kind, reps, weightTenthsLb: weight, rir, pain, note });
+      onLogged(s);
       if (pain !== undefined && pain >= 1) onWarn(PAIN_WARNING);
     } catch {
       onError("The phone did not save the set. Try again.");
@@ -344,6 +560,11 @@ function SetLogger({
         <p className="text-sm text-slate-400" data-testid="set-target">
           {`Target: ${setText(next.target, calibration)}. Rest ${restText(exercise.restSeconds)}.`}
         </p>
+        {next.fromCalibration && (
+          <p className="text-sm text-sky-200" data-testid="calibration-note">
+            The calibration set gave this load.
+          </p>
+        )}
       </div>
 
       <Stepper
@@ -369,8 +590,8 @@ function SetLogger({
         <p className="text-sm font-semibold text-slate-100">
           {calibration ? "Stop at 3 to 4 reps in reserve. Tap the reps in reserve to log the set." : "Tap the reps in reserve to log the set."}
         </p>
-        <div className="grid grid-cols-5 gap-2">
-          {RIR_CHOICES.map((c) => (
+        <div className={`grid gap-2 ${calibration ? "grid-cols-4" : "grid-cols-5"}`}>
+          {rirChoices(next.kind).map((c) => (
             <button
               key={c.label}
               type="button"
@@ -385,9 +606,14 @@ function SetLogger({
         </div>
       </div>
 
-      <button type="button" className={secondary} aria-expanded={more} onClick={() => setMore(!more)}>
-        {more ? "Hide pain and note" : "Add pain or a note"}
-      </button>
+      <div className="flex flex-wrap gap-3">
+        <button type="button" className={secondary} aria-expanded={more} onClick={() => setMore(!more)}>
+          {more ? "Hide pain and note" : "Add pain or a note"}
+        </button>
+        <button type="button" className={secondary} onClick={onSkip}>
+          Skip this exercise
+        </button>
+      </div>
       {more && (
         <div className="space-y-3">
           <PainPicker value={pain} onChange={setPain} />
@@ -395,6 +621,98 @@ function SetLogger({
         </div>
       )}
     </section>
+  );
+}
+
+// EditSet changes a logged set (D-63). The set keeps its kind, so the
+// reps in reserve are the choices of its kind.
+function EditSet({
+  set,
+  exercise,
+  onDone,
+  onWarn,
+}: {
+  set: SetRecord;
+  exercise: WorkoutExercise;
+  onDone: () => void;
+  onWarn: (text: string) => void;
+}) {
+  const [reps, setReps] = useState(set.reps);
+  const [weight, setWeight] = useState(set.weightTenthsLb);
+  const [rir, setRir] = useState(Math.min(set.rir, set.kind === "calibration" ? 6 : 4));
+  const [pain, setPain] = useState<number | undefined>(set.pain);
+  const [note, setNote] = useState(set.note);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const tooLong = noteLength(note) > MAX_NOTE_CHARS;
+  const rirId = useId();
+
+  const save = async () => {
+    setBusy(true);
+    setError("");
+    try {
+      await editSet(db, set.id, { reps, weightTenthsLb: weight, rir, pain, note });
+      if (pain !== undefined && pain >= 1 && pain !== set.pain) onWarn(PAIN_WARNING);
+      else onDone();
+    } catch {
+      setError("The phone did not save the change. Try again.");
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4" data-testid="edit-set">
+      <Stepper
+        label="Reps"
+        value={String(reps)}
+        testId="edit-reps"
+        less="Fewer reps"
+        more="More reps"
+        onLess={() => setReps(stepReps(reps, -1))}
+        onMore={() => setReps(stepReps(reps, 1))}
+      />
+      <Stepper
+        label="Weight"
+        value={`${formatPounds(weight)} lb`}
+        testId="edit-weight"
+        less="Lighter"
+        more="Heavier"
+        onLess={() => setWeight(stepWeight(exercise.weights, weight, -1))}
+        onMore={() => setWeight(stepWeight(exercise.weights, weight, 1))}
+      />
+      <div className="space-y-2" role="group" aria-labelledby={rirId}>
+        <p id={rirId} className="text-sm font-semibold text-slate-100">
+          Reps in reserve
+        </p>
+        <div className={`grid gap-2 ${set.kind === "calibration" ? "grid-cols-4" : "grid-cols-5"}`}>
+          {rirChoices(set.kind).map((c) => (
+            <button
+              key={c.label}
+              type="button"
+              aria-label={`${c.label} in reserve`}
+              aria-pressed={rir === c.value}
+              className={`min-h-14 rounded-lg border text-xl font-semibold ${
+                rir === c.value ? "border-sky-400 bg-sky-700 text-white" : "border-slate-700 text-slate-100"
+              }`}
+              onClick={() => setRir(c.value)}
+            >
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <PainPicker value={pain} onChange={setPain} />
+      <NoteField value={note} onChange={setNote} />
+      <ErrorText testId="edit-error">{error}</ErrorText>
+      <div className="flex flex-col gap-3">
+        <button type="button" className={`${primary} min-h-14`} disabled={busy || tooLong} onClick={() => void save()}>
+          Save the change
+        </button>
+        <button type="button" className={`${secondary} min-h-14`} onClick={onDone}>
+          Cancel
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -477,17 +795,20 @@ function NoteField({ value, onChange }: { value: string; onChange: (v: string) =
 }
 
 // ExerciseList shows each exercise with its logged sets. A tap picks the
-// exercise of the next log.
+// exercise of the next log, and a skipped exercise can be picked again.
+// Each logged set has an edit button (D-63).
 function ExerciseList({
   workout,
   sets,
   current,
   onPick,
+  onEdit,
 }: {
   workout: WorkoutRecord;
   sets: SetRecord[];
   current: string | undefined;
   onPick: (exerciseId: string) => void;
+  onEdit: (s: SetRecord, e: WorkoutExercise) => void;
 }) {
   return (
     <section className="space-y-3" aria-label="Exercises">
@@ -496,6 +817,7 @@ function ExerciseList({
         const mine = sets.filter((s) => s.exerciseId === e.exerciseId);
         const planned = e.calibrationSets.length + e.workingSets.length;
         const open = nextSet(e, sets) !== null;
+        const skipped = workout.skippedExerciseIds.includes(e.exerciseId) && open;
         return (
           <div key={e.exerciseId} className="space-y-1 border-t border-slate-800 pt-2" data-testid="workout-exercise" data-exercise-id={e.exerciseId}>
             <button
@@ -509,11 +831,26 @@ function ExerciseList({
             >
               <span className="font-medium">{e.name}</span>{" "}
               <span className="text-sm text-slate-400" data-testid="exercise-count">{`${mine.length} of ${planned} sets`}</span>
+              {skipped && (
+                <span className="ml-2 text-sm text-amber-300" data-testid="exercise-skipped">
+                  Skipped
+                </span>
+              )}
             </button>
             {mine.length > 0 && (
-              <ul className="px-3 text-sm text-slate-300" data-testid="logged-sets">
-                {mine.map((s) => (
-                  <li key={s.id}>{loggedText(s)}</li>
+              <ul className="space-y-1 px-3 text-sm text-slate-300" data-testid="logged-sets">
+                {mine.map((s, i) => (
+                  <li key={s.id} className="flex items-center justify-between gap-2">
+                    <span data-testid="logged-text">{loggedText(s)}</span>
+                    <button
+                      type="button"
+                      aria-label={`Edit set ${i + 1} of ${e.name}`}
+                      className="min-h-11 min-w-14 rounded-lg border border-slate-700 px-3 text-slate-100 active:bg-slate-800"
+                      onClick={() => onEdit(s, e)}
+                    >
+                      Edit
+                    </button>
+                  </li>
                 ))}
               </ul>
             )}
