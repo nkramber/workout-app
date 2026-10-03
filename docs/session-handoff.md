@@ -21,9 +21,9 @@ The owner approved the milestone before the first edit (D-12), and answered Q-27
 
 `make contract`, `make go-test`, `make emulator-test`, `make web`, and `make verify` passed.
 
-State: PR-30 (GitHub #31) is open. Codex round 1 gave "Changes required" at `1ef826c` with P2-1 and P2-2. The author found full merit in both. The cardio fields now fit their `int32` fields, and a release of the wake lock while the app shows gives a request again, then "off". `docs/reviews/pr-31-response.md` holds the answers.
+State: PR-30 (GitHub #31) is open. Codex round 2 gives "Ready for owner merge" at `ef2634a`. The two findings are fixed, and the local web and verification checks pass. The review record is `docs/reviews/pr-31.md`. The review-gate check must pass on the new metadata commit.
 
-Next action: wait for CI, then run Codex round 2 (D-8).
+Next action: wait for CI, then ask the owner to confirm the merge (D-13).
 
 The merge changes `go/` and `web/`, so it deploys both. The session of PR-31 reads both deploys first. Then one live plan of prompt v5 checks the reason of a new exercise (D-212). The owner also checks the wake lock and a set log on the iPhone.
 
