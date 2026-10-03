@@ -19,7 +19,7 @@ The owner approved the milestone, then widened it to "the Phase 5 live check and
 
 `make verify`, `make go-test`, `make emulator-test`, and `make web` passed.
 
-State: Codex gave `Ready for owner merge` at `3317cde`. Next action: publish the review record, check `review-gate`, and ask the owner to confirm the merge.
+State: the review record gives `Ready for owner merge` at `3317cde`, and `review-gate` passes. Next action: ask the owner to confirm the merge.
 
 The merge changes `go/` and `web/`, so it deploys both. The session of PR-29 reads both deploys, then asks the owner for one live plan at xhigh (D-212). The owner also reads the bottom edge of the plan screen on the iPhone.
 
