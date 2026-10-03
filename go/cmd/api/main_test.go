@@ -338,7 +338,8 @@ func TestProviderFromEnvDelay(t *testing.T) {
 			t.Fatalf("delay %q = %+v, %v, want %v", v, p, err, want)
 		}
 	}
-	for _, v := range []string{"-1", "1.5", "1s", "60001"} {
+	// 9223372036855 ms overflows a time.Duration to a negative value.
+	for _, v := range []string{"-1", "1.5", "1s", "60001", "9223372036855"} {
 		if _, err := providerFromEnv(env(v))(""); err == nil || !strings.Contains(err.Error(), EnvFakeDelay) {
 			t.Fatalf("delay %q = %v, want a refusal", v, err)
 		}

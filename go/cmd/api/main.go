@@ -91,7 +91,9 @@ func providerFromEnv(getenv func(string) string) ProviderFunc {
 			f := &ai.Fake{}
 			if v := getenv(EnvFakeDelay); v != "" {
 				ms, err := strconv.Atoi(v)
-				if err != nil || ms < 0 || time.Duration(ms)*time.Millisecond > maxFakeDelay {
+				// The bound reads the number before the conversion, so a large
+				// value can not overflow into a short delay.
+				if err != nil || ms < 0 || int64(ms) > maxFakeDelay.Milliseconds() {
 					return nil, fmt.Errorf("%s: want a whole number of milliseconds from 0 to %d", EnvFakeDelay, maxFakeDelay.Milliseconds())
 				}
 				f.Delay = time.Duration(ms) * time.Millisecond
