@@ -4,13 +4,15 @@
 
 import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { DumbbellSet, Estimate } from "./inventory_service_pb";
+import { file_workoutapp_v1_inventory_service } from "./inventory_service_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file workoutapp/v1/workout_service.proto.
  */
 export const file_workoutapp_v1_workout_service: GenFile = /*@__PURE__*/
-  fileDesc("CiN3b3Jrb3V0YXBwL3YxL3dvcmtvdXRfc2VydmljZS5wcm90bxINd29ya291dGFwcC52MSKLAgoLT3V0Ym94RW50cnkSDQoFb3BfaWQYASABKAkSDgoGZW50aXR5GAIgASgJEhEKCWVudGl0eV9pZBgDIAEoCRIUCgxiYXNlX3ZlcnNpb24YBCABKAMSCgoCYXQYBSABKAkSFgoOc2NoZW1hX3ZlcnNpb24YBiABKAUSLwoHd29ya291dBgHIAEoCzIcLndvcmtvdXRhcHAudjEuV29ya291dEhlYWRlckgAEiYKA3NldBgIIAEoCzIXLndvcmtvdXRhcHAudjEuU2V0RW50cnlIABIsCgZjYXJkaW8YCSABKAsyGi53b3Jrb3V0YXBwLnYxLkNhcmRpb0VudHJ5SABCCQoHcGF5bG9hZCI6CghQbGFuTGluaxIXCg9wbGFuX2NyZWF0ZWRfYXQYASABKAkSFQoNc2Vzc2lvbl9pbmRleBgCIAEoBSKJAQoNV29ya291dEhlYWRlchIMCgRkYXRlGAEgASgJEiUKBHBsYW4YAiABKAsyFy53b3Jrb3V0YXBwLnYxLlBsYW5MaW5rEhwKFHNraXBwZWRfZXhlcmNpc2VfaWRzGAMgAygJEhMKC2VuZGVkX2Vhcmx5GAQgASgIEhAKCGZpbmlzaGVkGAUgASgIIqABCghTZXRFbnRyeRISCgp3b3Jrb3V0X2lkGAEgASgJEhMKC2V4ZXJjaXNlX2lkGAIgASgJEgwKBGtpbmQYAyABKAkSDAoEcmVwcxgEIAEoBRIYChB3ZWlnaHRfdGVudGhzX2xiGAUgASgDEgsKA3JpchgGIAEoBRIRCgRwYWluGAcgASgFSACIAQESDAoEbm90ZRgIIAEoCUIHCgVfcGFpbiLqAQoLQ2FyZGlvRW50cnkSEgoKd29ya291dF9pZBgBIAEoCRITCgtleGVyY2lzZV9pZBgCIAEoCRIYChBkdXJhdGlvbl9zZWNvbmRzGAMgASgFEg4KBmVmZm9ydBgEIAEoBRIfChJkaXN0YW5jZV90ZW50aHNfbWkYBSABKAVIAIgBARIXCgpyZXNpc3RhbmNlGAYgASgFSAGIAQESEQoEcGFpbhgHIAEoBUgCiAEBEgwKBG5vdGUYCCABKAlCFQoTX2Rpc3RhbmNlX3RlbnRoc19taUINCgtfcmVzaXN0YW5jZUIHCgVfcGFpbiLJAQoLRW50cnlSZXN1bHQSDQoFb3BfaWQYASABKAkSMQoGc3RhdHVzGAIgASgOMiEud29ya291dGFwcC52MS5FbnRyeVJlc3VsdC5TdGF0dXMSDwoHdmVyc2lvbhgDIAEoAxIMCgRjb2RlGAQgASgJEg8KB21lc3NhZ2UYBSABKAkiSAoGU3RhdHVzEhYKElNUQVRVU19VTlNQRUNJRklFRBAAEhIKDlNUQVRVU19BUFBMSUVEEAESEgoOU1RBVFVTX1JFRlVTRUQQAiJAChFTeW5jT3V0Ym94UmVxdWVzdBIrCgdlbnRyaWVzGAEgAygLMhoud29ya291dGFwcC52MS5PdXRib3hFbnRyeSJBChJTeW5jT3V0Ym94UmVzcG9uc2USKwoHcmVzdWx0cxgBIAMoCzIaLndvcmtvdXRhcHAudjEuRW50cnlSZXN1bHQiiAEKCUxvZ2dlZFNldBIOCgZzZXRfaWQYASABKAkSDAoEa2luZBgCIAEoCRIMCgRyZXBzGAMgASgFEhgKEHdlaWdodF90ZW50aHNfbGIYBCABKAMSCwoDcmlyGAUgASgFEhEKBHBhaW4YBiABKAVIAIgBARIMCgRub3RlGAcgASgJQgcKBV9wYWluIl4KDkxvZ2dlZEV4ZXJjaXNlEhMKC2V4ZXJjaXNlX2lkGAEgASgJEg8KB3NraXBwZWQYAiABKAgSJgoEc2V0cxgDIAMoCzIYLndvcmtvdXRhcHAudjEuTG9nZ2VkU2V0IuoBCgxMb2dnZWRDYXJkaW8SEQoJY2FyZGlvX2lkGAEgASgJEhMKC2V4ZXJjaXNlX2lkGAIgASgJEhgKEGR1cmF0aW9uX3NlY29uZHMYAyABKAUSDgoGZWZmb3J0GAQgASgFEh8KEmRpc3RhbmNlX3RlbnRoc19taRgFIAEoBUgAiAEBEhcKCnJlc2lzdGFuY2UYBiABKAVIAYgBARIRCgRwYWluGAcgASgFSAKIAQESDAoEbm90ZRgIIAEoCUIVChNfZGlzdGFuY2VfdGVudGhzX21pQg0KC19yZXNpc3RhbmNlQgcKBV9wYWluItgBCgdXb3Jrb3V0EhIKCndvcmtvdXRfaWQYASABKAkSDAoEZGF0ZRgCIAEoCRIlCgRwbGFuGAMgASgLMhcud29ya291dGFwcC52MS5QbGFuTGluaxITCgtlbmRlZF9lYXJseRgEIAEoCBIQCghmaW5pc2hlZBgFIAEoCBIwCglleGVyY2lzZXMYBiADKAsyHS53b3Jrb3V0YXBwLnYxLkxvZ2dlZEV4ZXJjaXNlEisKBmNhcmRpbxgHIAMoCzIbLndvcmtvdXRhcHAudjEuTG9nZ2VkQ2FyZGlvIjgKE0xpc3RXb3Jrb3V0c1JlcXVlc3QSDQoFbGltaXQYASABKAUSEgoKcGFnZV90b2tlbhgCIAEoCSJZChRMaXN0V29ya291dHNSZXNwb25zZRIoCgh3b3Jrb3V0cxgBIAMoCzIWLndvcmtvdXRhcHAudjEuV29ya291dBIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkywAEKDldvcmtvdXRTZXJ2aWNlElMKClN5bmNPdXRib3gSIC53b3Jrb3V0YXBwLnYxLlN5bmNPdXRib3hSZXF1ZXN0GiEud29ya291dGFwcC52MS5TeW5jT3V0Ym94UmVzcG9uc2UiABJZCgxMaXN0V29ya291dHMSIi53b3Jrb3V0YXBwLnYxLkxpc3RXb3Jrb3V0c1JlcXVlc3QaIy53b3Jrb3V0YXBwLnYxLkxpc3RXb3Jrb3V0c1Jlc3BvbnNlIgBCQ1pBZ2l0aHViLmNvbS9ua3JhbWJlci93b3Jrb3V0LWFwcC9nby9nZW4vd29ya291dGFwcC92MTt3b3Jrb3V0YXBwdjFiBnByb3RvMw");
+  fileDesc("CiN3b3Jrb3V0YXBwL3YxL3dvcmtvdXRfc2VydmljZS5wcm90bxINd29ya291dGFwcC52MSKRBAoLT3V0Ym94RW50cnkSDQoFb3BfaWQYASABKAkSDgoGZW50aXR5GAIgASgJEhEKCWVudGl0eV9pZBgDIAEoCRIUCgxiYXNlX3ZlcnNpb24YBCABKAMSCgoCYXQYBSABKAkSFgoOc2NoZW1hX3ZlcnNpb24YBiABKAUSLwoHd29ya291dBgHIAEoCzIcLndvcmtvdXRhcHAudjEuV29ya291dEhlYWRlckgAEiYKA3NldBgIIAEoCzIXLndvcmtvdXRhcHAudjEuU2V0RW50cnlIABIsCgZjYXJkaW8YCSABKAsyGi53b3Jrb3V0YXBwLnYxLkNhcmRpb0VudHJ5SAASMgoMc2F2ZV9tYWNoaW5lGAogASgLMhoud29ya291dGFwcC52MS5NYWNoaW5lU2F2ZUgAEjgKD2NvbmZpcm1fbWFjaGluZRgLIAEoCzIdLndvcmtvdXRhcHAudjEuTWFjaGluZUNvbmZpcm1IABI2Cg5yZW1vdmVfbWFjaGluZRgMIAEoCzIcLndvcmtvdXRhcHAudjEuTWFjaGluZVJlbW92ZUgAEiwKCXNhdmVfbm90ZRgNIAEoCzIXLndvcmtvdXRhcHAudjEuTm90ZVNhdmVIABIwCgtyZW1vdmVfbm90ZRgOIAEoCzIZLndvcmtvdXRhcHAudjEuTm90ZVJlbW92ZUgAQgkKB3BheWxvYWQiggEKC01hY2hpbmVTYXZlEhgKEHdlaWdodHNfdGVudGhfbGIYASADKAUSLQoJZHVtYmJlbGxzGAIgASgLMhoud29ya291dGFwcC52MS5EdW1iYmVsbFNldBIqCgllc3RpbWF0ZXMYAyADKAsyFy53b3Jrb3V0YXBwLnYxLkVzdGltYXRlIlkKDk1hY2hpbmVDb25maXJtEhgKEHdlaWdodHNfdGVudGhfbGIYASADKAUSLQoJZHVtYmJlbGxzGAIgASgLMhoud29ya291dGFwcC52MS5EdW1iYmVsbFNldCIPCg1NYWNoaW5lUmVtb3ZlIhgKCE5vdGVTYXZlEgwKBHRleHQYASABKAkiDAoKTm90ZVJlbW92ZSI6CghQbGFuTGluaxIXCg9wbGFuX2NyZWF0ZWRfYXQYASABKAkSFQoNc2Vzc2lvbl9pbmRleBgCIAEoBSKJAQoNV29ya291dEhlYWRlchIMCgRkYXRlGAEgASgJEiUKBHBsYW4YAiABKAsyFy53b3Jrb3V0YXBwLnYxLlBsYW5MaW5rEhwKFHNraXBwZWRfZXhlcmNpc2VfaWRzGAMgAygJEhMKC2VuZGVkX2Vhcmx5GAQgASgIEhAKCGZpbmlzaGVkGAUgASgIIqABCghTZXRFbnRyeRISCgp3b3Jrb3V0X2lkGAEgASgJEhMKC2V4ZXJjaXNlX2lkGAIgASgJEgwKBGtpbmQYAyABKAkSDAoEcmVwcxgEIAEoBRIYChB3ZWlnaHRfdGVudGhzX2xiGAUgASgDEgsKA3JpchgGIAEoBRIRCgRwYWluGAcgASgFSACIAQESDAoEbm90ZRgIIAEoCUIHCgVfcGFpbiLqAQoLQ2FyZGlvRW50cnkSEgoKd29ya291dF9pZBgBIAEoCRITCgtleGVyY2lzZV9pZBgCIAEoCRIYChBkdXJhdGlvbl9zZWNvbmRzGAMgASgFEg4KBmVmZm9ydBgEIAEoBRIfChJkaXN0YW5jZV90ZW50aHNfbWkYBSABKAVIAIgBARIXCgpyZXNpc3RhbmNlGAYgASgFSAGIAQESEQoEcGFpbhgHIAEoBUgCiAEBEgwKBG5vdGUYCCABKAlCFQoTX2Rpc3RhbmNlX3RlbnRoc19taUINCgtfcmVzaXN0YW5jZUIHCgVfcGFpbiLJAQoLRW50cnlSZXN1bHQSDQoFb3BfaWQYASABKAkSMQoGc3RhdHVzGAIgASgOMiEud29ya291dGFwcC52MS5FbnRyeVJlc3VsdC5TdGF0dXMSDwoHdmVyc2lvbhgDIAEoAxIMCgRjb2RlGAQgASgJEg8KB21lc3NhZ2UYBSABKAkiSAoGU3RhdHVzEhYKElNUQVRVU19VTlNQRUNJRklFRBAAEhIKDlNUQVRVU19BUFBMSUVEEAESEgoOU1RBVFVTX1JFRlVTRUQQAiJAChFTeW5jT3V0Ym94UmVxdWVzdBIrCgdlbnRyaWVzGAEgAygLMhoud29ya291dGFwcC52MS5PdXRib3hFbnRyeSJBChJTeW5jT3V0Ym94UmVzcG9uc2USKwoHcmVzdWx0cxgBIAMoCzIaLndvcmtvdXRhcHAudjEuRW50cnlSZXN1bHQiiAEKCUxvZ2dlZFNldBIOCgZzZXRfaWQYASABKAkSDAoEa2luZBgCIAEoCRIMCgRyZXBzGAMgASgFEhgKEHdlaWdodF90ZW50aHNfbGIYBCABKAMSCwoDcmlyGAUgASgFEhEKBHBhaW4YBiABKAVIAIgBARIMCgRub3RlGAcgASgJQgcKBV9wYWluIl4KDkxvZ2dlZEV4ZXJjaXNlEhMKC2V4ZXJjaXNlX2lkGAEgASgJEg8KB3NraXBwZWQYAiABKAgSJgoEc2V0cxgDIAMoCzIYLndvcmtvdXRhcHAudjEuTG9nZ2VkU2V0IuoBCgxMb2dnZWRDYXJkaW8SEQoJY2FyZGlvX2lkGAEgASgJEhMKC2V4ZXJjaXNlX2lkGAIgASgJEhgKEGR1cmF0aW9uX3NlY29uZHMYAyABKAUSDgoGZWZmb3J0GAQgASgFEh8KEmRpc3RhbmNlX3RlbnRoc19taRgFIAEoBUgAiAEBEhcKCnJlc2lzdGFuY2UYBiABKAVIAYgBARIRCgRwYWluGAcgASgFSAKIAQESDAoEbm90ZRgIIAEoCUIVChNfZGlzdGFuY2VfdGVudGhzX21pQg0KC19yZXNpc3RhbmNlQgcKBV9wYWluItgBCgdXb3Jrb3V0EhIKCndvcmtvdXRfaWQYASABKAkSDAoEZGF0ZRgCIAEoCRIlCgRwbGFuGAMgASgLMhcud29ya291dGFwcC52MS5QbGFuTGluaxITCgtlbmRlZF9lYXJseRgEIAEoCBIQCghmaW5pc2hlZBgFIAEoCBIwCglleGVyY2lzZXMYBiADKAsyHS53b3Jrb3V0YXBwLnYxLkxvZ2dlZEV4ZXJjaXNlEisKBmNhcmRpbxgHIAMoCzIbLndvcmtvdXRhcHAudjEuTG9nZ2VkQ2FyZGlvIjgKE0xpc3RXb3Jrb3V0c1JlcXVlc3QSDQoFbGltaXQYASABKAUSEgoKcGFnZV90b2tlbhgCIAEoCSJZChRMaXN0V29ya291dHNSZXNwb25zZRIoCgh3b3Jrb3V0cxgBIAMoCzIWLndvcmtvdXRhcHAudjEuV29ya291dBIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkywAEKDldvcmtvdXRTZXJ2aWNlElMKClN5bmNPdXRib3gSIC53b3Jrb3V0YXBwLnYxLlN5bmNPdXRib3hSZXF1ZXN0GiEud29ya291dGFwcC52MS5TeW5jT3V0Ym94UmVzcG9uc2UiABJZCgxMaXN0V29ya291dHMSIi53b3Jrb3V0YXBwLnYxLkxpc3RXb3Jrb3V0c1JlcXVlc3QaIy53b3Jrb3V0YXBwLnYxLkxpc3RXb3Jrb3V0c1Jlc3BvbnNlIgBCQ1pBZ2l0aHViLmNvbS9ua3JhbWJlci93b3Jrb3V0LWFwcC9nby9nZW4vd29ya291dGFwcC92MTt3b3Jrb3V0YXBwdjFiBnByb3RvMw", [file_workoutapp_v1_inventory_service]);
 
 /**
  * OutboxEntry is one entry of the outbox of the phone, in the form of D-132.
@@ -31,15 +33,20 @@ export type OutboxEntry = Message<"workoutapp.v1.OutboxEntry"> & {
   opId: string;
 
   /**
-   * The entity: "workout", "set", or "cardio". The payload must agree.
+   * The entity: "workout", "set", "cardio", "machine", or "note". The
+   * payload must agree: a "machine" entry holds save_machine,
+   * confirm_machine, or remove_machine, and a "note" entry holds save_note
+   * or remove_note (D-272).
    *
    * @generated from field: string entity = 2;
    */
   entity: string;
 
   /**
-   * The id of the entity: a UUID that the phone makes. For a "workout"
-   * entry, it is the workout id.
+   * The id of the entity. For a "workout", "set", "cardio", or "note"
+   * entry, it is a UUID that the phone makes. For a "workout" entry, it is
+   * the workout id. For a "machine" entry, it is the catalog id of the
+   * machine.
    *
    * @generated from field: string entity_id = 3;
    */
@@ -47,7 +54,8 @@ export type OutboxEntry = Message<"workoutapp.v1.OutboxEntry"> & {
 
   /**
    * The server version of the entity that the change starts from, 0 before
-   * the first sync.
+   * the first sync. The inventory has no version, so an inventory entry
+   * gives 0.
    *
    * @generated from field: int64 base_version = 4;
    */
@@ -89,6 +97,36 @@ export type OutboxEntry = Message<"workoutapp.v1.OutboxEntry"> & {
      */
     value: CardioEntry;
     case: "cardio";
+  } | {
+    /**
+     * @generated from field: workoutapp.v1.MachineSave save_machine = 10;
+     */
+    value: MachineSave;
+    case: "saveMachine";
+  } | {
+    /**
+     * @generated from field: workoutapp.v1.MachineConfirm confirm_machine = 11;
+     */
+    value: MachineConfirm;
+    case: "confirmMachine";
+  } | {
+    /**
+     * @generated from field: workoutapp.v1.MachineRemove remove_machine = 12;
+     */
+    value: MachineRemove;
+    case: "removeMachine";
+  } | {
+    /**
+     * @generated from field: workoutapp.v1.NoteSave save_note = 13;
+     */
+    value: NoteSave;
+    case: "saveNote";
+  } | {
+    /**
+     * @generated from field: workoutapp.v1.NoteRemove remove_note = 14;
+     */
+    value: NoteRemove;
+    case: "removeNote";
   } | { case: undefined; value?: undefined };
 };
 
@@ -98,6 +136,130 @@ export type OutboxEntry = Message<"workoutapp.v1.OutboxEntry"> & {
  */
 export const OutboxEntrySchema: GenMessage<OutboxEntry> = /*@__PURE__*/
   messageDesc(file_workoutapp_v1_workout_service, 0);
+
+/**
+ * MachineSave adds a machine to the inventory as a draft, or replaces its
+ * one entry, with the rules of SaveMachine of InventoryService (D-193,
+ * D-200). The entity id of its entry is the catalog id of the machine.
+ *
+ * @generated from message workoutapp.v1.MachineSave
+ */
+export type MachineSave = Message<"workoutapp.v1.MachineSave"> & {
+  /**
+   * The weights of a machine or of the cable station, lightest first.
+   *
+   * @generated from field: repeated int32 weights_tenth_lb = 1;
+   */
+  weightsTenthLb: number[];
+
+  /**
+   * The dumbbell set of the dumbbells alone.
+   *
+   * @generated from field: workoutapp.v1.DumbbellSet dumbbells = 2;
+   */
+  dumbbells?: DumbbellSet | undefined;
+
+  /**
+   * The estimates. The entry replaces each stored estimate.
+   *
+   * @generated from field: repeated workoutapp.v1.Estimate estimates = 3;
+   */
+  estimates: Estimate[];
+};
+
+/**
+ * Describes the message workoutapp.v1.MachineSave.
+ * Use `create(MachineSaveSchema)` to create a new message.
+ */
+export const MachineSaveSchema: GenMessage<MachineSave> = /*@__PURE__*/
+  messageDesc(file_workoutapp_v1_workout_service, 1);
+
+/**
+ * MachineConfirm confirms a machine with the weights that the review screen
+ * showed, with the rules of ConfirmMachine of InventoryService. When the
+ * stored weights are different, or the inventory has no such machine, the
+ * server refuses the entry with "failed_precondition", and the machine
+ * stays as it was (D-201, D-273).
+ *
+ * @generated from message workoutapp.v1.MachineConfirm
+ */
+export type MachineConfirm = Message<"workoutapp.v1.MachineConfirm"> & {
+  /**
+   * The weights that the review screen showed.
+   *
+   * @generated from field: repeated int32 weights_tenth_lb = 1;
+   */
+  weightsTenthLb: number[];
+
+  /**
+   * The dumbbell set that the review screen showed.
+   *
+   * @generated from field: workoutapp.v1.DumbbellSet dumbbells = 2;
+   */
+  dumbbells?: DumbbellSet | undefined;
+};
+
+/**
+ * Describes the message workoutapp.v1.MachineConfirm.
+ * Use `create(MachineConfirmSchema)` to create a new message.
+ */
+export const MachineConfirmSchema: GenMessage<MachineConfirm> = /*@__PURE__*/
+  messageDesc(file_workoutapp_v1_workout_service, 2);
+
+/**
+ * MachineRemove removes a machine. The removal of a machine that the
+ * inventory does not hold applies, and changes nothing.
+ *
+ * @generated from message workoutapp.v1.MachineRemove
+ */
+export type MachineRemove = Message<"workoutapp.v1.MachineRemove"> & {
+};
+
+/**
+ * Describes the message workoutapp.v1.MachineRemove.
+ * Use `create(MachineRemoveSchema)` to create a new message.
+ */
+export const MachineRemoveSchema: GenMessage<MachineRemove> = /*@__PURE__*/
+  messageDesc(file_workoutapp_v1_workout_service, 3);
+
+/**
+ * NoteSave adds a note with the entity id of its entry, or replaces the text
+ * of that note (D-191, D-272).
+ *
+ * @generated from message workoutapp.v1.NoteSave
+ */
+export type NoteSave = Message<"workoutapp.v1.NoteSave"> & {
+  /**
+   * The text, from 1 to 200 characters after the trim of the spaces at
+   * each end (D-199).
+   *
+   * @generated from field: string text = 1;
+   */
+  text: string;
+};
+
+/**
+ * Describes the message workoutapp.v1.NoteSave.
+ * Use `create(NoteSaveSchema)` to create a new message.
+ */
+export const NoteSaveSchema: GenMessage<NoteSave> = /*@__PURE__*/
+  messageDesc(file_workoutapp_v1_workout_service, 4);
+
+/**
+ * NoteRemove removes a note. The removal of an unknown note applies, and
+ * changes nothing.
+ *
+ * @generated from message workoutapp.v1.NoteRemove
+ */
+export type NoteRemove = Message<"workoutapp.v1.NoteRemove"> & {
+};
+
+/**
+ * Describes the message workoutapp.v1.NoteRemove.
+ * Use `create(NoteRemoveSchema)` to create a new message.
+ */
+export const NoteRemoveSchema: GenMessage<NoteRemove> = /*@__PURE__*/
+  messageDesc(file_workoutapp_v1_workout_service, 5);
 
 /**
  * PlanLink names the session of the plan that a workout started from
@@ -126,7 +288,7 @@ export type PlanLink = Message<"workoutapp.v1.PlanLink"> & {
  * Use `create(PlanLinkSchema)` to create a new message.
  */
 export const PlanLinkSchema: GenMessage<PlanLink> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 1);
+  messageDesc(file_workoutapp_v1_workout_service, 6);
 
 /**
  * WorkoutHeader is the state of one workout, with no set and no cardio log.
@@ -174,7 +336,7 @@ export type WorkoutHeader = Message<"workoutapp.v1.WorkoutHeader"> & {
  * Use `create(WorkoutHeaderSchema)` to create a new message.
  */
 export const WorkoutHeaderSchema: GenMessage<WorkoutHeader> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 2);
+  messageDesc(file_workoutapp_v1_workout_service, 7);
 
 /**
  * SetEntry is the state of one logged set (D-57, D-164, D-249). The entity
@@ -244,7 +406,7 @@ export type SetEntry = Message<"workoutapp.v1.SetEntry"> & {
  * Use `create(SetEntrySchema)` to create a new message.
  */
 export const SetEntrySchema: GenMessage<SetEntry> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 3);
+  messageDesc(file_workoutapp_v1_workout_service, 8);
 
 /**
  * CardioEntry is the state of one cardio log (D-123). The entity id of its
@@ -314,7 +476,7 @@ export type CardioEntry = Message<"workoutapp.v1.CardioEntry"> & {
  * Use `create(CardioEntrySchema)` to create a new message.
  */
 export const CardioEntrySchema: GenMessage<CardioEntry> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 4);
+  messageDesc(file_workoutapp_v1_workout_service, 9);
 
 /**
  * EntryResult is the result of one entry.
@@ -333,7 +495,8 @@ export type EntryResult = Message<"workoutapp.v1.EntryResult"> & {
   status: EntryResult_Status;
 
   /**
-   * The server version of the entity after the entry, for an applied entry.
+   * The server version of the entity after the entry, for an applied
+   * workout, set, or cardio entry. An inventory entry gives 0.
    *
    * @generated from field: int64 version = 3;
    */
@@ -341,7 +504,9 @@ export type EntryResult = Message<"workoutapp.v1.EntryResult"> & {
 
   /**
    * The code of a refusal: "invalid_argument" for a bad entry, or
-   * "failed_precondition" for a set or a cardio log of an unknown workout.
+   * "failed_precondition" for a set or a cardio log of an unknown workout,
+   * and for a confirmation of an unknown machine or of weights that are
+   * not the stored weights.
    *
    * @generated from field: string code = 4;
    */
@@ -360,7 +525,7 @@ export type EntryResult = Message<"workoutapp.v1.EntryResult"> & {
  * Use `create(EntryResultSchema)` to create a new message.
  */
 export const EntryResultSchema: GenMessage<EntryResult> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 5);
+  messageDesc(file_workoutapp_v1_workout_service, 10);
 
 /**
  * @generated from enum workoutapp.v1.EntryResult.Status
@@ -391,7 +556,7 @@ export enum EntryResult_Status {
  * Describes the enum workoutapp.v1.EntryResult.Status.
  */
 export const EntryResult_StatusSchema: GenEnum<EntryResult_Status> = /*@__PURE__*/
-  enumDesc(file_workoutapp_v1_workout_service, 5, 0);
+  enumDesc(file_workoutapp_v1_workout_service, 10, 0);
 
 /**
  * @generated from message workoutapp.v1.SyncOutboxRequest
@@ -408,7 +573,7 @@ export type SyncOutboxRequest = Message<"workoutapp.v1.SyncOutboxRequest"> & {
  * Use `create(SyncOutboxRequestSchema)` to create a new message.
  */
 export const SyncOutboxRequestSchema: GenMessage<SyncOutboxRequest> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 6);
+  messageDesc(file_workoutapp_v1_workout_service, 11);
 
 /**
  * @generated from message workoutapp.v1.SyncOutboxResponse
@@ -427,7 +592,7 @@ export type SyncOutboxResponse = Message<"workoutapp.v1.SyncOutboxResponse"> & {
  * Use `create(SyncOutboxResponseSchema)` to create a new message.
  */
 export const SyncOutboxResponseSchema: GenMessage<SyncOutboxResponse> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 7);
+  messageDesc(file_workoutapp_v1_workout_service, 12);
 
 /**
  * LoggedSet is one set of a logged exercise, in the order of its time.
@@ -476,7 +641,7 @@ export type LoggedSet = Message<"workoutapp.v1.LoggedSet"> & {
  * Use `create(LoggedSetSchema)` to create a new message.
  */
 export const LoggedSetSchema: GenMessage<LoggedSet> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 8);
+  messageDesc(file_workoutapp_v1_workout_service, 13);
 
 /**
  * LoggedExercise is the log of one exercise. A skipped exercise holds no set.
@@ -505,7 +670,7 @@ export type LoggedExercise = Message<"workoutapp.v1.LoggedExercise"> & {
  * Use `create(LoggedExerciseSchema)` to create a new message.
  */
 export const LoggedExerciseSchema: GenMessage<LoggedExercise> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 9);
+  messageDesc(file_workoutapp_v1_workout_service, 14);
 
 /**
  * LoggedCardio is one cardio log.
@@ -559,7 +724,7 @@ export type LoggedCardio = Message<"workoutapp.v1.LoggedCardio"> & {
  * Use `create(LoggedCardioSchema)` to create a new message.
  */
 export const LoggedCardioSchema: GenMessage<LoggedCardio> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 10);
+  messageDesc(file_workoutapp_v1_workout_service, 15);
 
 /**
  * Workout is one logged session, in the form of the session log of the
@@ -613,7 +778,7 @@ export type Workout = Message<"workoutapp.v1.Workout"> & {
  * Use `create(WorkoutSchema)` to create a new message.
  */
 export const WorkoutSchema: GenMessage<Workout> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 11);
+  messageDesc(file_workoutapp_v1_workout_service, 16);
 
 /**
  * @generated from message workoutapp.v1.ListWorkoutsRequest
@@ -639,7 +804,7 @@ export type ListWorkoutsRequest = Message<"workoutapp.v1.ListWorkoutsRequest"> &
  * Use `create(ListWorkoutsRequestSchema)` to create a new message.
  */
 export const ListWorkoutsRequestSchema: GenMessage<ListWorkoutsRequest> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 12);
+  messageDesc(file_workoutapp_v1_workout_service, 17);
 
 /**
  * @generated from message workoutapp.v1.ListWorkoutsResponse
@@ -663,15 +828,16 @@ export type ListWorkoutsResponse = Message<"workoutapp.v1.ListWorkoutsResponse">
  * Use `create(ListWorkoutsResponseSchema)` to create a new message.
  */
 export const ListWorkoutsResponseSchema: GenMessage<ListWorkoutsResponse> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 13);
+  messageDesc(file_workoutapp_v1_workout_service, 18);
 
 /**
  * WorkoutService holds the logged sessions of the caller (work areas 6.1 and
  * 6.3). Every call needs a Firebase ID token of a uid on the invite
  * allowlist (D-75, D-131).
  *
- * The phone keeps each log and its outbox entry in one local transaction,
- * and sends the outbox later (D-77, D-132). The server applies each entry
+ * The phone keeps each log and each change of the inventory with its
+ * outbox entry in one local transaction, and sends the outbox later
+ * (D-77, D-132, D-272). The server applies each entry
  * one time alone, keyed by its client op id, and keeps each applied op id
  * with no end date (D-257). A replay of an applied entry changes nothing
  * and gives the same result.

@@ -14,6 +14,7 @@ import (
 	"github.com/nkramber/workout-app/go/gen/workoutapp/v1/workoutappv1connect"
 	"github.com/nkramber/workout-app/go/internal/auth"
 	"github.com/nkramber/workout-app/go/internal/domain"
+	"github.com/nkramber/workout-app/go/internal/inventory"
 	"github.com/nkramber/workout-app/go/internal/workout"
 )
 
@@ -30,15 +31,20 @@ const (
 	CodeFailedPrecondition = "failed_precondition"
 )
 
-// Server implements workoutappv1connect.WorkoutServiceHandler.
+// Server implements workoutappv1connect.WorkoutServiceHandler. The
+// inventory store applies the inventory entries of the outbox (D-272).
 type Server struct {
-	store workout.Store
+	store       workout.Store
+	inventories inventory.Store
+	catalog     domain.Catalog
 }
 
 var _ workoutappv1connect.WorkoutServiceHandler = (*Server)(nil)
 
-// New gives a server over the store.
-func New(store workout.Store) *Server { return &Server{store: store} }
+// New gives a server over the stores, with the product catalog.
+func New(store workout.Store, inventories inventory.Store) *Server {
+	return &Server{store: store, inventories: inventories, catalog: domain.DefaultCatalog()}
+}
 
 func uid(ctx context.Context) (string, error) {
 	id := auth.UserID(ctx)
@@ -54,7 +60,8 @@ func uid(ctx context.Context) (string, error) {
 var errStore = connect.NewError(connect.CodeInternal, errors.New("the workout store failed"))
 
 // SyncOutbox applies each entry in the order of the request, and gives
-// the result of each one. A refused entry changes nothing, and the next
+// the result of each one. The workout entries and the inventory entries
+// share one order (D-275). A refused entry changes nothing, and the next
 // entry still applies.
 func (s *Server) SyncOutbox(ctx context.Context, req *connect.Request[workoutappv1.SyncOutboxRequest]) (*connect.Response[workoutappv1.SyncOutboxResponse], error) {
 	id, err := uid(ctx)
@@ -74,7 +81,7 @@ func (s *Server) SyncOutbox(ctx context.Context, req *connect.Request[workoutapp
 			r.Status, r.Version = workoutappv1.EntryResult_STATUS_APPLIED, res.Version
 		case errors.Is(err, workout.ErrInvalid):
 			r.Status, r.Code, r.Message = workoutappv1.EntryResult_STATUS_REFUSED, CodeInvalidArgument, err.Error()
-		case errors.Is(err, workout.ErrUnknownWorkout):
+		case errors.Is(err, workout.ErrUnknownWorkout), errors.Is(err, inventory.ErrNotFound), errors.Is(err, inventory.ErrWeightsChanged):
 			r.Status, r.Code, r.Message = workoutappv1.EntryResult_STATUS_REFUSED, CodeFailedPrecondition, err.Error()
 		default:
 			return nil, errStore
@@ -84,7 +91,16 @@ func (s *Server) SyncOutbox(ctx context.Context, req *connect.Request[workoutapp
 	return connect.NewResponse(out), nil
 }
 
+// apply applies one entry. An inventory entry gives the version 0,
+// because the inventory has no version.
 func (s *Server) apply(ctx context.Context, uid string, in *workoutappv1.OutboxEntry) (workout.Result, error) {
+	if op, ch, ok, err := s.inventoryEntry(in); ok {
+		if err != nil {
+			return workout.Result{}, err
+		}
+		replayed, err := s.inventories.ApplyOp(ctx, uid, op, ch)
+		return workout.Result{Replayed: replayed}, err
+	}
 	e, err := fromProto(in)
 	if err != nil {
 		return workout.Result{}, err

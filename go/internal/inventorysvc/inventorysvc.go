@@ -8,6 +8,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
+	"fmt"
 
 	"connectrpc.com/connect"
 
@@ -94,17 +95,11 @@ func (s *Server) GetInventory(ctx context.Context, _ *connect.Request[workoutapp
 
 // SaveMachine adds or replaces the entry of a machine (D-193, D-200).
 func (s *Server) SaveMachine(ctx context.Context, req *connect.Request[workoutappv1.SaveMachineRequest]) (*connect.Response[workoutappv1.SaveMachineResponse], error) {
-	m := inventory.Machine{Entry: entry(req.Msg.GetMachineId(), req.Msg.GetWeightsTenthLb(), req.Msg.GetDumbbells())}
-	for _, e := range req.Msg.GetEstimates() {
-		ex := domain.ExerciseID(e.GetExerciseId())
-		if _, dup := m.Estimates[ex]; dup {
-			return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("two estimates for one exercise"))
-		}
-		if m.Estimates == nil {
-			m.Estimates = map[domain.ExerciseID]domain.Load{}
-		}
-		m.Estimates[ex] = domain.Load(e.GetLoadTenthLb())
+	estimates, err := Estimates(req.Msg.GetEstimates())
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, err)
 	}
+	m := inventory.Machine{Entry: Entry(req.Msg.GetMachineId(), req.Msg.GetWeightsTenthLb(), req.Msg.GetDumbbells()), Estimates: estimates}
 	inv, err := s.update(ctx, func(inv inventory.Inventory) (inventory.Inventory, error) {
 		return inv.SaveMachine(s.catalog, m)
 	})
@@ -117,7 +112,7 @@ func (s *Server) SaveMachine(ctx context.Context, req *connect.Request[workoutap
 // ConfirmMachine confirms a machine with the weights that the review
 // screen showed (D-193, D-201).
 func (s *Server) ConfirmMachine(ctx context.Context, req *connect.Request[workoutappv1.ConfirmMachineRequest]) (*connect.Response[workoutappv1.ConfirmMachineResponse], error) {
-	shown := entry(req.Msg.GetMachineId(), req.Msg.GetWeightsTenthLb(), req.Msg.GetDumbbells())
+	shown := Entry(req.Msg.GetMachineId(), req.Msg.GetWeightsTenthLb(), req.Msg.GetDumbbells())
 	inv, err := s.update(ctx, func(inv inventory.Inventory) (inventory.Inventory, error) {
 		return inv.ConfirmMachine(s.catalog, shown)
 	})
@@ -178,7 +173,30 @@ func (s *Server) update(ctx context.Context, change func(inventory.Inventory) (i
 	return inv, nil
 }
 
-func entry(machine string, weights []int32, d *workoutappv1.DumbbellSet) domain.InventoryEntry {
+// ErrTwoEstimates is the check error of two estimates for one exercise.
+var ErrTwoEstimates = fmt.Errorf("%w: two estimates for one exercise", domain.ErrInvalid)
+
+// Estimates gives the estimates of the contract by exercise, or nil for
+// none. It refuses two estimates for one exercise. Machine.Check reads
+// each load.
+func Estimates(list []*workoutappv1.Estimate) (map[domain.ExerciseID]domain.Load, error) {
+	var out map[domain.ExerciseID]domain.Load
+	for _, e := range list {
+		ex := domain.ExerciseID(e.GetExerciseId())
+		if _, dup := out[ex]; dup {
+			return nil, ErrTwoEstimates
+		}
+		if out == nil {
+			out = map[domain.ExerciseID]domain.Load{}
+		}
+		out[ex] = domain.Load(e.GetLoadTenthLb())
+	}
+	return out, nil
+}
+
+// Entry gives the inventory entry of a machine of the contract: its
+// catalog id, and its weights or its dumbbell set.
+func Entry(machine string, weights []int32, d *workoutappv1.DumbbellSet) domain.InventoryEntry {
 	e := domain.InventoryEntry{Machine: domain.MachineID(machine)}
 	for _, w := range weights {
 		e.Weights = append(e.Weights, domain.Load(w))

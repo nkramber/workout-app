@@ -27,10 +27,23 @@ const (
 // the stored inventory and stores the result as one atomic step. A store
 // can run change more than one time, so change must have no side effect.
 // An error of change comes back from Update as it is.
+//
+// ApplyOp applies an inventory entry of the outbox (D-272). It reads the
+// op id first. An applied op id changes nothing, and gives replayed true.
+// Else ApplyOp runs change as Update does, and stores the result and the
+// op id together, or stores nothing. After an error of change, the op id
+// stays unapplied, so a later entry with the same op id gets the same
+// check.
 type Store interface {
 	Get(ctx context.Context, uid string) (Inventory, error)
 	Update(ctx context.Context, uid string, change func(Inventory) (Inventory, error)) (Inventory, error)
+	ApplyOp(ctx context.Context, uid string, op Op, change func(Inventory) (Inventory, error)) (replayed bool, err error)
 }
+
+var (
+	_ Store = (*Memory)(nil)
+	_ Store = (*Firestore)(nil)
+)
 
 var errUID = errors.New("inventory: a uid of 1 or more characters with no slash is required")
 
@@ -41,10 +54,12 @@ func checkUID(uid string) error {
 	return nil
 }
 
-// Memory is a Store in memory, for tests.
+// Memory is a Store in memory, for tests. ops holds the applied op ids
+// of each uid.
 type Memory struct {
 	mu   sync.Mutex
 	data map[string]Inventory
+	ops  map[string]map[string]bool
 }
 
 // NewMemory gives an empty Memory store.

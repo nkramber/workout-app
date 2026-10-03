@@ -119,3 +119,68 @@ func TestFirestoreConcurrentSaves(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+// TestFirestoreApplyOp: five calls at the same time with one op id apply
+// one change. Each change adds a new note, so a second apply would show
+// as a second note. A refused change stores no op id, and a replay
+// changes nothing (D-272).
+func TestFirestoreApplyOp(t *testing.T) {
+	s, client := emulatorStore(t)
+	ctx := context.Background()
+	uid := fmt.Sprintf("op-%d", time.Now().UnixNano())
+	op := Op{ID: "01920000-0000-7000-8000-000000000001", Entity: "note", EntityID: "n", At: time.Date(2026, 10, 3, 10, 0, 0, 0, time.UTC)}
+	var wg sync.WaitGroup
+	replays := make(chan bool, 5)
+	errs := make(chan error, 5)
+	for k := range 5 {
+		wg.Go(func() {
+			replayed, err := s.ApplyOp(ctx, uid, op, func(inv Inventory) (Inventory, error) {
+				out, _, err := inv.SaveNote(catalog, "", fmt.Sprintf("note %d", k), fmt.Sprintf("n%d", k))
+				return out, err
+			})
+			replays <- replayed
+			errs <- err
+		})
+	}
+	wg.Wait()
+	close(replays)
+	close(errs)
+	for err := range errs {
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	var fresh int
+	for r := range replays {
+		if !r {
+			fresh++
+		}
+	}
+	got, err := s.Get(ctx, uid)
+	if err != nil || len(got.Notes) != 1 || fresh != 1 {
+		t.Fatalf("after 5 calls with one op id: %d notes, %d applies, %v", len(got.Notes), fresh, err)
+	}
+	snap, err := client.Collection(UsersCollection).Doc(uid).Collection(OpsCollection).Doc(op.ID).Get(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var d opDoc
+	if err := snap.DataTo(&d); err != nil || d.Entity != "note" || d.EntityID != "n" || !d.At.Equal(op.At) || d.Version != 0 {
+		t.Fatalf("op document %+v, %v", d, err)
+	}
+
+	refused := Op{ID: "01920000-0000-7000-8000-000000000002", Entity: "machine", EntityID: "leg_press", At: op.At}
+	confirm := func(inv Inventory) (Inventory, error) { return inv.ConfirmMachine(catalog, legPress(lb(100)).Entry) }
+	if _, err := s.ApplyOp(ctx, uid, refused, confirm); !errors.Is(err, ErrNotFound) {
+		t.Fatalf("ApplyOp of a refused change = %v, want ErrNotFound", err)
+	}
+	if _, err := client.Collection(UsersCollection).Doc(uid).Collection(OpsCollection).Doc(refused.ID).Get(ctx); err == nil {
+		t.Fatal("a refused change stored its op id")
+	}
+	if replayed, err := s.ApplyOp(ctx, uid, op, func(Inventory) (Inventory, error) { return Inventory{}, nil }); err != nil || !replayed {
+		t.Fatalf("replay = %v, %v, want replayed", replayed, err)
+	}
+	if again, _ := s.Get(ctx, uid); len(again.Notes) != 1 {
+		t.Fatalf("the replay changed the inventory: %+v", again)
+	}
+}

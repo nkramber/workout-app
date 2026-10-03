@@ -13,6 +13,7 @@ import (
 
 	workoutappv1 "github.com/nkramber/workout-app/go/gen/workoutapp/v1"
 	"github.com/nkramber/workout-app/go/internal/auth"
+	"github.com/nkramber/workout-app/go/internal/inventory"
 	"github.com/nkramber/workout-app/go/internal/workout"
 )
 
@@ -81,7 +82,7 @@ func list(t *testing.T, s *Server) []*workoutappv1.Workout {
 // gives a result for each entry in the order of the request. The same
 // batch again gives the same results and changes nothing.
 func TestSyncOutbox(t *testing.T) {
-	s := New(workout.NewMemory())
+	s := New(workout.NewMemory(), inventory.NewMemory())
 	batch := []*workoutappv1.OutboxEntry{headerEntry(1), setEntry(2, 1, 10), setEntry(3, 2, -1), setEntry(4, 3, 8), cardioEntry(5)}
 	first := sync(t, s, batch...)
 	for i, r := range first {
@@ -122,7 +123,7 @@ func TestSyncOutbox(t *testing.T) {
 // TestSyncOutboxRefuses: each bad entry gets its code, and a batch over
 // the limit gets INVALID_ARGUMENT with no change (D-259).
 func TestSyncOutboxRefuses(t *testing.T) {
-	s := New(workout.NewMemory())
+	s := New(workout.NewMemory(), inventory.NewMemory())
 	unknownSchema := headerEntry(1)
 	unknownSchema.SchemaVersion = 2
 	unknownEntity := headerEntry(2)
@@ -184,7 +185,7 @@ func (failStore) List(context.Context, string, int, string) ([]workout.Workout, 
 // TestStoreFailure: a store error gives INTERNAL with a fixed text, and
 // no path.
 func TestStoreFailure(t *testing.T) {
-	s := New(failStore{})
+	s := New(failStore{}, inventory.NewMemory())
 	_, err := s.SyncOutbox(signedIn, connect.NewRequest(&workoutappv1.SyncOutboxRequest{Entries: []*workoutappv1.OutboxEntry{headerEntry(1)}}))
 	if connect.CodeOf(err) != connect.CodeInternal || strings.Contains(err.Error(), "users/") {
 		t.Fatalf("SyncOutbox = %v", err)
@@ -197,7 +198,7 @@ func TestStoreFailure(t *testing.T) {
 
 // TestListWorkouts: the limit and the page token.
 func TestListWorkouts(t *testing.T) {
-	s := New(workout.NewMemory())
+	s := New(workout.NewMemory(), inventory.NewMemory())
 	for i, d := range []string{"2026-10-01", "2026-10-02", "2026-10-03"} {
 		e := headerEntry(i + 1)
 		e.EntityId = setID(i + 1)

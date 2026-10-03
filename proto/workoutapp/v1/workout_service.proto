@@ -4,12 +4,15 @@ package workoutapp.v1;
 
 option go_package = "github.com/nkramber/workout-app/go/gen/workoutapp/v1;workoutappv1";
 
+import "workoutapp/v1/inventory_service.proto";
+
 // WorkoutService holds the logged sessions of the caller (work areas 6.1 and
 // 6.3). Every call needs a Firebase ID token of a uid on the invite
 // allowlist (D-75, D-131).
 //
-// The phone keeps each log and its outbox entry in one local transaction,
-// and sends the outbox later (D-77, D-132). The server applies each entry
+// The phone keeps each log and each change of the inventory with its
+// outbox entry in one local transaction, and sends the outbox later
+// (D-77, D-132, D-272). The server applies each entry
 // one time alone, keyed by its client op id, and keeps each applied op id
 // with no end date (D-257). A replay of an applied entry changes nothing
 // and gives the same result.
@@ -38,13 +41,19 @@ message OutboxEntry {
   // The client op id: a UUIDv7 that the phone makes, in the lower-case
   // form of RFC 9562.
   string op_id = 1;
-  // The entity: "workout", "set", or "cardio". The payload must agree.
+  // The entity: "workout", "set", "cardio", "machine", or "note". The
+  // payload must agree: a "machine" entry holds save_machine,
+  // confirm_machine, or remove_machine, and a "note" entry holds save_note
+  // or remove_note (D-272).
   string entity = 2;
-  // The id of the entity: a UUID that the phone makes. For a "workout"
-  // entry, it is the workout id.
+  // The id of the entity. For a "workout", "set", "cardio", or "note"
+  // entry, it is a UUID that the phone makes. For a "workout" entry, it is
+  // the workout id. For a "machine" entry, it is the catalog id of the
+  // machine.
   string entity_id = 3;
   // The server version of the entity that the change starts from, 0 before
-  // the first sync.
+  // the first sync. The inventory has no version, so an inventory entry
+  // gives 0.
   int64 base_version = 4;
   // The time of the change on the phone, in RFC 3339 form. The sets of an
   // exercise keep the order of this time.
@@ -55,8 +64,53 @@ message OutboxEntry {
     WorkoutHeader workout = 7;
     SetEntry set = 8;
     CardioEntry cardio = 9;
+    MachineSave save_machine = 10;
+    MachineConfirm confirm_machine = 11;
+    MachineRemove remove_machine = 12;
+    NoteSave save_note = 13;
+    NoteRemove remove_note = 14;
   }
 }
+
+// MachineSave adds a machine to the inventory as a draft, or replaces its
+// one entry, with the rules of SaveMachine of InventoryService (D-193,
+// D-200). The entity id of its entry is the catalog id of the machine.
+message MachineSave {
+  // The weights of a machine or of the cable station, lightest first.
+  repeated int32 weights_tenth_lb = 1;
+  // The dumbbell set of the dumbbells alone.
+  DumbbellSet dumbbells = 2;
+  // The estimates. The entry replaces each stored estimate.
+  repeated Estimate estimates = 3;
+}
+
+// MachineConfirm confirms a machine with the weights that the review screen
+// showed, with the rules of ConfirmMachine of InventoryService. When the
+// stored weights are different, or the inventory has no such machine, the
+// server refuses the entry with "failed_precondition", and the machine
+// stays as it was (D-201, D-273).
+message MachineConfirm {
+  // The weights that the review screen showed.
+  repeated int32 weights_tenth_lb = 1;
+  // The dumbbell set that the review screen showed.
+  DumbbellSet dumbbells = 2;
+}
+
+// MachineRemove removes a machine. The removal of a machine that the
+// inventory does not hold applies, and changes nothing.
+message MachineRemove {}
+
+// NoteSave adds a note with the entity id of its entry, or replaces the text
+// of that note (D-191, D-272).
+message NoteSave {
+  // The text, from 1 to 200 characters after the trim of the spaces at
+  // each end (D-199).
+  string text = 1;
+}
+
+// NoteRemove removes a note. The removal of an unknown note applies, and
+// changes nothing.
+message NoteRemove {}
 
 // PlanLink names the session of the plan that a workout started from
 // (D-248). A plan has no id, so its creation time names it.
@@ -135,10 +189,13 @@ message EntryResult {
     STATUS_REFUSED = 2;
   }
   Status status = 2;
-  // The server version of the entity after the entry, for an applied entry.
+  // The server version of the entity after the entry, for an applied
+  // workout, set, or cardio entry. An inventory entry gives 0.
   int64 version = 3;
   // The code of a refusal: "invalid_argument" for a bad entry, or
-  // "failed_precondition" for a set or a cardio log of an unknown workout.
+  // "failed_precondition" for a set or a cardio log of an unknown workout,
+  // and for a confirmation of an unknown machine or of weights that are
+  // not the stored weights.
   string code = 4;
   // The cause of a refusal, with ids and numbers alone (D-80).
   string message = 5;
