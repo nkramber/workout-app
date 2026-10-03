@@ -17,6 +17,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `go/internal/domain` | The types of the workout domain, the catalog of D-155, the injury areas and the muscle groups with their tables (D-218, D-219), and the check of each type (D-157) |
 | `go/internal/policy` | The versioned safety policy: the bounds of a target, the rounding of a load, the start and the calibration of a new exercise, the return after a break, the next target, the check of a proposal, the rules fallback, and the decision record (D-23, D-38, D-176) |
 | `go/internal/ai` | The Luna role layer: the planner and reviser roles, the plan schema, the prompt, the guidance catalog, the filter of blocked claims, the cost records, the cap hook, the OpenAI provider, and the fake provider (D-24, D-25, D-152, D-183) |
+| `go/internal/capstore` | The lasting cap hook: the spend of each calendar month in UTC in Firestore, with a reservation before each call and a charge after it (D-189, D-190, D-224, D-225) |
 | `go/gen` | The generated code. `make proto` writes it, and Git keeps it. |
 
 ## Environment
@@ -28,7 +29,16 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `ALLOWED_ORIGIN` | The one origin of the web app (D-82). Empty means no cross-origin call. |
 | `FIREBASE_AUTH_EMULATOR_HOST`, `FIRESTORE_EMULATOR_HOST` | The local emulators. On Cloud Run, the API refuses each variable with a name that ends in `_EMULATOR_HOST` (D-129). |
 
-`go/internal/ai` reads the caps of D-25 from `LUNA_CAP_USER_USD` and `LUNA_CAP_PROJECT_USD`, in US dollars, such as `0.25`. A value that is not set stops the start, and 0 refuses each call. The API does not call Luna yet, so it reads neither variable. Q-98 gives the values in Phase 4.
+`go/internal/ai` reads the caps of D-25 from `LUNA_CAP_USER_USD` and `LUNA_CAP_PROJECT_USD`, in US dollars, such as `0.25`. A value that is not set stops the start, and 0 refuses each call. D-188 gives 1 USD for the user and 2 USD for the project, for each calendar month in UTC (D-190). The API does not call Luna yet, so it reads neither variable.
+
+`go/internal/capstore` holds the spend of each month in Firestore (D-189). The paths are `users/{uid}/aiSpend/{YYYY-MM}` for the user and `aiSpend/{YYYY-MM}` for the project (D-224). Each document holds the settled charge and the open reservations, in billionths of a US dollar:
+
+- Before a call, one transaction adds the worst-case cost to the reservations of both documents. When a cap can not cover it, the call does not start.
+- After the call, a second transaction moves the reservation to the charge. A failed call charges the worst case (D-225).
+- When the API stops between the two, the reservation stays. So the spend can be too high, but never too low.
+- A new month uses new documents, so its spend starts at 0.
+
+`go/internal/ai` keeps `MemoryCap` for the tests and for `go/cmd/lunaeval`. A new process starts it at 0.
 
 ## The Luna evaluation
 

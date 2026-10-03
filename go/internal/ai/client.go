@@ -118,7 +118,7 @@ func (c *Client) call(ctx context.Context, role Role, req Request) (Result, erro
 		return Result{}, fmt.Errorf("ai: a request of %d bytes: want %d or fewer", size, role.MaxRequestBytes)
 	}
 	worst := role.worst(size)
-	settle, err := c.Cap.Reserve(req.User, worst)
+	settle, err := c.Cap.Reserve(ctx, req.User, worst)
 	if errors.Is(err, ErrCap) {
 		rec.Known = true
 		return done(StatusCapped)
@@ -138,15 +138,15 @@ func (c *Client) call(ctx context.Context, role Role, req Request) (Result, erro
 	if err != nil {
 		// The request can reach OpenAI before the failure, so the
 		// charge is not known, and the cap keeps the worst case.
-		settle(worst)
 		rec.Cost = worst
+		rec.Unsettled = settle(worst) != nil
 		if errors.Is(err, context.DeadlineExceeded) && ctx.Err() == nil {
 			return done(StatusTimeout)
 		}
 		return done(StatusError)
 	}
 	rec.Usage, rec.Cost, rec.Known = reply.Usage, role.Prices.Cost(reply.Usage), true
-	settle(rec.Cost)
+	rec.Unsettled = settle(rec.Cost) != nil
 	switch {
 	case reply.Refusal:
 		return done(StatusRefusal)
