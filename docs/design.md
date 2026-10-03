@@ -66,9 +66,9 @@ The catalog of D-155 gives each machine and each exercise a stable id, a kind, a
 
 ### 3.3 Plan
 
-The plan adapts after each session and has no fixed block (Decision, D-43). It holds warm-up, resistance work, rest periods, cooldown, optional cardio, and mobility and recovery guidance (Decision, D-44). The guidance stays inside the fitness boundary (Decision, D-36). Instructions are text only (Decision, D-73). The owner can exclude an exercise with an optional reason, and Luna plans again under the policy (Decision, D-48).
+The plan adapts after each session and has no fixed block (Decision, D-43). It holds warm-up, resistance work, rest periods, cooldown, cardio, and mobility and recovery guidance (Decision, D-44, D-255). The guidance stays inside the fitness boundary (Decision, D-36). Instructions are text only (Decision, D-73). The owner can exclude an exercise with an optional reason, and Luna plans again under the policy (Decision, D-48).
 
-A plan holds one session for each training day of one week (Decision, D-211). Each session holds 8 resistance exercises or fewer, and an optional cardio of 5 to 30 minutes (Decision, D-232, D-233). A plan starts each new exercise at 70 percent of its estimate, because the profile does not record a break (Decision, D-238).
+A plan holds one session for each training day of one week (Decision, D-211). Each session holds 8 resistance exercises or fewer (Decision, D-233). When the cardio preference names a cardio exercise, each session ends with 20 to 30 minutes of one. An empty preference gives no cardio (Decision, D-217, D-255). A plan starts each new exercise at 70 percent of its estimate, because the profile does not record a break (Decision, D-238).
 
 The API keeps the plan at `users/{uid}/plan/active` and the exclusions at `users/{uid}/exclusions/active` (Decision, D-226). A new plan replaces the old plan only when its request completes (Decision, D-227). The reason of an exclusion has 200 characters or fewer, and it stays on the server (Decision, D-228, D-229). An exclusion and its new plan save together, or nothing changes (Decision, D-234). A request can take up to 4 calls of Luna, so the API streams each step, and the app shows the progress (Decision, D-231, D-237).
 
@@ -88,6 +88,10 @@ The workout screen shows one machine at a time. The design targets one-handed us
 6. "Finish now" skips the remaining exercises and records the session as ended early (Decision, D-63).
 
 The rest timer shows on the screen only, because the app sends no notifications (Decision, D-61). A Screen Wake Lock keeps the screen on during a workout (Recommendation, from `docs/research/platform-cloud-and-ai.md`).
+
+The phone keeps each log and its outbox entry first, and sends the outbox to the workout service later (Decision, D-77, D-132). One call applies 100 entries or fewer, and each entry applies one time alone, keyed by its client op id (Decision, D-259). The server keeps each applied op id with no end date, so a replay changes nothing (Decision, D-257). For a workout entry, the phone wins (Decision, D-258).
+
+The server stores each logged session as one Firestore document at `users/{uid}/workouts/{workoutId}`, with the link to its plan session (Decision, D-248, D-256). It checks each set with the bounds of D-164, and each cardio log with the fields of D-123. A cardio log holds the true duration, with no least time (Decision, D-260). A note has 280 characters or fewer (Decision, D-261). A refused entry changes nothing, and the other entries of the batch still apply.
 
 ### 3.5 Adaptation
 

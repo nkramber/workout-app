@@ -25,7 +25,7 @@ import { danger, ErrorText, field, primary, secondary, Title } from "./inventory
 
 // PlanPage is the plan screen (work area 5.2). It shows the plan of the
 // API: for each session the warm-up, the work sets, the rest, the
-// optional cardio, and the cool-down, then the mobility and recovery
+// cardio of D-255, and the cool-down, then the mobility and recovery
 // items, in text alone (D-44, D-73). It requests a new plan, and it
 // excludes an exercise with an optional reason (D-48). While a request
 // runs, the screen shows each progress step (D-231, D-239). A failed
@@ -190,7 +190,7 @@ function SessionCard({
       ))}
 
       {session.cardio && (
-        <Part title="Cardio (optional)" testId="cardio">
+        <Part title="Cardio" testId="cardio">
           {`${session.cardio.name}, ${session.cardio.minutes} min`}
         </Part>
       )}

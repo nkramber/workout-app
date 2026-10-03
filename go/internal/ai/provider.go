@@ -85,8 +85,9 @@ func (f *Fake) Calls() []Call {
 // The plan holds the EchoGuidance items, so a test sees each part of a
 // plan (D-44, D-241). The usage counts 4 bytes as one token. It is the
 // default reply of the fake.
-// The cardio time and the guidance items of EchoReply.
-const EchoCardioMinutes = 10
+// The cardio time and the guidance items of EchoReply. The cardio time
+// is the least time of D-255.
+const EchoCardioMinutes = MinCardioMinutes
 
 var EchoGuidance = []GuidanceID{"mobility.hips", "recovery.rest_day"}
 

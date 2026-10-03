@@ -138,7 +138,7 @@ func TestParseValid(t *testing.T) {
 		w[2].(map[string]any)["load_lb"] = 0
 		exerciseAt(o, 0, 0)["rest_seconds"] = 5
 		exerciseAt(o, 0, 0)["reason"] = "  Two   spaces.\n"
-		session0(o)["cardio"] = map[string]any{"exercise_id": "treadmill", "minutes": 12}
+		session0(o)["cardio"] = map[string]any{"exercise_id": "treadmill", "minutes": 22}
 		session0(o)["exercises"] = session0(o)["exercises"].([]any)[:1]
 	})
 	p, err := parse(text, request(t))
@@ -152,7 +152,7 @@ func TestParseValid(t *testing.T) {
 	if e.Reason != "Two spaces." {
 		t.Fatalf("reason %q", e.Reason)
 	}
-	if len(p.Sessions[0].Exercises) != 1 || p.Sessions[0].Cardio.Minutes != 12 {
+	if len(p.Sessions[0].Exercises) != 1 || p.Sessions[0].Cardio.Minutes != 22 {
 		t.Fatalf("session %+v", p.Sessions[0])
 	}
 	if len(p.Filtered) != 0 {

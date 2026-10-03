@@ -272,7 +272,7 @@ func TestRetryWithCause(t *testing.T) {
 		t.Fatalf("progress %v", f.events)
 	}
 	prev := input(t, f.fake.Calls()[1])["previous_attempt"].(map[string]any)
-	if !strings.Contains(prev["cause"].(string), "sessions[1].cardio: 45 minutes: want 5 to 30") || prev["output"] != bad {
+	if !strings.Contains(prev["cause"].(string), "sessions[1].cardio: 45 minutes: want 20 to 30") || prev["output"] != bad {
 		t.Fatalf("previous_attempt %v", prev)
 	}
 	if input(t, f.fake.Calls()[0])["previous_attempt"] != nil {
@@ -287,6 +287,52 @@ func TestRetryWithCause(t *testing.T) {
 		r.Output != bad || r.Cause != prev["cause"] || r.PromptVersion != ai.PromptVersion || r.PromptHash == "" || r.Model == "" ||
 		!r.Time.Equal(now) || !r.ExpireAt.Equal(now.Add(90*24*time.Hour)) || !r.Cost.Known || r.Cost.Cost <= 0 {
 		t.Fatalf("error record %+v", r)
+	}
+}
+
+// TestCardioRuleRetry: when the profile likes a cardio exercise, an
+// output with a session of fewer than 20 minutes of cardio, or with no
+// cardio, is an invalid output that uses one retry (D-230, D-255). The
+// plan of the retry gives each session 20 to 30 minutes of cardio.
+func TestCardioRuleRetry(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		cardio map[string]any
+		cause  string
+	}{
+		{"19 minutes", map[string]any{"exercise_id": "treadmill", "minutes": 19}, "sessions[0].cardio: 19 minutes: want 20 to 30"},
+		{"no cardio", map[string]any{"exercise_id": "", "minutes": 0}, "sessions[0].cardio: no cardio"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			f := coreFixture(t)
+			f.fake.Reply = func(c ai.Call) (ai.Reply, error) {
+				r, err := ai.EchoReply(c)
+				if len(f.fake.Calls()) == 1 {
+					var out map[string]any
+					_ = json.Unmarshal([]byte(r.Text), &out)
+					out["sessions"].([]any)[0].(map[string]any)["cardio"] = tc.cardio
+					b, _ := json.Marshal(out)
+					r.Text = string(b)
+				}
+				return r, err
+			}
+			p, err := f.make(t, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if p.Attempts != 2 || len(f.fake.Calls()) != 2 {
+				t.Fatalf("%d attempts and %d calls, want 2", p.Attempts, len(f.fake.Calls()))
+			}
+			prev := input(t, f.fake.Calls()[1])["previous_attempt"].(map[string]any)
+			if !strings.Contains(prev["cause"].(string), tc.cause) {
+				t.Fatalf("cause %q, want %q", prev["cause"], tc.cause)
+			}
+			for i, s := range p.Sessions {
+				if s.Cardio == nil || s.Cardio.Minutes < 20 || s.Cardio.Minutes > 30 {
+					t.Fatalf("session %d cardio %+v, want 20 to 30 minutes", i, s.Cardio)
+				}
+			}
+		})
 	}
 }
 

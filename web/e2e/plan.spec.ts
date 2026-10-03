@@ -41,7 +41,7 @@ test("the owner requests a plan, sees each part, excludes an exercise, and sees 
   for (const s of await sessions(page).all()) {
     await expect(s.getByTestId("warm-up")).toContainText("Do 5 minutes of easy cardio.");
     await expect(s.getByTestId("cool-down")).toContainText("Walk at an easy pace for 5 minutes.");
-    await expect(s.getByTestId("cardio")).toHaveText("Cardio (optional): Treadmill, 10 min");
+    await expect(s.getByTestId("cardio")).toHaveText("Cardio: Treadmill, 20 min");
     await expect(s.getByTestId("plan-exercise")).toHaveCount(2);
   }
   const press = exercise(page, "chest_press").first();

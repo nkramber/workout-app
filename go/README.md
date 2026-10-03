@@ -19,6 +19,8 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `go/internal/ai` | The Luna role layer: the planner and reviser roles, the plan schema, the prompt, the guidance catalog, the filter of blocked claims, the cost records, the cap hook, the OpenAI provider, and the fake provider (D-24, D-25, D-152, D-183) |
 | `go/internal/plan` | The plan of the owner: the planner request, 4 calls at most with the cause of each failure, the policy check of each exercise, the exclusions, the Firestore stores, and the error records (D-226 to D-238) |
 | `go/internal/plansvc` | The calls of `PlanService`, with a server stream of the progress (D-237) |
+| `go/internal/workout` | The logged sessions of the owner: the outbox entries, the check of each log, the apply of each entry one time, and the Firestore store (D-132, D-256 to D-261) |
+| `go/internal/workoutsvc` | The calls of `WorkoutService`: `SyncOutbox` and `ListWorkouts` |
 | `go/internal/capstore` | The lasting cap hook: the spend of each calendar month in UTC in Firestore, with a reservation before each call and a charge after it (D-189, D-190, D-224, D-225) |
 | `go/gen` | The generated code. `make proto` writes it, and Git keeps it. |
 
@@ -54,6 +56,17 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 - An invalid output gets a retry with its cause and its output, 4 calls at most (D-230, D-231, D-235). A call over the cap ends the request at once.
 - Each failed attempt adds a document to the top-level collection `aiErrors`. Its field `expire_at` drives the TTL of 90 days (D-236). The document holds the output of Luna, so no log reads it (D-80).
 - The policy decides each exercise of a valid plan, and the plan stores each decision record (D-23, D-176).
+
+## The workout log
+
+`go/internal/workout` keeps each logged session at `users/{uid}/workouts/{workoutId}`, and each applied op id at `users/{uid}/ops/{opId}` (D-256). An op id document has no end date (D-257).
+
+- `SyncOutbox` takes 100 entries or fewer, and applies them in the order of the request (D-259). A larger batch gets `INVALID_ARGUMENT` with no change.
+- Each entry applies in its own transaction. The transaction reads the op id first, so a replay gives the stored version and changes nothing.
+- An entry holds the whole new state of its entity: `workout`, `set`, or `cardio`. For a workout entry, the phone wins, and the server does not refuse a different base version (D-258).
+- A bad entry gets the code `invalid_argument`. A set or a cardio log of an unknown workout gets `failed_precondition`. Neither one changes a document, and the other entries of the batch still apply.
+- A set uses the bounds of D-164. A cardio log uses the fields of D-123, with no least time (D-260). A note has 280 characters or fewer (D-261).
+- The planner gives each session 20 to 30 minutes of cardio when the profile likes a cardio exercise (D-255). The fake provider gives 20 minutes.
 
 ## The Luna evaluation
 

@@ -21,6 +21,7 @@ import (
 	"github.com/nkramber/workout-app/go/internal/inventory"
 	"github.com/nkramber/workout-app/go/internal/plan"
 	"github.com/nkramber/workout-app/go/internal/profile"
+	"github.com/nkramber/workout-app/go/internal/workout"
 	"time"
 )
 
@@ -53,7 +54,7 @@ func server(t *testing.T, list auth.Allowlist) *httptest.Server {
 		AI:       &ai.Client{Provider: &ai.Fake{}, Cap: ai.NewMemoryCap(ai.Caps{User: ai.USD, Project: 2 * ai.USD})},
 		Profiles: prof, Inventory: inv, Plans: plan.NewMemory(), Errors: &plan.MemoryErrors{},
 	}
-	srv := httptest.NewServer(newHandler(v, list, inv, prof, maker, webOrigin, "abc123"))
+	srv := httptest.NewServer(newHandler(v, list, inv, prof, maker, workout.NewMemory(), webOrigin, "abc123"))
 	t.Cleanup(srv.Close)
 	return srv
 }
@@ -174,6 +175,44 @@ func TestProfileSignIn(t *testing.T) {
 	b, err := call("token-b")
 	if err != nil || b.Msg.GetProfile() != nil {
 		t.Fatalf("GetProfile as uid-b = %v, %v, want no profile", b, err)
+	}
+}
+
+// TestWorkoutSignIn: the workout service needs a token, and each uid
+// reads its own workouts alone.
+func TestWorkoutSignIn(t *testing.T) {
+	srv := server(t, fakeList{uids: map[string]bool{"uid-a": true, "uid-b": true}})
+	client := workoutappv1connect.NewWorkoutServiceClient(srv.Client(), srv.URL)
+	list := func(token string) (*connect.Response[workoutappv1.ListWorkoutsResponse], error) {
+		req := connect.NewRequest(&workoutappv1.ListWorkoutsRequest{})
+		if token != "" {
+			req.Header().Set("Authorization", "Bearer "+token)
+		}
+		return client.ListWorkouts(context.Background(), req)
+	}
+	if _, err := list(""); connect.CodeOf(err) != connect.CodeUnauthenticated {
+		t.Fatalf("ListWorkouts with no token = %v, want Unauthenticated", err)
+	}
+	sync := connect.NewRequest(&workoutappv1.SyncOutboxRequest{Entries: []*workoutappv1.OutboxEntry{{
+		OpId: "01920000-0000-7000-8000-000000000001", Entity: "workout", EntityId: "01920000-0000-7000-8000-0000000000a1",
+		At: "2026-10-03T10:00:00Z", SchemaVersion: 1,
+		Payload: &workoutappv1.OutboxEntry_Workout{Workout: &workoutappv1.WorkoutHeader{
+			Date: "2026-10-03", Plan: &workoutappv1.PlanLink{PlanCreatedAt: "2026-10-03T06:11:03Z"},
+		}},
+	}}})
+	if _, err := client.SyncOutbox(context.Background(), sync); connect.CodeOf(err) != connect.CodeUnauthenticated {
+		t.Fatalf("SyncOutbox with no token = %v, want Unauthenticated", err)
+	}
+	sync.Header().Set("Authorization", "Bearer token-a")
+	res, err := client.SyncOutbox(context.Background(), sync)
+	if err != nil || res.Msg.GetResults()[0].GetStatus() != workoutappv1.EntryResult_STATUS_APPLIED {
+		t.Fatalf("SyncOutbox as uid-a = %v, %v", res, err)
+	}
+	if a, err := list("token-a"); err != nil || len(a.Msg.GetWorkouts()) != 1 {
+		t.Fatalf("ListWorkouts as uid-a = %v, %v, want 1 workout", a, err)
+	}
+	if b, err := list("token-b"); err != nil || len(b.Msg.GetWorkouts()) != 0 {
+		t.Fatalf("ListWorkouts as uid-b = %v, %v, want no workout", b, err)
 	}
 }
 
