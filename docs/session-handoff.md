@@ -4,11 +4,26 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-03. Review PR #33, work area 6.3, at effective head `9c645d6a61c93d16324840e8aff57e9dd6d02305` on branch `feat/pr-32-outbox-sync`.
+Date: 2026-10-03. Roadmap PR-32 of `docs/roadmaps/phase-6-guided-workout.md`, GitHub #33, on branch `feat/pr-32-outbox-sync`, from base `7ed7c0f`.
 
-The provider gate passes: Session 33 names Claude Code as author, and this review uses Codex. P2-1 is fixed. P2-2 remains open because the video method can not stop while it prepares its source. The review record is `docs/reviews/pr-33.md`.
+Before the work, the session read the deploy of `7ed7c0f`. The build `deploy-web` `b386e8a9` and the build `deploy-api` `481821e0` gave `SUCCESS`. The live `/version` and `/version.json` both name `7ed7c0f`, and the revision `api-00017-dnm` serves all traffic (D-137).
 
-Next action: the author fixes P2-2 and requests another Codex review after CI passes.
+The owner approved the live check of D-212. At 20:08Z, the API made 1 planner call of 0.0023 USD. The plan has policy version 4, and each of the 9 exercises has a row of `calibration_loads` for each weight of its machine (D-267). The owner logged a calibration set correctly (D-268). After a return, the screen lock still needed a tap (D-271).
+
+The owner approved the milestone (D-12), answered Q-286 to Q-292 (D-272 to D-278), and widened it after Codex round 1 (D-279 to D-282). The pull request holds:
+
+- `SyncOutbox` with the inventory entries, each applied one time by its op id (D-272),
+- the sync engine, the refused list, the line of the sync, and the offline copies (D-274 to D-278),
+- the inventory changes in the outbox, and a confirmation with no connection (D-250, D-273),
+- a rest of 60 seconds for each exercise, with policy version 5 (D-279),
+- a "Screen lock test" screen under Diagnostics (D-280 to D-282),
+- the offline acceptance tests in `web/e2e/workout.spec.ts` and `web/e2e/inventory.spec.ts`.
+
+Codex round 1 gave "Changes required" with P2-1, a plan request after a failed sync. Round 2 found P2-1 fixed, and gave P2-2, a video probe that a Stop did not stop during its preparation. The author found full merit in both. `docs/reviews/pr-33-response.md` holds the answers, and `docs/reviews/pr-33.md` is the record.
+
+Next action: wait for CI, then run Codex round 3 (D-8).
+
+After the merge, the next session reads both deploys. The owner completes a full workout on the iPhone with no connection (exit of Phase 6), and runs the "Screen lock test". The next pull request applies the method that the owner picks (D-282).
 
 ## Facts that expire
 
@@ -82,7 +97,7 @@ Completed:
 - Added the inventory entries to `SyncOutbox`, with Go unit tests and emulator tests.
 - Wrote the sync engine, the offline copies, the inventory outbox, and the line of the sync, with unit tests and browser tests.
 - Read the live check of D-212, and changed the rest to 60 seconds with policy version 5 (D-279).
-- Wrote the "Screen lock test" screen (D-282), and answered Codex finding P2-1 with full merit.
+- Wrote the "Screen lock test" screen (D-282), and answered Codex findings P2-1 and P2-2 with full merit.
 - Changed the registers, both roadmaps, the design, both READMEs, and `AGENTS.md`.
 
 Open work:

@@ -30,3 +30,24 @@ test("the screen lock test runs each method, logs its start, and stops it", asyn
   await button(page, "Back").click();
   await expect(button(page, "Screen lock test")).toBeVisible();
 });
+
+// Codex finding P2-2 of PR-32: a Stop during the 1 s that the video file
+// takes to prepare stops the method. No probe starts after it, and the
+// video has no source.
+test("a stop while the video file prepares starts no probe", async ({ page }, info) => {
+  const email = uniqueEmail("lock-test-stop", info);
+  await makeOwner(page.request, email);
+  await page.goto("/");
+  await signIn(page, email);
+  await button(page, "Screen lock test").click();
+
+  await button(page, "Start Silent video file").click();
+  await button(page, "Stop Silent video file").click();
+  await page.waitForTimeout(2_000);
+  const log = page.getByTestId("lock-test-log").getByRole("listitem");
+  await expect(log).toHaveCount(1);
+  await expect(log.first()).toHaveText("0:00 Start: Silent video file.");
+  await expect(page.getByTestId("lock-test-error")).toHaveCount(0);
+  const video = await page.getByTestId("lock-test-video").evaluate((v: HTMLVideoElement) => ({ paused: v.paused, src: v.getAttribute("src"), stream: v.srcObject !== null }));
+  expect(video).toEqual({ paused: true, src: null, stream: false });
+});

@@ -27,3 +27,15 @@ Regression checks:
 ## The milestone after round 1
 
 After round 1, the owner widened the milestone (D-281). PR-32 now also holds the rest of 60 seconds with policy version 5 (D-279), and the "Screen lock test" screen (D-280, D-282). The repeat review reads these changes as new code.
+
+## P2-2: A video probe can not stop while it prepares its source
+
+Round 2 gave "Changes required" at `9c645d6a61c93d16324840e8aff57e9dd6d02305`, with finding P2-2. Round 2 found P2-1 fixed.
+
+Result: full merit.
+
+The trigger reproduces. A Stop during the 1 s that `silentSource` records left `stopRef` empty. After the recording, `start` started the probe of the video, and the log got a line after the Stop.
+
+Correction: `web/src/pages/lock-test.tsx` gives each start a run number, and Stop and the exit of the screen add 1 to it. When the source is ready, a start with an old number stops its source and starts no probe. A failure of such a start shows no error (D-282).
+
+Regression check: `web/e2e/lock-test.spec.ts`, "a stop while the video file prepares starts no probe", taps Stop at once, and reads the log and the video after 2 s. On the old code in Chromium, it failed with 2 lines of the log for 1. With the correction, it passed 2 of 2 runs in WebKit and in Chromium.

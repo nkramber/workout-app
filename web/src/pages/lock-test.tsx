@@ -5,23 +5,35 @@ import { ErrorText, primary, secondary, Title } from "./inventory/ui";
 
 // LockTestPage is the "Screen lock test" screen (D-280, D-282). It runs one
 // method of src/lib/lock-test.ts at a time, and shows its log. A method
-// stops when the owner taps "Stop" or leaves the screen.
+// stops when the owner taps "Stop" or leaves the screen. Each start gets a
+// run number, and Stop and the exit add 1 to it. A video source takes 1 s
+// to prepare, so a start that ends after a Stop sees an old number, stops
+// its source, and starts no probe.
 export function LockTestPage({ onBack }: { onBack: () => void }) {
   const [running, setRunning] = useState<Method | null>(null);
   const [lines, setLines] = useState<string[]>([]);
   const [error, setError] = useState("");
   const stopRef = useRef<(() => void) | null>(null);
+  const runRef = useRef(0);
   const video = useRef<HTMLVideoElement>(null);
 
   const stop = () => {
+    runRef.current++;
     stopRef.current?.();
     stopRef.current = null;
     setRunning(null);
   };
-  useEffect(() => () => stopRef.current?.(), []);
+  useEffect(
+    () => () => {
+      runRef.current++;
+      stopRef.current?.();
+    },
+    [],
+  );
 
   const start = async (method: Method) => {
     stop();
+    const run = runRef.current;
     setError("");
     const t0 = Date.now();
     const log = (text: string) => setLines((old) => [...old, logLine(t0, Date.now(), text)]);
@@ -35,12 +47,17 @@ export function LockTestPage({ onBack }: { onBack: () => void }) {
       const v = video.current;
       if (!v) return;
       const offSource = await silentSource(v, method);
+      if (run !== runRef.current) {
+        offSource();
+        return;
+      }
       const offProbe = probeVideo(v, document, window, log);
       stopRef.current = () => {
         offProbe();
         offSource();
       };
     } catch (err) {
+      if (run !== runRef.current) return;
       setError(`The method did not start (${err instanceof Error ? err.name : String(err)}).`);
       setRunning(null);
     }
