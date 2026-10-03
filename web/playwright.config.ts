@@ -37,7 +37,16 @@ export default defineConfig({
       // through the environment of this process.
       command: "../.bin/api",
       url: `http://127.0.0.1:${apiPort}/version`,
-      env: { PORT: String(apiPort), GOOGLE_CLOUD_PROJECT: "demo-workout-app", ALLOWED_ORIGIN: webOrigin },
+      // The API uses the fake provider of Luna, so no test calls OpenAI
+      // (D-24). The caps are the caps of D-188.
+      env: {
+        PORT: String(apiPort),
+        GOOGLE_CLOUD_PROJECT: "demo-workout-app",
+        ALLOWED_ORIGIN: webOrigin,
+        LUNA_FAKE_PROVIDER: "1",
+        LUNA_CAP_USER_USD: "1",
+        LUNA_CAP_PROJECT_USD: "2",
+      },
       reuseExistingServer: false,
       timeout: 60_000,
     },

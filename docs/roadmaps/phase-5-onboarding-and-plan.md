@@ -51,7 +51,7 @@ No open question blocks PR-23. Section 4 names the questions that each session a
 
 - The API alone reads and writes the profile and the plan in Firestore (D-77). The rules of `firestore.rules` refuse each client read and write.
 - A plan reads the confirmed machines alone, through `ForPlan` (D-49, D-193).
-- Every set and load passes the policy before the owner sees it (D-23). When Luna gives no proposal, or the policy refuses it, the rules fallback gives the target.
+- Every set and load passes the policy before the owner sees it (D-23). When the policy refuses the proposal of one exercise, the rules fallback gives its target. A plan request with no valid output of Luna retries, then gives an error with no change (D-230).
 - No model id appears at a call site (D-24). The tests use the fake provider.
 - A planner call sends the inputs of D-209 alone. The server removes each exercise of an injured area before the call (D-208).
 - No log, metric, or error report holds the age, the height, the weight, the injury text, or the free text (D-80).
@@ -151,19 +151,20 @@ Branch: `feat/pr-26-plan-api`. Work area 5.2. It needs PR-25 on `main`.
 
 Concerns:
 
-- a plan service in `proto/workoutapp/v1`. Its calls request a plan, read the current plan, and exclude an exercise with an optional reason (D-48),
-- the planner call through the role layer, with the planner input of PR-23 and the confirmed machines. A new prompt version adds the inputs of D-209 and the session count of D-211,
-- the policy check of each exercise, the rules fallback, and the decision record (D-23, D-176). A call over the cap gives the rules fallback,
+- a plan service in `proto/workoutapp/v1`. Its calls read the current plan, request a plan, and exclude an exercise with an optional reason (D-48). The two calls that plan stream the progress of each step, then the plan (D-231, D-237),
+- the planner call through the role layer, with the planner input of PR-23 and the confirmed machines. Prompt v3 adds the inputs of D-209, the session count of D-211, and the bounds of D-232 and D-233,
+- 4 calls at most. Each retry sends the cause and the failed output (D-235). After the last failure, or a call over the cap, the request gives an error and changes nothing (D-230),
+- the policy check of each exercise of a valid plan, the rules target of a refused proposal, and the decision record (D-23, D-176),
 - the plan content of D-44, D-152, and D-182. The warm-up, the cooldown, and the mobility and recovery items come by id, and the session titles from templates,
-- the exclusion of D-48: Luna plans again, and the policy checks the result,
-- the Firestore store of the plan,
-- the service `api` reads the secret `openai-api-key`, the caps of D-188, and the cap store of PR-25. `cloudbuild/api.yaml` and `docs/setup-gcp.md` record the change.
+- the exclusion of D-48: Luna plans again, the policy checks the result, and the exclusion and the plan save together (D-234),
+- the Firestore stores of D-226, and an error record of each failed attempt (D-236),
+- the service `api` reads the secret `openai-api-key` and the caps of D-188, and it uses the cap store of PR-25. Its request timeout is 420 s. `docs/setup-gcp.md` records these values of the service.
 
-Acceptance story: an end-to-end test with the fake provider returns a valid plan for the core profile of D-31. A failed call and a refused proposal give the rules fallback. No plan holds an exercise of an injured area, an excluded exercise, or a machine that the owner did not confirm.
+Acceptance story: an end-to-end test with the fake provider streams the progress and returns a valid plan for the core profile of D-31. An invalid output gets a retry that names the cause. Four failures give an error and an error record, and change nothing. No plan holds an exercise of an injured area, an excluded exercise, or a machine that the owner did not confirm.
 
 Checks: `make contract`, `make go-test`, `make emulator-test`, and `make verify`, free. The session makes no live call. Codex reviews PR-26.
 
-Questions for the session: the Firestore path of the plan, and the bound of an exclusion reason. Also the effect of a new plan on the old plan.
+Questions for the session: the Firestore path of the plan, the bound of an exclusion reason, and the effect of a new plan. The owner answered them and the other questions of the work as Q-240 to Q-251 (D-226 to D-238).
 
 ### PR-27 - The plan screens
 
@@ -172,7 +173,7 @@ Branch: `feat/pr-27-plan-screens`. Work area 5.2. It needs PR-26 on `main`.
 Concerns:
 
 - the plan screen. Each session shows the warm-up, the work sets, the rest, the cooldown, the optional cardio, and the mobility and recovery text (D-44, D-73),
-- the request of a plan, with a wait state and an error state,
+- the request of a plan, with the progress of each step and an error state (D-231, D-237),
 - the exclusion of an exercise, with an optional reason (D-48),
 - the live check on the iPhone after the deploy of the merge (D-212).
 
@@ -182,7 +183,7 @@ A deploy comes from `main` alone (D-14). So the browser tests are the evidence o
 
 Checks: `make web`, `make verify`, and the Go checks of PR-26 when `go/` changes, free. Codex reviews PR-27.
 
-Questions for the session: the text that the screen shows for a plan from the rules fallback.
+Questions for the session: the text of each progress step and of each error. The errors are no valid plan after 4 calls, the cap, and no allowed exercise (D-230).
 
 ## 5. Exit of the phase
 

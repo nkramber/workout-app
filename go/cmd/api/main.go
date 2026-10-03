@@ -13,6 +13,9 @@
 //     openai-api-key. The API refuses to start without it.
 //   - LUNA_CAP_USER_USD, LUNA_CAP_PROJECT_USD: the monthly AI caps of
 //     D-188. The API refuses to start without them.
+//   - LUNA_FAKE_PROVIDER: "1" gives the fake provider of Luna in place of
+//     OpenAI, for the local browser tests (D-24). The API refuses it on
+//     Cloud Run.
 package main
 
 import (
@@ -62,7 +65,20 @@ const EnvOpenAIKey = "OPENAI_API_KEY"
 // The API gives OpenAI, and a test gives the fake provider (D-24).
 type ProviderFunc func(key string) (ai.Provider, error)
 
+// EnvFakeProvider names the switch to the fake provider.
+const EnvFakeProvider = "LUNA_FAKE_PROVIDER"
+
 func openAI(key string) (ai.Provider, error) { return ai.NewOpenAI(key, "", nil) }
+
+// providerFromEnv gives the fake provider when EnvFakeProvider is "1",
+// and OpenAI in each other case. The start guard runs before the
+// provider, so Cloud Run never gets the fake.
+func providerFromEnv(getenv func(string) string) ProviderFunc {
+	if getenv(EnvFakeProvider) == "1" {
+		return func(string) (ai.Provider, error) { return &ai.Fake{}, nil }
+	}
+	return openAI
+}
 
 const (
 	readHeaderTimeout = 5 * time.Second
@@ -73,7 +89,7 @@ const (
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	err := run(ctx, logger, os.Environ(), os.Getenv, openAI)
+	err := run(ctx, logger, os.Environ(), os.Getenv, providerFromEnv(os.Getenv))
 	stop()
 	if err != nil {
 		logger.Error("api failed", "err", err)

@@ -270,6 +270,7 @@ func TestRunRefuses(t *testing.T) {
 		{"no user cap", []string{"GOOGLE_CLOUD_PROJECT=p", "LUNA_CAP_PROJECT_USD=2", "OPENAI_API_KEY=k"}, ai.EnvUserCap},
 		{"no project cap", []string{"GOOGLE_CLOUD_PROJECT=p", "LUNA_CAP_USER_USD=1", "OPENAI_API_KEY=k"}, ai.EnvProjectCap},
 		{"no key", []string{"GOOGLE_CLOUD_PROJECT=p", "LUNA_CAP_USER_USD=1", "LUNA_CAP_PROJECT_USD=2"}, "OpenAI key"},
+		{"fake provider on cloud run", []string{"K_SERVICE=api", "GOOGLE_CLOUD_PROJECT=p", "LUNA_FAKE_PROVIDER=1"}, envguard.ErrEmulatorOnCloudRun.Error()},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -284,5 +285,32 @@ func TestRunRefuses(t *testing.T) {
 				t.Fatalf("run = %v, want an error with %q", err, c.want)
 			}
 		})
+	}
+}
+
+// TestProviderFromEnv: the switch gives the fake provider, and each other
+// value gives OpenAI, which refuses an empty key.
+func TestProviderFromEnv(t *testing.T) {
+	env := func(v string) func(string) string {
+		return func(k string) string {
+			if k == EnvFakeProvider {
+				return v
+			}
+			return ""
+		}
+	}
+	p, err := providerFromEnv(env("1"))("")
+	if _, ok := p.(*ai.Fake); !ok || err != nil {
+		t.Fatalf("switch on = %T, %v, want the fake", p, err)
+	}
+	for _, v := range []string{"", "0", "true"} {
+		if _, err := providerFromEnv(env(v))(""); err == nil {
+			t.Fatalf("switch %q with no key: want the refusal of OpenAI", v)
+		}
+		if p, err := providerFromEnv(env(v))("k"); err != nil {
+			t.Fatalf("switch %q = %v", v, err)
+		} else if _, ok := p.(*ai.OpenAI); !ok {
+			t.Fatalf("switch %q = %T, want OpenAI", v, p)
+		}
 	}
 }
