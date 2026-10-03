@@ -447,6 +447,7 @@ The live check of D-203 failed on 2026-10-02. The app showed "The API did not an
 | Q-252 | Which text does the plan screen show for each step of the progress? | Texts that name Luna, the try number, and the cause of a retry. | Answered | D-239 |
 | Q-253 | Which text does the plan screen show for each error of a plan request? | Plain and specific texts, each with "Your plan did not change." | Answered | D-240 |
 | Q-254 | How do the browser tests get a full plan and a visible progress from the local API? | A fuller reply of the fake, a local delay switch, and a route stub for two errors. | Answered | D-241 |
+| Q-255 | Does the error of no allowed exercise say that the plan did not change? | Yes. The owner added "Your plan did not change." after the review of PR-27. | Answered | D-240 |
 
 ## Open questions
 

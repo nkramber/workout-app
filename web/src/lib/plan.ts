@@ -48,7 +48,7 @@ export const NO_VALID_PLAN = "Luna gave no valid plan in 4 tries. Your plan did 
 export const CAP_REACHED =
   "The monthly AI limit is reached. Your plan did not change. The limit resets on the first day of the month (UTC).";
 export const NO_EXERCISE =
-  "No confirmed machine gives an exercise that you can do. Confirm a machine, or change the injuries in your profile.";
+  "No confirmed machine gives an exercise that you can do. Your plan did not change. Confirm a machine, or change the injuries in your profile.";
 export const NOT_EXCLUDED = "The exercise is not excluded.";
 
 // planErrorText gives the text of a failed plan request (D-230, D-240).

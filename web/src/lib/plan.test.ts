@@ -46,6 +46,7 @@ describe("planErrorText", () => {
     expect(planErrorText(err(Code.ResourceExhausted), { isOnline: true })).toBe(CAP_REACHED);
     expect(planErrorText(err(Code.FailedPrecondition), { isOnline: true })).toBe(NO_EXERCISE);
     expect(NO_VALID_PLAN).toBe("Luna gave no valid plan in 4 tries. Your plan did not change. Try again later.");
+    expect(NO_EXERCISE).toBe("No confirmed machine gives an exercise that you can do. Your plan did not change. Confirm a machine, or change the injuries in your profile.");
   });
 
   it("starts the text of a failed exclusion with the exclusion", () => {

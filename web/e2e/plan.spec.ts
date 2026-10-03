@@ -102,7 +102,7 @@ test("an owner with no confirmed machine gets the error of no allowed exercise",
 
   await button(page, "Make a plan").click();
   await expect(planError(page)).toHaveText(
-    "No confirmed machine gives an exercise that you can do. Confirm a machine, or change the injuries in your profile.",
+    "No confirmed machine gives an exercise that you can do. Your plan did not change. Confirm a machine, or change the injuries in your profile.",
   );
   await expect(page.getByTestId("no-plan")).toBeVisible();
   await expect(button(page, "Back")).toBeVisible();
