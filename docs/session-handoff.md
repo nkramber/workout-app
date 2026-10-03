@@ -20,7 +20,9 @@ The pull request holds:
 
 The emulator tests of `go/internal/capstore/firestore_emulator_test.go` hold the acceptance story. After a restart, a planner call over the cap gets `capped`, and no call reaches the fake provider. `make go-test` and `make emulator-test` passed.
 
-Next action: push, open the pull request, wait for CI, and run the Codex review.
+Codex review: `docs/reviews/pr-26.md` says Ready for owner merge for effective head `96c8d663c7ed7f121edc4243d99762fea34c6ed7`. No finding is open.
+
+Next action: get the owner confirmation, then enable auto-merge.
 
 ## Facts that expire
 
