@@ -17,8 +17,7 @@ import {
   type InventoryMachine,
 } from "../gen/workoutapp/v1/inventory_service_pb";
 import { MachineConfirmSchema, MachineSaveSchema, NoteSaveSchema } from "../gen/workoutapp/v1/workout_service_pb";
-import { db, OUTBOX_SCHEMA_VERSION, withReopen, type OutboxEntry, type WorkoutAppDB } from "./db";
-import { INVENTORY_ENTITIES } from "./sync";
+import { db, INVENTORY_ENTITIES, OUTBOX_SCHEMA_VERSION, withReopen, type OutboxEntry, type WorkoutAppDB } from "./db";
 import { nextId } from "./uuidv7";
 
 // The inventory of the phone (D-250, D-272). The phone keeps a copy of

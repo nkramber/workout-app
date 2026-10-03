@@ -1,7 +1,7 @@
-import { fromJson, toJson, type JsonValue } from "@bufbuild/protobuf";
 import { createClient, type Transport } from "@connectrpc/connect";
 import { liveQuery } from "dexie";
 
+import { create, fromJson, toJson, type JsonValue } from "@bufbuild/protobuf";
 import { InventoryService, GetCatalogResponseSchema, GetInventoryResponseSchema } from "../gen/workoutapp/v1/inventory_service_pb";
 import { GetPlanResponseSchema, PlanService } from "../gen/workoutapp/v1/plan_service_pb";
 import {
@@ -11,8 +11,9 @@ import {
   type OutboxEntry as OutboxEntryMessage,
   type SyncOutboxResponse,
 } from "../gen/workoutapp/v1/workout_service_pb";
-import { withReopen, type CopyKey, type OutboxEntry, type WorkoutAppDB } from "./db";
+import { INVENTORY_ENTITIES, withReopen, type CopyKey, type OutboxEntry, type WorkoutAppDB } from "./db";
 import { isNoConnection } from "./errors";
+import { localInventory } from "./inventory-api";
 
 // The sync of the outbox (work area 6.3). The phone sends its outbox
 // through SyncOutbox of `proto/workoutapp/v1/workout_service.proto`, in
@@ -24,7 +25,8 @@ import { isNoConnection } from "./errors";
 //
 // The sync runs while the app is open alone: at the open, at each focus
 // and return, at each reconnect, after each new entry, and on a timer
-// after a failure (D-21, D-277). iOS has no background sync for a web
+// after a failure (D-21, D-277). A reconnect starts the delays of the
+// timer again. iOS has no background sync for a web
 // app, so the service worker does not sync.
 
 // MAX_BATCH is the largest count of entries in one call (D-259).
@@ -37,9 +39,6 @@ export const RETRY_DELAYS_MS: readonly number[] = [5_000, 15_000, 60_000, 300_00
 // The codes of a refusal of the server, and the code of an entry that
 // the phone can not read.
 export const CODE_INVALID = "invalid_argument";
-
-// The inventory entities of the outbox (D-272).
-export const INVENTORY_ENTITIES: ReadonlySet<string> = new Set(["machine", "note"]);
 
 // SyncClient holds the calls of the sync. A test gives a fake.
 export type SyncClient = {
@@ -131,12 +130,14 @@ export async function drainOutbox(store: WorkoutAppDB, client: SyncClient, now: 
     }
     const at = now().toISOString();
     await withReopen(store, () =>
-      store.transaction("rw", [store.outbox, store.refused, store.workouts, store.sets, store.cardio], async () => {
+      store.transaction("rw", [store.outbox, store.refused, store.workouts, store.sets, store.cardio, store.copies], async () => {
+        const inventory: OutboxEntry[] = [];
         for (const [i, e] of sent.entries()) {
           const r = res.results[i];
           if (r.status === EntryResult_Status.APPLIED) {
             await store.outbox.delete(e.opId);
             await keepVersion(store, e, Number(r.version));
+            if (INVENTORY_ENTITIES.has(e.entity)) inventory.push(e);
             out.applied++;
           } else if (r.status === EntryResult_Status.REFUSED) {
             await store.outbox.delete(e.opId);
@@ -144,6 +145,7 @@ export async function drainOutbox(store: WorkoutAppDB, client: SyncClient, now: 
             out.refused++;
           }
         }
+        await keepApplied(store, inventory);
       }),
     );
     // An entry with no status stays in the outbox. So a server that gives
@@ -162,6 +164,20 @@ function refuse(store: WorkoutAppDB, entries: OutboxEntry[], code: string, messa
       await store.refused.bulkPut(entries.map((e) => ({ ...e, code, message, refusedAt })));
     }),
   );
+}
+
+// keepApplied puts the applied inventory entries on the inventory copy,
+// in the transaction that removes them from the outbox. So the screens
+// show each applied change until the sync reads the inventory again, also
+// when that read fails.
+async function keepApplied(store: WorkoutAppDB, entries: OutboxEntry[]): Promise<void> {
+  if (entries.length === 0) return;
+  const [catalogCopy, inventoryCopy] = await Promise.all([store.copies.get("catalog"), store.copies.get("inventory")]);
+  if (!catalogCopy || !inventoryCopy) return;
+  const catalog = fromJson(GetCatalogResponseSchema, catalogCopy.json as JsonValue, { ignoreUnknownFields: true });
+  const server = fromJson(GetInventoryResponseSchema, inventoryCopy.json as JsonValue, { ignoreUnknownFields: true }).inventory;
+  const { inventory } = localInventory(server, entries, catalog);
+  await store.copies.put({ ...inventoryCopy, json: toJson(GetInventoryResponseSchema, create(GetInventoryResponseSchema, { inventory })) });
 }
 
 // keepVersion keeps the server version of an applied workout, set, or
@@ -220,7 +236,8 @@ function browserEnv(): SyncEnv {
 
 // SyncEngine runs one sync at a time. A request during a sync runs one
 // more sync after it, so each entry that existed at the request goes in
-// it. A sync drains the outbox, then reads the copies again.
+// it. A sync drains the outbox, then reads the copies again. The sync
+// passes when both steps pass.
 export class SyncEngine {
   private status: SyncStatus = { running: false, error: null, lastSyncAt: null };
   private readonly listeners = new Set<() => void>();
@@ -252,7 +269,13 @@ export class SyncEngine {
     const onVisible = () => {
       if (env.document.visibilityState !== "hidden") run();
     };
-    env.window.addEventListener("online", run);
+    // A reconnect starts the delays again, so a failure just after it
+    // gets a new try after 5 s.
+    const onOnline = () => {
+      this.failures = 0;
+      run();
+    };
+    env.window.addEventListener("online", onOnline);
     env.window.addEventListener("focus", run);
     env.window.addEventListener("pageshow", run);
     env.document.addEventListener("visibilitychange", onVisible);
@@ -266,7 +289,7 @@ export class SyncEngine {
     });
     run();
     return () => {
-      env.window.removeEventListener("online", run);
+      env.window.removeEventListener("online", onOnline);
       env.window.removeEventListener("focus", run);
       env.window.removeEventListener("pageshow", run);
       env.document.removeEventListener("visibilitychange", onVisible);
@@ -300,9 +323,21 @@ export class SyncEngine {
     const now = this.env?.now ?? (() => new Date());
     this.clearTimer();
     this.set({ running: true });
+    // The copies come from the server alone, so the phone reads them after
+    // a failed drain too. The screens put the entries that wait on them.
+    let failure: unknown = null;
     try {
       await drainOutbox(this.store, this.client, now);
+    } catch (err) {
+      failure = err;
+    }
+    try {
       await refreshCopies(this.store, this.client, now);
+    } catch (err) {
+      failure ??= err;
+    }
+    try {
+      if (failure !== null) throw failure;
       this.failures = 0;
       this.set({ running: false, error: null, lastSyncAt: now().toISOString() });
     } catch (err) {

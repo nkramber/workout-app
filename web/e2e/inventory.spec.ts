@@ -1,6 +1,6 @@
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
 
-import { makeOwner, signIn, stopAndOpen, uniqueEmail } from "./support";
+import { callApi, makeOwner, reopenOffline, signIn, stopAndOpen, syncLine, uniqueEmail } from "./support";
 
 // The acceptance story of work area 4.1. Each test runs in WebKit and in
 // Chromium with phone emulation, against the API of go/ and the Firestore
@@ -8,10 +8,13 @@ import { makeOwner, signIn, stopAndOpen, uniqueEmail } from "./support";
 // entry, and confirms both. The save makes the weight list (D-245), and
 // the save of a cardio machine confirms it (D-246). A change of the
 // weights makes a confirmed machine a draft again. A text with no match
-// stays as a note. Each test
-// uses its own account, so it starts with an empty inventory.
+// stays as a note. Each change goes into the outbox, and the sync sends
+// it (D-250). Each test uses its own account, so it starts with an empty
+// inventory.
 
-async function openInventory(page: Page, info: TestInfo) {
+// openInventory signs in a new owner, opens the inventory, and gives the
+// email of the account.
+async function openInventory(page: Page, info: TestInfo): Promise<string> {
   const email = uniqueEmail("inventory", info);
   await makeOwner(page.request, email);
   await page.goto("/");
@@ -19,6 +22,7 @@ async function openInventory(page: Page, info: TestInfo) {
   await expect(page.getByTestId("me-uid")).toBeVisible();
   await page.getByRole("button", { name: "Equipment" }).click();
   await expect(page.getByText("No machine yet.")).toBeVisible();
+  return email;
 }
 
 // aToZ gives a copy of the names in the order of D-205.
@@ -207,69 +211,105 @@ test("the review screen removes a machine", async ({ page }, info) => {
   await expect(page.getByTestId("catalog-seated_row")).not.toContainText("In the inventory");
 });
 
-test("the server refuses a confirmation of weights that changed after the review screen showed them", async ({ page, context }, info) => {
-  await openInventory(page, info);
+// D-201 and D-273: a confirmation with no connection waits in the
+// outbox. Another device changes the weights on the server, so the server
+// refuses the confirmation at the reconnect. The machine shows as a draft
+// with the new weights, and the line of the sync shows the refusal until
+// the owner dismisses it.
+test("a confirmation with no connection waits, and the server refuses it when the weights changed on another device", async ({ page, context, request }, info) => {
+  const email = await openInventory(page, info);
   await addStack(page, "biceps_curl", "10", "50", "10");
   await expect(page.getByTestId("shown-weights")).toHaveText("10, 20, 30, 40, 50 lb");
+  await expect(syncLine(page)).toHaveText("Synced");
 
-  // A second page of the app changes the weights.
-  const other = await context.newPage();
-  await other.goto("/");
-  await other.getByRole("button", { name: "Equipment" }).click();
-  await other.getByTestId("machine-biceps_curl").click();
-  await button(other, "Change").click();
-  await other.getByRole("button", { name: "Remove 50 lb" }).click();
-  await button(other, "Save").click();
-  await expect(other.getByTestId("shown-weights")).toHaveText("10, 20, 30, 40 lb");
-  await other.close();
-
-  // The first page still shows the old weights, so the server refuses its
-  // confirmation (D-201). The screen then reads the new weights.
+  await context.setOffline(true);
   await button(page, "Confirm these weights").click();
-  await expect(page.getByTestId("change-error")).toContainText("The weights changed");
-  await expect(page.getByTestId("shown-weights")).toHaveText("10, 20, 30, 40 lb");
+  await expect(state(page)).toHaveText("Confirmed");
+  await expect(page.getByTestId("waiting-badge")).toBeVisible();
+  await expect(syncLine(page)).toHaveText("Offline · 1 waiting");
+
+  await callApi(request, email, "InventoryService/SaveMachine", { machineId: "biceps_curl", weightsTenthLb: [100, 200, 300, 400] });
+  await context.setOffline(false);
+  await expect(syncLine(page)).toHaveText("Synced · 1 refused");
   await expect(state(page)).toHaveText("Draft");
+  await expect(page.getByTestId("shown-weights")).toHaveText("10, 20, 30, 40 lb");
+  await expect(page.getByTestId("waiting-badge")).toHaveCount(0);
+
+  await syncLine(page).click();
+  const refused = page.getByTestId("refused-entry");
+  await expect(refused).toContainText("Confirmation of Biceps curl");
+  await expect(refused).toContainText("The server holds other weights");
+  await refused.getByRole("button", { name: "Dismiss" }).click();
+  await expect(syncLine(page)).toHaveText("Synced");
+
   await button(page, "Confirm these weights").click();
+  await expect(syncLine(page)).toHaveText("Synced");
   await expect(state(page)).toHaveText("Confirmed");
 });
 
-test("a change with no connection shows an error and saves nothing (D-196)", async ({ page, context }, info) => {
-  await openInventory(page, info);
-  await button(page, "Add a machine").click();
-  await page.getByTestId("catalog-shoulder_press").click();
-  await fillRange(page, "10", "100", "10");
-
+// The inventory part of the acceptance story of PR-32 (D-250): the owner
+// adds and confirms a machine and keeps a note with no connection. Each
+// change shows at once, waits in the outbox, and stays after a stop of
+// the app in Chromium (see reopenOffline). After the reconnect, the
+// server holds each change.
+test("a change with no connection waits in the outbox, stays after a stop, and reaches the server after the reconnect", async ({ page, context, request, browserName }, info) => {
+  const email = await openInventory(page, info);
+  await expect(syncLine(page)).toHaveText("Synced");
   await context.setOffline(true);
-  await button(page, "Save").click();
-  await expect(page.getByTestId("change-error")).toHaveText(/^No connection\. The change is not saved\./);
-  await expect(button(page, "Save")).toBeEnabled();
+  await addStack(page, "shoulder_press", "10", "100", "10");
+  await expect(state(page)).toHaveText("Draft");
+  await button(page, "Confirm these weights").click();
+  await expect(state(page)).toHaveText("Confirmed");
+  await button(page, "Back").click();
+  await button(page, "Add a machine").click();
+  await page.getByLabel("Search the catalog, or enter a name").fill("Rope handle");
+  await button(page, "Keep the text as a note").click();
+  await expect(page.getByTestId("note")).toContainText("Rope handle");
+  await expect(syncLine(page)).toHaveText("Offline · 3 waiting");
+
+  let stopped: boolean;
+  ({ page, stopped } = await reopenOffline(context, browserName));
+  await expect(syncLine(page)).toHaveText("Offline · 3 waiting");
+  if (stopped) await button(page, "Equipment").click();
+  await expect(page.getByTestId("machine-shoulder_press").getByTestId("machine-state")).toHaveText("Confirmed");
+  await expect(page.getByTestId("note")).toContainText("Rope handle");
+  await expect(page.getByTestId("waiting-badge")).toHaveCount(2);
 
   await context.setOffline(false);
-  await button(page, "Save").click();
-  await expect(state(page)).toHaveText("Draft");
+  await expect(syncLine(page)).toHaveText("Synced");
+  await expect(page.getByTestId("waiting-badge")).toHaveCount(0);
+  const { inventory } = await callApi<{ inventory: { machines: { machineId: string; weightsTenthLb: number[]; state: string }[]; notes: { text: string }[] } }>(
+    request,
+    email,
+    "InventoryService/GetInventory",
+    {},
+  );
+  expect(inventory.machines).toEqual([expect.objectContaining({ machineId: "shoulder_press", state: "MACHINE_STATE_CONFIRMED" })]);
+  expect(inventory.machines[0].weightsTenthLb).toHaveLength(10);
+  expect(inventory.notes.map((n) => n.text)).toEqual(["Rope handle"]);
 });
 
-test("a server fault shows that the server failed, not that the API did not answer (D-206)", async ({ page }, info) => {
+// A server fault of the sync shows "Sync failed", and the change waits.
+// "Sync now" sends it after the fault ends (D-276, D-277).
+test("a failed sync shows that the sync failed, and sync now sends the change", async ({ page }, info) => {
   await openInventory(page, info);
-  await button(page, "Add a machine").click();
-  await page.getByTestId("catalog-leg_press").click();
-  await fillRange(page, "10", "100", "10");
-
-  // The live fault of PR-21: the API refused a write to Firestore, and
-  // gave the code `internal` with HTTP 500.
-  await page.route("**/workoutapp.v1.InventoryService/SaveMachine", (route) =>
+  await expect(syncLine(page)).toHaveText("Synced");
+  await page.route("**/workoutapp.v1.WorkoutService/SyncOutbox", (route) =>
     route.fulfill({
       status: 500,
       contentType: "application/json",
       headers: { "Access-Control-Allow-Origin": "*" },
-      body: JSON.stringify({ code: "internal", message: "the inventory store failed" }),
+      body: JSON.stringify({ code: "internal", message: "the workout store failed" }),
     }),
   );
-  await button(page, "Save").click();
-  await expect(page.getByTestId("change-error")).toHaveText("The server failed. The change is not saved.");
-  await expect(button(page, "Save")).toBeEnabled();
+  await addStack(page, "leg_press", "10", "100", "10");
+  await expect(syncLine(page)).toHaveText("Sync failed · 1 waiting");
+  await expect(page.getByTestId("waiting-badge")).toBeVisible();
 
-  await page.unroute("**/workoutapp.v1.InventoryService/SaveMachine");
-  await button(page, "Save").click();
+  await page.unroute("**/workoutapp.v1.WorkoutService/SyncOutbox");
+  await syncLine(page).click();
+  await button(page, "Sync now").click();
+  await expect(syncLine(page)).toHaveText("Synced");
+  await expect(page.getByTestId("waiting-badge")).toHaveCount(0);
   await expect(state(page)).toHaveText("Draft");
 });

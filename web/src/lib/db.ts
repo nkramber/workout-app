@@ -29,6 +29,9 @@ export type OutboxEntry = {
 // (D-80).
 export type RefusedEntry = OutboxEntry & { code: string; message: string; refusedAt: string };
 
+// The inventory entities of the outbox (D-272).
+export const INVENTORY_ENTITIES: ReadonlySet<string> = new Set(["machine", "note"]);
+
 // The offline copies of the answers of the server (D-250, D-278): the
 // catalog, the inventory, the plan, and the profile. `json` is the JSON
 // form of GetCatalogResponse, GetInventoryResponse, GetPlanResponse, or

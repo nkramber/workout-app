@@ -256,6 +256,17 @@ describe("the inventory of the phone", () => {
     expect([...(local?.pending.notes ?? [])]).toEqual([noteId]);
   });
 
+  it("keeps each applied change on the copy when the read of the inventory fails after the drain", async () => {
+    const server = new FakeServer();
+    await refreshCopies(store, server);
+    await saveMachine(store, { machineId: "leg_press", weightsTenthLb: [100, 200] }, now);
+    await confirmMachine(store, { machineId: "leg_press", weightsTenthLb: [100, 200] }, now);
+    await drainOutbox(store, server);
+    const local = await readOfflineInventory(store);
+    expect(local?.inventory.machines.map((m) => [m.machineId, m.state])).toEqual([["leg_press", MachineState.CONFIRMED]]);
+    expect(local?.pending.machines.size).toBe(0);
+  });
+
   it("keeps a confirmed machine confirmed when a save keeps its weights", async () => {
     const server = new FakeServer();
     server.copiesJson.inventory = {
@@ -323,6 +334,35 @@ describe("SyncEngine", () => {
     // After a pass, no timer stays.
     await vi.advanceTimersByTimeAsync(600_000);
     expect(calls).toHaveBeenCalledTimes(count + 1);
+    stop();
+  });
+
+  it("starts the delays again at a reconnect", async () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
+    await workoutWithSets(1);
+    const server = new FakeServer();
+    server.down = true;
+    const calls = vi.spyOn(server, "syncOutbox");
+    const env = testEnv();
+    const engine = new SyncEngine(store, server, () => env);
+    const stop = engine.start();
+    await settle(engine);
+    for (const delay of RETRY_DELAYS_MS.slice(0, 3)) {
+      await vi.advanceTimersByTimeAsync(delay);
+      await settle(engine);
+    }
+    expect(calls).toHaveBeenCalledTimes(4);
+
+    // The next try would come after 5 minutes. A reconnect that fails
+    // gives a try after 5 s again.
+    env.window.dispatchEvent(new Event("online"));
+    await settle(engine);
+    expect(calls).toHaveBeenCalledTimes(5);
+    server.down = false;
+    await vi.advanceTimersByTimeAsync(RETRY_DELAYS_MS[0]);
+    await settle(engine);
+    expect(calls).toHaveBeenCalledTimes(6);
+    expect(engine.getStatus().error).toBeNull();
     stop();
   });
 
