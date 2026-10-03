@@ -19,7 +19,7 @@ The owner approved the milestone, then widened it to "the Phase 5 live check and
 
 `make verify`, `make go-test`, `make emulator-test`, and `make web` passed.
 
-State: the review record gives `Ready for owner merge` at `3317cde`, and `review-gate` passes. Next action: ask the owner to confirm the merge.
+State: the review record gives `Ready for owner merge` at `3317cde`, and `review-gate` passes. Pending the owner merge. Next action: ask the owner to confirm the merge (D-13).
 
 The merge changes `go/` and `web/`, so it deploys both. The session of PR-29 reads both deploys, then asks the owner for one live plan at xhigh (D-212). The owner also reads the bottom edge of the plan screen on the iPhone.
 
@@ -71,7 +71,7 @@ The merge changes `go/` and `web/`, so it deploys both. The session of PR-29 rea
 
 ## Next steps, in order
 
-1. Close PR-28: CI, the Codex review, the owner confirmation, and the merge.
+1. Close PR-28: the owner confirmation and the merge.
 2. Start PR-29 in a clean session (D-12). Read the deploys of the merge of PR-28 first (D-137).
 3. State the expected cost of one live plan at xhigh, and ask the owner (D-212). After the approval, the owner requests a plan and reads the bottom edge.
 
@@ -93,7 +93,7 @@ Completed:
 
 Open work:
 
-- CI, the Codex review, the owner confirmation, and the merge of PR-28.
+- The owner confirmation and the merge of PR-28.
 
 ### Session 28 - 2026-10-03
 
