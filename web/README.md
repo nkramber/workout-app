@@ -82,11 +82,11 @@ The start copies the targets of the session and the weights of each machine to t
 - The plus and minus buttons change the reps by 1. They move the weight to the next weight of the list of the machine (D-264).
 - A tap on the reps in reserve (0, 1, 2, 3, or 4+) logs the set. So the owner logs a set in one tap.
 - "Add pain or a note" shows the optional pain rating from 0 to 10 and a note of 280 characters or fewer (D-57, D-162, D-261). A pain rating of 1 or more shows the pain warning (D-169).
-- The cardio card logs the minutes and the effort from 1 to 10. The distance, the resistance level, pain, and a note are optional (D-123, D-165).
+- The cardio card logs the minutes and the effort from 1 to 10. The distance, the resistance level, pain, and a note are optional (D-123, D-165). Each number must fit its `int32` field of the contract.
 - "Report a symptom" shows the seven symptoms of D-263. A pick shows the warning. The owner continues after the confirmation, or uses "Finish now" (D-40, D-153, D-251). The phone keeps no symptom report.
 - "Finish now" asks for a confirmation when an exercise has no logged set. Each such exercise counts as skipped, and the workout ends early (D-63).
 
-While a workout is open, the plan screen refuses a new plan and an exclusion (D-252). The app holds the screen wake lock from the start of a workout to its end, on each screen. It asks for the lock again when the app comes back to the front. When the phone refuses the lock, the workout screen shows "The screen can turn off." (D-265).
+While a workout is open, the plan screen refuses a new plan and an exclusion (D-252). The app holds the screen wake lock from the start of a workout to its end, on each screen. It asks for the lock again when the app comes back to the front. When the phone releases the lock while the app shows, the app asks one more time in that visit. When the phone refuses the lock, the workout screen shows "The screen can turn off." (D-265).
 
 ## The offline store
 

@@ -3,8 +3,11 @@ import { useEffect, useState } from "react";
 // The screen wake lock of a workout (D-265). The app requests the lock
 // while a workout is open, on each screen. The phone releases the lock when the app goes
 // to the back, so the app requests it again when the app comes back to
-// the front. A phone with no Screen Wake Lock API, or one that refuses
-// the lock, gives the state "off", and the screen shows a notice.
+// the front. The phone can also release the lock while the app shows,
+// for example in a power-save mode. Then the app requests the lock one
+// more time in that visit, and a second release gives "off". A phone with
+// no Screen Wake Lock API, or one that refuses the lock, gives the state
+// "off", and the screen shows a notice.
 
 export type WakeState = "pending" | "on" | "off";
 
@@ -27,6 +30,9 @@ export function holdWakeLock(nav: WakeNavigator, doc: WakeDocument, onState: (s:
   }
   let stopped = false;
   let sentinel: Sentinel | null = null;
+  // True after the request again of a release while the app shows. A
+  // return to the front sets it to false.
+  let retried = false;
 
   const request = async () => {
     if (stopped || doc.visibilityState !== "visible") return;
@@ -38,13 +44,29 @@ export function holdWakeLock(nav: WakeNavigator, doc: WakeDocument, onState: (s:
         return;
       }
       sentinel = s;
+      s.addEventListener("release", () => onRelease(s));
       onState("on");
     } catch {
       if (!stopped) onState("off");
     }
   };
 
-  const onVisible = () => void request();
+  // A release while the app goes to the back needs no step: the return to
+  // the front requests the lock again.
+  const onRelease = (s: Sentinel) => {
+    if (stopped || s !== sentinel || doc.visibilityState !== "visible") return;
+    if (retried) {
+      onState("off");
+      return;
+    }
+    retried = true;
+    void request();
+  };
+
+  const onVisible = () => {
+    if (doc.visibilityState === "visible") retried = false;
+    void request();
+  };
   doc.addEventListener("visibilitychange", onVisible);
   void request();
 

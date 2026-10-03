@@ -21,9 +21,9 @@ The owner approved the milestone before the first edit (D-12), and answered Q-27
 
 `make contract`, `make go-test`, `make emulator-test`, `make web`, and `make verify` passed.
 
-State: PR-30 (GitHub #31) is open. Codex reviewed effective head `1ef826c` and found P2-1 and P2-2. Verdict: Changes required.
+State: PR-30 (GitHub #31) is open. Codex round 1 gave "Changes required" at `1ef826c` with P2-1 and P2-2. The author found full merit in both. The cardio fields now fit their `int32` fields, and a release of the wake lock while the app shows gives a request again, then "off". `docs/reviews/pr-31-response.md` holds the answers.
 
-Next action: correct P2-1 and P2-2, push the new head, and request a new Codex review.
+Next action: wait for CI, then run Codex round 2 (D-8).
 
 The merge changes `go/` and `web/`, so it deploys both. The session of PR-31 reads both deploys first. Then one live plan of prompt v5 checks the reason of a new exercise (D-212). The owner also checks the wake lock and a set log on the iPhone.
 
@@ -95,11 +95,12 @@ Completed:
 - Wrote the workout screen, the workout store, the symptoms, and the wake lock, with unit tests and browser tests.
 - Changed the prompt to v5 with a Go test, and connected the update hold of D-133 to the open workout.
 - Made the op ids rise strictly, after a unit test showed two outbox entries of one millisecond in a random order.
+- Answered Codex findings P2-1 and P2-2 with full merit.
 - Changed the registers, both roadmaps, the design, both READMEs, and `AGENTS.md`.
 
 Open work:
 
-- The pull request, CI, the Codex review, the owner confirmation, and the merge of PR-30.
+- The Codex review, the owner confirmation, and the merge of PR-30.
 
 ### Session 30 - 2026-10-03
 

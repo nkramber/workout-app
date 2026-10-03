@@ -20,7 +20,9 @@ import {
   parseLevel,
   parseMiles,
   startWorkout,
+  stepMinutes,
   stepReps,
+  MAX_CARDIO_MINUTES,
   stepWeight,
   WorkoutClosedError,
   WorkoutInProgressError,
@@ -269,10 +271,25 @@ describe("the fields of a log", () => {
     expect(parseMiles("abc")).toBeNull();
   });
 
+  it("refuses a distance that does not fit the int32 field", () => {
+    expect(parseMiles("214748364.7")).toBe(2_147_483_647);
+    expect(parseMiles("214748364.8")).toBeNull();
+    expect(parseMiles("99999999999999999999")).toBeNull();
+  });
+
+  it("keeps the minutes of a cardio log from 1 to the int32 bound of its seconds", () => {
+    expect(stepMinutes(1, -1)).toBe(1);
+    expect(stepMinutes(20, 1)).toBe(21);
+    expect(stepMinutes(MAX_CARDIO_MINUTES, 1)).toBe(MAX_CARDIO_MINUTES);
+    expect(MAX_CARDIO_MINUTES * 60).toBeLessThanOrEqual(2_147_483_647);
+  });
+
   it("reads the resistance level as a whole number", () => {
     expect(parseLevel("")).toBeUndefined();
     expect(parseLevel("8")).toBe(8);
     expect(parseLevel("8.5")).toBeNull();
+    expect(parseLevel("2147483647")).toBe(2_147_483_647);
+    expect(parseLevel("2147483648")).toBeNull();
     expect(parseLevel("99999999999")).toBeNull();
   });
 

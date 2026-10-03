@@ -358,14 +358,30 @@ export function noteLength(note: string): number {
   return [...note.trim()].length;
 }
 
+// MAX_INT32 is the largest value of an `int32` field of the contract.
+export const MAX_INT32 = 2_147_483_647;
+
+// MAX_CARDIO_MINUTES is the longest cardio log, so that its duration in
+// seconds fits the `int32` field `duration_seconds`.
+export const MAX_CARDIO_MINUTES = Math.floor(MAX_INT32 / 60);
+
 // parseMiles reads a distance such as "2.5" as tenths of a mile (D-165).
 // An empty text gives undefined. A text that is not 0 or more with one
-// decimal place or none gives null.
+// decimal place or none, or that does not fit the `int32` field, gives
+// null.
 export function parseMiles(text: string): number | undefined | null {
   const t = text.trim();
   if (t === "") return undefined;
-  if (!/^\d+(\.\d)?$/.test(t)) return null;
-  return Math.round(Number(t) * 10);
+  const m = /^(\d+)(?:\.(\d))?$/.exec(t);
+  if (!m) return null;
+  const tenths = BigInt(m[1]) * 10n + BigInt(m[2] ?? "0");
+  return tenths <= BigInt(MAX_INT32) ? Number(tenths) : null;
+}
+
+// stepMinutes gives the minutes of a cardio log after a tap of plus or
+// minus: 1 or more (D-123), and MAX_CARDIO_MINUTES or fewer.
+export function stepMinutes(current: number, dir: 1 | -1): number {
+  return Math.min(MAX_CARDIO_MINUTES, Math.max(1, current + dir));
 }
 
 // parseLevel reads the resistance level, a whole number of 0 or more. An
@@ -375,7 +391,7 @@ export function parseLevel(text: string): number | undefined | null {
   if (t === "") return undefined;
   if (!/^\d+$/.test(t)) return null;
   const n = Number(t);
-  return Number.isSafeInteger(n) && n <= 2_147_483_647 ? n : null;
+  return Number.isSafeInteger(n) && n <= MAX_INT32 ? n : null;
 }
 
 // loggedText gives one logged set, such as "8 reps at 20 lb, 2 in reserve".

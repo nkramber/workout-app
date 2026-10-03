@@ -26,6 +26,7 @@ import {
   parseMiles,
   RIR_CHOICES,
   startWorkout,
+  stepMinutes,
   stepReps,
   stepWeight,
   workoutCardio,
@@ -599,8 +600,8 @@ function CardioCard({
         testId="cardio-minutes"
         less="Fewer minutes"
         more="More minutes"
-        onLess={() => setMinutes(Math.max(1, minutes - 1))}
-        onMore={() => setMinutes(minutes + 1)}
+        onLess={() => setMinutes(stepMinutes(minutes, -1))}
+        onMore={() => setMinutes(stepMinutes(minutes, 1))}
       />
       <div className="space-y-2" role="group" aria-labelledby={effortId}>
         <p id={effortId} className="text-sm font-semibold text-slate-100">
