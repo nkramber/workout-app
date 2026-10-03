@@ -129,7 +129,7 @@ func TestFirestoreOneApply(t *testing.T) {
 		t.Fatalf("applied %d, replayed %d, want 1 and 9", applied, replayed)
 	}
 	got, _, err := s.List(ctx, uid, 10, "")
-	if err != nil || len(got) != 1 || len(got[0].Sets) != 1 || got[0].Versions[entityID(1)] != 1 {
+	if err != nil || len(got) != 1 || len(got[0].Sets) != 1 || got[0].Versions[VersionKey(EntitySet, entityID(1))] != 1 {
 		t.Fatalf("List = %+v, %v", got, err)
 	}
 }

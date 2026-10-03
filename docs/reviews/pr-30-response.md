@@ -21,3 +21,25 @@ The code then gives `Entry.Check` a plan time of zero. The check refuses it with
 
 - `make go-test` passes.
 - `make verify` passes.
+
+## Round 2
+
+Review round 2 recorded effective head `a20f04b`, with the verdict "Changes required". It withdrew P2-1.
+
+### P2-2: Entity versions collide when distinct entity IDs match
+
+**Result: full merit.**
+
+The trigger reproduces at `a20f04b`. `Apply` keyed each version by the entity id alone. The phone makes each id as a UUIDv7, so a collision needs a fault of the phone. But the contract of `proto/workoutapp/v1/workout_service.proto` does not make an id unique across the entities. So a header and a set with the same id shared one version, and the set got version 2.
+
+**Correction.**
+
+- `go/internal/workout/workout.go`: the new function `VersionKey` keys each version by the entity and its id. `Apply` reads and writes the version with it.
+- `go/internal/workout/firestore_emulator_test.go`: `TestFirestoreOneApply` reads the version of the set with `VersionKey`.
+
+No stored data changes, because no build of this code ran on the live service.
+
+**Regression checks.**
+
+- `TestVersionKey` of `go/internal/workout/workout_test.go` applies a workout, a set, and a cardio log with the same id. The first apply of each gives version 1, and a second header gives version 2. The test does not build on the code of `a20f04b`, because that code has no `VersionKey`. The reproduction of the reviewer gives the old result: version 2 for the set.
+- `make go-test`, `make emulator-test`, and `make verify` pass.

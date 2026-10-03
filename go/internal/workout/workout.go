@@ -142,7 +142,7 @@ type Entry struct {
 }
 
 // Workout is one logged session. Versions holds the server version of
-// each entity of the workout, by entity id.
+// each entity of the workout, by the key of VersionKey.
 type Workout struct {
 	ID string
 	Header
@@ -311,9 +311,15 @@ func Apply(w *Workout, e Entry, c domain.Catalog) (Workout, int64, error) {
 	if out.Versions == nil {
 		out.Versions = map[string]int64{}
 	}
-	out.Versions[e.EntityID]++
-	return out, out.Versions[e.EntityID], nil
+	key := VersionKey(e.Entity, e.EntityID)
+	out.Versions[key]++
+	return out, out.Versions[key], nil
 }
+
+// VersionKey gives the key of the version of an entity: the entity and
+// its id. The contract does not make an id unique across the entities,
+// so a set and a workout with the same id keep two versions.
+func VersionKey(entity, id string) string { return entity + ":" + id }
 
 func upsert[T any](list []T, v T, id func(T) string) []T {
 	for i, x := range list {

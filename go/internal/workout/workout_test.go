@@ -224,6 +224,27 @@ func TestApply(t *testing.T) {
 	}
 }
 
+// TestVersionKey: a workout, a set, and a cardio log with the same id
+// are three entities, and the first apply of each gives version 1.
+func TestVersionKey(t *testing.T) {
+	c := domain.DefaultCatalog()
+	w, v, err := Apply(nil, header(1, workoutA), c)
+	if err != nil || v != 1 {
+		t.Fatalf("header = %d, %v", v, err)
+	}
+	for _, e := range []Entry{set(2, workoutA, workoutA, "chest_press", 10), cardio(3, workoutA, workoutA)} {
+		if w, v, err = Apply(&w, e, c); err != nil || v != 1 {
+			t.Fatalf("%s with the id of the workout = version %d, %v, want 1", e.Entity, v, err)
+		}
+	}
+	if w, v, err = Apply(&w, header(4, workoutA), c); err != nil || v != 2 {
+		t.Fatalf("a second header = version %d, %v, want 2", v, err)
+	}
+	if len(w.Versions) != 3 || w.Versions[VersionKey(EntitySet, workoutA)] != 1 {
+		t.Fatalf("versions %v", w.Versions)
+	}
+}
+
 // TestMemoryIdempotent: the same op id applies one time, and its replay
 // gives the same version. A refused entry changes nothing.
 func TestMemoryIdempotent(t *testing.T) {

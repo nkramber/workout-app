@@ -20,7 +20,7 @@ The owner approved the milestone, then widened it with the cardio rule (D-12, D-
 
 `make contract`, `make go-test`, `make emulator-test`, `make web`, and `make verify` passed.
 
-Codex round 2 reviewed effective head `a20f04b`. The review withdrew P2-1 after the focused test confirmed the nil plan refusal. It found P2-2, a version collision across entity types. `docs/reviews/pr-30.md` holds the record. State: changes required. Next action: fix P2-2 and ask Codex to review the new effective head (D-8).
+Codex round 1 gave "Changes required" at `f75610a` with P2-1, and round 2 withdrew it. Round 2 gave "Changes required" at `a20f04b` with P2-2: a workout and a set with the same id shared one version. The author found full merit, and keyed each version by the entity and its id. `docs/reviews/pr-30-response.md` holds both answers. State: the pull request waits for CI and Codex round 3. Next action: run `make codex-review PR=30` after CI is green (D-8).
 
 The merge changes `go/` and `web/`, so it deploys both. The session of PR-30 reads both deploys first. The next live plan gives 20 to 30 minutes of cardio in each session. The stored plan of 10 minutes stays until the owner requests a new one.
 
