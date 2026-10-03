@@ -16,6 +16,9 @@
 //   - LUNA_FAKE_PROVIDER: "1" gives the fake provider of Luna in place of
 //     OpenAI, for the local browser tests (D-24). The API refuses it on
 //     Cloud Run.
+//   - LUNA_FAKE_DELAY_MS: the wait of each call of the fake provider, in
+//     milliseconds, so the browser tests can see the progress (D-241).
+//     The API refuses it on Cloud Run.
 package main
 
 import (
@@ -27,6 +30,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -70,12 +74,30 @@ const EnvFakeProvider = "LUNA_FAKE_PROVIDER"
 
 func openAI(key string) (ai.Provider, error) { return ai.NewOpenAI(key, "", nil) }
 
+// EnvFakeDelay names the wait of each call of the fake provider.
+const EnvFakeDelay = "LUNA_FAKE_DELAY_MS"
+
+// maxFakeDelay is the longest wait of EnvFakeDelay, below the time limit
+// of a planner call.
+const maxFakeDelay = 60 * time.Second
+
 // providerFromEnv gives the fake provider when EnvFakeProvider is "1",
-// and OpenAI in each other case. The start guard runs before the
-// provider, so Cloud Run never gets the fake.
+// and OpenAI in each other case. The fake waits EnvFakeDelay before each
+// reply. The start guard runs before the provider, so Cloud Run never
+// gets the fake.
 func providerFromEnv(getenv func(string) string) ProviderFunc {
 	if getenv(EnvFakeProvider) == "1" {
-		return func(string) (ai.Provider, error) { return &ai.Fake{}, nil }
+		return func(string) (ai.Provider, error) {
+			f := &ai.Fake{}
+			if v := getenv(EnvFakeDelay); v != "" {
+				ms, err := strconv.Atoi(v)
+				if err != nil || ms < 0 || time.Duration(ms)*time.Millisecond > maxFakeDelay {
+					return nil, fmt.Errorf("%s: want a whole number of milliseconds from 0 to %d", EnvFakeDelay, maxFakeDelay.Milliseconds())
+				}
+				f.Delay = time.Duration(ms) * time.Millisecond
+			}
+			return f, nil
+		}
 	}
 	return openAI
 }

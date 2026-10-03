@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"sync"
+	"time"
 )
 
 // Call is one request to a provider: the role, the instructions, the
@@ -36,11 +37,13 @@ type Provider interface {
 
 // Fake is the provider of the tests (D-24). It makes no network call.
 // Reply gives the answer of each call. When Hang is true, Send waits
-// until the context ends, as a call that times out. Fake is safe for
-// use by more than one goroutine.
+// until the context ends, as a call that times out. Delay makes each
+// call wait before its reply, so a browser test can see the progress of
+// a request (D-241). Fake is safe for use by more than one goroutine.
 type Fake struct {
 	Reply func(Call) (Reply, error)
 	Hang  bool
+	Delay time.Duration
 
 	mu    sync.Mutex
 	calls []Call
@@ -54,6 +57,13 @@ func (f *Fake) Send(ctx context.Context, c Call) (Reply, error) {
 	if f.Hang {
 		<-ctx.Done()
 		return Reply{}, ctx.Err()
+	}
+	if f.Delay > 0 {
+		select {
+		case <-ctx.Done():
+			return Reply{}, ctx.Err()
+		case <-time.After(f.Delay):
+		}
 	}
 	if f.Reply == nil {
 		return EchoReply(c)
@@ -70,8 +80,16 @@ func (f *Fake) Calls() []Call {
 
 // EchoReply gives a valid output for a call: each session holds the
 // first MaxSessionExercises exercises of the input at their policy
-// targets, with the default warm-up and cool-down and no cardio. The usage counts 4 bytes as one token.
-// It is the default reply of the fake.
+// targets, with the default warm-up and cool-down. When the input has a
+// cardio exercise, each session gets EchoCardioMinutes of the first one.
+// The plan holds the EchoGuidance items, so a test sees each part of a
+// plan (D-44, D-241). The usage counts 4 bytes as one token. It is the
+// default reply of the fake.
+// The cardio time and the guidance items of EchoReply.
+const EchoCardioMinutes = 10
+
+var EchoGuidance = []GuidanceID{"mobility.hips", "recovery.rest_day"}
+
 func EchoReply(c Call) (Reply, error) {
 	var in wireInput
 	if err := json.Unmarshal(c.Input, &in); err != nil {
@@ -98,9 +116,12 @@ func EchoReply(c Call) (Reply, error) {
 		Summary  string       `json:"summary"`
 		Sessions []session    `json:"sessions"`
 		Guidance []GuidanceID `json:"guidance_ids"`
-	}{Summary: "A plan at the targets of the rules.", Guidance: []GuidanceID{}}
+	}{Summary: "A plan at the targets of the rules.", Guidance: append([]GuidanceID(nil), EchoGuidance...)}
 	for range in.Sessions {
 		s := session{WarmUp: DefaultWarmUp, CoolDown: DefaultCoolDown, Exercises: []exercise{}}
+		if len(in.Cardio) > 0 {
+			s.Cardio = cardio{in.Cardio[0], EchoCardioMinutes}
+		}
 		for _, e := range in.Exercises[:min(len(in.Exercises), MaxSessionExercises)] {
 			s.Exercises = append(s.Exercises, exercise{e.ID, e.Target.Rest, e.Target.Calibration, e.Target.Working,
 				"The target follows your last logged sets."})

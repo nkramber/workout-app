@@ -362,6 +362,7 @@ func TestPlanShape(t *testing.T) {
 		s := out["sessions"].([]any)[0].(map[string]any)
 		s["cardio"] = map[string]any{"exercise_id": "treadmill", "minutes": 10}
 		s["cool_down_id"] = "cool_down.stretch"
+		out["sessions"].([]any)[1].(map[string]any)["cardio"] = map[string]any{"exercise_id": "", "minutes": 0}
 	})}
 	req := request(t)
 	req.Sessions = 2
