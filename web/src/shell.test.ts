@@ -5,9 +5,10 @@ import { describe, expect, it } from "vitest";
 
 // A headless browser has no status bar and no Home Screen, so it can not
 // show the gap at the bottom edge of D-120. This test holds the rule in
-// the source: the shell reads the dynamic viewport height, and no file
-// sizes a screen by 100vh, which is taller than the visible part on a
-// phone (decktome:D-625). The device check of PR-11 reads the phone.
+// the source: the shell reads the height of src/lib/app-height.ts with
+// the dynamic viewport height as its default, and no file sizes a screen
+// by 100vh, which is taller than the visible part on a phone
+// (decktome:D-625). The owner reads the phone after the deploy (PR-28).
 const src = import.meta.dirname;
 
 function sourceFiles(dir: string): string[] {
@@ -19,9 +20,10 @@ function sourceFiles(dir: string): string[] {
 }
 
 describe("the shell", () => {
-  it("reads the dynamic viewport height and the safe areas", () => {
+  it("reads the app height with the dynamic viewport height as its default, and the safe areas", () => {
     const shell = readFileSync(path.join(src, "shell.tsx"), "utf8");
-    expect(shell).toContain("h-dvh");
+    expect(shell).toContain("h-[var(--app-height,100dvh)]");
+    expect(shell).toContain("pb-[calc(1rem+env(safe-area-inset-bottom))]");
     for (const side of ["top", "right", "bottom", "left"]) expect(shell).toContain(`env(safe-area-inset-${side})`);
   });
 

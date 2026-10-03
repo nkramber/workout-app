@@ -3,9 +3,10 @@
 /* The shell of src/shell.tsx is the whole window, and its main region is
    the one part that scrolls. The document never scrolls, so the page
    never bounces and never shows empty ground below the app. The shell
-   reads the dynamic viewport height, not 100% of the page: with the
-   translucent status bar of the Home Screen app, a shell of 100% left a
-   gap at the bottom edge (D-120, decktome:D-625). */
+   reads the screen height in the Home Screen app and the dynamic
+   viewport height in a tab, not 100% of the page: with the translucent
+   status bar of the Home Screen app, a shell of 100% or of 100dvh left a
+   gap at the bottom edge (D-120, decktome:D-625, src/lib/app-height.ts). */
 html,
 body {
   overflow: hidden;
