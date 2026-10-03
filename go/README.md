@@ -34,7 +34,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `LUNA_CAP_USER_USD`, `LUNA_CAP_PROJECT_USD` | The monthly AI caps, below. The API does not start without them. |
 | `LUNA_FAKE_PROVIDER` | `1` gives the fake provider of Luna in place of OpenAI, so a local run makes no paid call (D-24). The browser tests set it. On Cloud Run, the API refuses it. |
 
-`go/internal/ai` reads the caps of D-25 from `LUNA_CAP_USER_USD` and `LUNA_CAP_PROJECT_USD`, in US dollars, such as `0.25`. A value that is not set stops the start, and 0 refuses each call. D-188 gives 1 USD for the user and 2 USD for the project, for each calendar month in UTC (D-190). The API does not call Luna yet, so it reads neither variable.
+`go/internal/ai` reads the caps of D-25 from `LUNA_CAP_USER_USD` and `LUNA_CAP_PROJECT_USD`, in US dollars, such as `0.25`. A value that is not set stops the start, and 0 refuses each call. D-188 gives 1 USD for the user and 2 USD for the project, for each calendar month in UTC (D-190). The API reads both variables at its start, and the cap hook of `go/internal/capstore` applies them to each planner call. A plan request over a cap gives an error at once (D-230).
 
 `go/internal/capstore` holds the spend of each month in Firestore (D-189). The paths are `users/{uid}/aiSpend/{YYYY-MM}` for the user and `aiSpend/{YYYY-MM}` for the project (D-224). Each document holds the settled charge and the open reservations, in billionths of a US dollar:
 
