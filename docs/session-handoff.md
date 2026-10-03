@@ -8,7 +8,7 @@ Date: 2026-10-03. Review PR #33, work area 6.3, at effective head `9c645d6a61c93
 
 The provider gate passes: Session 33 names Claude Code as author, and this review uses Codex. P2-1 is fixed. P2-2 remains open because the video method can not stop while it prepares its source. The review record is `docs/reviews/pr-33.md`.
 
-Next action: commit and push the review record and this hand-off, then verify the remote head with `gh pr view`.
+Next action: the author fixes P2-2 and requests another Codex review after CI passes.
 
 ## Facts that expire
 
