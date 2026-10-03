@@ -19,7 +19,7 @@ The owner approved a milestone of six concerns before the first edit (D-12), and
 - the calibration step on the workout screen, with 0 to 6+ reps in reserve (D-268),
 - the wake lock request at each tap, focus, `pageshow` event, and return, with the error name in the notice (D-271).
 
-State: The Codex review record now covers `7eaf4f6`. P2-1 is fixed. The review withdrew P2-2 because the API contract and domain model reject a skip with a logged set. Product checks pass on this head. A local emulator check failed once with a lock timeout, then passed on retry.
+State: The Codex review record now covers `7eaf4f6`. P2-1 is fixed. The review withdrew P2-2 because the API contract and domain model reject a skip with a logged set. Product checks pass on this head. A local emulator check failed once with a lock timeout, then passed on retry. The review record and this hand-off are on the branch.
 
 Next action: wait for the review-gate check, then ask the owner to confirm the merge (D-13).
 
