@@ -360,9 +360,9 @@ func TestPlanShape(t *testing.T) {
 	fake := &Fake{Reply: edit(t, func(out map[string]any) {
 		out["guidance_ids"] = []any{"mobility.hips", "recovery.rest_day"}
 		s := out["sessions"].([]any)[0].(map[string]any)
-		s["cardio"] = map[string]any{"exercise_id": "treadmill", "minutes": 10}
+		s["cardio"] = map[string]any{"exercise_id": "treadmill", "minutes": 25}
 		s["cool_down_id"] = "cool_down.stretch"
-		out["sessions"].([]any)[1].(map[string]any)["cardio"] = map[string]any{"exercise_id": "", "minutes": 0}
+		out["sessions"].([]any)[1].(map[string]any)["cardio"] = map[string]any{"exercise_id": "treadmill", "minutes": 30}
 	})}
 	req := request(t)
 	req.Sessions = 2
@@ -377,7 +377,8 @@ func TestPlanShape(t *testing.T) {
 	if p.Sessions[0].WarmUp != DefaultWarmUp || p.Sessions[0].CoolDown != "cool_down.stretch" {
 		t.Fatalf("session 0 guidance %q %q", p.Sessions[0].WarmUp, p.Sessions[0].CoolDown)
 	}
-	if c := p.Sessions[0].Cardio; c == nil || *c != (domain.PlannedCardio{Exercise: "treadmill", Minutes: 10}) || p.Sessions[1].Cardio != nil {
+	if c := p.Sessions[0].Cardio; c == nil || *c != (domain.PlannedCardio{Exercise: "treadmill", Minutes: 25}) ||
+		p.Sessions[1].Cardio == nil || p.Sessions[1].Cardio.Minutes != 30 {
 		t.Fatalf("cardio %+v %+v", p.Sessions[0].Cardio, p.Sessions[1].Cardio)
 	}
 	if !slices.Equal(p.Guidance, []GuidanceID{"mobility.hips", "recovery.rest_day"}) {

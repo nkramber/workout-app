@@ -14,7 +14,7 @@ import (
 
 // PromptVersion is the version of the prompt template. Change it with
 // each change of the text.
-const PromptVersion = "luna-prompt-v3"
+const PromptVersion = "luna-prompt-v4"
 
 // The dated copy of the OpenAI usage policies that the owner accepted
 // (D-93). The live page returned HTTP 403, so a change after the print
@@ -53,8 +53,8 @@ const rules = `Rules for each output:
 - summary: one or two sentences about the plan, %d characters at most.
 - reason: one sentence for each exercise, %d characters at most. Name the logged evidence that it uses: reps, load, reps in reserve, pain, or a gap.
 - Write no other text. Select the warm-up, the cool-down, and the mobility and recovery items by id from the catalog below.
-- Cardio is optional, and only from the cardio exercises of the input. A session with cardio has %d to %d minutes of it.
-- For a session with no cardio, set the cardio exercise_id to "" and minutes to 0.
+- When the input has cardio exercises, end each session with %d to %d minutes of one of them. Use no other cardio exercise.
+- When the input has no cardio exercise, set the cardio exercise_id of each session to "" and minutes to 0.
 - When the input has previous_attempt, an earlier output failed for the cause that it names, and its output is there when one exists. Make a fresh, complete output that obeys each rule. Do not copy the failed output.`
 
 // Instructions gives the instructions of a role: the task, the

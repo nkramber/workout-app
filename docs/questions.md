@@ -465,6 +465,14 @@ The live check of D-203 failed on 2026-10-02. The app showed "The API did not an
 | Q-265 | How does the owner report a warning symptom during a workout? | A button "Report a symptom" on each workout screen. | Answered | D-251 |
 | Q-266 | What happens to a plan request during a workout? | The plan screen refuses it until the workout ends. | Answered | D-252 |
 | Q-267 | Which reasoning effort does Luna use? | xhigh, for both roles. | Answered | D-253 |
+| Q-268 | Where does the change of the cardio rule go? | Into PR-29, with a wider milestone. | Answered | D-254 |
+| Q-269 | What does "20 to 30 minutes of cardio" mean for a plan? | Each session has 20 to 30 minutes when the owner likes a cardio exercise. | Answered | D-255 |
+| Q-270 | Which Firestore paths hold the logged sessions and the applied op ids? | One document for each session, and one for each op id. | Answered | D-256 |
+| Q-271 | How long does the server keep an applied op id? | With no end date. | Answered | D-257 |
+| Q-272 | Which rule applies to a conflict with `baseVersion`? | The phone wins for a workout entry. | Answered | D-258 |
+| Q-273 | What is the size limit of one sync batch? | 100 entries. | Answered | D-259 |
+| Q-274 | Does the 20-minute least time apply to a cardio log? | No, the log holds the true duration. | Answered | D-260 |
+| Q-275 | What is the length limit of a note? | 280 characters. | Answered | D-261 |
 
 ## Open questions
 

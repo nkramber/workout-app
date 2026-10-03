@@ -50,6 +50,8 @@ import (
 	"github.com/nkramber/workout-app/go/internal/profile"
 	"github.com/nkramber/workout-app/go/internal/profilesvc"
 	"github.com/nkramber/workout-app/go/internal/usersvc"
+	"github.com/nkramber/workout-app/go/internal/workout"
+	"github.com/nkramber/workout-app/go/internal/workoutsvc"
 )
 
 // commit is the build commit. The build sets it with
@@ -175,7 +177,7 @@ func run(ctx context.Context, logger *slog.Logger, environ []string, getenv func
 	// service ends a request that runs too long.
 	srv := &http.Server{
 		Addr:              ":" + port,
-		Handler:           newHandler(verifier, allowlist.FromFirestore(fs), inventories, profiles, maker, origin, commit),
+		Handler:           newHandler(verifier, allowlist.FromFirestore(fs), inventories, profiles, maker, workout.FromFirestore(fs), origin, commit),
 		ReadHeaderTimeout: readHeaderTimeout,
 		IdleTimeout:       idleTimeout,
 	}
@@ -195,16 +197,17 @@ func run(ctx context.Context, logger *slog.Logger, environ []string, getenv func
 }
 
 // newHandler builds the routes. Each call of UserService,
-// InventoryService, ProfileService, and PlanService needs a token of a
-// uid on the allowlist. The version route needs no sign-in, and it gives
+// InventoryService, ProfileService, PlanService, and WorkoutService needs
+// a token of a uid on the allowlist. The version route needs no sign-in, and it gives
 // the commit alone.
-func newHandler(v auth.Verifier, a auth.Allowlist, store inventory.Store, profiles profile.Store, maker *plan.Maker, origin, buildCommit string) http.Handler {
+func newHandler(v auth.Verifier, a auth.Allowlist, store inventory.Store, profiles profile.Store, maker *plan.Maker, workouts workout.Store, origin, buildCommit string) http.Handler {
 	mux := http.NewServeMux()
 	signedIn := connect.WithInterceptors(auth.Interceptor(v, a))
 	mux.Handle(workoutappv1connect.NewUserServiceHandler(usersvc.Server{}, signedIn))
 	mux.Handle(workoutappv1connect.NewInventoryServiceHandler(inventorysvc.New(store), signedIn))
 	mux.Handle(workoutappv1connect.NewProfileServiceHandler(profilesvc.New(profiles), signedIn))
 	mux.Handle(workoutappv1connect.NewPlanServiceHandler(plansvc.New(maker), signedIn))
+	mux.Handle(workoutappv1connect.NewWorkoutServiceHandler(workoutsvc.New(workouts), signedIn))
 	body, _ := json.Marshal(map[string]string{"commit": buildCommit})
 	mux.HandleFunc("GET "+VersionPath, func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

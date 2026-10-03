@@ -28,13 +28,14 @@ func malformed(format string, args ...any) error {
 }
 
 // The bounds of a session of Luna. A session has MaxSessionExercises
-// exercises with sets or fewer (D-233), and its cardio has
-// MinCardioMinutes to MaxCardioMinutes minutes (D-232). An output
-// outside a bound is malformed, and the plan API retries the call
-// (D-230).
+// exercises with sets or fewer (D-233). When the request has a cardio
+// exercise, each session has MinCardioMinutes to MaxCardioMinutes
+// minutes of one (D-255). When it has none, no session has cardio. An
+// output outside a bound is malformed, and the plan API retries the
+// call (D-230).
 const (
 	MaxSessionExercises = 8
-	MinCardioMinutes    = 5
+	MinCardioMinutes    = 20
 	MaxCardioMinutes    = 30
 )
 
@@ -188,6 +189,8 @@ func parse(text string, req Request) (Plan, error) {
 			return Plan{}, malformed("%s.cardio: a field is missing", where)
 		}
 		switch {
+		case *c.Exercise == "" && *c.Minutes == 0 && len(cardio) > 0:
+			return Plan{}, malformed("%s.cardio: no cardio: want %d to %d minutes of a cardio exercise of the request", where, MinCardioMinutes, MaxCardioMinutes)
 		case *c.Exercise == "" && *c.Minutes == 0:
 		case !cardio[*c.Exercise]:
 			return Plan{}, malformed("%s.cardio: not a cardio exercise of the request", where)

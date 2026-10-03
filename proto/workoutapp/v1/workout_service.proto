@@ -1,0 +1,211 @@
+syntax = "proto3";
+
+package workoutapp.v1;
+
+option go_package = "github.com/nkramber/workout-app/go/gen/workoutapp/v1;workoutappv1";
+
+// WorkoutService holds the logged sessions of the caller (work areas 6.1 and
+// 6.3). Every call needs a Firebase ID token of a uid on the invite
+// allowlist (D-75, D-131).
+//
+// The phone keeps each log and its outbox entry in one local transaction,
+// and sends the outbox later (D-77, D-132). The server applies each entry
+// one time alone, keyed by its client op id, and keeps each applied op id
+// with no end date (D-257). A replay of an applied entry changes nothing
+// and gives the same result.
+//
+// An error and a result message name ids and numbers alone, and never a
+// note or a date of a log (D-80).
+service WorkoutService {
+  // SyncOutbox applies a batch of 1 to 100 outbox entries, in the order of
+  // the request (D-259). Each entry applies in its own transaction, so a
+  // refused entry changes nothing, and the other entries still apply. The
+  // response holds one result for each entry, in the same order. A batch of
+  // more than 100 entries gives INVALID_ARGUMENT with no change.
+  rpc SyncOutbox(SyncOutboxRequest) returns (SyncOutboxResponse) {}
+
+  // ListWorkouts returns the logged sessions of the caller, the newest date
+  // first.
+  rpc ListWorkouts(ListWorkoutsRequest) returns (ListWorkoutsResponse) {}
+}
+
+// OutboxEntry is one entry of the outbox of the phone, in the form of D-132.
+// The payload holds the whole new state of the entity, so the last applied
+// entry of an entity gives its state. For a workout entry, the phone wins:
+// the server records base_version, and a different server version does not
+// refuse the entry (D-258).
+message OutboxEntry {
+  // The client op id: a UUIDv7 that the phone makes, in the lower-case
+  // form of RFC 9562.
+  string op_id = 1;
+  // The entity: "workout", "set", or "cardio". The payload must agree.
+  string entity = 2;
+  // The id of the entity: a UUID that the phone makes. For a "workout"
+  // entry, it is the workout id.
+  string entity_id = 3;
+  // The server version of the entity that the change starts from, 0 before
+  // the first sync.
+  int64 base_version = 4;
+  // The time of the change on the phone, in RFC 3339 form. The sets of an
+  // exercise keep the order of this time.
+  string at = 5;
+  // The version of the entry form. The server knows version 1 alone.
+  int32 schema_version = 6;
+  oneof payload {
+    WorkoutHeader workout = 7;
+    SetEntry set = 8;
+    CardioEntry cardio = 9;
+  }
+}
+
+// PlanLink names the session of the plan that a workout started from
+// (D-248). A plan has no id, so its creation time names it.
+message PlanLink {
+  // The created_at of the plan, in RFC 3339 form.
+  string plan_created_at = 1;
+  // The index of the session in the plan, from 0.
+  int32 session_index = 2;
+}
+
+// WorkoutHeader is the state of one workout, with no set and no cardio log.
+message WorkoutHeader {
+  // The date of the workout, as YYYY-MM-DD.
+  string date = 1;
+  PlanLink plan = 2;
+  // The exercises that the owner skipped (D-47, D-63). An exercise with a
+  // logged set is not skipped, even when this list names it.
+  repeated string skipped_exercise_ids = 3;
+  // True when the owner ended the workout with "finish now" (D-63).
+  bool ended_early = 4;
+  // True when the workout ended.
+  bool finished = 5;
+}
+
+// SetEntry is the state of one logged set (D-57, D-164, D-249). The entity
+// id of its entry is the set id. A load is a whole number of tenths of a
+// pound, so 12.5 lb is 125 (D-122, D-160).
+message SetEntry {
+  string workout_id = 1;
+  // An exercise of the catalog that is not a cardio exercise.
+  string exercise_id = 2;
+  // "working" or "calibration".
+  string kind = 3;
+  // 0 or more (D-164).
+  int32 reps = 4;
+  // More than 0 (D-164).
+  int64 weight_tenths_lb = 5;
+  // The reps in reserve, 0 or more (D-164).
+  int32 rir = 6;
+  // The pain rating from 0 to 10, or no value for no report (D-162).
+  optional int32 pain = 7;
+  // The note of the owner, 280 characters or fewer, or empty (D-261).
+  string note = 8;
+}
+
+// CardioEntry is the state of one cardio log (D-123). The entity id of its
+// entry is the id of the cardio log. The plan asks for 20 to 30 minutes, and
+// the log holds the true duration (D-255, D-260).
+message CardioEntry {
+  string workout_id = 1;
+  // A cardio exercise of the catalog.
+  string exercise_id = 2;
+  // The duration in whole seconds, more than 0.
+  int32 duration_seconds = 3;
+  // The effort rating, from 1 to 10.
+  int32 effort = 4;
+  // The distance in tenths of a mile, 0 or more, or no value (D-165).
+  optional int32 distance_tenths_mi = 5;
+  // The resistance level, 0 or more, or no value.
+  optional int32 resistance = 6;
+  // The pain rating from 0 to 10, or no value for no report (D-162).
+  optional int32 pain = 7;
+  // The note of the owner, 280 characters or fewer, or empty (D-261).
+  string note = 8;
+}
+
+// EntryResult is the result of one entry.
+message EntryResult {
+  string op_id = 1;
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    // The server applied the entry, now or in an earlier call.
+    STATUS_APPLIED = 1;
+    // The server refused the entry, and changed nothing. A retry of an entry
+    // with the code "invalid_argument" gets the same refusal.
+    STATUS_REFUSED = 2;
+  }
+  Status status = 2;
+  // The server version of the entity after the entry, for an applied entry.
+  int64 version = 3;
+  // The code of a refusal: "invalid_argument" for a bad entry, or
+  // "failed_precondition" for a set or a cardio log of an unknown workout.
+  string code = 4;
+  // The cause of a refusal, with ids and numbers alone (D-80).
+  string message = 5;
+}
+
+message SyncOutboxRequest {
+  repeated OutboxEntry entries = 1;
+}
+
+message SyncOutboxResponse {
+  // One result for each entry, in the order of the request.
+  repeated EntryResult results = 1;
+}
+
+// LoggedSet is one set of a logged exercise, in the order of its time.
+message LoggedSet {
+  string set_id = 1;
+  string kind = 2;
+  int32 reps = 3;
+  int64 weight_tenths_lb = 4;
+  int32 rir = 5;
+  optional int32 pain = 6;
+  string note = 7;
+}
+
+// LoggedExercise is the log of one exercise. A skipped exercise holds no set.
+message LoggedExercise {
+  string exercise_id = 1;
+  bool skipped = 2;
+  repeated LoggedSet sets = 3;
+}
+
+// LoggedCardio is one cardio log.
+message LoggedCardio {
+  string cardio_id = 1;
+  string exercise_id = 2;
+  int32 duration_seconds = 3;
+  int32 effort = 4;
+  optional int32 distance_tenths_mi = 5;
+  optional int32 resistance = 6;
+  optional int32 pain = 7;
+  string note = 8;
+}
+
+// Workout is one logged session, in the form of the session log of the
+// domain model.
+message Workout {
+  string workout_id = 1;
+  string date = 2;
+  PlanLink plan = 3;
+  bool ended_early = 4;
+  bool finished = 5;
+  // The exercises in the order of their first log.
+  repeated LoggedExercise exercises = 6;
+  // The cardio logs in the order of their time.
+  repeated LoggedCardio cardio = 7;
+}
+
+message ListWorkoutsRequest {
+  // The count of workouts, from 1 to 50. 0 gives 20.
+  int32 limit = 1;
+  // The next_page_token of an earlier response, or empty for the first page.
+  string page_token = 2;
+}
+
+message ListWorkoutsResponse {
+  repeated Workout workouts = 1;
+  // The token of the next page, or empty when no workout remains.
+  string next_page_token = 2;
+}

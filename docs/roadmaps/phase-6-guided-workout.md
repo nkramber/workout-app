@@ -51,6 +51,18 @@ The deploy of the merge of PR-28 changes the live API and the live web app. The 
 - The service worker applies an update only after the owner taps "Update ready", and never during a workout (D-133).
 - No workout service exists in `proto/workoutapp/v1`.
 
+### 1.4 The live check at xhigh
+
+The session of PR-29 read these facts on 2026-10-03:
+
+- PR-28 merged to `main` as `fe7fe20`.
+- The build `deploy-web` `9e3f4aff` gave SUCCESS at 05:27:39Z. The build `deploy-api` `1bfa4330` gave SUCCESS at 05:28:54Z.
+- The live `/version` and the live `/version.json` both named `fe7fe20` (D-137).
+
+The session stated the expected cost of one live plan at xhigh, and the owner approved it (D-212). At 06:10Z the owner requested one plan on the iPhone. The revision `api-00014-j4h` made 1 planner call at xhigh, with the status `ok`, a cost of 0.0022 USD, and a `RequestPlan` time of 29.7 s. The plan has 2 sessions with 5 and 4 exercises, no violation, and 10 minutes of cardio in each session. The owner saw the plan to the bottom edge of the screen (D-120).
+
+The owner then asked for 20 to 30 minutes of cardio in each session, and PR-29 holds the change (D-254, D-255).
+
 ## 2. Owner answers for this phase
 
 | Question | Answer | Decision |
@@ -67,6 +79,14 @@ The deploy of the merge of PR-28 changes the live API and the live web app. The 
 | Q-265, a warning symptom | A button "Report a symptom" on each workout screen. | D-251 |
 | Q-266, a plan request during a workout | The plan screen refuses it until the workout ends. | D-252 |
 | Q-267, the effort of Luna | xhigh, for both roles. | D-253 |
+| Q-268, the place of the cardio rule | PR-29, with a wider milestone. | D-254 |
+| Q-269, the cardio of a plan | 20 to 30 minutes in each session, when the owner likes a cardio exercise. | D-255 |
+| Q-270, the Firestore paths | `users/{uid}/workouts/{workoutId}` and `users/{uid}/ops/{opId}`. | D-256 |
+| Q-271, the time of an op id | With no end date. | D-257 |
+| Q-272, a conflict with `baseVersion` | The phone wins for a workout entry. | D-258 |
+| Q-273, the size of a batch | 100 entries. | D-259 |
+| Q-274, the least time of a cardio log | None. The log holds the true duration. | D-260 |
+| Q-275, the length of a note | 280 characters. | D-261 |
 
 No open question blocks PR-29. Section 4 names the questions that each session asks. Q-194 and Q-202 stay open for Phase 7. Q-103 stays open for the deferred photo work.
 
@@ -75,7 +95,8 @@ No open question blocks PR-29. Section 4 names the questions that each session a
 - The phone keeps each log first. Each change and its outbox entry go into one Dexie transaction (D-62, D-77, D-132).
 - The API alone reads and writes Firestore (D-77). The rules of `firestore.rules` refuse each client read and write.
 - A sync is idempotent. The server applies each client op id one time alone, and a replay changes nothing.
-- The server checks each log with the bounds of D-164, as the domain model of `go/internal/domain` does.
+- The server checks each log with the bounds of D-164, as the domain model of `go/internal/domain` does. A note has 280 characters or fewer (D-261).
+- For a workout entry, the phone wins. The server records the base version, and does not refuse a different one (D-258).
 - The workout screens use large targets, few taps, and little typing (D-71). Each cue is visual alone, with no audio and no vibration (D-58). The app gives no notification (D-61).
 - A warning symptom gives the warning of D-153. The owner can continue after a confirmation (D-40).
 - No log, metric, or error report holds the pain rating, a note, a symptom, or a load. It holds ids alone (D-80).
@@ -116,21 +137,22 @@ Checks: `make verify`, `make go-test`, `make emulator-test`, `make web`, and `ma
 
 Branch: `feat/pr-29-workout-api`. Work areas 6.1 and 6.3. It needs PR-28 on `main`.
 
-Before the work, the session reads the deploys of the merge of PR-28. It states the expected cost of one live plan at xhigh, and asks the owner (D-212). After the approval, the owner requests one plan on the iPhone and reads the bottom edge of the plan screen.
+Before the work, the session reads the deploys of the merge of PR-28. It states the expected cost of one live plan at xhigh, and asks the owner (D-212). After the approval, the owner requests one plan on the iPhone and reads the bottom edge of the plan screen. Section 1.4 gives the result.
 
 Concerns:
 
-- a workout service in `proto/workoutapp/v1`. One unary call takes a batch of outbox entries and gives the result of each entry. Another call reads the logged sessions,
-- the Firestore store of the logged sessions, with the form of the domain model of `go/internal/domain/log.go`,
-- the idempotency of each client op id: the server applies an entry one time alone, and a replay gives the same result,
-- the check of each log with the bounds of D-164, and the refusal of an unknown entity or schema version,
-- the link of each logged session to the session of the plan that it started from (D-248).
+- a workout service in `proto/workoutapp/v1`. One unary call takes a batch of 100 outbox entries or fewer, and gives the result of each entry (D-259). Another call reads the logged sessions,
+- the Firestore store of the logged sessions at `users/{uid}/workouts/{workoutId}`, with the form of the domain model of `go/internal/domain/log.go` (D-256),
+- the idempotency of each client op id: the server applies an entry one time alone, and a replay gives the same result. Each applied op id stays at `users/{uid}/ops/{opId}` with no end date (D-257),
+- the check of each log with the bounds of D-164, D-260, and D-261, and the refusal of an unknown entity or schema version. For a workout entry, the phone wins (D-258),
+- the link of each logged session to the session of the plan that it started from (D-248),
+- the cardio rule of D-255 in the prompt, the output check, the fake provider, and the plan screen (D-254).
 
-Acceptance story: the emulator tests send a batch of entries for one session through the API, and the server holds each set one time. The same batch again changes nothing. The server refuses a set outside the bounds of D-164, and no other entry of the batch changes.
+Acceptance story: the emulator tests send a batch of entries for one session through the API, and the server holds each set one time. The same batch again changes nothing. The server refuses a set outside the bounds of D-164, and no other entry of the batch changes. The unit tests show that an output breaks the cardio rule when a session has fewer than 20 minutes of cardio. A session with no cardio breaks it too, when the owner likes a cardio exercise. Such an output uses one retry (D-230).
 
-Checks: `make contract`, `make go-test`, `make emulator-test`, and `make verify`, free. Codex reviews PR-29.
+Checks: `make contract`, `make go-test`, `make emulator-test`, `make web`, and `make verify`, free. Codex reviews PR-29.
 
-Questions for the session: the Firestore paths of the logged sessions and of the applied op ids. Also the time that the server keeps an op id. Also the rule of a conflict with `baseVersion` (D-132), and the size limit of one batch.
+The owner answered the questions of the session: Q-270 to Q-275 (D-256 to D-261).
 
 ### PR-30 - The workout screen and set log
 
@@ -144,7 +166,7 @@ Concerns:
 - the button "Report a symptom" on each workout screen, with the warning of D-153 and the confirmation of D-40 (D-251),
 - the refusal of a new plan and of an exclusion while a workout is in progress (D-252),
 - the wake lock, so the screen stays on during a workout,
-- each log and its outbox entry in one Dexie transaction (D-132). The sync comes in PR-32.
+- each log and its outbox entry in one Dexie transaction (D-132), with the entities and payloads of `proto/workoutapp/v1/workout_service.proto`. The sync comes in PR-32.
 
 Acceptance story: the browser tests start the next session, and log a set in three taps or fewer. A symptom report shows the warning, and the owner continues after the confirmation. After a stop and an open of the app, the workout and each logged set stay on the phone.
 
@@ -187,7 +209,7 @@ Checks: `make web`, `make go-test`, `make emulator-test`, and `make verify`, fre
 
 After the deploy of the merge, the owner completes a full workout on the iPhone with no connection, and then opens the app online. The Phase 7 roadmap session records the result (recommendation, as this roadmap does for Phase 5).
 
-Questions for the session: the confirmation of a machine with no connection (D-201). Also the order of the inventory entries and the workout entries in one sync.
+Questions for the session: the confirmation of a machine with no connection (D-201). Also the place on the phone of an entry that the server refused. Also the order of the inventory entries and the workout entries in one sync.
 
 ## 5. Exit of the phase
 
