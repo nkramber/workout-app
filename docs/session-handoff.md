@@ -17,7 +17,7 @@ The owner approved the milestone before the first edit (D-12), and answered Q-25
 
 The browser test "the owner requests a plan, sees each part, excludes an exercise, and sees the new plan" of `web/e2e/plan.spec.ts` holds the acceptance story. `make go-test` and `make web` passed.
 
-State: the pull request is open, with no Codex review yet. Next action: wait for CI, then run `make codex-review`.
+State: Codex reviewed effective head `26f1283e484fa4691f35d4831942435efac6007b` and found P2-1 and P2-2 in `docs/reviews/pr-28.md`. Verdict: Changes required. Next action: correct both findings, run the required checks, and request a new Codex review.
 
 The live check on the iPhone needs the `deploy-web` build of the merge (D-212). The next session reads the deploy, states the expected cost, and asks the owner. After the approval, the owner requests one plan in the live app, and that session records the result as the exit evidence of Phase 5.
 
