@@ -4,28 +4,15 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-03. Roadmap PR-31 of `docs/roadmaps/phase-6-guided-workout.md`, on branch `feat/pr-31-rest-timer`, from base `eaa18b6`.
+Date: 2026-10-03. Review of roadmap PR-31, GitHub #32, on `feat/pr-31-rest-timer`, from base `eaa18b6`.
 
-Before the work, the session read the deploy of `eaa18b6`. The build `deploy-web` `247ef56d` and the build `deploy-api` `715c817d` gave `SUCCESS`, and the live `/version` and `/version.json` both name `eaa18b6` (D-137).
+State: The Codex review found P2-1 and P2-2 at effective head `deb04a7929c6f0fc2eea62295d64e66c6364e66b`. The verdict is `Changes required`.
 
-The owner approved the live check (D-212). One plan at xhigh of `luna-prompt-v5` took 1 call of 0.0019 USD, with 25 minutes of cardio in each session (D-255). Each of the 9 reasons is "This exercise is new.", with no gap (D-262). The owner saw the wake lock hold and logged a set. Section 1.6 of the roadmap records the check.
+Checks: `make verify`, `make contract`, `make go-test`, `make emulator-test`, and `make web` passed at the branch tip. GitHub product checks passed. `review-gate` failed because the review record did not exist.
 
-The owner then found two faults. A calibration set did not change the working load, and the wake lock notice stayed after a return to the app. The owner approved a milestone of six concerns before the first edit (D-12), and answered Q-280 to Q-285 (D-266 to D-271). The pull request holds:
+Next action: Fix both findings, push a new round, then run a repeat review.
 
-- the rest timer from a stored end time in the `meta` table, with "-15 s", "+15 s", and "Dismiss" (D-59, D-270),
-- the preview of the next machine for 10 seconds, with "Go now", then the automatic advance (D-60, D-269),
-- the skip of an exercise and the edit of a set, each with its outbox entry, and the new rule of "finish now" (D-63),
-- one calibration set in each session, with policy version 4 and the field `calibration_loads` of the plan (D-267),
-- the calibration step on the workout screen, with 0 to 6+ reps in reserve (D-268),
-- the wake lock request at each tap, focus, `pageshow` event, and return, with the error name in the notice (D-271).
-
-`make contract`, `make go-test`, `make emulator-test`, `make web`, and `make verify` passed. In the first run of `make web`, 5 earlier Chromium tests waited more than 10 s for a fake plan. The second run passed 73 of 73.
-
-State: PR-31 (GitHub #32) is open. The Codex review comes next.
-
-Next action: wait for CI, and run `make codex-review PR=32` (D-8).
-
-The merge changes `go/` and `web/`, so it deploys both. The session of PR-32 reads both deploys first. The owner then checks the wake lock after a return to the app, and one calibration set on the iPhone. A plan made before the merge has no calibration loads, so the owner requests a new plan first (D-212).
+After the merge, the changes to `go/` and `web/` deploy. The next session reads both deploys first. The owner then checks the wake lock after a return to the app, and logs one calibration set on the iPhone. A plan made before the merge has no calibration loads, so the owner requests a new plan first (D-212).
 
 ## Facts that expire
 
