@@ -415,13 +415,18 @@ test("a refused wake lock shows the error name, and a tap gets the lock again", 
 });
 
 // The state of the workout screen: the preview of the next machine, the
-// next set of the set log, or the end of the strength work.
-async function screenState(page: Page): Promise<string> {
-  if (await page.getByTestId("next-preview").count()) return "preview";
-  if (!(await logger(page).count())) return "done";
-  const name = await logger(page).getByTestId("logger-exercise").textContent();
-  const label = await logger(page).getByTestId("set-label").textContent();
-  return `${name}: ${label}`;
+// next set of the set log, or the end of the strength work. The page reads
+// it in one step, because the set log leaves the screen when the preview
+// comes, and a second read of a locator would wait for it.
+function screenState(page: Page): Promise<string> {
+  return page.evaluate(() => {
+    if (document.querySelector('[data-testid="next-preview"]')) return "preview";
+    const log = document.querySelector('[data-testid="set-logger"]');
+    if (!log) return "done";
+    const name = log.querySelector('[data-testid="logger-exercise"]')?.textContent;
+    const label = log.querySelector('[data-testid="set-label"]')?.textContent;
+    return `${name}: ${label}`;
+  });
 }
 
 // logSets logs the next sets at 3 reps in reserve, and goes past each
