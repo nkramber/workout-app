@@ -23,6 +23,7 @@ import {
   removeWeight,
   searchCatalog,
   sortByName,
+  weightsToSave,
 } from "./inventory";
 
 // A synthetic catalog in the form of GetCatalog, with the kinds out of
@@ -149,6 +150,22 @@ describe("rangeWeights", () => {
     expect(rangeWeights(100, 10_010, 100).ok).toBe(false);
     expect(rangeWeights(10, 2_000, 10).ok).toBe(true);
     expect(rangeWeights(10, 2_010, 10).ok).toBe(false);
+  });
+});
+
+describe("weightsToSave", () => {
+  it("makes the list from the range when the list is empty (D-245)", () => {
+    expect(weightsToSave([], 100, 300, 100, false)).toEqual({ ok: true, value: [100, 200, 300] });
+    expect(weightsToSave([], null, 300, 100, false).ok).toBe(false);
+  });
+
+  it("keeps a list that the owner changed, while the range stays the same", () => {
+    expect(weightsToSave([100, 250, 300], 100, 300, 100, false)).toEqual({ ok: true, value: [100, 250, 300] });
+  });
+
+  it("makes a new list when the owner changed the range", () => {
+    expect(weightsToSave([100, 250, 300], 100, 400, 100, true)).toEqual({ ok: true, value: [100, 200, 300, 400] });
+    expect(weightsToSave([100, 200], 300, 100, 100, true).ok).toBe(false);
   });
 });
 

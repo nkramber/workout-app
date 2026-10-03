@@ -11,7 +11,9 @@ import { danger, ErrorText, primary, secondary, StateBadge, Title, useAction } f
 // each estimate. The owner confirms a draft here (D-193). The confirmation
 // sends the weights that this screen shows. When the stored weights are
 // different, the server refuses it, and the screen reads the inventory
-// again (D-201). The owner also removes the machine here.
+// again (D-201). A cardio machine has no weights, so its save confirms it
+// (D-246). A cardio draft from before that rule gets a confirmation with
+// no text about weights. The owner also removes the machine here.
 export function ReviewScreen({ catalog, inventory, go, machineId }: ScreenProps & { machineId: string }) {
   const api = useInventoryApi();
   const action = useAction();
@@ -40,6 +42,7 @@ export function ReviewScreen({ catalog, inventory, go, machineId }: ScreenProps 
   const exercises = catalog.exercises.filter((e) => e.machineId === machineId);
   const estimate = new Map(stored.estimates.map((e) => [e.exerciseId, e.loadTenthLb]));
   const draft = stored.state !== MachineState.CONFIRMED;
+  const cardio = machine.kind === "cardio";
 
   const confirm = async () => {
     await action.run(async () => {
@@ -74,7 +77,7 @@ export function ReviewScreen({ catalog, inventory, go, machineId }: ScreenProps 
           </p>
         ) : shownWeights.length === 0 ? (
           <p className="text-slate-100" data-testid="shown-weights">
-            No weights
+            {cardio ? "A cardio machine has no weights" : "No weights"}
           </p>
         ) : (
           <p className="break-words text-slate-100" data-testid="shown-weights">
@@ -83,7 +86,7 @@ export function ReviewScreen({ catalog, inventory, go, machineId }: ScreenProps 
         )}
       </section>
 
-      {exercises.length > 0 && machine.kind !== "cardio" && (
+      {exercises.length > 0 && !cardio && (
         <section className="space-y-2" aria-label="Estimates">
           <h3 className="text-sm font-semibold text-slate-300">Estimates</h3>
           <ul className="space-y-1 text-sm">
@@ -101,7 +104,9 @@ export function ReviewScreen({ catalog, inventory, go, machineId }: ScreenProps 
 
       {draft && (
         <p className="text-sm text-slate-400">
-          A plan uses this machine only after you confirm it. Read the weights above, then confirm them.
+          {cardio
+            ? "A plan uses this machine only after you confirm it."
+            : "A plan uses this machine only after you confirm it. Read the weights above, then confirm them."}
         </p>
       )}
 
@@ -110,17 +115,19 @@ export function ReviewScreen({ catalog, inventory, go, machineId }: ScreenProps 
       <div className="space-y-3">
         {draft && (
           <button type="button" disabled={action.busy} className={`${primary} w-full`} onClick={() => void confirm()}>
-            Confirm these weights
+            {cardio ? "Confirm this machine" : "Confirm these weights"}
           </button>
         )}
-        <button
-          type="button"
-          disabled={action.busy}
-          className={`${secondary} w-full`}
-          onClick={() => go({ name: "edit", machineId })}
-        >
-          Change
-        </button>
+        {!cardio && (
+          <button
+            type="button"
+            disabled={action.busy}
+            className={`${secondary} w-full`}
+            onClick={() => go({ name: "edit", machineId })}
+          >
+            Change
+          </button>
+        )}
         {removing ? (
           <div className="space-y-2 rounded-lg border border-red-900 p-3">
             <p className="text-sm text-slate-100">Remove {machine.name} from the inventory?</p>

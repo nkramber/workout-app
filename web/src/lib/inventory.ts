@@ -133,6 +133,21 @@ export function rangeWeights(lightest: number | null, heaviest: number | null, s
   return { ok: true, value: list };
 }
 
+// weightsToSave gives the weight list that the save of a stack sends
+// (D-195, D-245). The range makes a new list when the list is empty, or
+// when the owner changed the range after the list was made. Otherwise
+// the list keeps each weight that the owner added or removed.
+export function weightsToSave(
+  list: readonly number[],
+  lightest: number | null,
+  heaviest: number | null,
+  step: number | null,
+  rangeChanged: boolean,
+): Result<number[]> {
+  if (list.length > 0 && !rangeChanged) return { ok: true, value: [...list] };
+  return rangeWeights(lightest, heaviest, step);
+}
+
 // addWeight adds one weight to a list, and keeps the list sorted with no
 // weight two times.
 export function addWeight(list: readonly number[], weight: number | null): Result<number[]> {

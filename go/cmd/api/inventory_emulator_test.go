@@ -73,7 +73,9 @@ func TestInventoryAcceptanceStory(t *testing.T) {
 		t.Fatalf("GetCatalog = %v, %v", cat, err)
 	}
 
-	// Save three machines and a note. Each new machine is a draft.
+	// Save three machines and a note. Each new machine with weights is a
+	// draft. A cardio machine has no weights, so its save confirms it
+	// (D-246).
 	legPress := &workoutappv1.SaveMachineRequest{
 		MachineId:      "leg_press",
 		WeightsTenthLb: []int32{200, 300, 400, 500, 600},
@@ -90,8 +92,12 @@ func TestInventoryAcceptanceStory(t *testing.T) {
 		if err != nil {
 			t.Fatalf("SaveMachine(%s): %v", req.GetMachineId(), err)
 		}
-		if s := machineState(res.Msg.GetInventory(), req.GetMachineId()); s != draft {
-			t.Fatalf("new machine %s is %v, want draft", req.GetMachineId(), s)
+		want := draft
+		if req == treadmill {
+			want = confirmed
+		}
+		if s := machineState(res.Msg.GetInventory(), req.GetMachineId()); s != want {
+			t.Fatalf("new machine %s is %v, want %v", req.GetMachineId(), s, want)
 		}
 	}
 	note, err := client.SaveNote(ctx, signed(token, &workoutappv1.SaveNoteRequest{Text: "Hack squat"}))
