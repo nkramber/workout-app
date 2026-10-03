@@ -1,4 +1,5 @@
 import { useQuery } from "@connectrpc/connect-query";
+import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import {
@@ -10,6 +11,7 @@ import {
   type PlanProgress,
   type PlanSession,
 } from "../gen/workoutapp/v1/plan_service_pb";
+import { db } from "../lib/db";
 import { loadErrorText } from "../lib/errors";
 import {
   localDate,
@@ -21,6 +23,7 @@ import {
   setText,
 } from "../lib/plan";
 import { usePlanApi } from "../lib/plan-api";
+import { activeWorkout } from "../lib/workout";
 import { danger, ErrorText, field, primary, secondary, Title } from "./inventory/ui";
 
 // PlanPage is the plan screen (work area 5.2). It shows the plan of the
@@ -30,6 +33,8 @@ import { danger, ErrorText, field, primary, secondary, Title } from "./inventory
 // excludes an exercise with an optional reason (D-48). While a request
 // runs, the screen shows each progress step (D-231, D-239). A failed
 // request shows its error, and the plan does not change (D-230, D-240).
+// While a workout is open on the phone, the screen refuses a new plan
+// and an exclusion (D-252).
 export function PlanPage({ onBack }: { onBack: () => void }) {
   const plan = useQuery(PlanService.method.getPlan, {});
 
@@ -59,12 +64,18 @@ function PlanView({ plan, exclusions, onBack }: { plan?: Plan; exclusions: Exclu
   const [target, setTarget] = useState<Target | null>(null);
   const abort = useRef<AbortController | null>(null);
   const top = useRef<HTMLDivElement>(null);
+  const workout = useLiveQuery(() => activeWorkout(db), [], null);
+  // While the store loads, the screen does not know of a workout, so it
+  // refuses a change too.
+  const locked = workout !== undefined;
+  const blocked = busy || locked;
 
   // A close of the screen stops the stream, so the server saves nothing
   // (D-237).
   useEffect(() => () => abort.current?.abort(), []);
 
   const run = async (exclude: boolean, call: (onProgress: (p: PlanProgress) => void, signal: AbortSignal) => Promise<Plan>) => {
+    if (locked) return;
     const ctl = new AbortController();
     abort.current = ctl;
     let sawProgress = false;
@@ -104,13 +115,18 @@ function PlanView({ plan, exclusions, onBack }: { plan?: Plan; exclusions: Exclu
         </p>
       )}
       <ErrorText testId="plan-error">{error}</ErrorText>
+      {workout && (
+        <p className="rounded-lg border border-amber-800 bg-amber-950 p-3 text-sm text-amber-100" data-testid="workout-lock">
+          A workout is in progress. Finish it before you make a new plan or exclude an exercise.
+        </p>
+      )}
 
       {!plan && (
         <section className="space-y-3">
           <p className="text-slate-300" data-testid="no-plan">
             You have no plan yet. Luna makes a plan from your profile and your confirmed machines.
           </p>
-          <button type="button" className={`${primary} w-full`} disabled={busy} onClick={request}>
+          <button type="button" className={`${primary} w-full`} disabled={blocked} onClick={request}>
             Make a plan
           </button>
         </section>
@@ -122,7 +138,7 @@ function PlanView({ plan, exclusions, onBack }: { plan?: Plan; exclusions: Exclu
             <p className="text-slate-100" data-testid="plan-summary">
               {plan.summary}
             </p>
-            <button type="button" className={`${secondary} w-full`} disabled={busy} onClick={request}>
+            <button type="button" className={`${secondary} w-full`} disabled={blocked} onClick={request}>
               Make a new plan
             </button>
           </section>
@@ -132,7 +148,7 @@ function PlanView({ plan, exclusions, onBack }: { plan?: Plan; exclusions: Exclu
               key={i}
               session={s}
               index={i}
-              busy={busy}
+              busy={blocked}
               target={target}
               onOpen={(exerciseId) => setTarget({ session: i, exerciseId })}
               onCancel={() => setTarget(null)}

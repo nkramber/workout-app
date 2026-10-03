@@ -1,0 +1,212 @@
+import { expect, test, type Page } from "@playwright/test";
+
+import { makePlanOwner, signIn, stopAndOpen, uniqueEmail } from "./support";
+
+// The workout screen and the set log of work area 6.1. The API uses the
+// fake provider of Luna (D-241), so each plan has 3 sessions with the
+// chest press and the seated row, and 20 minutes on the treadmill. Each
+// machine has the weights 10 to 200 lb, in steps of 10 lb. No test calls
+// OpenAI (D-24). The phone keeps each log, and no test needs the sync of
+// PR-32.
+
+const MACHINES = ["chest_press", "seated_row", "treadmill"];
+
+const button = (page: Page, name: string) => page.getByRole("button", { name, exact: true });
+const logger = (page: Page) => page.getByTestId("set-logger");
+const exercise = (page: Page, id: string) => page.locator(`[data-testid="workout-exercise"][data-exercise-id="${id}"]`);
+
+// openWithPlan signs in, makes a plan with the fake, and goes back to the
+// home screen.
+async function openWithPlan(page: Page, email: string) {
+  await page.goto("/");
+  await signIn(page, email);
+  await button(page, "Plan").click();
+  await button(page, "Make a plan").click();
+  await expect(page.getByTestId("plan-summary")).toHaveText("A plan at the targets of the rules.");
+  await button(page, "Back").click();
+}
+
+const outbox = (page: Page) =>
+  page.evaluate(async () => (await window.workoutAppE2E!.pendingOutbox()).map((e) => ({ entity: e.entity, entityId: e.entityId })));
+
+// The acceptance story: the owner starts the next session, and logs a set
+// in three taps or fewer. A symptom report shows the warning, and the
+// owner continues after the confirmation. After a stop and an open of the
+// app, the workout and each logged set stay on the phone.
+test("the owner starts the next session, logs a set in three taps, reports a symptom, and keeps the workout", async ({ page, context, request }, info) => {
+  const email = uniqueEmail("workout", info);
+  await makePlanOwner(request, email, MACHINES);
+  await openWithPlan(page, email);
+
+  // Tap 1: the workout screen. Tap 2: the next session (D-248).
+  await button(page, "Workout").click();
+  await expect(page.getByTestId("next-session")).toContainText("Session 1");
+  await button(page, "Start Session 1").click();
+
+  // The reps and the weight come from the target (D-249).
+  await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Chest press");
+  await expect(logger(page).getByTestId("set-label")).toHaveText(/^(Calibration set|Set) 1 of \d+$/);
+  const firstLabel = (await logger(page).getByTestId("set-label").textContent()) ?? "";
+  const target = (await logger(page).getByTestId("set-target").textContent()) ?? "";
+  const [, reps, weight] = /^Target: (\d+) reps? at ([\d.]+ lb)/.exec(target) ?? [];
+  expect(reps, target).toBeTruthy();
+  await expect(logger(page).getByTestId("reps")).toHaveText(reps);
+  await expect(logger(page).getByTestId("weight")).toHaveText(weight);
+
+  // Tap 3: the reps in reserve log the set.
+  await button(page, "2 in reserve").click();
+  const logged = exercise(page, "chest_press").getByTestId("logged-sets").getByRole("listitem");
+  await expect(logged).toHaveCount(1);
+  await expect(logged.first()).toContainText(`${reps} reps at ${weight}, 2 in reserve`);
+  await expect(logger(page).getByTestId("set-label")).not.toHaveText(firstLabel);
+
+  // The workout and the set each have an outbox entry (D-132).
+  await expect.poll(async () => (await outbox(page)).map((e) => e.entity)).toEqual(["workout", "set"]);
+
+  // A symptom report shows the warning of D-153, and the owner continues
+  // after the confirmation (D-40, D-251).
+  await button(page, "Report a symptom").click();
+  await button(page, "Dizziness or feeling faint").click();
+  const dialog = page.getByRole("alertdialog");
+  await expect(dialog.getByTestId("warning-text")).toHaveText("You reported dizziness or feeling faint. Stop this exercise.");
+  await button(page, "Continue the workout").click();
+  await expect(page.getByRole("alertdialog")).toHaveCount(0);
+  await expect(logger(page)).toBeVisible();
+
+  // After a stop and an open of the app, the workout and the set stay.
+  const again = await stopAndOpen(context);
+  await expect(again.getByTestId("me-uid")).toBeVisible();
+  await button(again, "Continue workout").click();
+  await expect(again.getByRole("heading", { name: "Session 1", exact: true })).toBeVisible();
+  const kept = exercise(again, "chest_press").getByTestId("logged-sets").getByRole("listitem");
+  await expect(kept).toHaveCount(1);
+  await expect(kept.first()).toContainText(`${reps} reps at ${weight}, 2 in reserve`);
+  const stored = await again.evaluate(async () => ({
+    workouts: (await window.workoutAppE2E!.workouts()).map((w) => ({ finished: w.finished, sessionIndex: w.sessionIndex })),
+    sets: (await window.workoutAppE2E!.sets()).length,
+  }));
+  expect(stored).toEqual({ workouts: [{ finished: false, sessionIndex: 0 }], sets: 1 });
+});
+
+test("the plus and minus buttons change the reps and step the weight on the list, and pain gives the warning", async ({ page, request }, info) => {
+  const email = uniqueEmail("workout-steps", info);
+  await makePlanOwner(request, email, MACHINES);
+  await openWithPlan(page, email);
+  await button(page, "Workout").click();
+  await button(page, "Start Session 1").click();
+
+  const weightText = (await logger(page).getByTestId("weight").textContent()) ?? "";
+  const start = Number.parseFloat(weightText);
+  const reps = Number((await logger(page).getByTestId("reps").textContent()) ?? "");
+
+  // The weight steps to the next weight of the list of the machine (D-264).
+  // A new exercise starts at the lightest weight, 10 lb, so a tap of
+  // minus there keeps the weight (D-150).
+  await button(page, "Heavier").click();
+  await expect(logger(page).getByTestId("weight")).toHaveText(`${start + 10} lb`);
+  await button(page, "Lighter").click();
+  await expect(logger(page).getByTestId("weight")).toHaveText(`${start} lb`);
+  const final = start > 10 ? start - 10 : 10;
+  await button(page, "Lighter").click();
+  await expect(logger(page).getByTestId("weight")).toHaveText(`${final} lb`);
+  await button(page, "More reps").click();
+  await expect(logger(page).getByTestId("reps")).toHaveText(String(reps + 1));
+  await button(page, "Fewer reps").click();
+  await button(page, "Fewer reps").click();
+  await expect(logger(page).getByTestId("reps")).toHaveText(String(reps - 1));
+
+  // Pain and a note are behind one tap (D-57, D-162). A pain report gives
+  // the warning of D-169.
+  await button(page, "Add pain or a note").click();
+  await button(page, "Pain 3").click();
+  await logger(page).getByLabel("Note (optional)").fill("Synthetic note.");
+  await button(page, "4+ in reserve").click();
+  await expect(page.getByRole("alertdialog").getByTestId("warning-text")).toHaveText("You reported pain. Stop this exercise.");
+  await button(page, "Continue the workout").click();
+  await expect(exercise(page, "chest_press").getByTestId("logged-sets")).toContainText(
+    `${reps - 1} reps at ${final} lb, 4+ in reserve, pain 3`,
+  );
+});
+
+test("the cardio log holds the duration and the effort, and the optional fields", async ({ page, request }, info) => {
+  const email = uniqueEmail("workout-cardio", info);
+  await makePlanOwner(request, email, MACHINES);
+  await openWithPlan(page, email);
+  await button(page, "Workout").click();
+  await button(page, "Start Session 1").click();
+
+  const card = page.getByTestId("cardio-card");
+  await expect(card).toContainText("Treadmill");
+  await expect(card.getByTestId("cardio-minutes")).toHaveText("20");
+  await expect(button(page, "Log cardio")).toBeDisabled();
+  await button(page, "More minutes").click();
+  await button(page, "Effort 6").click();
+  await button(page, "Add distance, level, pain, or a note").click();
+  await card.getByLabel("Distance in miles (optional)").fill("2.55");
+  await expect(button(page, "Log cardio")).toBeDisabled();
+  await card.getByLabel("Distance in miles (optional)").fill("2.5");
+  await card.getByLabel("Resistance level (optional)").fill("4");
+  await button(page, "Log cardio").click();
+  await expect(card.getByTestId("cardio-logged")).toHaveText("Logged: 21 min, effort 6 of 10");
+  await expect.poll(async () => (await outbox(page)).map((e) => e.entity)).toEqual(["workout", "cardio"]);
+});
+
+test("finish now skips the exercises with no set, and the next session comes next", async ({ page, request }, info) => {
+  const email = uniqueEmail("workout-finish", info);
+  await makePlanOwner(request, email, MACHINES);
+  await openWithPlan(page, email);
+  await button(page, "Workout").click();
+  await button(page, "Start Session 1").click();
+  await button(page, "3 in reserve").click();
+  await expect(exercise(page, "chest_press").getByTestId("logged-sets").getByRole("listitem")).toHaveCount(1);
+
+  await button(page, "Finish now").click();
+  await expect(page.getByRole("alertdialog").getByTestId("finish-text")).toHaveText(
+    "1 exercise has no logged set. It counts as skipped, and the workout ends early.",
+  );
+  await page.getByRole("alertdialog").getByRole("button", { name: "Finish now", exact: true }).click();
+  await expect(button(page, "Workout")).toBeVisible();
+
+  // Session 1 is done, so Session 2 is next, and the owner can pick
+  // another session (D-248).
+  await button(page, "Workout").click();
+  await expect(page.getByTestId("next-session")).toContainText("Session 2");
+  await button(page, "Start Session 3").click();
+  await expect(page.getByRole("heading", { name: "Session 3", exact: true })).toBeVisible();
+
+  const workouts = await page.evaluate(async () =>
+    (await window.workoutAppE2E!.workouts()).map((w) => ({
+      sessionIndex: w.sessionIndex,
+      finished: w.finished,
+      endedEarly: w.endedEarly,
+      skipped: w.skippedExerciseIds,
+    })),
+  );
+  expect(workouts).toContainEqual({ sessionIndex: 0, finished: true, endedEarly: true, skipped: ["seated_row"] });
+  expect(workouts).toContainEqual({ sessionIndex: 2, finished: false, endedEarly: false, skipped: [] });
+});
+
+test("the plan screen refuses a new plan and an exclusion during a workout", async ({ page, request }, info) => {
+  const email = uniqueEmail("workout-lock", info);
+  await makePlanOwner(request, email, MACHINES);
+  await openWithPlan(page, email);
+  await button(page, "Workout").click();
+  await button(page, "Start Session 1").click();
+  await button(page, "Back").click();
+
+  // D-252: the owner finishes the workout first.
+  await button(page, "Plan").click();
+  await expect(page.getByTestId("workout-lock")).toHaveText(
+    "A workout is in progress. Finish it before you make a new plan or exclude an exercise.",
+  );
+  await expect(button(page, "Make a new plan")).toBeDisabled();
+  for (const b of await page.getByRole("button", { name: "Exclude", exact: true }).all()) await expect(b).toBeDisabled();
+
+  await button(page, "Back").click();
+  await button(page, "Continue workout").click();
+  await button(page, "Finish now").click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Finish now", exact: true }).click();
+  await button(page, "Plan").click();
+  await expect(page.getByTestId("workout-lock")).toHaveCount(0);
+  await expect(button(page, "Make a new plan")).toBeEnabled();
+});

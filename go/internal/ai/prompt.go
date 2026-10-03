@@ -14,7 +14,7 @@ import (
 
 // PromptVersion is the version of the prompt template. Change it with
 // each change of the text.
-const PromptVersion = "luna-prompt-v4"
+const PromptVersion = "luna-prompt-v5"
 
 // The dated copy of the OpenAI usage policies that the owner accepted
 // (D-93). The live page returned HTTP 403, so a change after the print
@@ -52,6 +52,7 @@ const rules = `Rules for each output:
 - policy_target is the target of the rules for the next session. Propose no more load than it, and keep its calibration set when it has one. Outside a calibration session, propose no more sets than it, and at its load no more reps and no fewer reps in reserve.
 - summary: one or two sentences about the plan, %d characters at most.
 - reason: one sentence for each exercise, %d characters at most. Name the logged evidence that it uses: reps, load, reps in reserve, pain, or a gap.
+- When the history of an exercise is empty, the exercise is new. Its reason says that it is new, and names no gap and no other logged evidence.
 - Write no other text. Select the warm-up, the cool-down, and the mobility and recovery items by id from the catalog below.
 - When the input has cardio exercises, end each session with %d to %d minutes of one of them. Use no other cardio exercise.
 - When the input has no cardio exercise, set the cardio exercise_id of each session to "" and minutes to 0.

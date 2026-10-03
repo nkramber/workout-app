@@ -5,27 +5,32 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import { UserService } from "../gen/workoutapp/v1/user_service_pb";
 import { db } from "../lib/db";
+import { activeWorkout } from "../lib/workout";
 import { megabytes, requestPersistenceOnce, type StorageState } from "../lib/storage";
 
 // The home screen proves the whole path from the sign-in to the API: it
 // calls GetMe, and it shows the uid that the API read from the token. The
-// uid is an id, so the screen can show it (D-80). It opens the plan
-// (work area 5.2), the equipment inventory (work area 4.1), and the
-// profile (work area 5.1). The diagnostics rows serve the device check
+// uid is an id, so the screen can show it (D-80). It opens the workout
+// (work area 6.1), the plan (work area 5.2), the equipment inventory (work
+// area 4.1), and the profile (work area 5.1). An open workout on the
+// phone gives the button "Continue workout". The diagnostics rows serve the device check
 // of PR-11.
 export function HomePage({
   onSignOut,
   onOpenInventory,
   onOpenProfile,
   onOpenPlan,
+  onOpenWorkout,
 }: {
   onSignOut: () => void;
   onOpenInventory: () => void;
   onOpenProfile: () => void;
   onOpenPlan: () => void;
+  onOpenWorkout: () => void;
 }) {
   const me = useQuery(UserService.method.getMe, {});
   const pending = useLiveQuery(() => db.outbox.count(), [], null);
+  const active = useLiveQuery(() => activeWorkout(db), [], null);
   const [storage, setStorage] = useState<StorageState | null>(null);
 
   // The first sign-in on this device asks for persistent storage (REC-5,
@@ -59,8 +64,15 @@ export function HomePage({
 
       <button
         type="button"
+        onClick={onOpenWorkout}
+        className="min-h-14 w-full rounded-lg bg-sky-600 px-4 text-lg font-medium text-white active:bg-sky-700"
+      >
+        {active ? "Continue workout" : "Workout"}
+      </button>
+      <button
+        type="button"
         onClick={onOpenPlan}
-        className="min-h-11 w-full rounded-lg bg-sky-600 px-4 font-medium text-white active:bg-sky-700"
+        className="min-h-11 w-full rounded-lg border border-slate-700 px-4 font-medium text-slate-100 active:bg-slate-800"
       >
         Plan
       </button>

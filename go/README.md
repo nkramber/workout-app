@@ -67,6 +67,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 - A bad entry gets the code `invalid_argument`. A set or a cardio log of an unknown workout gets `failed_precondition`. Neither one changes a document, and the other entries of the batch still apply.
 - A set uses the bounds of D-164. A cardio log uses the fields of D-123, with no least time (D-260). A note has 280 characters or fewer (D-261).
 - The planner gives each session 20 to 30 minutes of cardio when the profile likes a cardio exercise (D-255). The fake provider gives 20 minutes.
+- In `luna-prompt-v5`, the reason of an exercise with an empty history says that the exercise is new, and names no gap (D-262).
 
 ## The Luna evaluation
 

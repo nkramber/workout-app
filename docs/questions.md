@@ -474,6 +474,15 @@ The live check of D-203 failed on 2026-10-02. The app showed "The API did not an
 | Q-274 | Does the 20-minute least time apply to a cardio log? | No, the log holds the true duration. | Answered | D-260 |
 | Q-275 | What is the length limit of a note? | 280 characters. | Answered | D-261 |
 
+## Questions of the workout screen session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-276 | Each exercise of the live plan said "The exercise log has a gap". How does the app fix the reason of a new exercise? | Prompt v5, in PR-30. | Answered | D-262 |
+| Q-277 | Which symptoms does "Report a symptom" show, and which text does each warning have (D-153)? | Seven symptoms, each with the warning "You reported <symptom>. Stop this exercise." | Answered | D-263 |
+| Q-278 | Which step do the plus and minus buttons of the weight use (D-249)? | The next weight of the list of the machine. | Answered | D-264 |
+| Q-279 | How does the app keep the screen on during a workout? | The Screen Wake Lock API, with a notice when the phone refuses it. | Answered | D-265 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |

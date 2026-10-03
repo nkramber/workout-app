@@ -161,11 +161,11 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 
 | Work area | Concerns | Exit evidence |
 |---|---|---|
-| 6.1 Workout screen and set log | The workout log API and store with idempotent sync (D-247), at the paths of D-256, with the bounds of D-164, D-260, and D-261. The start of D-248, and the set log of D-57 and D-249. Visual cues only (D-58). Warning flow of D-40 and D-251. No plan request during a workout (D-252). Wake lock. | The owner logs a set in three taps or fewer. UI tests pass. |
+| 6.1 Workout screen and set log | The workout log API and store with idempotent sync (D-247), at the paths of D-256, with the bounds of D-164, D-260, and D-261. The start of D-248, and the set log of D-57 and D-249. Visual cues only (D-58). Warning flow of D-40 and D-251. No plan request during a workout (D-252). The symptoms of D-263, the weight step of D-264, and the wake lock of D-265. The reason of a new exercise (D-262). | The owner logs a set in three taps or fewer. UI tests pass. |
 | 6.2 Rest timer and automatic advance | Timer from a stored end time (D-59). Preview, then advance (D-60). Edit, skip, and "finish now" (D-63). | UI tests prove that the timer survives a screen lock and that the advance happens after the last set. |
 | 6.3 Outbox sync | Client operation ids kept with no end date (D-257), idempotent unary sync in batches of 100 entries or fewer (D-259), the phone rule of D-258, sync on open, on focus, and on reconnect. The offline copy and the outbox of the inventory (D-196, D-250). | Offline tests replay a full workout with a dropped connection and an app kill, and the server holds each set once. |
 
-**Decisions and questions.** D-21, D-40, D-57 to D-63, D-70, D-71, D-77, D-196, D-247 to D-252, Q-261 to Q-266.
+**Decisions and questions.** D-21, D-40, D-57 to D-63, D-70, D-71, D-77, D-196, D-247 to D-252, D-262 to D-265, Q-261 to Q-266, Q-276 to Q-279.
 
 ### Phase 7 - Adaptation loop
 

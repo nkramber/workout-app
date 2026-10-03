@@ -56,8 +56,15 @@ describe("saveSetting", () => {
     expect(await store.outbox.count()).toBe(2);
   });
 
+  it("keeps the order of two changes of the same millisecond", async () => {
+    const now = new Date("2026-10-03T12:00:00.000Z");
+    const first = await saveSetting(store, "a", 1, now);
+    const second = await saveSetting(store, "a", 2, now);
+    expect((await pendingOutbox(store)).map((e) => e.opId)).toEqual([first.opId, second.opId]);
+  });
+
   it("keeps neither write when the outbox write fails", async () => {
-    vi.spyOn(ids, "uuidv7").mockReturnValue("0190a000-0000-7000-8000-000000000001");
+    vi.spyOn(ids, "nextId").mockReturnValue("0190a000-0000-7000-8000-000000000001");
     await saveSetting(store, "rest-seconds", 90);
     // The same op id again makes the outbox write fail, so the change of
     // the setting must roll back too.
