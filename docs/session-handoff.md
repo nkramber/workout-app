@@ -20,7 +20,7 @@ The owner approved the milestone before the first edit (D-12), and answered Q-28
 
 In Playwright, WebKit can not open a page with no connection. So the stop of the app with no connection runs in Chromium alone.
 
-Next action: open the pull request, wait for CI, and run the Codex review (D-8).
+Codex reviewed head `e2721cd` on 2026-10-03. The review record is `docs/reviews/pr-33.md`. Verdict: Changes required. Open finding: P2-1. The owner and author must resolve the finding, then run a new review.
 
 After the merge, the changes to `go/` and `web/` deploy. The next session reads both deploys first. The owner then completes a full workout on the iPhone with no connection, and opens the app online (exit of Phase 6).
 
