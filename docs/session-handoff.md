@@ -22,7 +22,7 @@ The emulator tests of `go/internal/capstore/firestore_emulator_test.go` hold the
 
 Codex review: `docs/reviews/pr-26.md` says Ready for owner merge for effective head `96c8d663c7ed7f121edc4243d99762fea34c6ed7`. No finding is open.
 
-Next action: get the owner confirmation, then enable auto-merge.
+State: pending the owner merge. Next action: get the owner confirmation, then turn on the auto-merge. After the merge, read the deploy of the API first. Then start PR-26, the plan API, in a clean session.
 
 ## Facts that expire
 
