@@ -34,14 +34,35 @@ const (
 
 // Request is the input of one call. Exercises holds the policy input
 // of each exercise that the call can plan, and Cardio holds each cardio
-// exercise of the inventory. User is the uid for the cap hook alone,
-// and the layer never sends it.
+// exercise that the call can plan. User is the uid for the cap hook
+// alone, and the layer never sends it. Profile, when it is not nil,
+// holds the inputs of D-209 for the planner. Retry, when it is not nil,
+// holds the failed attempt before this call (D-235).
 type Request struct {
 	User      string
 	Today     string
 	Sessions  int
 	Exercises []policy.Input
 	Cardio    []domain.ExerciseID
+	Profile   *Profile
+	Retry     *Retry
+}
+
+// Profile is the part of the profile that a planner call sends to Luna
+// (D-209). It has no field for the age, the height, the weight, the
+// injured areas, or the injury text, so a call can not send them.
+type Profile struct {
+	Experience   string
+	GoalTemplate string
+	MuscleGroups []string
+	FreeText     string
+}
+
+// Retry is the failed attempt before a call: the cause of the failure,
+// and the output text of the attempt, or "" when it gave none (D-235).
+type Retry struct {
+	Cause  string
+	Output string
 }
 
 // Client calls the roles of Luna through a provider, with a cap hook.
@@ -55,7 +76,10 @@ type Client struct {
 }
 
 // Result is the outcome of one call. Plan is nil unless Status is
-// StatusOK.
+// StatusOK. Output is the output text of the model, or "" when the call
+// gave none. Cause tells why a call failed, and it is "" for StatusOK.
+// A cause holds ids, positions, and numbers alone, but an output can
+// hold text of Luna, so it never goes into a log (D-80).
 type Result struct {
 	Role       RoleName
 	Model      string
@@ -64,6 +88,8 @@ type Result struct {
 	Status     Status
 	Plan       *Plan
 	Cost       CostRecord
+	Output     string
+	Cause      string
 }
 
 // Plan calls the planner for the next sessions of a request.
@@ -104,8 +130,8 @@ func (c *Client) call(ctx context.Context, role Role, req Request) (Result, erro
 	call := Call{Role: role, Instructions: Instructions(role), Input: input, SchemaName: SchemaName, Schema: Schema()}
 	r := Result{Role: role.Name, Model: role.Model, Effort: role.Effort, PromptHash: PromptHash(role)}
 	rec := CostRecord{User: req.User, Role: role.Name, Model: role.Model, Effort: role.Effort, PromptHash: r.PromptHash}
-	done := func(st Status) (Result, error) {
-		r.Status, rec.Status = st, st
+	done := func(st Status, cause string) (Result, error) {
+		r.Status, rec.Status, r.Cause = st, st, cause
 		r.Cost = rec
 		if c.Record != nil {
 			c.Record(rec)
@@ -121,7 +147,7 @@ func (c *Client) call(ctx context.Context, role Role, req Request) (Result, erro
 	settle, err := c.Cap.Reserve(ctx, req.User, worst)
 	if errors.Is(err, ErrCap) {
 		rec.Known = true
-		return done(StatusCapped)
+		return done(StatusCapped, "the cap can not cover the call")
 	}
 	if err != nil {
 		return Result{}, err
@@ -141,24 +167,29 @@ func (c *Client) call(ctx context.Context, role Role, req Request) (Result, erro
 		rec.Cost = worst
 		rec.Unsettled = settle(worst) != nil
 		if errors.Is(err, context.DeadlineExceeded) && ctx.Err() == nil {
-			return done(StatusTimeout)
+			return done(StatusTimeout, fmt.Sprintf("the call passed its time limit of %v", limit))
 		}
-		return done(StatusError)
+		if ctx.Err() != nil {
+			return done(StatusError, "the request ended before the reply")
+		}
+		// A provider error names no key, prompt, or output.
+		return done(StatusError, err.Error())
 	}
 	rec.Usage, rec.Cost, rec.Known = reply.Usage, role.Prices.Cost(reply.Usage), true
 	rec.Unsettled = settle(rec.Cost) != nil
+	r.Output = reply.Text
 	switch {
 	case reply.Refusal:
-		return done(StatusRefusal)
+		return done(StatusRefusal, "the model refused the request")
 	case reply.Incomplete:
-		return done(StatusIncomplete)
+		return done(StatusIncomplete, "the output stopped before its end")
 	}
 	p, err := parse(reply.Text, req)
 	if err != nil {
-		return done(StatusMalformed)
+		return done(StatusMalformed, err.Error())
 	}
 	r.Plan = &p
-	return done(StatusOK)
+	return done(StatusOK, "")
 }
 
 // Proposal gives the proposal of Luna for one exercise of one session,

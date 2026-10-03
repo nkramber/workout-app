@@ -4,25 +4,30 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-02. Roadmap PR-25 of `docs/roadmaps/phase-5-onboarding-and-plan.md`, on branch `feat/pr-25-cap-store`, from base `a1b88d4`. Work area 5.2.
+Date: 2026-10-02. Roadmap PR-26 of `docs/roadmaps/phase-5-onboarding-and-plan.md`, on branch `feat/pr-26-plan-api`, from base `42fb3da`. Work area 5.2. Author provider: Claude Code.
 
-Before the work, the session read the deploy of `a1b88d4`. The build `deploy-web` `b57b45ae` gave `SUCCESS`, and the live `/version.json` names `a1b88d4`. The merge changed no file in `go/`, so the live `/version` stays at `2e22c27` (D-137).
+Before the work, the session read the deploy of `42fb3da`. The build `deploy-api` `57d3db5f` gave `SUCCESS` at 00:34:00Z on 2026-10-03, and the live `/version` names `42fb3da`. The live `/version.json` stays at `a1b88d4` (D-137).
 
-The owner approved the milestone before the first edit (D-12), and answered Q-238 and Q-239 (D-224, D-225).
+The owner approved the milestone before the first edit (D-12). The answers of Q-240 to Q-251 changed it (D-226 to D-238), and the owner approved the revised milestone:
 
-The pull request holds:
+- the plan service of `proto/workoutapp/v1/plan_service.proto`, with server streams of the progress (D-231, D-237),
+- prompt v3 with the profile, the training days, and the bounds of D-232 and D-233,
+- 4 calls at most, a retry with the cause and the failed output, and an error with no change after the last failure (D-230, D-235),
+- the policy check of each exercise, and the decision record (D-23, D-176),
+- the all-or-nothing exclusion (D-234), the stores of D-226, and the error records of D-236,
+- the secret, the caps, the cap store, and a request timeout of 420 s for the service `api`.
 
-- the lasting cap hook `go/internal/capstore`, with the spend of each calendar month in UTC in Firestore (D-189, D-190, D-224),
-- a reservation of the worst-case cost before each call and a charge after it, each in one transaction for the user and the project,
-- the worst-case charge of a failed call (D-225), and the flag `Unsettled` of a cost record when the charge does not reach the store,
-- a `context.Context` in `ai.CapHook`, and an error from its settle function,
-- the cap text of `go/internal/ai/cost.go`, `go/internal/ai/doc.go`, and `go/README.md`.
+Done: the registers, the contract, `go/internal/plan`, `go/internal/plansvc`, the role-layer changes, the API wiring, and the unit tests. `go test` passes.
 
-The emulator tests of `go/internal/capstore/firestore_emulator_test.go` hold the acceptance story. After a restart, a planner call over the cap gets `capped`, and no call reaches the fake provider. `make go-test` and `make emulator-test` passed.
+Open work, in order:
 
-Codex review: `docs/reviews/pr-26.md` says Ready for owner merge for effective head `96c8d663c7ed7f121edc4243d99762fea34c6ed7`. No finding is open.
+1. The emulator tests: the Firestore store, and the acceptance story through the API.
+2. `cloudbuild/api.yaml`: the secret, the caps, and `--timeout=420`. `api-deployer` holds `roles/run.developer`. The Cloud Run page lists `roles/run.admin` for a deploy with secrets, so the permission is unverified.
+3. The TTL policy of `aiErrors.expire_at`. It is a live change, so ask the owner first.
+4. The documents: the design, both roadmaps, `go/README.md`, `docs/setup-gcp.md`, `AGENTS.md`, and the session record.
+5. `make verify`, `make pr-check`, the push, CI, and the Codex review.
 
-State: pending the owner merge. Next action: get the owner confirmation, then turn on the auto-merge. After the merge, read the deploy of the API first. Then start PR-26, the plan API, in a clean session.
+The draft body of the pull request is in the scratchpad of the session. Write it again from this list after a context compaction.
 
 ## Facts that expire
 

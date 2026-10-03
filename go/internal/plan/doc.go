@@ -1,0 +1,245 @@
+package plan
+
+import (
+	"time"
+
+	"github.com/nkramber/workout-app/go/internal/ai"
+	"github.com/nkramber/workout-app/go/internal/domain"
+	"github.com/nkramber/workout-app/go/internal/policy"
+)
+
+// The stored documents. Each load is a whole number of tenths of a
+// pound, as domain.Load. An empty list is stored as an empty array, and
+// it reads back as nil.
+
+type exclusionsDoc struct {
+	Items    []exclusionDoc `firestore:"items"`
+	Revision int64          `firestore:"revision"`
+}
+
+type exclusionDoc struct {
+	Exercise string `firestore:"exercise_id"`
+	Reason   string `firestore:"reason"`
+}
+
+type planDoc struct {
+	CreatedAt         time.Time     `firestore:"created_at"`
+	Today             string        `firestore:"today"`
+	Summary           string        `firestore:"summary"`
+	Sessions          []sessionDoc  `firestore:"sessions"`
+	Guidance          []string      `firestore:"guidance_ids"`
+	Filtered          []filteredDoc `firestore:"filtered"`
+	Model             string        `firestore:"model"`
+	Effort            string        `firestore:"effort"`
+	PromptVersion     string        `firestore:"prompt_version"`
+	PromptHash        string        `firestore:"prompt_hash"`
+	SchemaName        string        `firestore:"schema"`
+	PolicyVersion     int64         `firestore:"policy_version"`
+	FilterVersion     int64         `firestore:"filter_version"`
+	GuidanceVersion   int64         `firestore:"guidance_version"`
+	CatalogVersion    int64         `firestore:"catalog_version"`
+	BodyTablesVersion int64         `firestore:"body_tables_version"`
+	Attempts          int64         `firestore:"attempts"`
+}
+
+type filteredDoc struct {
+	Where string `firestore:"where"`
+	Rule  string `firestore:"rule"`
+}
+
+type sessionDoc struct {
+	Title     string        `firestore:"title"`
+	WarmUp    string        `firestore:"warm_up_id"`
+	CoolDown  string        `firestore:"cool_down_id"`
+	Exercises []exerciseDoc `firestore:"exercises"`
+	Cardio    *cardioDoc    `firestore:"cardio"`
+}
+
+type cardioDoc struct {
+	Exercise string `firestore:"exercise_id"`
+	Minutes  int64  `firestore:"minutes"`
+}
+
+type exerciseDoc struct {
+	Target targetDoc `firestore:"target"`
+	Reason string    `firestore:"reason"`
+	Record recordDoc `firestore:"record"`
+}
+
+type targetDoc struct {
+	Exercise    string   `firestore:"exercise_id"`
+	Rest        int64    `firestore:"rest_seconds"`
+	Calibration []setDoc `firestore:"calibration_sets"`
+	Working     []setDoc `firestore:"working_sets"`
+}
+
+// setDoc is a set. A calibration set stores an RIR of 0, which no
+// reader uses (D-150).
+type setDoc struct {
+	Reps int64 `firestore:"reps"`
+	Load int64 `firestore:"load_tenth_lb"`
+	RIR  int64 `firestore:"rir_target"`
+}
+
+// recordDoc is the decision record of D-176.
+type recordDoc struct {
+	PolicyVersion int64          `firestore:"policy_version"`
+	Exercise      string         `firestore:"exercise_id"`
+	InputHash     string         `firestore:"input_hash"`
+	Model         string         `firestore:"model"`
+	Effort        string         `firestore:"effort"`
+	PromptHash    string         `firestore:"prompt_hash"`
+	Proposal      *targetDoc     `firestore:"proposal"`
+	Violations    []violationDoc `firestore:"violations"`
+	Source        string         `firestore:"source"`
+	Cause         string         `firestore:"cause"`
+	Rules         []string       `firestore:"rules"`
+	Loads         []loadDoc      `firestore:"loads"`
+	Target        targetDoc      `firestore:"target"`
+	Reason        string         `firestore:"reason"`
+}
+
+type violationDoc struct {
+	Rule   string `firestore:"rule"`
+	Where  string `firestore:"where"`
+	Detail string `firestore:"detail"`
+}
+
+type loadDoc struct {
+	Where  string `firestore:"where"`
+	Before int64  `firestore:"before_tenth_lb"`
+	After  int64  `firestore:"after_tenth_lb"`
+}
+
+func encodePlan(p Plan) planDoc {
+	d := planDoc{
+		CreatedAt: p.CreatedAt.UTC(), Today: p.Today, Summary: p.Summary,
+		Sessions: []sessionDoc{}, Guidance: strs(p.Guidance), Filtered: []filteredDoc{},
+		Model: p.Model, Effort: p.Effort, PromptVersion: p.PromptVersion, PromptHash: p.PromptHash, SchemaName: p.SchemaName,
+		PolicyVersion: int64(p.PolicyVersion), FilterVersion: int64(p.FilterVersion), GuidanceVersion: int64(p.GuidanceVersion),
+		CatalogVersion: int64(p.CatalogVersion), BodyTablesVersion: int64(p.BodyTablesVersion), Attempts: int64(p.Attempts),
+	}
+	for _, f := range p.Filtered {
+		d.Filtered = append(d.Filtered, filteredDoc{f.Where, string(f.Rule)})
+	}
+	for _, s := range p.Sessions {
+		sd := sessionDoc{Title: s.Title, WarmUp: string(s.WarmUp), CoolDown: string(s.CoolDown), Exercises: []exerciseDoc{}}
+		for _, e := range s.Exercises {
+			sd.Exercises = append(sd.Exercises, exerciseDoc{encodeTarget(e.Target), e.Reason, encodeRecord(e.Record)})
+		}
+		if c := s.Cardio; c != nil {
+			sd.Cardio = &cardioDoc{string(c.Exercise), int64(c.Minutes)}
+		}
+		d.Sessions = append(d.Sessions, sd)
+	}
+	return d
+}
+
+func (d planDoc) plan() Plan {
+	p := Plan{
+		CreatedAt: d.CreatedAt.UTC(), Today: d.Today, Summary: d.Summary, Guidance: ids[ai.GuidanceID](d.Guidance),
+		Model: d.Model, Effort: d.Effort, PromptVersion: d.PromptVersion, PromptHash: d.PromptHash, SchemaName: d.SchemaName,
+		PolicyVersion: int(d.PolicyVersion), FilterVersion: int(d.FilterVersion), GuidanceVersion: int(d.GuidanceVersion),
+		CatalogVersion: int(d.CatalogVersion), BodyTablesVersion: int(d.BodyTablesVersion), Attempts: int(d.Attempts),
+	}
+	for _, f := range d.Filtered {
+		p.Filtered = append(p.Filtered, ai.Filtered{Where: f.Where, Rule: ai.FilterRule(f.Rule)})
+	}
+	for _, sd := range d.Sessions {
+		s := Session{Title: sd.Title, WarmUp: ai.GuidanceID(sd.WarmUp), CoolDown: ai.GuidanceID(sd.CoolDown)}
+		for _, e := range sd.Exercises {
+			s.Exercises = append(s.Exercises, Exercise{e.Target.target(), e.Reason, e.Record.record()})
+		}
+		if c := sd.Cardio; c != nil {
+			s.Cardio = &domain.PlannedCardio{Exercise: idOf(c.Exercise), Minutes: int(c.Minutes)}
+		}
+		p.Sessions = append(p.Sessions, s)
+	}
+	return p
+}
+
+func encodeTarget(t domain.PlannedExercise) targetDoc {
+	d := targetDoc{Exercise: string(t.Exercise), Rest: int64(t.RestSeconds), Calibration: []setDoc{}, Working: []setDoc{}}
+	for _, s := range t.Calibration {
+		d.Calibration = append(d.Calibration, setDoc{Reps: int64(s.Reps), Load: int64(s.Load)})
+	}
+	for _, s := range t.Working {
+		d.Working = append(d.Working, setDoc{int64(s.Reps), int64(s.Load), int64(s.RIR)})
+	}
+	return d
+}
+
+func (d targetDoc) target() domain.PlannedExercise {
+	t := domain.PlannedExercise{Exercise: idOf(d.Exercise), RestSeconds: int(d.Rest)}
+	for _, s := range d.Calibration {
+		t.Calibration = append(t.Calibration, domain.CalibrationSet{Reps: int(s.Reps), Load: domain.Load(s.Load)})
+	}
+	for _, s := range d.Working {
+		t.Working = append(t.Working, domain.WorkingSet{Reps: int(s.Reps), Load: domain.Load(s.Load), RIR: int(s.RIR)})
+	}
+	return t
+}
+
+func encodeRecord(r policy.Record) recordDoc {
+	d := recordDoc{
+		PolicyVersion: int64(r.PolicyVersion), Exercise: string(r.Exercise), InputHash: r.InputHash,
+		Model: r.Model, Effort: r.Effort, PromptHash: r.PromptHash, Violations: []violationDoc{},
+		Source: string(r.Source), Cause: string(r.Cause), Rules: strs(r.Rules), Loads: []loadDoc{},
+		Target: encodeTarget(r.Target), Reason: r.Reason,
+	}
+	if r.Proposal != nil {
+		t := encodeTarget(*r.Proposal)
+		d.Proposal = &t
+	}
+	for _, v := range r.Violations {
+		d.Violations = append(d.Violations, violationDoc{string(v.Rule), v.Where, v.Detail})
+	}
+	for _, l := range r.Loads {
+		d.Loads = append(d.Loads, loadDoc{l.Where, int64(l.Before), int64(l.After)})
+	}
+	return d
+}
+
+func (d recordDoc) record() policy.Record {
+	r := policy.Record{
+		PolicyVersion: int(d.PolicyVersion), Exercise: idOf(d.Exercise), InputHash: d.InputHash,
+		Model: d.Model, Effort: d.Effort, PromptHash: d.PromptHash,
+		Source: policy.Source(d.Source), Cause: policy.Cause(d.Cause), Rules: ids[policy.RuleID](d.Rules),
+		Target: d.Target.target(), Reason: d.Reason,
+	}
+	if d.Proposal != nil {
+		t := d.Proposal.target()
+		r.Proposal = &t
+	}
+	for _, v := range d.Violations {
+		r.Violations = append(r.Violations, policy.Violation{Rule: policy.RuleID(v.Rule), Where: v.Where, Detail: v.Detail})
+	}
+	for _, l := range d.Loads {
+		r.Loads = append(r.Loads, policy.LoadChange{Where: l.Where, Before: domain.Load(l.Before), After: domain.Load(l.After)})
+	}
+	return r
+}
+
+// clone gives a deep copy through the stored form.
+func (p Plan) clone() Plan { return encodePlan(p).plan() }
+
+func idOf(s string) domain.ExerciseID { return domain.ExerciseID(s) }
+
+// strs gives a new list of strings. An empty list gives an empty list,
+// not nil, so Firestore stores an empty array.
+func strs[T ~string](in []T) []string {
+	out := make([]string, 0, len(in))
+	for _, v := range in {
+		out = append(out, string(v))
+	}
+	return out
+}
+
+// ids gives the values as type T, or nil for an empty list.
+func ids[T ~string](in []string) []T {
+	var out []T
+	for _, v := range in {
+		out = append(out, T(v))
+	}
+	return out
+}

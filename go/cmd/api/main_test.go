@@ -15,9 +15,11 @@ import (
 
 	workoutappv1 "github.com/nkramber/workout-app/go/gen/workoutapp/v1"
 	"github.com/nkramber/workout-app/go/gen/workoutapp/v1/workoutappv1connect"
+	"github.com/nkramber/workout-app/go/internal/ai"
 	"github.com/nkramber/workout-app/go/internal/auth"
 	"github.com/nkramber/workout-app/go/internal/envguard"
 	"github.com/nkramber/workout-app/go/internal/inventory"
+	"github.com/nkramber/workout-app/go/internal/plan"
 	"github.com/nkramber/workout-app/go/internal/profile"
 )
 
@@ -45,7 +47,12 @@ func (f fakeList) Allowed(_ context.Context, uid string) (bool, error) {
 func server(t *testing.T, list auth.Allowlist) *httptest.Server {
 	t.Helper()
 	v := fakeVerifier{"token-a": "uid-a", "token-b": "uid-b", "token-empty": ""}
-	srv := httptest.NewServer(newHandler(v, list, inventory.NewMemory(), profile.NewMemory(), webOrigin, "abc123"))
+	inv, prof := inventory.NewMemory(), profile.NewMemory()
+	maker := &plan.Maker{
+		AI:       &ai.Client{Provider: &ai.Fake{}, Cap: ai.NewMemoryCap(ai.Caps{User: ai.USD, Project: 2 * ai.USD})},
+		Profiles: prof, Inventory: inv, Plans: plan.NewMemory(), Errors: &plan.MemoryErrors{},
+	}
+	srv := httptest.NewServer(newHandler(v, list, inv, prof, maker, webOrigin, "abc123"))
 	t.Cleanup(srv.Close)
 	return srv
 }
@@ -260,6 +267,9 @@ func TestRunRefuses(t *testing.T) {
 		{"no project", []string{"PORT=0"}, "GOOGLE_CLOUD_PROJECT"},
 		{"two origins", []string{"GOOGLE_CLOUD_PROJECT=p", "ALLOWED_ORIGIN=https://a.web.app,https://b.web.app"}, "ALLOWED_ORIGIN"},
 		{"origin with a path", []string{"GOOGLE_CLOUD_PROJECT=p", "ALLOWED_ORIGIN=https://a.web.app/"}, "ALLOWED_ORIGIN"},
+		{"no user cap", []string{"GOOGLE_CLOUD_PROJECT=p", "LUNA_CAP_PROJECT_USD=2", "OPENAI_API_KEY=k"}, ai.EnvUserCap},
+		{"no project cap", []string{"GOOGLE_CLOUD_PROJECT=p", "LUNA_CAP_USER_USD=1", "OPENAI_API_KEY=k"}, ai.EnvProjectCap},
+		{"no key", []string{"GOOGLE_CLOUD_PROJECT=p", "LUNA_CAP_USER_USD=1", "LUNA_CAP_PROJECT_USD=2"}, "OpenAI key"},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -269,7 +279,7 @@ func TestRunRefuses(t *testing.T) {
 				env[k] = v
 			}
 			logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-			err := run(context.Background(), logger, c.environ, func(k string) string { return env[k] })
+			err := run(context.Background(), logger, c.environ, func(k string) string { return env[k] }, openAI)
 			if err == nil || !strings.Contains(err.Error(), c.want) {
 				t.Fatalf("run = %v, want an error with %q", err, c.want)
 			}

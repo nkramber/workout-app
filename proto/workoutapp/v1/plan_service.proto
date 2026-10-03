@@ -1,0 +1,171 @@
+syntax = "proto3";
+
+package workoutapp.v1;
+
+option go_package = "github.com/nkramber/workout-app/go/gen/workoutapp/v1;workoutappv1";
+
+// PlanService holds the one plan of the caller and the excluded exercises
+// (work area 5.2). Every call needs a Firebase ID token of a uid on the
+// invite allowlist (D-75, D-131).
+//
+// Luna proposes a plan, and the policy checks each target before the owner
+// sees it (D-23). The server retries a call that gives no valid plan, and
+// the fourth failure gives UNAVAILABLE with no change (D-230, D-231). A call
+// over the monthly AI cap gives RESOURCE_EXHAUSTED at once (D-25). A caller
+// with no profile, or with no allowed exercise, gets FAILED_PRECONDITION.
+//
+// A plan uses the confirmed machines alone (D-49, D-193), and no exercise of
+// an injured area (D-208) or of the exclusions (D-48). An error names ids and
+// numbers alone (D-80).
+service PlanService {
+  // GetPlan returns the current plan and the exclusions of the caller. A
+  // caller with no plan gets no plan.
+  rpc GetPlan(GetPlanRequest) returns (GetPlanResponse) {}
+
+  // RequestPlan makes a new plan. The stream sends a progress event at each
+  // step, then the plan in the last event (D-237). The new plan replaces the
+  // old plan only when the request completes (D-227). When the stream closes
+  // first, the server saves nothing.
+  rpc RequestPlan(RequestPlanRequest) returns (stream RequestPlanResponse) {}
+
+  // ExcludeExercise adds an exercise to the exclusions, and Luna plans
+  // again (D-48). The exclusion and the new plan save together, or nothing
+  // changes (D-234). The stream holds the events of RequestPlan.
+  rpc ExcludeExercise(ExcludeExerciseRequest) returns (stream ExcludeExerciseResponse) {}
+}
+
+// Plan is the plan of one week: one session for each training day of the
+// profile (D-211). A load is a whole number of tenths of a pound, so 12.5 lb
+// is 125 (D-122, D-160).
+message Plan {
+  // The time of the plan, in RFC 3339 form in UTC.
+  string created_at = 1;
+  // The date of the first session that the plan expects, as YYYY-MM-DD.
+  string today = 2;
+  // The summary of Luna after the filter of blocked claims, 280 characters
+  // or fewer (D-182, D-183).
+  string summary = 3;
+  repeated PlanSession sessions = 4;
+  // The mobility and recovery items, from the guidance catalog (D-152).
+  repeated GuidanceItem guidance = 5;
+  // The prompt version of the call that gave the plan.
+  string prompt_version = 6;
+  // The version of the policy that checked each target.
+  int32 policy_version = 7;
+  // The count of calls that the plan needed, from 1 to 4.
+  int32 attempts = 8;
+}
+
+// PlanSession is one session of a plan (D-44).
+message PlanSession {
+  // The title, from a template (D-182).
+  string title = 1;
+  GuidanceItem warm_up = 2;
+  repeated PlannedExercise exercises = 3;
+  // The optional cardio, or none.
+  PlannedCardio cardio = 4;
+  GuidanceItem cool_down = 5;
+}
+
+// GuidanceItem is one short text of the guidance catalog (D-152).
+message GuidanceItem {
+  string id = 1;
+  // "warm_up", "cool_down", "mobility", or "recovery".
+  string kind = 2;
+  string text = 3;
+}
+
+// PlannedExercise is the final target of one exercise, after the policy.
+message PlannedExercise {
+  string exercise_id = 1;
+  string name = 2;
+  int32 rest_seconds = 3;
+  repeated PlannedSet calibration_sets = 4;
+  repeated PlannedSet working_sets = 5;
+  // The reason for the owner: the reason of Luna after the filter, or the
+  // reason of the rules (D-68, D-182).
+  string reason = 6;
+  // "luna" when the policy accepted the proposal of Luna, or "rules" when
+  // the target is the target of the rules alone (D-23).
+  string source = 7;
+}
+
+// PlannedSet is one target set. A calibration set has no RIR target, so its
+// rir_target is 0 (D-150).
+message PlannedSet {
+  int32 reps = 1;
+  int32 load_tenth_lb = 2;
+  int32 rir_target = 3;
+}
+
+// PlannedCardio is the optional cardio of a session, 5 to 30 minutes
+// (D-232).
+message PlannedCardio {
+  string exercise_id = 1;
+  string name = 2;
+  int32 minutes = 3;
+}
+
+// Exclusion is one excluded exercise (D-48).
+message Exclusion {
+  string exercise_id = 1;
+  string name = 2;
+  // The optional reason, 200 characters or fewer. No model reads it
+  // (D-228, D-229).
+  string reason = 3;
+}
+
+// PlanProgress is one step of a request that makes a plan (D-231).
+message PlanProgress {
+  // "call" before each call to Luna, "check" before the policy check, and
+  // "save" before the save.
+  string step = 1;
+  // The number of the call, from 1 to max_attempts.
+  int32 attempt = 2;
+  int32 max_attempts = 3;
+  // For a retry, the status of the failed call before it, such as
+  // "malformed" or "timeout". Empty for the first call.
+  string previous_status = 4;
+}
+
+message GetPlanRequest {}
+
+message GetPlanResponse {
+  // The plan, or no plan when the caller has none.
+  Plan plan = 1;
+  // The exclusions, in the order of the catalog.
+  repeated Exclusion exclusions = 2;
+}
+
+// RequestPlanResponse is one event of the stream: a progress event, or the
+// plan in the last event.
+message RequestPlanResponse {
+  oneof event {
+    PlanProgress progress = 1;
+    Plan plan = 2;
+  }
+}
+
+message RequestPlanRequest {
+  // The local date of the owner, as YYYY-MM-DD. The server accepts a date
+  // one day or less from the date in UTC.
+  string today = 1;
+}
+
+message ExcludeExerciseRequest {
+  // The local date of the owner, as for RequestPlanRequest.
+  string today = 1;
+  // The id of an exercise of the catalog.
+  string exercise_id = 2;
+  // The optional reason, 200 characters or fewer.
+  string reason = 3;
+}
+
+// ExcludeExerciseResponse is one event of the stream, as in
+// RequestPlanResponse.
+message ExcludeExerciseResponse {
+  oneof event {
+    PlanProgress progress = 1;
+    Plan plan = 2;
+  }
+}

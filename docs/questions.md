@@ -423,6 +423,23 @@ The live check of D-203 failed on 2026-10-02. The app showed "The API did not an
 | Q-238 | Which Firestore path holds the monthly AI spend? | `users/{uid}/aiSpend/{YYYY-MM}` for the user and `aiSpend/{YYYY-MM}` for the project, in one transaction. | Answered | D-224 |
 | Q-239 | What does a failed AI call with an unknown cost charge? | The reserved worst-case cost. | Answered | D-225 |
 
+## Questions of the plan API session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-240 | Which Firestore paths hold the plan and the exclusions? | `users/{uid}/plan/active` and `users/{uid}/exclusions/active`. | Answered | D-226 |
+| Q-241 | What does a new plan do to the old plan? | It replaces the old plan, and no history stays. | Answered | D-227 |
+| Q-242 | Which bound applies to the reason of an exclusion? | 200 characters or fewer. | Answered | D-228 |
+| Q-243 | Does Luna get the reason of an exclusion? | No. The reason stays on the server. | Answered | D-229 |
+| Q-244 | Which sessions does the rules fallback build when Luna gives no valid plan? | No fallback plan. The server retries, then gives an error. The owner confirmed this change of D-23. | Answered | D-230 |
+| Q-245 | How many calls does a plan request make? | The first call and 3 retries at 90 s each, a request timeout of 420 s, and progress for the owner. | Answered | D-231 |
+| Q-246 | Which bound applies to the optional cardio of a plan? | 5 to 30 minutes. Luna must stay inside it. | Answered | D-232 |
+| Q-247 | Which bound applies to the size of one session? | 8 resistance exercises or fewer. More gives a new plan from Luna. | Answered | D-233 |
+| Q-248 | What happens to an exclusion when each attempt fails? | All or nothing. Each retry sends the failed output and its cause, and an error record keeps each failure. | Answered | D-234, D-235, D-236 |
+| Q-249 | How does the API give the progress to the app? | A Connect server stream. | Answered | D-237 |
+| Q-250 | What does an error record hold, and for how long? | The ids, the cause, the cost, and the output of Luna, for 90 days. | Answered | D-236 |
+| Q-251 | Does the plan API treat a new exercise as a return after a long break? | Yes, always: 70 percent of each estimate. | Answered | D-238 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |

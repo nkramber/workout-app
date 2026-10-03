@@ -27,6 +27,7 @@ import (
 
 	workoutappv1 "github.com/nkramber/workout-app/go/gen/workoutapp/v1"
 	"github.com/nkramber/workout-app/go/gen/workoutapp/v1/workoutappv1connect"
+	"github.com/nkramber/workout-app/go/internal/ai"
 	"github.com/nkramber/workout-app/go/internal/allowlist"
 )
 
@@ -93,11 +94,22 @@ func freePort(t *testing.T) string {
 }
 
 // startAPI runs the real run function, with the real Firebase verifier
-// and the real Firestore allowlist, and waits for the version route.
+// and the real Firestore allowlist, and waits for the version route. The
+// planner calls go to the fake provider (D-24).
 func startAPI(t *testing.T) string {
 	t.Helper()
+	return startAPIWith(t, &ai.Fake{})
+}
+
+// startAPIWith runs the API with a provider of the test and the caps of
+// D-188.
+func startAPIWith(t *testing.T, provider ai.Provider) string {
+	t.Helper()
 	port := freePort(t)
-	env := map[string]string{"PORT": port, "ALLOWED_ORIGIN": "http://127.0.0.1:5173"}
+	env := map[string]string{
+		"PORT": port, "ALLOWED_ORIGIN": "http://127.0.0.1:5173",
+		ai.EnvUserCap: "1", ai.EnvProjectCap: "2", EnvOpenAIKey: "",
+	}
 	getenv := func(k string) string {
 		if v, ok := env[k]; ok {
 			return v
@@ -106,7 +118,8 @@ func startAPI(t *testing.T) string {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	done := make(chan error, 1)
-	go func() { done <- run(ctx, slog.New(slog.NewTextHandler(io.Discard, nil)), os.Environ(), getenv) }()
+	fake := func(string) (ai.Provider, error) { return provider, nil }
+	go func() { done <- run(ctx, slog.New(slog.NewTextHandler(io.Discard, nil)), os.Environ(), getenv, fake) }()
 	t.Cleanup(func() {
 		cancel()
 		if err := <-done; err != nil {

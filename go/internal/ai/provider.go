@@ -68,9 +68,9 @@ func (f *Fake) Calls() []Call {
 	return append([]Call(nil), f.calls...)
 }
 
-// EchoReply gives a valid output for a call: each session holds each
-// exercise of the input at its policy target, with the default warm-up
-// and cool-down and no cardio. The usage counts 4 bytes as one token.
+// EchoReply gives a valid output for a call: each session holds the
+// first MaxSessionExercises exercises of the input at their policy
+// targets, with the default warm-up and cool-down and no cardio. The usage counts 4 bytes as one token.
 // It is the default reply of the fake.
 func EchoReply(c Call) (Reply, error) {
 	var in wireInput
@@ -101,7 +101,7 @@ func EchoReply(c Call) (Reply, error) {
 	}{Summary: "A plan at the targets of the rules.", Guidance: []GuidanceID{}}
 	for range in.Sessions {
 		s := session{WarmUp: DefaultWarmUp, CoolDown: DefaultCoolDown, Exercises: []exercise{}}
-		for _, e := range in.Exercises {
+		for _, e := range in.Exercises[:min(len(in.Exercises), MaxSessionExercises)] {
 			s.Exercises = append(s.Exercises, exercise{e.ID, e.Target.Rest, e.Target.Calibration, e.Target.Working,
 				"The target follows your last logged sets."})
 		}

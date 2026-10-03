@@ -27,6 +27,17 @@ func malformed(format string, args ...any) error {
 	return parseError(fmt.Sprintf(format, args...))
 }
 
+// The bounds of a session of Luna. A session has MaxSessionExercises
+// exercises with sets or fewer (D-233), and its cardio has
+// MinCardioMinutes to MaxCardioMinutes minutes (D-232). An output
+// outside a bound is malformed, and the plan API retries the call
+// (D-230).
+const (
+	MaxSessionExercises = 8
+	MinCardioMinutes    = 5
+	MaxCardioMinutes    = 30
+)
+
 // Plan is a valid output of Luna. The policy has not checked a target
 // yet (D-23). The plan holds text of Luna and targets of the owner, so
 // it never goes into a log (D-80).
@@ -151,6 +162,9 @@ func parse(text string, req Request) (Plan, error) {
 		if err := checkGuidance(*s.CoolDown, KindCoolDown); err != nil {
 			return Plan{}, malformed("%s.cool_down_id: %v", where, err)
 		}
+		if n := len(*s.Exercises); n > MaxSessionExercises {
+			return Plan{}, malformed("%s: %d exercises: want %d or fewer", where, n, MaxSessionExercises)
+		}
 		sess := Session{Title: fmt.Sprintf("Session %d", i+1), WarmUp: *s.WarmUp, CoolDown: *s.CoolDown}
 		seen := map[domain.ExerciseID]bool{}
 		for j, e := range *s.Exercises {
@@ -177,8 +191,8 @@ func parse(text string, req Request) (Plan, error) {
 		case *c.Exercise == "" && *c.Minutes == 0:
 		case !cardio[*c.Exercise]:
 			return Plan{}, malformed("%s.cardio: not a cardio exercise of the request", where)
-		case *c.Minutes < 1:
-			return Plan{}, malformed("%s.cardio: %d minutes", where, *c.Minutes)
+		case *c.Minutes < MinCardioMinutes || *c.Minutes > MaxCardioMinutes:
+			return Plan{}, malformed("%s.cardio: %d minutes: want %d to %d", where, *c.Minutes, MinCardioMinutes, MaxCardioMinutes)
 		default:
 			sess.Cardio = &domain.PlannedCardio{Exercise: *c.Exercise, Minutes: *c.Minutes}
 		}
