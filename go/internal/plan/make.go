@@ -262,12 +262,10 @@ func build(res ai.Result, inputs map[domain.ExerciseID]policy.Input, today strin
 				return Plan{}, fmt.Errorf("plan: the policy: %w", err)
 			}
 			ex := Exercise{Target: rec.Target, Reason: res.Reason(i, rec), Record: rec}
-			if cal := rec.Target.Calibration; len(cal) > 0 {
-				loads, err := policy.Calibration(in, cal[0].Load)
-				if err != nil {
+			if len(rec.Target.Calibration) > 0 {
+				if ex.Calibration, err = policy.CalibrationTable(in); err != nil {
 					return Plan{}, fmt.Errorf("plan: the calibration loads: %w", err)
 				}
-				ex.Calibration = &loads
 			}
 			sess.Exercises = append(sess.Exercises, ex)
 		}

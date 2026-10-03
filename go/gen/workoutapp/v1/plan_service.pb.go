@@ -288,10 +288,12 @@ type PlannedExercise struct {
 	// the target is the target of the rules alone (D-23).
 	Source string `protobuf:"bytes,7,opt,name=source,proto3" json:"source,omitempty"`
 	// The load of the working sets after the calibration set, for each result
-	// of the calibration table (D-150, D-267). The policy gives it, so the
-	// phone applies the table with no network (D-23). Only an exercise with a
-	// calibration set has it, and a plan of policy version 3 has none.
-	CalibrationLoads *CalibrationLoads `protobuf:"bytes,8,opt,name=calibration_loads,json=calibrationLoads,proto3" json:"calibration_loads,omitempty"`
+	// of the calibration table (D-150, D-267). It has one entry for each weight
+	// of the machine, the lightest first, so the phone applies the table with
+	// no network to the weight that the owner logged (D-23, D-249). Only an
+	// exercise with a calibration set has entries, and a plan of policy
+	// version 3 has none.
+	CalibrationLoads []*CalibrationLoads `protobuf:"bytes,8,rep,name=calibration_loads,json=calibrationLoads,proto3" json:"calibration_loads,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -375,25 +377,27 @@ func (x *PlannedExercise) GetSource() string {
 	return ""
 }
 
-func (x *PlannedExercise) GetCalibrationLoads() *CalibrationLoads {
+func (x *PlannedExercise) GetCalibrationLoads() []*CalibrationLoads {
 	if x != nil {
 		return x.CalibrationLoads
 	}
 	return nil
 }
 
-// CalibrationLoads holds the load of the working sets for each result of the
-// one calibration set of a session (D-267).
+// CalibrationLoads holds the load of the working sets for each result of one
+// calibration set at a weight (D-267).
 type CalibrationLoads struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// The weight of the calibration set.
+	WeightTenthLb int32 `protobuf:"varint,1,opt,name=weight_tenth_lb,json=weightTenthLb,proto3" json:"weight_tenth_lb,omitempty"`
 	// After 2 or fewer reps in reserve, or a pain rating of 1 or more.
-	DownTenthLb int32 `protobuf:"varint,1,opt,name=down_tenth_lb,json=downTenthLb,proto3" json:"down_tenth_lb,omitempty"`
+	DownTenthLb int32 `protobuf:"varint,2,opt,name=down_tenth_lb,json=downTenthLb,proto3" json:"down_tenth_lb,omitempty"`
 	// After 3 or 4 reps in reserve.
-	KeepTenthLb int32 `protobuf:"varint,2,opt,name=keep_tenth_lb,json=keepTenthLb,proto3" json:"keep_tenth_lb,omitempty"`
+	KeepTenthLb int32 `protobuf:"varint,3,opt,name=keep_tenth_lb,json=keepTenthLb,proto3" json:"keep_tenth_lb,omitempty"`
 	// After 5 reps in reserve.
-	UpOneTenthLb int32 `protobuf:"varint,3,opt,name=up_one_tenth_lb,json=upOneTenthLb,proto3" json:"up_one_tenth_lb,omitempty"`
+	UpOneTenthLb int32 `protobuf:"varint,4,opt,name=up_one_tenth_lb,json=upOneTenthLb,proto3" json:"up_one_tenth_lb,omitempty"`
 	// After 6 or more reps in reserve.
-	UpTwoTenthLb  int32 `protobuf:"varint,4,opt,name=up_two_tenth_lb,json=upTwoTenthLb,proto3" json:"up_two_tenth_lb,omitempty"`
+	UpTwoTenthLb  int32 `protobuf:"varint,5,opt,name=up_two_tenth_lb,json=upTwoTenthLb,proto3" json:"up_two_tenth_lb,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -426,6 +430,13 @@ func (x *CalibrationLoads) ProtoReflect() protoreflect.Message {
 // Deprecated: Use CalibrationLoads.ProtoReflect.Descriptor instead.
 func (*CalibrationLoads) Descriptor() ([]byte, []int) {
 	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *CalibrationLoads) GetWeightTenthLb() int32 {
+	if x != nil {
+		return x.WeightTenthLb
+	}
+	return 0
 }
 
 func (x *CalibrationLoads) GetDownTenthLb() int32 {
@@ -1118,12 +1129,13 @@ const file_workoutapp_v1_plan_service_proto_rawDesc = "" +
 	"\fworking_sets\x18\x05 \x03(\v2\x19.workoutapp.v1.PlannedSetR\vworkingSets\x12\x16\n" +
 	"\x06reason\x18\x06 \x01(\tR\x06reason\x12\x16\n" +
 	"\x06source\x18\a \x01(\tR\x06source\x12L\n" +
-	"\x11calibration_loads\x18\b \x01(\v2\x1f.workoutapp.v1.CalibrationLoadsR\x10calibrationLoads\"\xa8\x01\n" +
-	"\x10CalibrationLoads\x12\"\n" +
-	"\rdown_tenth_lb\x18\x01 \x01(\x05R\vdownTenthLb\x12\"\n" +
-	"\rkeep_tenth_lb\x18\x02 \x01(\x05R\vkeepTenthLb\x12%\n" +
-	"\x0fup_one_tenth_lb\x18\x03 \x01(\x05R\fupOneTenthLb\x12%\n" +
-	"\x0fup_two_tenth_lb\x18\x04 \x01(\x05R\fupTwoTenthLb\"c\n" +
+	"\x11calibration_loads\x18\b \x03(\v2\x1f.workoutapp.v1.CalibrationLoadsR\x10calibrationLoads\"\xd0\x01\n" +
+	"\x10CalibrationLoads\x12&\n" +
+	"\x0fweight_tenth_lb\x18\x01 \x01(\x05R\rweightTenthLb\x12\"\n" +
+	"\rdown_tenth_lb\x18\x02 \x01(\x05R\vdownTenthLb\x12\"\n" +
+	"\rkeep_tenth_lb\x18\x03 \x01(\x05R\vkeepTenthLb\x12%\n" +
+	"\x0fup_one_tenth_lb\x18\x04 \x01(\x05R\fupOneTenthLb\x12%\n" +
+	"\x0fup_two_tenth_lb\x18\x05 \x01(\x05R\fupTwoTenthLb\"c\n" +
 	"\n" +
 	"PlannedSet\x12\x12\n" +
 	"\x04reps\x18\x01 \x01(\x05R\x04reps\x12\"\n" +

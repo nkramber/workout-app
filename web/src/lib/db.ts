@@ -42,19 +42,20 @@ export type Meta = { key: string; value: unknown };
 // of a pound (D-160). A calibration set has an RIR target of 0 (D-150).
 export type TargetSet = { reps: number; loadTenthLb: number; rirTarget: number };
 
-// The load of the working sets after the calibration set, for each
-// result of the calibration table, in tenths of a pound (D-267).
-export type CalibrationLoads = { down: number; keep: number; upOne: number; upTwo: number };
+// The load of the working sets after a calibration set at `weight`, for
+// each result of the calibration table, in tenths of a pound (D-267).
+export type CalibrationLoads = { weight: number; down: number; keep: number; upOne: number; upTwo: number };
 
 // An exercise of a workout: the targets of the plan session, and the
 // weights of its machine at the start, for the plus and minus buttons
-// (D-264). A plan of policy version 3 has no calibration loads.
+// (D-264). calibrationLoads has one row for each weight of the machine,
+// and a plan of policy version 3 has none.
 export type WorkoutExercise = {
   exerciseId: string;
   name: string;
   restSeconds: number;
   calibrationSets: TargetSet[];
-  calibrationLoads?: CalibrationLoads;
+  calibrationLoads?: CalibrationLoads[];
   workingSets: TargetSet[];
   weights: number[];
 };

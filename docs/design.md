@@ -86,7 +86,7 @@ The workout screen shows one machine at a time. The design targets one-handed us
 4. The owner can edit a prior set or skip an exercise (Decision, D-63).
 5. A busy machine gives a skip, not a substitute (Decision, D-47).
 6. "Finish now" skips the remaining exercises and records the session as ended early (Decision, D-63).
-7. A calibration set offers 0 to 6+ reps in reserve. Its result gives the load of the working sets one time. The policy puts the 4 loads in the plan, so the phone needs no network (Decision, D-266 to D-268).
+7. A calibration set offers 0 to 6+ reps in reserve. Its result gives the load of the working sets one time. The plan holds the 4 loads for each weight of the machine. So the phone needs no network (Decision, D-266 to D-268).
 
 A workout starts from the next session of the plan that the owner did not do yet, or from another session (Decision, D-248). The reps and the weight of a set come from the target, and a tap on the reps in reserve logs the set (Decision, D-249). The plus and minus buttons of the weight move to the next weight of the machine (Decision, D-264). Each workout screen has the button "Report a symptom". It shows seven symptoms, and a pick shows the warning (Decision, D-251, D-263). While a workout is open, the plan screen refuses a new plan and an exclusion (Decision, D-252).
 

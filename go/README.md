@@ -56,7 +56,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 - An invalid output gets a retry with its cause and its output, 4 calls at most (D-230, D-231, D-235). A call over the cap ends the request at once.
 - Each failed attempt adds a document to the top-level collection `aiErrors`. Its field `expire_at` drives the TTL of 90 days (D-236). The document holds the output of Luna, so no log reads it (D-80).
 - The policy decides each exercise of a valid plan, and the plan stores each decision record (D-23, D-176).
-- An exercise with a calibration set also stores `calibration_loads` from `policy.Calibration`: the working load for each result of the calibration table (D-267). The phone applies the table with no network. A plan of policy version 3 has no such field.
+- An exercise with a calibration set also stores `calibration_loads` from `policy.CalibrationTable`. Each row gives a weight of the machine and the working load after each result (D-267). The phone applies the table with no network. A plan of policy version 3 has no such field.
 
 ## The workout log
 

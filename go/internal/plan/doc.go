@@ -61,33 +61,43 @@ type cardioDoc struct {
 }
 
 type exerciseDoc struct {
-	Target      targetDoc       `firestore:"target"`
-	Reason      string          `firestore:"reason"`
-	Record      recordDoc       `firestore:"record"`
-	Calibration *calibrationDoc `firestore:"calibration_loads"`
+	Target      targetDoc        `firestore:"target"`
+	Reason      string           `firestore:"reason"`
+	Record      recordDoc        `firestore:"record"`
+	Calibration []calibrationDoc `firestore:"calibration_loads"`
 }
 
-// calibrationDoc holds the loads of D-267. A plan of policy version 3
-// has none, and it reads back as nil.
+// calibrationDoc is one row of the table of D-267. A plan of policy
+// version 3 and an exercise with no calibration set have none, and they
+// read back as nil.
 type calibrationDoc struct {
-	Down  int64 `firestore:"down_tenth_lb"`
-	Keep  int64 `firestore:"keep_tenth_lb"`
-	UpOne int64 `firestore:"up_one_tenth_lb"`
-	UpTwo int64 `firestore:"up_two_tenth_lb"`
+	Weight int64 `firestore:"weight_tenth_lb"`
+	Down   int64 `firestore:"down_tenth_lb"`
+	Keep   int64 `firestore:"keep_tenth_lb"`
+	UpOne  int64 `firestore:"up_one_tenth_lb"`
+	UpTwo  int64 `firestore:"up_two_tenth_lb"`
 }
 
-func encodeCalibration(c *policy.CalibrationLoads) *calibrationDoc {
-	if c == nil {
+func encodeCalibration(table []policy.CalibrationLoads) []calibrationDoc {
+	if len(table) == 0 {
 		return nil
 	}
-	return &calibrationDoc{int64(c.Down), int64(c.Keep), int64(c.UpOne), int64(c.UpTwo)}
+	out := make([]calibrationDoc, 0, len(table))
+	for _, c := range table {
+		out = append(out, calibrationDoc{int64(c.Weight), int64(c.Down), int64(c.Keep), int64(c.UpOne), int64(c.UpTwo)})
+	}
+	return out
 }
 
-func (d *calibrationDoc) loads() *policy.CalibrationLoads {
-	if d == nil {
+func decodeCalibration(rows []calibrationDoc) []policy.CalibrationLoads {
+	if len(rows) == 0 {
 		return nil
 	}
-	return &policy.CalibrationLoads{Down: domain.Load(d.Down), Keep: domain.Load(d.Keep), UpOne: domain.Load(d.UpOne), UpTwo: domain.Load(d.UpTwo)}
+	out := make([]policy.CalibrationLoads, 0, len(rows))
+	for _, d := range rows {
+		out = append(out, policy.CalibrationLoads{Weight: domain.Load(d.Weight), Down: domain.Load(d.Down), Keep: domain.Load(d.Keep), UpOne: domain.Load(d.UpOne), UpTwo: domain.Load(d.UpTwo)})
+	}
+	return out
 }
 
 type targetDoc struct {
@@ -172,7 +182,7 @@ func (d planDoc) plan() Plan {
 	for _, sd := range d.Sessions {
 		s := Session{Title: sd.Title, WarmUp: ai.GuidanceID(sd.WarmUp), CoolDown: ai.GuidanceID(sd.CoolDown)}
 		for _, e := range sd.Exercises {
-			s.Exercises = append(s.Exercises, Exercise{e.Target.target(), e.Reason, e.Record.record(), e.Calibration.loads()})
+			s.Exercises = append(s.Exercises, Exercise{e.Target.target(), e.Reason, e.Record.record(), decodeCalibration(e.Calibration)})
 		}
 		if c := sd.Cardio; c != nil {
 			s.Cardio = &domain.PlannedCardio{Exercise: idOf(c.Exercise), Minutes: int(c.Minutes)}

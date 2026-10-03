@@ -198,9 +198,14 @@ export function workoutExercises(plan: Plan, sessionIndex: number, weights: (exe
       list = [...new Set([...calibrationSets, ...workingSets].map((s) => s.loadTenthLb))].sort((a, b) => a - b);
     }
     const out: WorkoutExercise = { exerciseId: e.exerciseId, name: e.name, restSeconds: e.restSeconds, calibrationSets, workingSets, weights: list };
-    const c = e.calibrationLoads;
-    if (c && calibrationSets.length > 0) {
-      out.calibrationLoads = { down: c.downTenthLb, keep: c.keepTenthLb, upOne: c.upOneTenthLb, upTwo: c.upTwoTenthLb };
+    if (calibrationSets.length > 0 && e.calibrationLoads.length > 0) {
+      out.calibrationLoads = e.calibrationLoads.map((c) => ({
+        weight: c.weightTenthLb,
+        down: c.downTenthLb,
+        keep: c.keepTenthLb,
+        upOne: c.upOneTenthLb,
+        upTwo: c.upTwoTenthLb,
+      }));
     }
     return out;
   });
@@ -467,14 +472,15 @@ export type NextSet = { kind: "working" | "calibration"; number: number; of: num
 // calibrationLoad gives the load of the working sets after a logged
 // calibration set, from the loads of the policy (D-150, D-267): 2 or
 // fewer reps in reserve or a pain rating of 1 or more go down, 3 or 4
-// keep the load, 5 goes up one step, and 6 or more go up two steps. It
-// gives null when the owner logged the set at a weight that is not the
-// load of the calibration target, because the table holds no load for
-// that weight. The policy code of `go/internal/policy/calibrate.go`
-// holds the same table.
+// keep the load, 5 goes up one step, and 6 or more go up two steps. The
+// table applies to the weight that the owner logged, because the owner
+// can change the weight before the log (D-249). It gives null when the
+// plan has no row for that weight: a plan of policy version 3, or a
+// weight that the machine did not have at the time of the plan. The
+// policy code of `go/internal/policy/calibrate.go` holds the same table.
 export function calibrationLoad(e: WorkoutExercise, s: Pick<SetRecord, "weightTenthsLb" | "rir" | "pain">): number | null {
-  const c = e.calibrationLoads;
-  if (!c || s.weightTenthsLb !== c.keep) return null;
+  const c = e.calibrationLoads?.find((r) => r.weight === s.weightTenthsLb);
+  if (!c) return null;
   if ((s.pain !== undefined && s.pain >= 1) || s.rir <= 2) return c.down;
   if (s.rir >= 6) return c.upTwo;
   if (s.rir === 5) return c.upOne;

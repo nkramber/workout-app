@@ -69,7 +69,11 @@ const plan: Plan = create(PlanSchema, {
           name: "Leg press",
           restSeconds: 180,
           calibrationSets: [{ reps: 8, loadTenthLb: 200 }],
-          calibrationLoads: { downTenthLb: 100, keepTenthLb: 200, upOneTenthLb: 200, upTwoTenthLb: 300 },
+          calibrationLoads: [
+            { weightTenthLb: 100, downTenthLb: 100, keepTenthLb: 100, upOneTenthLb: 100, upTwoTenthLb: 200 },
+            { weightTenthLb: 200, downTenthLb: 100, keepTenthLb: 200, upOneTenthLb: 200, upTwoTenthLb: 300 },
+            { weightTenthLb: 300, downTenthLb: 200, keepTenthLb: 300, upOneTenthLb: 300, upTwoTenthLb: 300 },
+          ],
           workingSets: [
             { reps: 8, loadTenthLb: 200, rirTarget: 3 },
             { reps: 8, loadTenthLb: 200, rirTarget: 3 },
@@ -364,7 +368,8 @@ describe("nextSet and currentExercise", () => {
   it("gives each working set the load of the calibration table", async () => {
     const w = await startWorkout(store, plan, 0, weights, now);
     const press = w.exercises[0];
-    expect(press.calibrationLoads).toEqual({ down: 100, keep: 200, upOne: 200, upTwo: 300 });
+    expect(press.calibrationLoads).toHaveLength(3);
+    expect(press.calibrationLoads?.[1]).toEqual({ weight: 200, down: 100, keep: 200, upOne: 200, upTwo: 300 });
     expect(w.exercises[1].calibrationLoads).toBeUndefined();
     const cal = (rir: number, extra: Partial<SetRecord> = {}): SetRecord => ({ ...set("leg_press", "calibration"), rir, ...extra });
     const load = (s: SetRecord) => nextSet(press, [s]);
@@ -380,9 +385,16 @@ describe("nextSet and currentExercise", () => {
     // The second working set gets the same load.
     expect(nextSet(press, [cal(6), set("leg_press", "working")])).toMatchObject({ number: 2, target: { loadTenthLb: 300 } });
 
-    // A calibration set at another weight gives the load of the plan.
-    expect(load(cal(6, { weightTenthsLb: 300 }))).toMatchObject({ target: { loadTenthLb: 200 }, fromCalibration: false });
-    expect(calibrationLoad(press, { weightTenthsLb: 300, rir: 6 })).toBeNull();
+    // The table applies to the weight that the owner logged (D-249): a
+    // set at 300 goes down to 200 after a hard set, and a set at 100 goes
+    // up to 200 after an easy set.
+    expect(load(cal(1, { weightTenthsLb: 300 }))).toMatchObject({ target: { loadTenthLb: 200 }, fromCalibration: true });
+    expect(load(cal(4, { weightTenthsLb: 300 }))).toMatchObject({ target: { loadTenthLb: 300 }, fromCalibration: true });
+    expect(load(cal(6, { weightTenthsLb: 100 }))).toMatchObject({ target: { loadTenthLb: 200 }, fromCalibration: true });
+    expect(load(cal(2, { weightTenthsLb: 100 }))).toMatchObject({ target: { loadTenthLb: 100 }, fromCalibration: true });
+    // A weight with no row of the table gives the load of the plan.
+    expect(load(cal(6, { weightTenthsLb: 250 }))).toMatchObject({ target: { loadTenthLb: 200 }, fromCalibration: false });
+    expect(calibrationLoad(press, { weightTenthsLb: 250, rir: 6 })).toBeNull();
     // A plan of policy version 3 has no loads, so the plan load stays.
     expect(nextSet({ ...press, calibrationLoads: undefined }, [cal(6)])).toMatchObject({ target: { loadTenthLb: 200 }, fromCalibration: false });
   });

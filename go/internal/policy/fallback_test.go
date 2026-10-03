@@ -327,37 +327,55 @@ func TestEffectiveFirstCalibrationSet(t *testing.T) {
 	if got := in.effective()[0].Target.Working[0].Load; got != lb(55) {
 		t.Fatalf("working load %s, want 55 lb from the first calibration set", got)
 	}
+
+	// The table applies to the weight that the owner logged: 60 lb at 5
+	// reps in reserve gives 65 lb, not 55 lb from the target of 50 lb
+	// (D-249, D-267).
+	o.Log.Sets[0].Weight = lb(60)
+	in.History = []Outcome{o}
+	if got := in.effective()[0].Target.Working[0].Load; got != lb(65) {
+		t.Fatalf("working load %s, want 65 lb from the logged weight of 60 lb", got)
+	}
 }
 
 // The calibration table of D-150 gives the load of the working sets
-// after the one calibration set of a session (D-267).
-func TestCalibration(t *testing.T) {
+// after the one calibration set of a session, for each weight of the
+// machine (D-267).
+func TestCalibrationTable(t *testing.T) {
 	lb := domain.Pounds
 	in := machineInput(t, "leg_extension", []domain.Load{lb(10), lb(14), lb(20), lb(25), lb(30), lb(35), lb(40), lb(45), lb(50)})
-	for _, tc := range []struct {
-		name  string
-		first domain.Load
-		want  CalibrationLoads
-	}{
-		{"middle of the stack", lb(25), CalibrationLoads{Down: lb(20), Keep: lb(25), UpOne: lb(30), UpTwo: lb(35)}},
-		{"down to 14 lb", lb(20), CalibrationLoads{Down: lb(14), Keep: lb(20), UpOne: lb(25), UpTwo: lb(30)}},
-		{"no lighter weight", lb(10), CalibrationLoads{Down: lb(10), Keep: lb(10), UpOne: lb(14), UpTwo: lb(20)}},
-		{"no heavier weight", lb(50), CalibrationLoads{Down: lb(45), Keep: lb(50), UpOne: lb(50), UpTwo: lb(50)}},
-		{"one heavier weight", lb(45), CalibrationLoads{Down: lb(40), Keep: lb(45), UpOne: lb(50), UpTwo: lb(50)}},
-	} {
-		c, err := Calibration(in, tc.first)
-		if err != nil {
-			t.Fatalf("%s: %v", tc.name, err)
+	table, err := CalibrationTable(in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(table) != 9 {
+		t.Fatalf("%d rows, want one for each of the 9 weights", len(table))
+	}
+	row := func(w domain.Load) CalibrationLoads {
+		for _, c := range table {
+			if c.Weight == w {
+				return c
+			}
 		}
-		if c != tc.want {
-			t.Errorf("%s: Calibration = %+v, want %+v", tc.name, c, tc.want)
+		t.Fatalf("no row for %s", w)
+		return CalibrationLoads{}
+	}
+	for _, want := range []CalibrationLoads{
+		{Weight: lb(25), Down: lb(20), Keep: lb(25), UpOne: lb(30), UpTwo: lb(35)},
+		{Weight: lb(20), Down: lb(14), Keep: lb(20), UpOne: lb(25), UpTwo: lb(30)},
+		{Weight: lb(10), Down: lb(10), Keep: lb(10), UpOne: lb(14), UpTwo: lb(20)},
+		{Weight: lb(50), Down: lb(45), Keep: lb(50), UpOne: lb(50), UpTwo: lb(50)},
+		{Weight: lb(45), Down: lb(40), Keep: lb(45), UpOne: lb(50), UpTwo: lb(50)},
+	} {
+		if got := row(want.Weight); got != want {
+			t.Errorf("row %s = %+v, want %+v", want.Weight, got, want)
 		}
 	}
-	if _, err := Calibration(in, lb(15)); !errors.Is(err, ErrInput) {
-		t.Errorf("a load that is not on the stack: error %v, want ErrInput", err)
+	if _, err := CalibrationTable(Input{}); !errors.Is(err, ErrInput) {
+		t.Errorf("an empty input: error %v, want ErrInput", err)
 	}
 
-	c := CalibrationLoads{Down: lb(20), Keep: lb(25), UpOne: lb(30), UpTwo: lb(35)}
+	c := row(lb(25))
 	cal := func(rir int) domain.SetLog {
 		return domain.SetLog{Kind: domain.SetCalibration, Reps: 8, Weight: lb(25), RIR: rir}
 	}

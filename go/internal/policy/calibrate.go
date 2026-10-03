@@ -96,8 +96,10 @@ func (in Input) calibrating() bool {
 
 // effective gives a copy of the history in which each calibration
 // session has the working load that its first calibration set gave
-// (D-150, D-267). The owner logs the working sets at that load, so the
-// rules read the logs against it.
+// (D-150, D-267). The table applies to the weight that the owner logged,
+// because the owner can change the weight before the log (D-249). The
+// owner logs the working sets at that load, so the rules read the logs
+// against it.
 func (in Input) effective() []Outcome {
 	out := slices.Clone(in.History)
 	available := in.Entry.Available()
@@ -106,7 +108,7 @@ func (in Input) effective() []Outcome {
 		if len(o.Target.Calibration) == 0 || len(cal) == 0 {
 			continue
 		}
-		load := calibrationLoads(firstLoad(o.Target.Calibration[0].Load, available), available).For(cal[0])
+		load := calibrationLoads(firstLoad(cal[0].Weight, available), available).For(cal[0])
 		w := slices.Clone(o.Target.Working)
 		for j := range w {
 			w[j].Load = load
@@ -136,11 +138,14 @@ func firstLoad(l domain.Load, available []domain.Load) domain.Load {
 }
 
 // CalibrationLoads gives the load of the working sets of a session
-// after its one calibration set, for each result of the table of
-// RuleCalibrationTable (D-150, D-267). The plan holds it, so the phone
-// applies the table with no network (D-23). A machine with no weight
-// for a change keeps the load of the calibration set.
+// after its one calibration set at Weight, for each result of the table
+// of RuleCalibrationTable (D-150, D-267). The plan holds one for each
+// weight of the machine, so the phone applies the table with no network
+// to the weight that the owner logged (D-23, D-249). A machine with no
+// weight for a change keeps the load. A weight that the policy can not
+// give takes the repair of RuleLoadRepair first.
 type CalibrationLoads struct {
+	Weight domain.Load
 	// Down follows 2 or fewer reps in reserve, or a pain report.
 	Down domain.Load
 	// Keep follows 3 or 4 reps in reserve.
@@ -165,25 +170,29 @@ func (c CalibrationLoads) For(s domain.SetLog) domain.Load {
 	return c.Keep
 }
 
-// Calibration gives the loads of the working sets after a calibration
-// set at first, the load of the calibration set of the target.
-func Calibration(in Input, first domain.Load) (CalibrationLoads, error) {
+// CalibrationTable gives the loads of a calibration set at each weight
+// of the machine, the lightest weight first.
+func CalibrationTable(in Input) ([]CalibrationLoads, error) {
 	if err := in.check(); err != nil {
-		return CalibrationLoads{}, err
+		return nil, err
 	}
 	available := in.Entry.Available()
-	if !slices.Contains(available, first) || !Valid(first, available) {
-		return CalibrationLoads{}, inputError("exercise %q: calibration load is not a valid weight", in.Exercise.ID)
+	out := make([]CalibrationLoads, 0, len(available))
+	for _, w := range available {
+		c := calibrationLoads(firstLoad(w, available), available)
+		c.Weight = w
+		out = append(out, c)
 	}
-	return calibrationLoads(first, available), nil
+	return out, nil
 }
 
 func calibrationLoads(first domain.Load, available []domain.Load) CalibrationLoads {
 	return CalibrationLoads{
-		Down:  move(first, -1, available),
-		Keep:  first,
-		UpOne: move(first, 1, available),
-		UpTwo: move(first, 2, available),
+		Weight: first,
+		Down:   move(first, -1, available),
+		Keep:   first,
+		UpOne:  move(first, 1, available),
+		UpTwo:  move(first, 2, available),
 	}
 }
 

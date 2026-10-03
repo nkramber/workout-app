@@ -354,7 +354,12 @@ test("a skip and finish now give the correct session log", async ({ page, reques
   await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Seated row");
   await expect(exercise(page, "chest_press").getByTestId("exercise-skipped")).toHaveText("Skipped");
 
-  await button(page, "3 in reserve").click();
+  // The table applies to the weight that the owner logged (D-249, D-267):
+  // 20 lb in place of 10 lb, at 6+ reps in reserve, gives 30 lb.
+  await button(page, "Heavier").click();
+  await expect(logger(page).getByTestId("weight")).toHaveText("20 lb");
+  await button(page, "6+ in reserve").click();
+  await expect(logger(page).getByTestId("set-target")).toContainText("at 30 lb");
   await button(page, "Finish now").click();
   await expect(page.getByRole("alertdialog").getByTestId("finish-text")).toHaveText(
     "1 exercise has a set with no log, so the workout ends early.",

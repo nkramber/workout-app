@@ -223,7 +223,7 @@ Concerns:
 - the preview of the next machine for 10 seconds after the last set of an exercise, with "Go now", then the automatic advance (D-60, D-269),
 - the edit of a logged set and the skip of an exercise, each with its outbox entry (D-63, D-170, D-132). "Finish now" ends the session early when an exercise that the owner did not skip has a set with no log,
 - visual cues alone, and no notification (D-58, D-61),
-- the calibration step on the workout screen: one calibration set, and the table of D-150 gives the load of the working sets one time. A calibration set offers 0 to 6+ reps in reserve. The plan holds the 4 loads, so the phone needs no network, and the policy goes to version 4 (D-266 to D-268),
+- the calibration step on the workout screen: one calibration set, and the table of D-150 gives the load of the working sets one time. A calibration set offers 0 to 6+ reps in reserve. The plan holds the 4 loads for each weight of the machine. The phone needs no network, and the policy goes to version 4 (D-266 to D-268),
 - the wake lock: a request at each tap, focus, `pageshow` event, and return, with the error name in the notice (D-271).
 
 Acceptance story: the UI tests prove that the timer shows the correct time after a screen lock and a return. The advance comes after the last set. A skip and "finish now" give the correct session log. After a calibration set, the working sets show the load of the calibration table with no network. A refused wake lock comes back at the next tap.
