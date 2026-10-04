@@ -90,9 +90,9 @@ The workout screen shows one machine at a time. The design targets one-handed us
 
 A workout starts from the next session of the plan that the owner did not do yet, or from another session (Decision, D-248). The reps and the weight of a set come from the target, and a tap on the reps in reserve logs the set (Decision, D-249). The plus and minus buttons of the weight move to the next weight of the machine (Decision, D-264). Each workout screen has the button "Report a symptom". It shows seven symptoms, and a pick shows the warning (Decision, D-251, D-263). While a workout is open, the plan screen refuses a new plan and an exclusion (Decision, D-252).
 
-The rest timer shows on the screen only, because the app sends no notifications (Decision, D-61). The timer reads a stored end time, so it is correct after a screen lock. A Screen Wake Lock keeps the screen on during a workout. The app requests the lock again at each tap, focus, and return. When the phone refuses the lock, the screen shows a notice with the error name (Decision, D-265, D-271).
+The rest timer shows on the screen only, because the app sends no notifications (Decision, D-61). The timer reads a stored end time, so it is correct after a screen lock. A Screen Wake Lock keeps the screen on during a workout. The app requests the lock again at each return, focus, and tap, so a return needs no tap. When the phone refuses the lock, the screen shows a notice with the error name (Decision, D-265, D-283).
 
-On the iPhone, the lock needs a tap after each return. A "Screen lock test" screen tries each method with no tap, and the owner picks one after a test on the iPhone (Decision, D-280, D-282).
+On the iPhone, a test of each method with no tap showed that the Wake Lock API alone keeps the screen on after a return. The owner picked it, and the app uses no video fallback (Decision, D-280, D-283, D-284).
 
 The phone keeps each log and its outbox entry first, and sends the outbox to the workout service later (Decision, D-77, D-132). One call applies 100 entries or fewer, and each entry applies one time alone, keyed by its client op id (Decision, D-259). The server keeps each applied op id with no end date, so a replay changes nothing (Decision, D-257). For a workout entry, the phone wins (Decision, D-258).
 

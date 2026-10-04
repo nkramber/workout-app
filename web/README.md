@@ -14,7 +14,7 @@ This folder holds the web client of the owner. It holds the installable shell (w
 | `web/src/lib/profile.ts`, `web/src/lib/profile-api.ts` | The form state and the checks of the profile, the text of the injury warning, and the save of the profile |
 | `web/src/lib/plan.ts`, `web/src/lib/plan-api.ts` | The texts of the progress and of the errors of a plan request, the formats of a set and of the rest, and the streams of a plan request and of an exclusion |
 | `web/src/lib/workout.ts` | The start of a workout, the set log, the cardio log, the skip of an exercise, the edit of a set, the end of a workout, each with its outbox entry. Also the calibration step, the rest timer, and the steps of the plus and minus buttons |
-| `web/src/lib/symptoms.ts`, `web/src/lib/wake-lock.ts`, `web/src/lib/lock-test.ts` | The list of symptoms and the text of each warning (D-263), the screen wake lock (D-265, D-271), and the probe of the screen lock with no tap (D-282) |
+| `web/src/lib/symptoms.ts`, `web/src/lib/wake-lock.ts` | The list of symptoms and the text of each warning (D-263), and the screen wake lock (D-265, D-283) |
 | `web/src/lib/firebase.ts` | Firebase Authentication with email and password (D-75) |
 | `web/src/lib/api.ts` | The Connect transport, with the ID token of the owner on each call |
 | `web/src/lib/db.ts` | The offline store and the outbox (D-62, D-77, D-132) |
@@ -92,9 +92,7 @@ The start copies the targets of the session and the weights of each machine to t
 - "Report a symptom" shows the seven symptoms of D-263. A pick shows the warning. The owner continues after the confirmation, or uses "Finish now" (D-40, D-153, D-251). The phone keeps no symptom report.
 - "Finish now" asks for a confirmation when an exercise that the owner did not skip has a set with no log. The workout then ends early, and each exercise with no logged set counts as skipped (D-63).
 
-While a workout is open, the plan screen refuses a new plan and an exclusion (D-252). The app holds the screen wake lock from the start of a workout to its end, on each screen. It asks for the lock again at each tap, focus, and `pageshow` event, and when the app comes back to the front (D-271). When the phone releases the lock while the app shows, the app asks one more time. When the phone refuses the lock, the workout screen shows "The screen can turn off. Tap the screen to try again." with the error name (D-265).
-
-The "Screen lock test" button under Diagnostics opens a screen of `web/src/lib/lock-test.ts` (D-280, D-282). It runs one method at a time, with no tap after a return. The methods are the Wake Lock API, a silent video that the phone records from a canvas, and a live silent canvas stream. Its log shows what the phone did. After the deploy, the owner runs it on the iPhone, and picks the method of the next pull request.
+While a workout is open, the plan screen refuses a new plan and an exclusion (D-252). The app holds the screen wake lock from the start of a workout to its end, on each screen. It asks for the lock again at each return to the front, focus, `pageshow` event, and tap. So a return needs no tap (D-283). A release makes no request of its own, and only the newest request sets the state. When the phone refuses the lock, the workout screen shows "The screen can turn off. Tap the screen to try again." with the error name (D-265).
 
 ## The offline store
 
