@@ -58,7 +58,9 @@ export type CalibrationLoads = { weight: number; down: number; keep: number; upO
 // An exercise of a workout: the targets of the plan session, and the
 // weights of its machine at the start, for the plus and minus buttons
 // (D-264). calibrationLoads has one row for each weight of the machine,
-// and a plan of policy version 3 has none.
+// and a plan of policy version 3 has none. After an override of the
+// owner, the sets are the sets of the override, and `override` keeps the
+// recommendation and the reason as separate records (D-69, D-293).
 export type WorkoutExercise = {
   exerciseId: string;
   name: string;
@@ -67,6 +69,7 @@ export type WorkoutExercise = {
   calibrationLoads?: CalibrationLoads[];
   workingSets: TargetSet[];
   weights: number[];
+  override?: { reason: string; recommendedWorkingSets: TargetSet[] };
 };
 
 // The rest timer of a workout (D-59, D-270). The meta table holds it

@@ -1,4 +1,4 @@
-policy version: 5
+policy version: 6
 rules: break.short
 target: chest_press, rest 60 s
   working[0]: 12 reps at 90 lb, 3 RIR

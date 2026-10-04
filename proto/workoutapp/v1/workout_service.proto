@@ -156,6 +156,12 @@ message SeenTarget {
   int32 rest_seconds = 2;
   repeated PlannedSet calibration_sets = 3;
   repeated PlannedSet working_sets = 4;
+  // After an override of the owner, the sets above are the sets of the
+  // override. These fields then keep the recommendation that it replaced
+  // and the reason of the owner as separate records (D-69, D-293). With no
+  // override, both are empty.
+  repeated PlannedSet recommended_working_sets = 5;
+  string override_reason = 6;
 }
 
 // SetEntry is the state of one logged set (D-57, D-164, D-249). The entity

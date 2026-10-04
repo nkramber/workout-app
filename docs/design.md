@@ -121,11 +121,28 @@ One reviser call writes the reason of each new target, with the schema `luna_rea
 
 The reason of the rules then shows, and the plan records the cause. The call has a time limit of 45 s. After a failed call, a call over the cap, or the time limit, the reasons of the rules show, and the targets stay the same. A store failure of a revision fails the sync call. The phone keeps the entries and sends them again, and the revision runs again.
 
-After the workout, the end screen shows the next target of each revised exercise with its reason. With no connection, it tells the owner that the next targets show after the sync. The sync then reads the plan copy again (Decision, D-278, D-292). The revision reads the dates of the logged sessions alone, so it does not apply the long-break table before the first session after a break. Work area 7.2 adds that change at the start of a session (Decision, D-66, D-151).
+After the workout, the end screen shows the next target of each revised exercise with its reason. With no connection, it tells the owner that the next targets show after the sync. The sync then reads the plan copy again (Decision, D-278, D-292).
 
-The owner can override a target, and the app keeps the recommendation, the override, and the reason as separate records (Decision, D-69). The engine handles missed sessions and long breaks (Decision, D-66).
+A revision gives each target on the date of the finished workout. So the phone sends its local date with each read of the plan. The server then gives each target of the rules on that date, the date of the next session. This read applies the long-break table, the rule of a missed session, and the start and the end of a deload (Decision, D-151, D-179, D-294, D-295). It changes only an exercise that the owner logged under the plan, and it saves nothing. A plan with no revision has no such exercise, so the read reads no store for it.
+
+With no connection, the phone uses the plan copy of its last read.
+
+The owner can override the load and the reps of each working set of a target for the next session, with a reason (Decision, D-69, D-293). The override keeps the count of sets, the reps in reserve, and the rest of the recommendation. Before the save, the policy checks that each set has 6 to 20 reps and a weight of the machine (Decision, D-23). The plan keeps the recommendation, the override, and the reason as separate records. No AI model reads the reason.
+
+At the start of a workout, the phone uses the sets of the override. The target copy of the workout keeps the recommendation and the reason too. The next revision starts from the override, and it removes the override. The override expires when a missed session, a break, or a deload changes the rules of the date after its save. The recommendation then applies, and the owner can override it again.
+
+The engine handles missed sessions and long breaks (Decision, D-66). After a gap of 7 to 13 days, the load and the reps stay the same at 3 reps in reserve for one session. Then the reps in reserve of the target before the gap come back (Decision, D-294).
+
+The reactive deload has these rules (Decision, D-289, D-295, D-296):
+
+- A decline is a session whose working sets have fewer total reps than the session before it. The logged load is the same or heavier.
+- A decline in 2 sessions in a row on 2 or more exercises starts a deload on the 7 dates after that session. An exercise counts when its last decline is less than 14 days before the start (Decision, D-296).
+- In the deload, each exercise has 0.6 times its sets, at least 1. The load stays, and each set stops at 3 reps in reserve.
+- A deload session is no evidence for the next target. So after the deload, the targets of before it return.
 
 After a gap of 14 days or more, the load goes down by the long-break table (Decision, D-151, D-179). The first sessions back stop at 3 reps in reserve, with rep progression only. A new exercise starts with a calibration set from the estimate of the owner, or from the lightest weight (Decision, D-150, D-177, D-178). A session has one calibration set, and the calibration table gives the load of its working sets one time (Decision, D-267).
+
+The owner removed the calibration sets (Decision, D-297). In PR-37, the first set of an exercise becomes the calibration, only in the first session of a plan. Q-310 holds the details.
 
 Targets use one to three reps in reserve. Failure is rare, and it never occurs in the first sessions after a break (Decision, D-37). Loads round to the nearest 5 lb, up or down (Decision, D-65). A rounded jump can exceed a validated target, so the policy adds at most one 5 lb step for each exercise in each session (Decision, D-147).
 
@@ -201,10 +218,12 @@ The policy is in `go/internal/policy` (Decision, D-157). It has one version, and
 - The check of a proposal. The policy refuses a proposal outside a bound (Decision, D-23). Outside a calibration session, it also refuses a proposal that is harder than its target at the same load (Decision, D-186).
 - The start of a new exercise with 3 working sets, and the calibration of its first 3 sessions (Decision, D-150, D-177, D-178, D-180).
 - The return after a break of 14 days or more, and the first sessions after it (Decision, D-37, D-151, D-179).
+- The hold after a missed session of 7 to 13 days, and the reactive deload, with policy version 6 (Decision, D-294, D-295).
+- The check of an override of the owner (Decision, D-23, D-293).
 - The rules fallback of one exercise. When the policy refuses a proposal, or Luna gives none for the exercise, the target comes from the rules alone (Decision, D-23). A plan request with no valid output of Luna gets no fallback plan (Decision, D-230).
 - The decision record of each plan decision, with the fields of D-176. The record is workout data, so it never goes into a log (Decision, D-80, D-176).
 
-The policy has no reactive deload yet. Work area 7.2 adds the reactive deload of REC-7, with a new policy version (Decision, D-175, D-289). The draft in `tools/spikes/luna_plan/policy.py` is the spike record alone.
+Policy version 6 adds the reactive deload of REC-7 (Decision, D-289, D-295). The draft in `tools/spikes/luna_plan/policy.py` is the spike record alone.
 
 The role layer is in `go/internal/ai` (Decision, D-157). It holds these parts:
 
@@ -259,4 +278,4 @@ A change of audience reopens D-78, D-79, D-81, D-34, D-39, and D-40. The high-le
 
 ## 7. Open questions
 
-The section "Open questions" of `docs/questions.md` holds the open questions. On 2026-10-04, Q-103 and Q-305 to Q-308 are open. The high-level roadmap and the focused roadmaps name the phase or the pull request that needs each answer.
+The section "Open questions" of `docs/questions.md` holds the open questions. On 2026-10-04, Q-103, Q-308, and Q-310 are open. The high-level roadmap and the focused roadmaps name the phase or the pull request that needs each answer.

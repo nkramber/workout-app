@@ -70,7 +70,7 @@ func (m *Maker) Make(ctx context.Context, uid, today string, exclude *Exclusion,
 		progress = func(Progress) {}
 	}
 	catalog, tables := domain.DefaultCatalog(), domain.DefaultBodyTables()
-	if err := m.checkToday(today); err != nil {
+	if err := m.CheckToday(today); err != nil {
 		return Plan{}, err
 	}
 	prof, ok, err := m.Profiles.Get(ctx, uid)
@@ -153,11 +153,11 @@ func (m *Maker) now() time.Time {
 	return m.Now()
 }
 
-// checkToday refuses a date that is not in the form of
+// CheckToday refuses a date that is not in the form of
 // domain.DateLayout, or that is more than one day from the date in UTC.
 // The owner gives the local date, and the time zones of the world are
 // inside one day of UTC.
-func (m *Maker) checkToday(today string) error {
+func (m *Maker) CheckToday(today string) error {
 	d, err := time.Parse(domain.DateLayout, today)
 	if err != nil || d.Format(domain.DateLayout) != today {
 		return invalid("today: want a date as YYYY-MM-DD")

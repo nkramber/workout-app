@@ -393,3 +393,65 @@ func TestTargetsDoc(t *testing.T) {
 		t.Fatalf("no copy read back as %+v", back.Targets)
 	}
 }
+
+// TestOverrides: a header keeps the record of an override beside the
+// target copy, with the recommendation and the reason (D-69, D-293). The
+// check refuses a record with no copy, two records of one exercise, no
+// recommendation, a bad recommendation, and a bad reason.
+func TestOverrides(t *testing.T) {
+	c := domain.DefaultCatalog()
+	over := domain.PlannedExercise{Exercise: "chest_press", RestSeconds: 60,
+		Working: []domain.WorkingSet{{Reps: 8, Load: domain.Pounds(50), RIR: 2}, {Reps: 8, Load: domain.Pounds(50), RIR: 2}}}
+	rec := []domain.WorkingSet{{Reps: 10, Load: domain.Pounds(40), RIR: 2}, {Reps: 10, Load: domain.Pounds(40), RIR: 2}}
+	good := SeenOverride{Exercise: "chest_press", Recommended: rec, Reason: "Felt easy."}
+	with := func(o ...SeenOverride) Entry {
+		e := header(1, workoutA)
+		e.Header.Targets, e.Header.Overrides = []domain.PlannedExercise{over}, o
+		return e
+	}
+	if err := with(good).Check(c); err != nil {
+		t.Fatalf("a good record: %v", err)
+	}
+	change := func(f func(*SeenOverride)) SeenOverride {
+		o := good
+		o.Recommended = slices.Clone(rec)
+		f(&o)
+		return o
+	}
+	for _, tc := range []struct {
+		name string
+		e    Entry
+	}{
+		{"no copy", with(change(func(o *SeenOverride) { o.Exercise = "seated_row" }))},
+		{"two records", with(good, good)},
+		{"no recommendation", with(change(func(o *SeenOverride) { o.Recommended = nil }))},
+		{"bad recommendation", with(change(func(o *SeenOverride) { o.Recommended[0].Reps = 0 }))},
+		{"empty reason", with(change(func(o *SeenOverride) { o.Reason = "  " }))},
+		{"long reason", with(change(func(o *SeenOverride) { o.Reason = strings.Repeat("a", MaxOverrideReasonRunes+1) }))},
+		{"bad text", with(change(func(o *SeenOverride) { o.Reason = "\xff" }))},
+	} {
+		if err := tc.e.Check(c); !errors.Is(err, ErrInvalid) {
+			t.Errorf("%s: %v, want ErrInvalid", tc.name, err)
+		} else if strings.Contains(err.Error(), "Felt") {
+			t.Errorf("%s: the error %q holds the reason", tc.name, err)
+		}
+	}
+
+	// The stored form keeps the record apart from the copy, and a copy
+	// with no override reads back with no record.
+	plain := domain.PlannedExercise{Exercise: "seated_row", RestSeconds: 60, Working: rec}
+	w := Workout{ID: workoutA, Header: Header{Date: "2026-10-03", Targets: []domain.PlannedExercise{over, plain}, Overrides: []SeenOverride{good}}, Versions: map[string]int64{}}
+	back := encodeWorkout(w, t0).workout(workoutA)
+	if !reflect.DeepEqual(back.Targets, w.Targets) || !reflect.DeepEqual(back.Overrides, w.Overrides) {
+		t.Fatalf("read back %+v %+v", back.Targets, back.Overrides)
+	}
+	s := NewMemory()
+	if _, err := s.Apply(context.Background(), "uid-a", with(good)); err != nil {
+		t.Fatal(err)
+	}
+	list, _, _ := s.List(context.Background(), "uid-a", 10, "")
+	list[0].Overrides[0].Recommended[0].Reps = 99
+	if again, _, _ := s.List(context.Background(), "uid-a", 10, ""); again[0].Overrides[0].Recommended[0].Reps != 10 {
+		t.Fatal("the store shares the record with a reader")
+	}
+}

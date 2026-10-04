@@ -30,6 +30,10 @@ type Outcome struct {
 // or 0 for no estimate. Returning tells that the owner had a break of
 // 91 days or more before the first session of the exercise (D-150).
 // The policy reads both only for an exercise with no history.
+//
+// Deloads holds the start date of each reactive deload of the owner,
+// oldest first, from Deloads over the history of each exercise (D-295).
+// A deload reads more than one exercise, so the caller gives it.
 type Input struct {
 	Exercise  domain.Exercise
 	Entry     domain.InventoryEntry
@@ -37,6 +41,7 @@ type Input struct {
 	Today     string
 	Estimate  domain.Load
 	Returning bool
+	Deloads   []string
 }
 
 // Decision is the next target of one exercise. Rules names each rule
@@ -106,6 +111,14 @@ func (in Input) check() error {
 	if len(in.History) > 0 {
 		if _, err := time.Parse(domain.DateLayout, in.Today); err != nil {
 			return inputError("today: want the form %s", domain.DateLayout)
+		}
+	}
+	for i, d := range in.Deloads {
+		if _, err := time.Parse(domain.DateLayout, d); err != nil {
+			return inputError("deloads[%d]: want the form %s", i, domain.DateLayout)
+		}
+		if i > 0 && day(d) <= day(in.Deloads[i-1]) {
+			return inputError("deloads[%d]: want dates in order", i)
 		}
 	}
 	for i, o := range in.History {
@@ -198,10 +211,13 @@ func (o Outcome) failure() bool {
 
 // Next gives the next target of an exercise from its history (D-23,
 // D-64). An exercise with no history gets its start (D-150). A gap of
-// 14 days or more gives the return of the long-break table (D-151).
+// 14 days or more gives the return of the long-break table (D-151). A
+// gap of 7 to 13 days holds the target at 3 reps in reserve (D-294).
 // Otherwise the rules apply in a fixed order, and the first rule that
-// decides gives the target. The target is inside each bound of Check.
-// Next is also the rules fallback: its target needs no proposal.
+// decides gives the target. On a date of a deload, the target gets the
+// sets and the reps in reserve of the deload (D-295). The target is
+// inside each bound of Check. Next is also the rules fallback: its
+// target needs no proposal.
 func Next(in Input) (Decision, error) {
 	if err := in.check(); err != nil {
 		return Decision{}, err
@@ -212,6 +228,8 @@ func Next(in Input) (Decision, error) {
 	in.History = in.effective()
 	ps := in.pause()
 	calibrating := in.calibrating()
+	before, wasMissed := in.afterMissed()
+	in.History = in.rulesHistory()
 	last := in.History[len(in.History)-1]
 	var prev *Outcome
 	if len(in.History) > 1 {
@@ -230,6 +248,9 @@ func Next(in Input) (Decision, error) {
 	switch {
 	case ps.gap >= BreakDays:
 		b.resume(ps.gap)
+	case missed(ps.gap):
+		b.hold(RuleMissed, fmt.Sprintf("Your last logged set of this exercise was %d days ago. The target stays the same, at 3 reps in reserve.", ps.gap))
+		b.setRIR(3)
 	case last.Log.Skipped:
 		b.hold(RuleSkipped, "You skipped this exercise. The target stays the same.")
 	case last.pain():
@@ -245,9 +266,9 @@ func Next(in Input) (Decision, error) {
 		}
 	case total > 2 && first > 0 && allLowRIR(logs[:first]):
 		b.setReps(reps.Min)
-		b.rule(RuleShortfallLowRIR, fmt.Sprintf("Set %d ended %d reps short after hard sets. The load stays at %s, and the target is %s.", first+1, last.Target.Working[first].Reps-logs[first].Reps, b.loadText(), b.repsText()))
+		b.rule(RuleShortfallLowRIR, fmt.Sprintf("Set %d ended %s short after hard sets. The load stays at %s, and the target is %s.", first+1, repText(last.Target.Working[first].Reps-logs[first].Reps), b.loadText(), b.repsText()))
 	case total > 2:
-		b.hold(RuleShortfallRepeat, fmt.Sprintf("Set %d ended %d reps short. The target stays the same.", first+1, last.Target.Working[first].Reps-logs[first].Reps))
+		b.hold(RuleShortfallRepeat, fmt.Sprintf("Set %d ended %s short. The target stays the same.", first+1, repText(last.Target.Working[first].Reps-logs[first].Reps)))
 	case len(logs) < len(last.Target.Working):
 		early := ""
 		if last.EndedEarly {
@@ -276,8 +297,15 @@ func Next(in Input) (Decision, error) {
 		b.hold(RuleNoHeavier, "The machine has no heavier weight within one 5 lb step. The target stays the same.")
 	}
 
-	if in.firstSessions(ps) && b.setRIR(3) && ps.gap < BreakDays && !slices.Contains(b.rules, RuleBreakFirst) {
+	afterBreak := in.firstSessions(ps)
+	if !afterBreak && wasMissed && !missed(ps.gap) && b.restoreRIR(before) {
+		b.rule(RuleMissedRestored, "The session after a missed week ended, so the reps in reserve go back to the target before it.")
+	}
+	if afterBreak && b.setRIR(3) && ps.gap < BreakDays && !slices.Contains(b.rules, RuleBreakFirst) {
 		b.rule(RuleBreakFirst, "These are your first sessions after a break, so each set stops at 3 reps in reserve.")
+	}
+	if from := in.deloadOf(in.Today); from != "" {
+		b.deload(from)
 	}
 	if ps.gap >= RecalibrateDays || calibrating {
 		b.calibration()

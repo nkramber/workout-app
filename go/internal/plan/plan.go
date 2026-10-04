@@ -104,6 +104,9 @@ type Session struct {
 // rules. ReasonCause tells why the reason of the rules shows after a
 // revision, or it is "" (D-288). A plan of an older version has no
 // source, and ReasonSourceOf gives it from the record.
+//
+// Override is the override of the owner for the next session of the
+// exercise, or nil (D-69, D-293). Target stays the recommendation.
 type Exercise struct {
 	Target       domain.PlannedExercise
 	Reason       string
@@ -111,6 +114,69 @@ type Exercise struct {
 	Calibration  []policy.CalibrationLoads
 	ReasonSource policy.Source
 	ReasonCause  string
+	Override     *Override
+}
+
+// Override is an override of the owner for the next session of one
+// exercise (D-69, D-293). Target is the target that the owner chose,
+// Recommendation is the target of the plan that it replaced, and Reason
+// is the reason of the owner. The three stay separate records. The
+// policy checked Target before the save (D-23). A revision of the
+// exercise removes the override, because an override is for one
+// session. The reason is data of the owner, so it never goes into a log
+// (D-80).
+//
+// Today is the local date of the save. Expired is never stored: a read
+// of the plan on a date sets it when a missed session, a break, or a
+// deload changed the rules of the date after the save (D-294, D-295).
+// The recommendation then applies.
+type Override struct {
+	Target         domain.PlannedExercise
+	Recommendation domain.PlannedExercise
+	Reason         string
+	At             time.Time
+	Today          string
+	Expired        bool
+}
+
+// SetOverride gives the override to each session of the plan that holds
+// the exercise. A nil override removes it. It tells whether a session
+// holds the exercise.
+func (p *Plan) SetOverride(id domain.ExerciseID, o *Override) bool {
+	found := false
+	for i := range p.Sessions {
+		for j := range p.Sessions[i].Exercises {
+			e := &p.Sessions[i].Exercises[j]
+			if e.Target.Exercise != id {
+				continue
+			}
+			found = true
+			e.Override = nil
+			if o != nil {
+				c := *o
+				e.Override = &c
+			}
+		}
+	}
+	return found
+}
+
+// OverrideReason gives the reason of an override with no space at
+// either end. It refuses an empty reason, a reason that is not UTF-8,
+// and a reason over MaxReasonRunes characters. An error names no reason
+// (D-80).
+func OverrideReason(r string) (string, error) {
+	if !utf8.ValidString(r) {
+		return "", invalid("override reason: the text is not UTF-8")
+	}
+	r = strings.TrimSpace(r)
+	switch k := utf8.RuneCountInString(r); {
+	case k == 0:
+		return "", invalid("override reason: want a reason")
+	case k > MaxReasonRunes:
+		return "", invalid("override reason: %d characters, want %d or fewer", k, MaxReasonRunes)
+	}
+	return r, nil
 }
 
 // ReasonSourceOf gives the source of the reason. A plan reason of Luna
@@ -123,8 +189,8 @@ func (e Exercise) ReasonSourceOf() policy.Source {
 	return e.Record.Source
 }
 
-// MaxReasonRunes is the length limit of the reason of an exclusion, in
-// characters (D-228).
+// MaxReasonRunes is the length limit of the reason of an exclusion and
+// of an override, in characters (D-228, D-293).
 const MaxReasonRunes = 200
 
 // Exclusion is one excluded exercise with the optional reason of the

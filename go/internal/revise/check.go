@@ -32,6 +32,9 @@ const (
 	CauseUnnamedSet = "unnamed-set"
 	// CauseNumber: the text holds a number that is not in the evidence.
 	CauseNumber = "unknown-number"
+	// CauseDate: the date of the next session changed the target of the
+	// rules, for example after a missed session or a break (ForDate).
+	CauseDate = "date"
 )
 
 // Reason gives the reason that the owner sees for a revised exercise,

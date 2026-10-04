@@ -35,6 +35,12 @@ const (
 const (
 	// PlanServiceGetPlanProcedure is the fully-qualified name of the PlanService's GetPlan RPC.
 	PlanServiceGetPlanProcedure = "/workoutapp.v1.PlanService/GetPlan"
+	// PlanServiceOverrideTargetProcedure is the fully-qualified name of the PlanService's
+	// OverrideTarget RPC.
+	PlanServiceOverrideTargetProcedure = "/workoutapp.v1.PlanService/OverrideTarget"
+	// PlanServiceRemoveOverrideProcedure is the fully-qualified name of the PlanService's
+	// RemoveOverride RPC.
+	PlanServiceRemoveOverrideProcedure = "/workoutapp.v1.PlanService/RemoveOverride"
 	// PlanServiceRequestPlanProcedure is the fully-qualified name of the PlanService's RequestPlan RPC.
 	PlanServiceRequestPlanProcedure = "/workoutapp.v1.PlanService/RequestPlan"
 	// PlanServiceExcludeExerciseProcedure is the fully-qualified name of the PlanService's
@@ -45,8 +51,22 @@ const (
 // PlanServiceClient is a client for the workoutapp.v1.PlanService service.
 type PlanServiceClient interface {
 	// GetPlan returns the current plan and the exclusions of the caller. A
-	// caller with no plan gets no plan.
+	// caller with no plan gets no plan. With a date, each target is the
+	// target of the rules on that date, the date of the next session: the
+	// long-break table, a missed session, and a deload apply (D-151, D-179,
+	// D-294, D-295). The server saves no change.
 	GetPlan(context.Context, *connect.Request[v1.GetPlanRequest]) (*connect.Response[v1.GetPlanResponse], error)
+	// OverrideTarget saves an override of the owner for the next session of
+	// one exercise (D-69, D-293). The override changes the load and the reps
+	// of each working set alone, and it needs a reason. The policy checks it
+	// first, and a refused override gives INVALID_ARGUMENT with the rule and
+	// the place of each violation (D-23). The plan keeps the recommendation,
+	// the override, and the reason as separate records. A revision of the
+	// exercise removes the override.
+	OverrideTarget(context.Context, *connect.Request[v1.OverrideTargetRequest]) (*connect.Response[v1.OverrideTargetResponse], error)
+	// RemoveOverride removes the override of one exercise, so the
+	// recommendation shows again.
+	RemoveOverride(context.Context, *connect.Request[v1.RemoveOverrideRequest]) (*connect.Response[v1.RemoveOverrideResponse], error)
 	// RequestPlan makes a new plan. The stream sends a progress event at each
 	// step, then the plan in the last event (D-237). The new plan replaces the
 	// old plan only when the request completes (D-227). When the stream closes
@@ -75,6 +95,18 @@ func NewPlanServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(planServiceMethods.ByName("GetPlan")),
 			connect.WithClientOptions(opts...),
 		),
+		overrideTarget: connect.NewClient[v1.OverrideTargetRequest, v1.OverrideTargetResponse](
+			httpClient,
+			baseURL+PlanServiceOverrideTargetProcedure,
+			connect.WithSchema(planServiceMethods.ByName("OverrideTarget")),
+			connect.WithClientOptions(opts...),
+		),
+		removeOverride: connect.NewClient[v1.RemoveOverrideRequest, v1.RemoveOverrideResponse](
+			httpClient,
+			baseURL+PlanServiceRemoveOverrideProcedure,
+			connect.WithSchema(planServiceMethods.ByName("RemoveOverride")),
+			connect.WithClientOptions(opts...),
+		),
 		requestPlan: connect.NewClient[v1.RequestPlanRequest, v1.RequestPlanResponse](
 			httpClient,
 			baseURL+PlanServiceRequestPlanProcedure,
@@ -93,6 +125,8 @@ func NewPlanServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 // planServiceClient implements PlanServiceClient.
 type planServiceClient struct {
 	getPlan         *connect.Client[v1.GetPlanRequest, v1.GetPlanResponse]
+	overrideTarget  *connect.Client[v1.OverrideTargetRequest, v1.OverrideTargetResponse]
+	removeOverride  *connect.Client[v1.RemoveOverrideRequest, v1.RemoveOverrideResponse]
 	requestPlan     *connect.Client[v1.RequestPlanRequest, v1.RequestPlanResponse]
 	excludeExercise *connect.Client[v1.ExcludeExerciseRequest, v1.ExcludeExerciseResponse]
 }
@@ -100,6 +134,16 @@ type planServiceClient struct {
 // GetPlan calls workoutapp.v1.PlanService.GetPlan.
 func (c *planServiceClient) GetPlan(ctx context.Context, req *connect.Request[v1.GetPlanRequest]) (*connect.Response[v1.GetPlanResponse], error) {
 	return c.getPlan.CallUnary(ctx, req)
+}
+
+// OverrideTarget calls workoutapp.v1.PlanService.OverrideTarget.
+func (c *planServiceClient) OverrideTarget(ctx context.Context, req *connect.Request[v1.OverrideTargetRequest]) (*connect.Response[v1.OverrideTargetResponse], error) {
+	return c.overrideTarget.CallUnary(ctx, req)
+}
+
+// RemoveOverride calls workoutapp.v1.PlanService.RemoveOverride.
+func (c *planServiceClient) RemoveOverride(ctx context.Context, req *connect.Request[v1.RemoveOverrideRequest]) (*connect.Response[v1.RemoveOverrideResponse], error) {
+	return c.removeOverride.CallUnary(ctx, req)
 }
 
 // RequestPlan calls workoutapp.v1.PlanService.RequestPlan.
@@ -115,8 +159,22 @@ func (c *planServiceClient) ExcludeExercise(ctx context.Context, req *connect.Re
 // PlanServiceHandler is an implementation of the workoutapp.v1.PlanService service.
 type PlanServiceHandler interface {
 	// GetPlan returns the current plan and the exclusions of the caller. A
-	// caller with no plan gets no plan.
+	// caller with no plan gets no plan. With a date, each target is the
+	// target of the rules on that date, the date of the next session: the
+	// long-break table, a missed session, and a deload apply (D-151, D-179,
+	// D-294, D-295). The server saves no change.
 	GetPlan(context.Context, *connect.Request[v1.GetPlanRequest]) (*connect.Response[v1.GetPlanResponse], error)
+	// OverrideTarget saves an override of the owner for the next session of
+	// one exercise (D-69, D-293). The override changes the load and the reps
+	// of each working set alone, and it needs a reason. The policy checks it
+	// first, and a refused override gives INVALID_ARGUMENT with the rule and
+	// the place of each violation (D-23). The plan keeps the recommendation,
+	// the override, and the reason as separate records. A revision of the
+	// exercise removes the override.
+	OverrideTarget(context.Context, *connect.Request[v1.OverrideTargetRequest]) (*connect.Response[v1.OverrideTargetResponse], error)
+	// RemoveOverride removes the override of one exercise, so the
+	// recommendation shows again.
+	RemoveOverride(context.Context, *connect.Request[v1.RemoveOverrideRequest]) (*connect.Response[v1.RemoveOverrideResponse], error)
 	// RequestPlan makes a new plan. The stream sends a progress event at each
 	// step, then the plan in the last event (D-237). The new plan replaces the
 	// old plan only when the request completes (D-227). When the stream closes
@@ -141,6 +199,18 @@ func NewPlanServiceHandler(svc PlanServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(planServiceMethods.ByName("GetPlan")),
 		connect.WithHandlerOptions(opts...),
 	)
+	planServiceOverrideTargetHandler := connect.NewUnaryHandler(
+		PlanServiceOverrideTargetProcedure,
+		svc.OverrideTarget,
+		connect.WithSchema(planServiceMethods.ByName("OverrideTarget")),
+		connect.WithHandlerOptions(opts...),
+	)
+	planServiceRemoveOverrideHandler := connect.NewUnaryHandler(
+		PlanServiceRemoveOverrideProcedure,
+		svc.RemoveOverride,
+		connect.WithSchema(planServiceMethods.ByName("RemoveOverride")),
+		connect.WithHandlerOptions(opts...),
+	)
 	planServiceRequestPlanHandler := connect.NewServerStreamHandler(
 		PlanServiceRequestPlanProcedure,
 		svc.RequestPlan,
@@ -157,6 +227,10 @@ func NewPlanServiceHandler(svc PlanServiceHandler, opts ...connect.HandlerOption
 		switch r.URL.Path {
 		case PlanServiceGetPlanProcedure:
 			planServiceGetPlanHandler.ServeHTTP(w, r)
+		case PlanServiceOverrideTargetProcedure:
+			planServiceOverrideTargetHandler.ServeHTTP(w, r)
+		case PlanServiceRemoveOverrideProcedure:
+			planServiceRemoveOverrideHandler.ServeHTTP(w, r)
 		case PlanServiceRequestPlanProcedure:
 			planServiceRequestPlanHandler.ServeHTTP(w, r)
 		case PlanServiceExcludeExerciseProcedure:
@@ -172,6 +246,14 @@ type UnimplementedPlanServiceHandler struct{}
 
 func (UnimplementedPlanServiceHandler) GetPlan(context.Context, *connect.Request[v1.GetPlanRequest]) (*connect.Response[v1.GetPlanResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("workoutapp.v1.PlanService.GetPlan is not implemented"))
+}
+
+func (UnimplementedPlanServiceHandler) OverrideTarget(context.Context, *connect.Request[v1.OverrideTargetRequest]) (*connect.Response[v1.OverrideTargetResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("workoutapp.v1.PlanService.OverrideTarget is not implemented"))
+}
+
+func (UnimplementedPlanServiceHandler) RemoveOverride(context.Context, *connect.Request[v1.RemoveOverrideRequest]) (*connect.Response[v1.RemoveOverrideResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("workoutapp.v1.PlanService.RemoveOverride is not implemented"))
 }
 
 func (UnimplementedPlanServiceHandler) RequestPlan(context.Context, *connect.Request[v1.RequestPlanRequest], *connect.ServerStream[v1.RequestPlanResponse]) error {

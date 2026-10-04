@@ -78,6 +78,15 @@ type exerciseDoc struct {
 	Calibration  []calibrationDoc `firestore:"calibration_loads"`
 	ReasonSource string           `firestore:"reason_source"`
 	ReasonCause  string           `firestore:"reason_cause"`
+	Override     *overrideDoc     `firestore:"override"`
+}
+
+type overrideDoc struct {
+	Target         targetDoc `firestore:"target"`
+	Recommendation targetDoc `firestore:"recommendation"`
+	Reason         string    `firestore:"reason"`
+	At             time.Time `firestore:"at"`
+	Today          string    `firestore:"today"`
 }
 
 // calibrationDoc is one row of the table of D-267. A plan of policy
@@ -176,7 +185,11 @@ func encodePlan(p Plan) planDoc {
 	for _, s := range p.Sessions {
 		sd := sessionDoc{Title: s.Title, WarmUp: string(s.WarmUp), CoolDown: string(s.CoolDown), Exercises: []exerciseDoc{}}
 		for _, e := range s.Exercises {
-			sd.Exercises = append(sd.Exercises, exerciseDoc{encodeTarget(e.Target), e.Reason, encodeRecord(e.Record), encodeCalibration(e.Calibration), string(e.ReasonSource), e.ReasonCause})
+			ed := exerciseDoc{encodeTarget(e.Target), e.Reason, encodeRecord(e.Record), encodeCalibration(e.Calibration), string(e.ReasonSource), e.ReasonCause, nil}
+			if o := e.Override; o != nil {
+				ed.Override = &overrideDoc{encodeTarget(o.Target), encodeTarget(o.Recommendation), o.Reason, o.At.UTC(), o.Today}
+			}
+			sd.Exercises = append(sd.Exercises, ed)
 		}
 		if c := s.Cardio; c != nil {
 			sd.Cardio = &cardioDoc{string(c.Exercise), int64(c.Minutes)}
@@ -203,7 +216,11 @@ func (d planDoc) plan() Plan {
 	for _, sd := range d.Sessions {
 		s := Session{Title: sd.Title, WarmUp: ai.GuidanceID(sd.WarmUp), CoolDown: ai.GuidanceID(sd.CoolDown)}
 		for _, e := range sd.Exercises {
-			s.Exercises = append(s.Exercises, Exercise{e.Target.target(), e.Reason, e.Record.record(), decodeCalibration(e.Calibration), policy.Source(e.ReasonSource), e.ReasonCause})
+			x := Exercise{e.Target.target(), e.Reason, e.Record.record(), decodeCalibration(e.Calibration), policy.Source(e.ReasonSource), e.ReasonCause, nil}
+			if o := e.Override; o != nil {
+				x.Override = &Override{Target: o.Target.target(), Recommendation: o.Recommendation.target(), Reason: o.Reason, At: o.At.UTC(), Today: o.Today}
+			}
+			s.Exercises = append(s.Exercises, x)
 		}
 		if c := sd.Cardio; c != nil {
 			s.Cardio = &domain.PlannedCardio{Exercise: idOf(c.Exercise), Minutes: int(c.Minutes)}

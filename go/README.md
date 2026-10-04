@@ -15,11 +15,11 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `go/internal/profile` | The profile of the owner: the fields, the checks, the Firestore store, and `ForPlan` (D-41, D-208 to D-221) |
 | `go/internal/profilesvc` | The calls of `ProfileService` |
 | `go/internal/domain` | The types of the workout domain, the catalog of D-155, the injury areas and the muscle groups with their tables (D-218, D-219), and the check of each type (D-157) |
-| `go/internal/policy` | The versioned safety policy: the bounds of a target, the rounding of a load, the start and the calibration of a new exercise with one calibration set in each session (D-267), the return after a break, the next target, the check of a proposal, the rules fallback, and the decision record (D-23, D-38, D-176) |
+| `go/internal/policy` | The versioned safety policy: the bounds of a target, the rounding of a load, the start and the calibration of a new exercise with one calibration set in each session (D-267), the return after a break, the hold after a missed session, the reactive deload, the next target, the check of a proposal and of an override, the rules fallback, and the decision record (D-23, D-38, D-176, D-293 to D-295) |
 | `go/internal/ai` | The Luna role layer: the planner and reviser roles, the plan schema and the reason schema, the prompt, the guidance catalog, the filter of blocked claims, the cost records, the cap hook, the OpenAI provider, and the fake provider (D-24, D-25, D-152, D-183) |
 | `go/internal/plan` | The plan of the owner: the planner request, 4 calls at most with the cause of each failure, the policy check of each exercise, the exclusions, the Firestore stores, and the error records (D-226 to D-238) |
-| `go/internal/plansvc` | The calls of `PlanService`, with a server stream of the progress (D-237) |
-| `go/internal/revise` | The revision after a finished workout: the history of each exercise, the targets of the rules, the reviser call, and the check of each reason (D-288, D-290 to D-292) |
+| `go/internal/plansvc` | The calls of `PlanService`, with a server stream of the progress (D-237), the targets on a date, and the overrides of the owner (D-293) |
+| `go/internal/revise` | The revision after a finished workout: the history of each exercise, the targets of the rules, the reviser call, the check of each reason, the deloads, and the targets on the date of the next session (D-288, D-290 to D-292, D-294, D-295) |
 | `go/internal/workout` | The logged sessions of the owner: the outbox entries, the check of each log, the target copies (D-291), the apply of each entry one time, and the Firestore store (D-132, D-256 to D-261) |
 | `go/internal/workoutsvc` | The calls of `WorkoutService`: `SyncOutbox`, with the workout entries, the inventory entries, and the revision of each finished workout, and `ListWorkouts` |
 | `go/internal/capstore` | The lasting cap hook: the spend of each calendar month in UTC in Firestore, with a reservation before each call and a charge after it (D-189, D-190, D-224, D-225) |
@@ -84,6 +84,11 @@ After each `SyncOutbox` batch, `go/internal/revise` revises the plan for each fi
 - One reviser call with `luna-prompt-v6` and the schema `luna_reason_v1` writes each reason (D-288). The call has a time limit of 45 s, and the revision continues when the sync request ends first.
 - `revise.Check` refuses a blocked reason, a reason with no logged set or an unknown set, and a number outside the evidence. The plan then holds the reason of the rules, with the cause in `reason_cause`.
 - A store failure of a revision gives `UNAVAILABLE`. Each applied entry stays applied, so the phone sends the batch again, and the revision runs again. The log line holds ids and counts alone (D-80).
+- Each input holds the start date of each deload, from `policy.Deloads` over the history of each logged exercise (D-295).
+
+`Reviser.ForDate` gives the targets on a date for `GetPlan` with a date. It applies the long-break table, a missed session, and a deload on that date (D-151, D-179, D-294, D-295). It changes each exercise that the owner logged under the plan, and it saves nothing. A plan with no revision reads no store.
+
+`OverrideTarget` checks an override with `policy.CheckOverride` against the target on the date, and saves it with the recommendation and the reason (D-69, D-293). `ForDate` marks an override as expired when the rules of the date changed after its save, and the recommendation then applies. A refusal gives `INVALID_ARGUMENT` with the rule and the place of each violation, and no reason of the owner. A revision of the exercise removes the override.
 
 ## The Luna evaluation
 

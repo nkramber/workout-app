@@ -60,15 +60,17 @@ In the evaluation of Phase 3, Luna proposed the target of the rules in each of 1
 | Q-302, the targets that a revision changes | Each exercise that the workout logged, in each session of the plan that holds it. | D-290 |
 | Q-303, the place of the target that the owner saw | A copy in the workout log, which the phone makes at the start and the sync sends. | D-291 |
 | Q-304, the time of a revision with no connection | In the sync of the finished workout, with a time limit for the reviser call. The offline plan keeps the old targets until a sync completes. | D-292 |
+| Q-305, the fields of an override | The load and the reps of each working set, with a reason. The next revision starts from the override. | D-293 |
+| Q-306, a missed session under 14 days | A gap of 7 to 13 days holds the load and the reps at 3 reps in reserve for one session. | D-294 |
+| Q-307, the numbers of the deload | A decline in 2 sessions in a row on 2 or more exercises. Then 7 days at 0.6 times the sets, the same load, and 3 reps in reserve. | D-295 |
+| Q-309, the age of a decline | An exercise counts when its last decline is less than 14 days before the start of the deload. | D-296 |
 
 These questions stay open, and section 4 names the session that asks each one:
 
 | Question | Session |
 |---|---|
-| Q-305, the fields of an override | PR-36 |
-| Q-306, a missed session under 14 days | PR-36 |
-| Q-307, the numbers of the deload | PR-36 |
 | Q-308, the size and the cap of the paid evaluation | PR-37 |
+| Q-310, the first set as the calibration | PR-37 |
 
 Q-103 stays open for the deferred photo work.
 
@@ -96,7 +98,7 @@ The PR-<n> order is the order of work. Each pull request needs the one before it
 | PR-34 | all | `docs: the Phase 7 focused roadmap (PR-34)` | the live plan of policy version 5 before the work (D-212) |
 | PR-35 | 7.1 | `feat: the revision after a session (PR-35)` | none, because the tests use the fake provider |
 | PR-36 | 7.2 | `feat: the overrides and the disruptions (PR-36)` | the live revision before the work (D-212) |
-| PR-37 | 7.3 | `test: the reviser evaluation (PR-37)` | the live revision before the work (D-212), and the paid evaluation (D-25, D-286) |
+| PR-37 | 7.3 | `feat: the first-set calibration and the reviser evaluation (PR-37)` | the live revision before the work (D-212), and the paid evaluation (D-25, D-286) |
 
 ### PR-34 - The Phase 7 focused roadmap
 
@@ -154,16 +156,18 @@ Acceptance story: the scenario tests prove the targets after a missed week and a
 
 Checks: `make contract`, `make go-test`, `make emulator-test`, `make web`, and `make verify`, free. Codex reviews PR-36.
 
-The session asks the owner Q-305 to Q-307 before the work.
+The owner approved the milestone, and answered Q-305 to Q-307 before the work (D-293 to D-295). The session asked Q-309 during the work (D-296). The milestone also holds the long-break table at the start of a session. So the read of the plan gives each target on the date of the next session.
 
-### PR-37 - The reviser evaluation
+### PR-37 - The first-set calibration and the reviser evaluation
 
-Branch: `test/pr-37-reviser-evaluation`. Work area 7.3. It needs PR-36 on `main`.
+Branch: `feat/pr-37-calibration-evaluation`. Work area 7.3. It needs PR-36 on `main`. The owner added the first-set calibration and the collapse of a finished workout to this pull request on 2026-10-04 (D-297, D-298).
 
 Before the work, the session reads the deploys of the merge of PR-36. It states the expected cost of one live revision with the new policy version, and asks the owner (D-212).
 
 Concerns:
 
+- the removal of the calibration sets, with a new policy version and the answer of Q-310. The first set of an exercise acts as the calibration, only in the first session of a plan (D-297),
+- the collapse of the exercise list when each exercise is done. The cardio and the end of the workout then show near the top (D-298),
 - the evaluation of the reviser in `go/cmd/lunaeval`, with the prompt of D-288, on the scenarios A to F and on the scenarios of PR-36,
 - the check of each reason of Luna against the logged sets (D-68, D-288),
 - the paid run, with the size and the cap of Q-308 (D-25, D-286),
@@ -173,13 +177,13 @@ Acceptance story: the report gives, for each scenario, the count of reasons that
 
 Checks: `make go-test` and `make verify`, free. The evaluation costs money, and runs only after the owner approves the cap. Codex reviews PR-37.
 
-The session asks the owner Q-308 before the paid run.
+The session asks the owner Q-310 before the work, and Q-308 before the paid run. The paid run uses the new policy version.
 
 ## 5. Exit of the phase
 
 Phase 7 ends when PR-37 merges and the device checks pass. These items give the exit evidence of `docs/roadmaps/high-level-roadmap.md`:
 
 - The emulator tests of PR-35 pass the scenarios A to F end to end with the fake provider (work area 7.1).
-- After the deploy of PR-35, the owner sees the next targets with their reasons on the iPhone. The session of PR-36 records the result.
+- After the deploy of PR-35, the owner saw the next targets with their reasons on the iPhone. On 2026-10-04, the revision `api-00019-s78` made 1 reviser call with the status `ok` and a cost of 0.0017 USD. The sync call that held it took 19.8 s. The plan got 8 new targets, each with a reason of Luna (PR-36).
 - The scenario tests of PR-36 prove a missed week, a break of the Q-102 length, and a deload (work area 7.2).
 - The report of PR-37 gives the measured numbers of the paid evaluation (work area 7.3).

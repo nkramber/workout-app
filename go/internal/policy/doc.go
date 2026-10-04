@@ -1,8 +1,9 @@
 // Package policy holds the deterministic, versioned safety policy of the
 // workout plan (D-22, D-23). It gives the bounds of a target, the
 // rounding of a load, the start and the calibration of a new exercise,
-// the return after a break, and the next target of an exercise from its
-// history. It checks each proposal before the owner sees it, and gives
+// the return after a break or a missed session, the reactive deload, the
+// check of an override of the owner, and the next target of an exercise
+// from its history. It checks each proposal before the owner sees it, and gives
 // the target of the rules alone when it refuses a proposal or when Luna
 // gives none. A decision record holds each plan decision (D-176).
 //
@@ -19,7 +20,7 @@ package policy
 import "errors"
 
 // Version is the version of the policy. Change it when a rule changes.
-const Version = 5
+const Version = 6
 
 // ErrInput is the error that each input error matches with errors.Is.
 var ErrInput = errors.New("policy input")

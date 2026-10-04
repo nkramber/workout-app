@@ -14,6 +14,7 @@ import {
 import { db } from "./db";
 import { keepCopy, syncBeforePlan } from "./sync";
 import { engine } from "./sync-engine";
+import { planRequest } from "./today";
 
 // The events of RequestPlan and of ExcludeExercise have the same form.
 type PlanEvent = { event: { case: "progress"; value: PlanProgress } | { case: "plan"; value: Plan } | { case: undefined } };
@@ -36,7 +37,21 @@ export function usePlanApi() {
   const queryClient = useQueryClient();
   return useMemo(() => {
     const client = createClient(PlanService, transport);
-    const key = createConnectQueryKey({ schema: PlanService.method.getPlan, transport, input: {}, cardinality: "finite" });
+    const key = createConnectQueryKey({ schema: PlanService.method.getPlan, transport, input: planRequest(), cardinality: "finite" });
+
+    // save puts the plan of an override call in the query cache of
+    // GetPlan and in the offline copy, so the next workout shows the
+    // override (D-278, D-293).
+    const save = async (plan: Plan | undefined) => {
+      if (!plan) throw new ConnectError("the response has no plan", Code.Internal);
+      const next = create(GetPlanResponseSchema, {
+        plan,
+        exclusions: queryClient.getQueryData<GetPlanResponse>(key)?.exclusions ?? [],
+      });
+      queryClient.setQueryData(key, next);
+      await keepCopy(db, "plan", toJson(GetPlanResponseSchema, next));
+      return plan;
+    };
 
     const read = async (events: AsyncIterable<PlanEvent>, onProgress: (p: PlanProgress) => void) => {
       try {
@@ -75,6 +90,13 @@ export function usePlanApi() {
         await syncBeforePlan(db, () => engine.syncNow());
         return read(client.excludeExercise({ today, exerciseId, reason: reason.trim() }, { signal }), onProgress);
       },
+      // overrideTarget saves an override of the owner for the next session
+      // of an exercise (D-69, D-293). The server keeps the reps in reserve
+      // of the recommendation, and the policy checks the sets (D-23).
+      overrideTarget: async (today: string, exerciseId: string, sets: { reps: number; loadTenthLb: number }[], reason: string) =>
+        save((await client.overrideTarget({ today, exerciseId, workingSets: sets, reason: reason.trim() })).plan),
+      // removeOverride shows the recommendation again.
+      removeOverride: async (today: string, exerciseId: string) => save((await client.removeOverride({ today, exerciseId })).plan),
     };
   }, [transport, queryClient]);
 }

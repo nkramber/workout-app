@@ -729,8 +729,14 @@ type SeenTarget struct {
 	RestSeconds     int32         `protobuf:"varint,2,opt,name=rest_seconds,json=restSeconds,proto3" json:"rest_seconds,omitempty"`
 	CalibrationSets []*PlannedSet `protobuf:"bytes,3,rep,name=calibration_sets,json=calibrationSets,proto3" json:"calibration_sets,omitempty"`
 	WorkingSets     []*PlannedSet `protobuf:"bytes,4,rep,name=working_sets,json=workingSets,proto3" json:"working_sets,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// After an override of the owner, the sets above are the sets of the
+	// override. These fields then keep the recommendation that it replaced
+	// and the reason of the owner as separate records (D-69, D-293). With no
+	// override, both are empty.
+	RecommendedWorkingSets []*PlannedSet `protobuf:"bytes,5,rep,name=recommended_working_sets,json=recommendedWorkingSets,proto3" json:"recommended_working_sets,omitempty"`
+	OverrideReason         string        `protobuf:"bytes,6,opt,name=override_reason,json=overrideReason,proto3" json:"override_reason,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *SeenTarget) Reset() {
@@ -789,6 +795,20 @@ func (x *SeenTarget) GetWorkingSets() []*PlannedSet {
 		return x.WorkingSets
 	}
 	return nil
+}
+
+func (x *SeenTarget) GetRecommendedWorkingSets() []*PlannedSet {
+	if x != nil {
+		return x.RecommendedWorkingSets
+	}
+	return nil
+}
+
+func (x *SeenTarget) GetOverrideReason() string {
+	if x != nil {
+		return x.OverrideReason
+	}
+	return ""
 }
 
 // SetEntry is the state of one logged set (D-57, D-164, D-249). The entity
@@ -1697,14 +1717,16 @@ const file_workoutapp_v1_workout_service_proto_rawDesc = "" +
 	"\vended_early\x18\x04 \x01(\bR\n" +
 	"endedEarly\x12\x1a\n" +
 	"\bfinished\x18\x05 \x01(\bR\bfinished\x123\n" +
-	"\atargets\x18\x06 \x03(\v2\x19.workoutapp.v1.SeenTargetR\atargets\"\xd4\x01\n" +
+	"\atargets\x18\x06 \x03(\v2\x19.workoutapp.v1.SeenTargetR\atargets\"\xd2\x02\n" +
 	"\n" +
 	"SeenTarget\x12\x1f\n" +
 	"\vexercise_id\x18\x01 \x01(\tR\n" +
 	"exerciseId\x12!\n" +
 	"\frest_seconds\x18\x02 \x01(\x05R\vrestSeconds\x12D\n" +
 	"\x10calibration_sets\x18\x03 \x03(\v2\x19.workoutapp.v1.PlannedSetR\x0fcalibrationSets\x12<\n" +
-	"\fworking_sets\x18\x04 \x03(\v2\x19.workoutapp.v1.PlannedSetR\vworkingSets\"\xe4\x01\n" +
+	"\fworking_sets\x18\x04 \x03(\v2\x19.workoutapp.v1.PlannedSetR\vworkingSets\x12S\n" +
+	"\x18recommended_working_sets\x18\x05 \x03(\v2\x19.workoutapp.v1.PlannedSetR\x16recommendedWorkingSets\x12'\n" +
+	"\x0foverride_reason\x18\x06 \x01(\tR\x0eoverrideReason\"\xe4\x01\n" +
 	"\bSetEntry\x12\x1d\n" +
 	"\n" +
 	"workout_id\x18\x01 \x01(\tR\tworkoutId\x12\x1f\n" +
@@ -1855,24 +1877,25 @@ var file_workoutapp_v1_workout_service_proto_depIdxs = []int32{
 	9,  // 12: workoutapp.v1.WorkoutHeader.targets:type_name -> workoutapp.v1.SeenTarget
 	23, // 13: workoutapp.v1.SeenTarget.calibration_sets:type_name -> workoutapp.v1.PlannedSet
 	23, // 14: workoutapp.v1.SeenTarget.working_sets:type_name -> workoutapp.v1.PlannedSet
-	0,  // 15: workoutapp.v1.EntryResult.status:type_name -> workoutapp.v1.EntryResult.Status
-	1,  // 16: workoutapp.v1.SyncOutboxRequest.entries:type_name -> workoutapp.v1.OutboxEntry
-	12, // 17: workoutapp.v1.SyncOutboxResponse.results:type_name -> workoutapp.v1.EntryResult
-	15, // 18: workoutapp.v1.LoggedExercise.sets:type_name -> workoutapp.v1.LoggedSet
-	7,  // 19: workoutapp.v1.Workout.plan:type_name -> workoutapp.v1.PlanLink
-	16, // 20: workoutapp.v1.Workout.exercises:type_name -> workoutapp.v1.LoggedExercise
-	17, // 21: workoutapp.v1.Workout.cardio:type_name -> workoutapp.v1.LoggedCardio
-	9,  // 22: workoutapp.v1.Workout.targets:type_name -> workoutapp.v1.SeenTarget
-	18, // 23: workoutapp.v1.ListWorkoutsResponse.workouts:type_name -> workoutapp.v1.Workout
-	13, // 24: workoutapp.v1.WorkoutService.SyncOutbox:input_type -> workoutapp.v1.SyncOutboxRequest
-	19, // 25: workoutapp.v1.WorkoutService.ListWorkouts:input_type -> workoutapp.v1.ListWorkoutsRequest
-	14, // 26: workoutapp.v1.WorkoutService.SyncOutbox:output_type -> workoutapp.v1.SyncOutboxResponse
-	20, // 27: workoutapp.v1.WorkoutService.ListWorkouts:output_type -> workoutapp.v1.ListWorkoutsResponse
-	26, // [26:28] is the sub-list for method output_type
-	24, // [24:26] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	23, // 15: workoutapp.v1.SeenTarget.recommended_working_sets:type_name -> workoutapp.v1.PlannedSet
+	0,  // 16: workoutapp.v1.EntryResult.status:type_name -> workoutapp.v1.EntryResult.Status
+	1,  // 17: workoutapp.v1.SyncOutboxRequest.entries:type_name -> workoutapp.v1.OutboxEntry
+	12, // 18: workoutapp.v1.SyncOutboxResponse.results:type_name -> workoutapp.v1.EntryResult
+	15, // 19: workoutapp.v1.LoggedExercise.sets:type_name -> workoutapp.v1.LoggedSet
+	7,  // 20: workoutapp.v1.Workout.plan:type_name -> workoutapp.v1.PlanLink
+	16, // 21: workoutapp.v1.Workout.exercises:type_name -> workoutapp.v1.LoggedExercise
+	17, // 22: workoutapp.v1.Workout.cardio:type_name -> workoutapp.v1.LoggedCardio
+	9,  // 23: workoutapp.v1.Workout.targets:type_name -> workoutapp.v1.SeenTarget
+	18, // 24: workoutapp.v1.ListWorkoutsResponse.workouts:type_name -> workoutapp.v1.Workout
+	13, // 25: workoutapp.v1.WorkoutService.SyncOutbox:input_type -> workoutapp.v1.SyncOutboxRequest
+	19, // 26: workoutapp.v1.WorkoutService.ListWorkouts:input_type -> workoutapp.v1.ListWorkoutsRequest
+	14, // 27: workoutapp.v1.WorkoutService.SyncOutbox:output_type -> workoutapp.v1.SyncOutboxResponse
+	20, // 28: workoutapp.v1.WorkoutService.ListWorkouts:output_type -> workoutapp.v1.ListWorkoutsResponse
+	27, // [27:29] is the sub-list for method output_type
+	25, // [25:27] is the sub-list for method input_type
+	25, // [25:25] is the sub-list for extension type_name
+	25, // [25:25] is the sub-list for extension extendee
+	0,  // [0:25] is the sub-list for field type_name
 }
 
 func init() { file_workoutapp_v1_workout_service_proto_init() }

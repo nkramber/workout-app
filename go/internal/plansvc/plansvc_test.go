@@ -62,7 +62,7 @@ func newFixture(t *testing.T, caps ai.Caps) *fixture {
 		Profiles: profiles, Inventory: inventories, Plans: plan.NewMemory(), Errors: &plan.MemoryErrors{},
 		Now: func() time.Time { return now },
 	}
-	_, h := workoutappv1connect.NewPlanServiceHandler(New(f.maker))
+	_, h := workoutappv1connect.NewPlanServiceHandler(New(f.maker, nil))
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if id := r.Header.Get(uidHeader); id != "" {
 			r = r.WithContext(auth.WithUserID(r.Context(), id))

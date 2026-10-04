@@ -4,30 +4,33 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-04. Roadmap PR-35 of `docs/roadmaps/phase-7-adaptation-loop.md`, on branch `feat/pr-35-revision`, from base `96e2b1e`. The worktree is `/Volumes/SSD-1TB/workout-app-pr-35`.
+Date: 2026-10-04. Review of pull request 37, work area 7.2 of `docs/roadmaps/phase-7-adaptation-loop.md`, on `feat/pr-36-overrides-disruptions`, at effective head `05f858c8af3b62bff53600a33ba71048c8bda0cc`.
 
-PR-34 changed only `docs/`, so its merge deployed nothing, and the session read no deploy.
+The deploys of `d8f766e` passed: `deploy-api` `c3c4d9ed` and `deploy-web` `bd757c99`. The live `/version` and `/version.json` name `d8f766e`, and the revision `api-00019-s78` has all traffic.
 
-The owner approved the milestone (D-12), and answered Q-302 to Q-304 (D-290 to D-292).
+The owner approved one live revision (D-212), approved the milestone (D-12), and answered Q-305 to Q-307 and Q-309 (D-293 to D-296). The owner finished a workout on the iPhone, and saw the next targets with their reasons. The reviser call had the status `ok`, and the plan got 8 new targets, each with a reason of Luna.
+
+The owner then asked for two changes in PR-37: the first set as the calibration, and the collapse of a finished workout (D-297, D-298). Q-310 holds the details of the first change.
 
 The pull request holds:
 
-- the target copy `SeenTarget` in the workout header, kept by the store (D-291),
-- the revision of the plan in `SyncOutbox` after each finished workout, in `go/internal/revise` (D-290, D-292),
-- the reviser of the reason alone, with `luna-prompt-v6`, the schema `luna_reason_v1`, the check of each reason, and a time limit of 45 s (D-288),
-- the screen "Workout done" with the next targets and their reasons, and the target copy in the header of the phone,
-- the emulator test of scenarios A to F through `SyncOutbox`, unit tests, and a browser test.
+- the policy version 6, with the hold after a missed session, the reactive deload, the check of an override, and the golden files (D-293 to D-296),
+- the deload dates in each revision, and `Reviser.ForDate`, the targets on the date of the next session for `GetPlan` with a date,
+- the override in the plan, in the target copy of a workout, in the contract, and in `OverrideTarget` and `RemoveOverride`,
+- the form of an override on the plan screen, and the override in the workout,
+- `TestDisruptionAcceptanceStory` over the emulators, unit tests, and a browser test.
 
-`make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. An early version marked the cached plan as stale after each sync. That raced the plan request, and 5 to 6 Chromium tests failed in 2 of 2 runs. The mark now follows a new revision alone, and 2 of 2 runs passed.
+`make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. An early version read the history of the workouts in each `GetPlan` with a date. The browser tests then failed in 4 of 5 runs, and the base `d8f766e` passed 3 of 3. `ForDate` now reads no store for a plan with no revision. Then 7 of 8 runs passed. The failed run had the 5 Chromium waits of the shared cap documents, as before this pull request.
 
-The Codex review found P2-1 at `a5451328baf687ec3ea13b8c5356cad7b96c6e24`. The author fixed it at `f457b47ebe9657cbd2514e816ce89d4722e30120`. The round 2 verdict is Ready for owner merge, with no open findings.
+Codex round 1 found P2-1 and P2-2 at `35cf4ef` (`docs/reviews/pr-37.md`). The answers are in `docs/reviews/pr-37-response.md`. The deload now covers the 7 dates after its start. A change of the rules of the date expires an override.
 
-The state is pending the owner merge. Next action: ask the owner to confirm the merge (D-13).
+The earlier findings P2-1 and P2-2 are fixed at `05f858c8af3b62bff53600a33ba71048c8bda0cc`. Codex round 2 is ready for owner merge. P3-1 reports a blank line at end of `web/e2e/override.spec.ts`. It does not affect the acceptance story. All required checks pass, including `review-gate`. Next action: the author asks the owner to confirm the merge.
 
 ## Facts that expire
 
 | Fact | Date read | Source |
 |---|---|---|
+| The live revision of `d8f766e`: 1 reviser call of 0.0017 USD with the status `ok`, in a `SyncOutbox` call of 19.8 s. The plan got 8 new targets, each with a reason of Luna. Each of the 16 exercises of the plan has a calibration set. | 2026-10-04 | `gcloud logging read`, `users/{uid}/plan/active` |
 | The repository is public. | 2026-09-27 | GitHub repository settings |
 | The owner ended the D-4 period. `OVERRIDE_ENABLED` is `True` on `main`. | 2026-09-29 | D-125, `docs/tools/review_gate.py` |
 | `main` has the live ruleset `review-gate` and the merge settings of `.github/rulesets`. The ruleset requires `verify:contract`, `verify:go`, `verify:emulator`, and `verify:web` too. `make ruleset-check` passed. | 2026-09-29 | `make ruleset-check` |
@@ -36,7 +39,7 @@ The state is pending the owner merge. Next action: ask the owner to confirm the 
 | The OpenAI usage policies page returns HTTP 403. The owner accepted a copy printed on 2025-11-07 (D-93). | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
 | `gpt-6-luna` accepts the strict JSON schema of the plan through the Responses API. 60 of 60 plans passed the schema. | 2026-09-28 | `docs/research/luna-plan-spike.md` |
 | `gpt-6-luna` accepts an image with a strict JSON schema. One photo at 1536 px costs 0.00037 USD. | 2026-09-28 | `docs/research/recognition-spike.md` |
-| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `ee3b89b`, three triggers, and the allowlist entry. | 2026-10-04 | `docs/setup-gcp.md`, `/version` |
+| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `d8f766e`, three triggers, and the allowlist entry. | 2026-10-04 | `docs/setup-gcp.md`, `/version` |
 | The service `api` revision `api-00013-w8w` holds `OPENAI_API_KEY` from `openai-api-key:latest`, `LUNA_CAP_USER_USD=1`, `LUNA_CAP_PROJECT_USD=2`, and a request timeout of 420 s. The TTL policy of `aiErrors.expire_at` is `ACTIVE`. | 2026-10-03 | `gcloud run services describe`, `gcloud firestore fields ttls list` |
 | A Cloud Run service with a secret needs the accessor role for its service identity alone. The page lists `roles/run.admin` for the deployer. | 2026-10-02 | Cloud Run docs, "Configure secrets for services" |
 | The secret `openai-api-key` has version 1, enabled. A free call to the OpenAI model list with it gave HTTP 200 and lists `gpt-6-luna`. | 2026-10-01 | `gcloud secrets versions list`, `curl` |
@@ -50,10 +53,10 @@ The state is pending the owner merge. Next action: ask the owner to confirm the 
 | The bucket `nk-workout-app-prod-deploy-lock` exists, and each deployer account holds `roles/storage.objectUser` on it alone. | 2026-09-29 | `gcloud storage buckets describe`, `get-iam-policy` |
 | `workout-app-prod` is in use by another Google Cloud project. | 2026-09-29 | `gcloud projects create` |
 | The old project `gym-route-dev` is `DELETE_REQUESTED` since 2026-09-30T03:19:47Z. `gcloud projects undelete` can restore it for 30 days. Its site still gave HTTP 200 at 04:38:56Z. | 2026-09-30 | `gcloud projects describe`, `curl` |
-| The live `/version.json` names `6274c19bdbc4d490e1b72438bc9d6f595ff50aa4`, from the build `deploy-web` `6fe91aa9`. The live `/version` names `ee3b89bd54c5f3637e01b463c542f3aa81435c14`, from the build `deploy-api` `d9988047`. The revision `api-00018-vhd` made the planner call of 03:17:54Z. | 2026-10-04 | `curl`, `gcloud builds list`, `gcloud logging read` |
+| The live `/version.json` and `/version` name `d8f766ebc8beb0cc7cd6c67e1ccdef931c0049dd`, from the builds `deploy-web` `bd757c99` and `deploy-api` `c3c4d9ed`. The revision `api-00019-s78` has all traffic. | 2026-10-04 | `curl`, `gcloud builds list`, `gcloud run services describe` |
 | WebKit of Playwright 1.63.0 refuses a navigation of an offline context with "WebKit encountered an internal error", also when the service worker can serve the page. Chromium serves it from the service worker. | 2026-10-03 | `web/e2e/support.ts` |
 | In WebKit of Playwright 1.63.0, a route of the context did not apply to the API calls of a page that opened again after a stop. The service worker controls such a page (unverified cause). | 2026-10-03 | `web/e2e/support.ts` |
-| With 10 workers of Playwright on a Mac of 10 cores, 5 Chromium tests of `make web` waited more than 10 s for a plan of the fake in 1 of 2 runs. The plan requests share the cap documents. | 2026-10-03 | `make web` |
+| With 10 workers of Playwright on a Mac of 10 cores, 5 Chromium tests of `make web` waited more than 10 s for a plan of the fake in 1 of 2 runs. The plan requests share the cap documents. More reads of the emulator in each `GetPlan` made such waits occur in 4 of 5 runs. | 2026-10-04 | `make web` |
 | In the Firestore emulator v1.22.0, 10 transactions at the same time on one document abort with "Transaction lock timeout" after about 3 s, and the Go client tries again. With 5 attempts, a test of 10 transactions took up to 19 s. | 2026-10-02 | `go/internal/capstore/firestore_emulator_test.go` |
 | `api-runtime` holds `roles/datastore.user`, and no other project role. | 2026-10-02 | `gcloud projects get-iam-policy` |
 | With `context.setOffline(true)` of Playwright 1.63.0, a call of the API fails in WebKit and in Chromium. Connect gives the code `unknown` with a `TypeError` as its cause. | 2026-10-02 | `web/e2e/inventory.spec.ts` |
@@ -78,10 +81,31 @@ The state is pending the owner merge. Next action: ask the owner to confirm the 
 
 ## Next steps, in order
 
-1. Close PR-35: CI, the Codex review, the owner confirmation, and the merge.
-2. Start PR-36 in a clean session (D-12). It reads the deploys of the merge of PR-35 first. Then it states the cost of one live revision, and asks the owner (D-212). It asks Q-305 to Q-307.
+1. Close PR-36: CI, the Codex review, the owner confirmation, and the merge.
+2. Start PR-37 in a clean session (D-12), with the title `feat: the first-set calibration and the reviser evaluation (PR-37)`. It reads the deploys of the merge of PR-36 first. Then it states the cost of one live revision with policy version 6, and asks the owner (D-212).
+3. PR-37 asks Q-310 before the work, and Q-308 before the paid run. It removes the calibration sets, and collapses a finished workout (D-297, D-298).
 
 ## Session records
+
+### Session 37 - 2026-10-04
+
+Author provider: Claude Code
+
+Branch: `feat/pr-36-overrides-disruptions`. Role: author.
+
+Completed:
+
+- Read the deploys of `d8f766e`. The owner approved one live revision (D-212), and the session read it.
+- The owner approved the milestone (D-12), and answered Q-305 to Q-307 and Q-309 (D-293 to D-296).
+- Recorded the requests of the owner for PR-37 (D-297, D-298, Q-310).
+- Answered P2-1 and P2-2 of Codex round 1.
+- Added the policy version 6, the deload dates, the targets on a date, and the overrides.
+- Added `TestDisruptionAcceptanceStory`, unit tests, and a browser test.
+- Changed the registers, both roadmaps, the design, both READMEs, and `AGENTS.md`.
+
+Open work:
+
+- CI, the Codex review, the owner confirmation, and the merge of PR-36.
 
 ### Session 36 - 2026-10-04
 
@@ -100,7 +124,7 @@ Completed:
 
 Open work:
 
-- CI, the Codex review, the owner confirmation, and the merge of PR-35.
+- None. GitHub PR 36 merged as `d8f766e`.
 
 ### Session 35 - 2026-10-04
 
@@ -117,22 +141,4 @@ Completed:
 
 Open work:
 
-- CI, the Codex review, the owner confirmation, and the merge of PR-34.
-
-### Session 34 - 2026-10-04
-
-Author provider: Claude Code
-
-Branch: `feat/pr-33-screen-lock`. Role: author.
-
-Completed:
-
-- Read the deploys of `ee3b89b`, and read the offline workout in Firestore with ids and counts alone.
-- The owner reported the "Screen lock test", approved the milestone (D-12), and answered Q-297 to Q-299 (D-283 to D-285).
-- Changed the wake lock to the method "Wake Lock, no tap", with unit tests and a browser test.
-- Removed the "Screen lock test" screen.
-- Changed the registers, both roadmaps, the design, and `web/README.md`.
-
-Open work:
-
-- None. GitHub PR 34 merged as `6274c19`.
+- None. GitHub PR 35 merged as `96e2b1e`.

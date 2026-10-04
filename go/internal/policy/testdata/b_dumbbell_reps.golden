@@ -1,4 +1,4 @@
-policy version: 5
+policy version: 6
 rules: progress.add-reps
 target: db_biceps_curl, rest 60 s
   working[0]: 14 reps at 15 lb, 2 RIR

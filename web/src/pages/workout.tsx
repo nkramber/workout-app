@@ -635,6 +635,11 @@ function SetLogger({
         <p className="text-sm text-slate-400" data-testid="set-target">
           {`Target: ${setText(next.target, calibration)}. Rest ${restText(exercise.restSeconds)}.`}
         </p>
+        {exercise.override && !calibration && (
+          <p className="text-sm text-sky-200" data-testid="override-note">
+            {`Your change. Recommended: ${setText(exercise.override.recommendedWorkingSets[Math.min(next.number, exercise.override.recommendedWorkingSets.length) - 1] ?? next.target, false)}.`}
+          </p>
+        )}
         {next.fromCalibration && (
           <p className="text-sm text-sky-200" data-testid="calibration-note">
             The calibration set gave this load.

@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"regexp"
 	"slices"
+	"strings"
 	"time"
 	"unicode/utf8"
 
@@ -105,7 +106,8 @@ type PlanLink struct {
 // Skipped names the skipped exercises (D-47, D-63). EndedEarly records
 // "finish now", which ends the workout. Targets holds the target of each
 // exercise that the owner saw at the start (D-291). A header of an older
-// phone has none.
+// phone has none. Overrides holds the record of each override of the
+// owner among the targets (D-69, D-293).
 type Header struct {
 	Date       string
 	Plan       PlanLink
@@ -113,6 +115,22 @@ type Header struct {
 	EndedEarly bool
 	Finished   bool
 	Targets    []domain.PlannedExercise
+	Overrides  []SeenOverride
+}
+
+// MaxOverrideReasonRunes is the length limit of the reason of an
+// override, in characters (D-293).
+const MaxOverrideReasonRunes = 200
+
+// SeenOverride is the record of an override of the owner in a workout
+// (D-69, D-293): the recommendation that the override replaced, and the
+// reason of the owner. The target copy of the exercise holds the sets
+// of the override, so the three stay separate records. The reason is
+// data of the owner, so it never goes into a log (D-80).
+type SeenOverride struct {
+	Exercise    domain.ExerciseID
+	Recommended []domain.WorkingSet
+	Reason      string
 }
 
 // Target gives the target copy of an exercise.
@@ -287,6 +305,27 @@ func (h Header) check(c domain.Catalog) error {
 		}
 		copies[t.Exercise] = true
 	}
+	overrides := map[domain.ExerciseID]bool{}
+	for i, o := range h.Overrides {
+		switch {
+		case !copies[o.Exercise]:
+			return invalid("overrides[%d]: exercise %q: no target copy", i, o.Exercise)
+		case overrides[o.Exercise]:
+			return invalid("overrides[%d]: exercise %q: in the list two times", i, o.Exercise)
+		case len(o.Recommended) == 0:
+			return invalid("overrides[%d]: no recommended working set", i)
+		case !utf8.ValidString(o.Reason) || strings.TrimSpace(o.Reason) == "":
+			return invalid("overrides[%d]: want a reason of UTF-8 text", i)
+		case utf8.RuneCountInString(o.Reason) > MaxOverrideReasonRunes:
+			return invalid("overrides[%d]: reason: want %d characters or fewer", i, MaxOverrideReasonRunes)
+		}
+		for j, w := range o.Recommended {
+			if err := w.Check(); err != nil {
+				return invalid("overrides[%d] recommended[%d]: %v", i, j, err)
+			}
+		}
+		overrides[o.Exercise] = true
+	}
 	seen := map[domain.ExerciseID]bool{}
 	for _, id := range h.Skipped {
 		e, ok := c.Exercise(id)
@@ -338,6 +377,7 @@ func Apply(w *Workout, e Entry, c domain.Catalog) (Workout, int64, error) {
 		h := *e.Header
 		h.Skipped = slices.Clone(h.Skipped)
 		h.Targets = cloneTargets(h.Targets)
+		h.Overrides = cloneOverrides(h.Overrides)
 		out.Header = h
 	case EntitySet:
 		s := Set{ID: e.EntityID, Exercise: e.SetExercise, At: e.At.UTC(), Log: *e.Set}
@@ -426,10 +466,23 @@ func cloneTargets(in []domain.PlannedExercise) []domain.PlannedExercise {
 	return out
 }
 
+func cloneOverrides(in []SeenOverride) []SeenOverride {
+	if in == nil {
+		return nil
+	}
+	out := make([]SeenOverride, len(in))
+	for i, o := range in {
+		o.Recommended = slices.Clone(o.Recommended)
+		out[i] = o
+	}
+	return out
+}
+
 func (w Workout) clone() Workout {
 	out := w
 	out.Skipped = slices.Clone(w.Skipped)
 	out.Targets = cloneTargets(w.Targets)
+	out.Overrides = cloneOverrides(w.Overrides)
 	out.Sets = slices.Clone(w.Sets)
 	out.Cardio = slices.Clone(w.Cardio)
 	out.Versions = make(map[string]int64, len(w.Versions))

@@ -53,6 +53,15 @@ const (
 	RuleBreakSets        RuleID = "break.sets-restored"
 )
 
+// The rules of a missed session, of the reactive deload, and of an
+// override of the owner.
+const (
+	RuleMissed         RuleID = "missed.hold"
+	RuleMissedRestored RuleID = "missed.rir-restored"
+	RuleDeload         RuleID = "deload.reactive"
+	RuleOverride       RuleID = "override.bounds"
+)
+
 // The rules of a proposal and of the rules fallback.
 const (
 	RuleProposalExercise RuleID = "proposal.exercise"
@@ -104,6 +113,10 @@ var rules = []Rule{
 	{RuleBreakRecalibrate, "After 91 days or more with no logged set of the exercise, the load goes down to 70 percent of the last load, at 3 reps in reserve, and the calibration starts again. A halfway value rounds down.", []string{"D-148", "D-150", "D-151", "D-179", "EV-43", "EV-44", "EV-47", "EV-53"}},
 	{RuleBreakFirst, "The first sessions after a break of 14 days or more are the first 3 sessions or the first 14 days, the longer of the two. In them, each working set stops at 3 reps in reserve, the load does not go up, and the target keeps the sets of the return. The policy refuses a proposal with fewer reps in reserve or more sets.", []string{"D-37", "D-151", "D-179", "EV-43", "EV-53"}},
 	{RuleBreakSets, "After the first sessions after a break, the target gets back the number of sets of the target before the break.", []string{"D-151", "D-179"}},
+	{RuleMissed, "After 7 to 13 days with no logged set of the exercise, the load and the reps stay the same, and each working set stops at 3 reps in reserve, for that one session.", []string{"D-66", "D-294", "EV-46"}},
+	{RuleMissedRestored, "After the session that followed 7 to 13 days with no logged set, each working set gets back the reps in reserve of the target before that session.", []string{"D-294"}},
+	{RuleDeload, "A decline is a session with fewer total reps of working sets than the session before it, at the same logged load or a heavier load. A decline in 2 sessions in a row on 2 or more exercises starts a deload on the 7 days after that session. An exercise counts when its last decline is less than 14 days before the start. In it, each exercise has 0.6 times its sets, rounded to the nearest whole set and at least 1, at the same load and 3 reps in reserve. A deload session is no evidence for the next target, so after the deload the targets of before it return.", []string{"D-43", "D-151", "D-289", "D-295", "D-296", "EV-40", "EV-41", "EV-42"}},
+	{RuleOverride, "An override of the owner changes the load and the reps of each working set alone. Each set has 6 to 20 reps and an available load of the machine, and a calibration set has the reps and the load of the first working set.", []string{"D-23", "D-69", "D-293"}},
 	{RuleProposalExercise, "A proposal is for the exercise of the decision.", []string{"D-23"}},
 	{RuleFallback, "When Luna gives no proposal, or the policy refuses its proposal, the target is the next target of the rules alone. The decision record names the cause and each violation.", []string{"D-23", "D-176", "D-178"}},
 	{RulePainWarning, "A pain report shows the fixed warning text. It names the symptom and tells the user to stop the exercise, with no diagnosis and no referral.", []string{"D-36", "D-40", "D-153"}},
