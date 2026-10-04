@@ -110,8 +110,9 @@ func summary(w io.Writer, r Report) {
 	fmt.Fprintf(w, "decisions %d, proposals %d, accepted %d, refused %d, no proposal %d, not planned %d\n",
 		t.Decisions, t.Proposals, t.Accepted, t.Refused, t.NoProposal, t.NotPlanned)
 	fmt.Fprintf(w, "refusals by rule: %v, filtered texts %d, cardio items %d\n", t.ByRule, t.Filtered, t.Cardio)
+	fmt.Fprintf(w, "revisions %d, luna reasons %d, rules reasons by cause %v\n", t.Revisions, t.LunaReasons, t.ReasonCauses)
 	for _, s := range r.Scenarios {
-		fmt.Fprintf(w, "scenario %s: pass %v, safe %d of %d, accepted %d, refused %d, jumps refused %d of %d\n",
-			s.ID, s.Pass(), s.Safe, s.Cases, s.Accepted, s.Refused, s.JumpsOK, s.Jumps)
+		fmt.Fprintf(w, "scenario %s: pass %v, safe %d of %d, luna reasons %d, jumps refused %d of %d\n",
+			s.ID, s.Pass(), s.Safe, s.Cases, s.LunaReasons, s.JumpsOK, s.Jumps)
 	}
 }

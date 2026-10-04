@@ -32,12 +32,15 @@ func fullPlan() Plan {
 		Sessions: []Session{{
 			Title: "Session 1", WarmUp: ai.DefaultWarmUp, CoolDown: ai.DefaultCoolDown,
 			Exercises: []Exercise{{Target: target, Reason: "rules reason", Record: rec,
-				Calibration: []policy.CalibrationLoads{{Weight: 700, Down: 650, Keep: 700, UpOne: 750, UpTwo: 800}, {Weight: 725, Down: 650, Keep: 700, UpOne: 750, UpTwo: 800}}}},
+				Calibration:  []policy.CalibrationLoads{{Weight: 700, Down: 650, Keep: 700, UpOne: 750, UpTwo: 800}, {Weight: 725, Down: 650, Keep: 700, UpOne: 750, UpTwo: 800}},
+				ReasonSource: policy.SourceRules, ReasonCause: "no-logged-set"}},
 			Cardio: &domain.PlannedCardio{Exercise: "treadmill", Minutes: 10},
 		}, {Title: "Session 2", WarmUp: "warm_up.light_sets", CoolDown: "cool_down.stretch",
 			Exercises: []Exercise{{Target: target, Reason: "r", Record: policy.Record{Source: policy.SourceLuna, Target: target}}}}},
 		Model: "m", Effort: "medium", PromptVersion: ai.PromptVersion, PromptHash: "h", SchemaName: ai.SchemaName,
 		PolicyVersion: 3, FilterVersion: 1, GuidanceVersion: 1, CatalogVersion: 1, BodyTablesVersion: 1, Attempts: 2,
+		Revisions: 2, LastRevision: &Revision{WorkoutID: "w2", At: now, Exercises: []domain.ExerciseID{"chest_press"}},
+		RevisedWorkouts: []string{"w1", "w2"},
 	}
 }
 
@@ -125,5 +128,46 @@ func TestErrorDoc(t *testing.T) {
 	}
 	if got := encodeError(r); !reflect.DeepEqual(got, want) {
 		t.Fatalf("error doc %+v", got)
+	}
+}
+
+// TestReasonSourceOf: a stored exercise with no reason source, from an
+// older plan, has the source of its record.
+func TestReasonSourceOf(t *testing.T) {
+	old := Exercise{Record: policy.Record{Source: policy.SourceLuna}}
+	if old.ReasonSourceOf() != policy.SourceLuna {
+		t.Fatal("an older exercise lost the source of its record")
+	}
+	old.ReasonSource = policy.SourceRules
+	if old.ReasonSourceOf() != policy.SourceRules {
+		t.Fatal("the reason source did not win")
+	}
+}
+
+// TestMemoryUpdate: an update changes the plan of the same CreatedAt
+// alone. An error of the change, a new plan, and no plan write nothing.
+func TestMemoryUpdate(t *testing.T) {
+	ctx := context.Background()
+	s := NewMemory()
+	p := fullPlan()
+	if err := s.Update(ctx, uid, p.CreatedAt, func(*Plan) error { return nil }); !errors.Is(err, ErrPlanReplaced) {
+		t.Fatalf("no plan: %v, want ErrPlanReplaced", err)
+	}
+	if err := s.Save(ctx, uid, p, Exclusions{}, false); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Update(ctx, uid, p.CreatedAt.Add(1), func(*Plan) error { return nil }); !errors.Is(err, ErrPlanReplaced) {
+		t.Fatalf("another plan: %v, want ErrPlanReplaced", err)
+	}
+	boom := errors.New("boom")
+	if err := s.Update(ctx, uid, p.CreatedAt, func(q *Plan) error { q.Summary = "x"; return boom }); !errors.Is(err, boom) {
+		t.Fatalf("a failed change: %v", err)
+	}
+	if err := s.Update(ctx, uid, p.CreatedAt, func(q *Plan) error { q.Revisions++; return nil }); err != nil {
+		t.Fatal(err)
+	}
+	got, _, _ := s.Get(ctx, uid)
+	if got.Summary != "summary" || got.Revisions != 3 || !got.Revised("w1") || got.Revised("w3") {
+		t.Fatalf("plan after the updates: %q, %d", got.Summary, got.Revisions)
 	}
 }

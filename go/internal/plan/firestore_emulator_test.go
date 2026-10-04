@@ -81,6 +81,40 @@ func TestFirestoreRoundTrip(t *testing.T) {
 	}
 }
 
+// TestFirestoreUpdate: an update changes the plan of the same CreatedAt
+// in one transaction. A new plan, no plan, and an error of the change
+// write nothing (D-292).
+func TestFirestoreUpdate(t *testing.T) {
+	s := FromFirestore(emulatorClient(t))
+	ctx := context.Background()
+	id := fmt.Sprintf("plan-update-%d", time.Now().UnixNano())
+	p := fullPlan()
+	if err := s.Update(ctx, id, p.CreatedAt, func(*Plan) error { return nil }); !errors.Is(err, ErrPlanReplaced) {
+		t.Fatalf("no plan: %v", err)
+	}
+	if err := s.Save(ctx, id, p, Exclusions{}, false); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Update(ctx, id, p.CreatedAt.Add(time.Second), func(*Plan) error { return nil }); !errors.Is(err, ErrPlanReplaced) {
+		t.Fatalf("another plan: %v", err)
+	}
+	boom := errors.New("boom")
+	if err := s.Update(ctx, id, p.CreatedAt, func(q *Plan) error { q.Summary = "x"; return boom }); !errors.Is(err, boom) {
+		t.Fatalf("a failed change: %v", err)
+	}
+	if err := s.Update(ctx, id, p.CreatedAt, func(q *Plan) error {
+		q.Revisions++
+		q.RevisedWorkouts = append(q.RevisedWorkouts, "w3")
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	got, _, _ := s.Get(ctx, id)
+	if got.Summary != p.Summary || got.Revisions != 3 || !got.Revised("w3") || !got.CreatedAt.Equal(p.CreatedAt) {
+		t.Fatalf("plan after the updates: %+v", got)
+	}
+}
+
 // TestFirestoreErrors: an error record is a new document of the
 // top-level collection, with the field of the TTL policy (D-236).
 func TestFirestoreErrors(t *testing.T) {

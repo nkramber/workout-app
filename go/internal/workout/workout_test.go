@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -314,5 +316,80 @@ func TestMemoryList(t *testing.T) {
 	}
 	if _, _, err := s.List(ctx, "uid-a", 3, entityID(999)); !errors.Is(err, ErrInvalid) {
 		t.Fatalf("an unknown page token = %v, want ErrInvalid", err)
+	}
+}
+
+// TestTargets: a header keeps the target copies that the owner saw
+// (D-291). The check refuses a bad copy, two copies of one exercise,
+// and a skip with no copy. A workout with copies refuses a set of an
+// exercise with no copy. A header with no copy, from an older phone,
+// takes any set.
+func TestTargets(t *testing.T) {
+	c := domain.DefaultCatalog()
+	press := domain.PlannedExercise{Exercise: "chest_press", RestSeconds: 60,
+		Calibration: []domain.CalibrationSet{{Reps: 8, Load: domain.Pounds(40)}},
+		Working:     []domain.WorkingSet{{Reps: 8, Load: domain.Pounds(40), RIR: 3}}}
+	with := func(n int, targets []domain.PlannedExercise, skipped ...domain.ExerciseID) Entry {
+		e := header(n, workoutA)
+		e.Header.Targets, e.Header.Skipped = targets, skipped
+		return e
+	}
+	for _, tc := range []struct {
+		name string
+		e    Entry
+	}{
+		{"cardio copy", with(1, []domain.PlannedExercise{{Exercise: "treadmill", Working: press.Working}})},
+		{"no working set", with(1, []domain.PlannedExercise{{Exercise: "chest_press"}})},
+		{"two copies", with(1, []domain.PlannedExercise{press, press})},
+		{"skip with no copy", with(1, []domain.PlannedExercise{press}, "seated_row")},
+		{"too many", with(1, slices.Repeat([]domain.PlannedExercise{press}, MaxTargets+1))},
+	} {
+		if err := tc.e.Check(c); !errors.Is(err, ErrInvalid) {
+			t.Errorf("%s: %v, want ErrInvalid", tc.name, err)
+		}
+	}
+
+	ctx := context.Background()
+	s := NewMemory()
+	if _, err := s.Apply(ctx, "uid-a", with(1, []domain.PlannedExercise{press}, "chest_press")); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Apply(ctx, "uid-a", set(2, workoutA, entityID(1), "seated_row", 10)); !errors.Is(err, ErrInvalid) {
+		t.Fatalf("a set with no copy: %v, want ErrInvalid", err)
+	}
+	if _, err := s.Apply(ctx, "uid-a", set(3, workoutA, entityID(2), "chest_press", 8)); err != nil {
+		t.Fatal(err)
+	}
+	list, _, _ := s.List(ctx, "uid-a", 10, "")
+	got, ok := list[0].Target("chest_press")
+	if !ok || !reflect.DeepEqual(got, press) {
+		t.Fatalf("copy %+v, want %+v", got, press)
+	}
+	list[0].Targets[0].Working[0].Reps = 99
+	if again, _, _ := s.List(ctx, "uid-a", 10, ""); again[0].Targets[0].Working[0].Reps != 8 {
+		t.Fatal("the store shares the copy with a reader")
+	}
+	if _, err := s.Apply(ctx, "uid-a", header(4, workoutB)); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Apply(ctx, "uid-a", set(5, workoutB, entityID(3), "seated_row", 10)); err != nil {
+		t.Fatalf("a header with no copy refused a set: %v", err)
+	}
+}
+
+// TestTargetsDoc: the stored form keeps the copies, and a document with
+// no copy reads back with none.
+func TestTargetsDoc(t *testing.T) {
+	press := domain.PlannedExercise{Exercise: "chest_press", RestSeconds: 60,
+		Calibration: []domain.CalibrationSet{{Reps: 8, Load: domain.Pounds(40)}},
+		Working:     []domain.WorkingSet{{Reps: 8, Load: domain.Pounds(40), RIR: 3}, {Reps: 8, Load: domain.Pounds(40), RIR: 3}}}
+	w := Workout{ID: workoutA, Header: Header{Date: "2026-10-03", Targets: []domain.PlannedExercise{press}}, Versions: map[string]int64{}}
+	back := encodeWorkout(w, t0).workout(workoutA)
+	if !reflect.DeepEqual(back.Targets, w.Targets) {
+		t.Fatalf("copies %+v, want %+v", back.Targets, w.Targets)
+	}
+	w.Targets = nil
+	if back := encodeWorkout(w, t0).workout(workoutA); back.Targets != nil {
+		t.Fatalf("no copy read back as %+v", back.Targets)
 	}
 }

@@ -34,9 +34,11 @@ const (
 	CauseNumber = "unknown-number"
 )
 
-// pick gives the reason that the owner sees for a revised exercise, its
-// source, and the cause when the reason of the rules shows.
-func pick(in policy.Input, rec policy.Record, res ai.Result) (string, policy.Source, string) {
+// Reason gives the reason that the owner sees for a revised exercise,
+// its source, and the cause when the reason of the rules shows (D-288).
+// res is the result of the reviser call, or a zero result when no call
+// occurred.
+func Reason(in policy.Input, rec policy.Record, res ai.Result) (string, policy.Source, string) {
 	rules := func(cause string) (string, policy.Source, string) { return rec.Reason, policy.SourceRules, cause }
 	switch res.Status {
 	case "":
@@ -71,9 +73,9 @@ var (
 //   - its text names a named set, as "set 2" or with the reps or the
 //     weight of that set, and
 //   - each number of its text is a number of the evidence: a named set
-//     and its values, a value of the last target or of the next target,
-//     the count of logged working sets, or a number of the reason of the
-//     rules.
+//     and its values, the missed reps of a named working set, a value of
+//     the last target or of the next target, the count of logged working
+//     sets, or a number of the reason of the rules.
 func Check(in policy.Input, rec policy.Record, r ai.Reason) string {
 	if r.Blocked != "" {
 		return "blocked-" + string(r.Blocked)
@@ -98,8 +100,14 @@ func Check(in policy.Input, rec policy.Record, r ai.Reason) string {
 		if !ok {
 			return CauseUnknownSet
 		}
-		add(float64(ref.Number), float64(s.Reps), lb(s.Weight), float64(s.RIR))
+		add(float64(ref.Number), float64(s.Reps), pounds(s.Weight), float64(s.RIR))
 		named[float64(ref.Number)] = true
+		// The missed reps of a working set against its target.
+		if ref.Kind == domain.SetWorking && ref.Number <= len(last.Target.Working) {
+			if miss := last.Target.Working[ref.Number-1].Reps - s.Reps; miss > 0 {
+				add(float64(miss))
+			}
+		}
 		if s.Pain != nil {
 			add(float64(*s.Pain))
 		}
@@ -110,10 +118,10 @@ func Check(in policy.Input, rec policy.Record, r ai.Reason) string {
 	for _, t := range []domain.PlannedExercise{last.Target, rec.Target} {
 		add(float64(len(t.Working)), float64(len(t.Calibration)))
 		for _, s := range t.Working {
-			add(float64(s.Reps), lb(s.Load), float64(s.RIR))
+			add(float64(s.Reps), pounds(s.Load), float64(s.RIR))
 		}
 		for _, s := range t.Calibration {
-			add(float64(s.Reps), lb(s.Load))
+			add(float64(s.Reps), pounds(s.Load))
 		}
 	}
 	working := 0
@@ -146,7 +154,7 @@ func names(r ai.Reason, logged map[ai.SetRef]domain.SetLog, named map[float64]bo
 	for _, ref := range r.Sets {
 		s := logged[ref]
 		values[float64(s.Reps)] = true
-		values[lb(s.Weight)] = true
+		values[pounds(s.Weight)] = true
 	}
 	for _, n := range numbers(r.Text) {
 		if values[n] {
@@ -178,6 +186,6 @@ func numbers(text string) []float64 {
 	return out
 }
 
-// lb gives a load in pounds. A division of tenths gives the nearest
+// pounds gives a load in pounds. A division of tenths gives the nearest
 // float, as the parse of the same decimal text does.
-func lb(l domain.Load) float64 { return float64(l) / float64(domain.Pound) }
+func pounds(l domain.Load) float64 { return float64(l) / float64(domain.Pound) }

@@ -6,6 +6,8 @@ package workoutsvc
 import (
 	"context"
 	"errors"
+	"log/slog"
+	"slices"
 	"time"
 
 	"connectrpc.com/connect"
@@ -15,6 +17,7 @@ import (
 	"github.com/nkramber/workout-app/go/internal/auth"
 	"github.com/nkramber/workout-app/go/internal/domain"
 	"github.com/nkramber/workout-app/go/internal/inventory"
+	"github.com/nkramber/workout-app/go/internal/revise"
 	"github.com/nkramber/workout-app/go/internal/workout"
 )
 
@@ -33,10 +36,19 @@ const (
 
 // Server implements workoutappv1connect.WorkoutServiceHandler. The
 // inventory store applies the inventory entries of the outbox (D-272).
+// The reviser, when it is not nil, revises the plan after each finished
+// workout of a batch (D-292).
 type Server struct {
 	store       workout.Store
 	inventories inventory.Store
 	catalog     domain.Catalog
+	reviser     Reviser
+	log         *slog.Logger
+}
+
+// Reviser revises the plan of a user after a finished workout.
+type Reviser interface {
+	Revise(ctx context.Context, uid, workoutID string) (revise.Result, error)
 }
 
 var _ workoutappv1connect.WorkoutServiceHandler = (*Server)(nil)
@@ -44,6 +56,13 @@ var _ workoutappv1connect.WorkoutServiceHandler = (*Server)(nil)
 // New gives a server over the stores, with the product catalog.
 func New(store workout.Store, inventories inventory.Store) *Server {
 	return &Server{store: store, inventories: inventories, catalog: domain.DefaultCatalog()}
+}
+
+// WithReviser gives the server the reviser of the plan, and the logger
+// of a failed revision. A nil logger writes no line.
+func (s *Server) WithReviser(r Reviser, log *slog.Logger) *Server {
+	s.reviser, s.log = r, log
+	return s
 }
 
 func uid(ctx context.Context) (string, error) {
@@ -62,7 +81,10 @@ var errStore = connect.NewError(connect.CodeInternal, errors.New("the workout st
 // SyncOutbox applies each entry in the order of the request, and gives
 // the result of each one. The workout entries and the inventory entries
 // share one order (D-275). A refused entry changes nothing, and the next
-// entry still applies.
+// entry still applies. After the batch, the plan gets a revision for
+// each workout that an applied entry finished (D-292). A replayed entry
+// counts too, so a revision that a dropped answer stopped runs again.
+// The reviser skips a workout that revised the plan already.
 func (s *Server) SyncOutbox(ctx context.Context, req *connect.Request[workoutappv1.SyncOutboxRequest]) (*connect.Response[workoutappv1.SyncOutboxResponse], error) {
 	id, err := uid(ctx)
 	if err != nil {
@@ -73,12 +95,16 @@ func (s *Server) SyncOutbox(ctx context.Context, req *connect.Request[workoutapp
 		return nil, connect.NewError(connect.CodeInvalidArgument, errors.New("a batch of more than 100 entries"))
 	}
 	out := &workoutappv1.SyncOutboxResponse{}
+	var finished []string
 	for _, in := range entries {
 		r := &workoutappv1.EntryResult{OpId: in.GetOpId()}
 		res, err := s.apply(ctx, id, in)
 		switch {
 		case err == nil:
 			r.Status, r.Version = workoutappv1.EntryResult_STATUS_APPLIED, res.Version
+			if w := in.GetWorkout(); w.GetFinished() && in.GetEntity() == workout.EntityWorkout && !slices.Contains(finished, in.GetEntityId()) {
+				finished = append(finished, in.GetEntityId())
+			}
 		case errors.Is(err, workout.ErrInvalid):
 			r.Status, r.Code, r.Message = workoutappv1.EntryResult_STATUS_REFUSED, CodeInvalidArgument, err.Error()
 		case errors.Is(err, workout.ErrUnknownWorkout), errors.Is(err, inventory.ErrNotFound), errors.Is(err, inventory.ErrWeightsChanged):
@@ -88,7 +114,22 @@ func (s *Server) SyncOutbox(ctx context.Context, req *connect.Request[workoutapp
 		}
 		out.Results = append(out.Results, r)
 	}
+	s.revise(ctx, id, finished)
 	return connect.NewResponse(out), nil
+}
+
+// revise revises the plan for each finished workout. A failed revision
+// changes no result of the batch, and the plan keeps its targets. The
+// line holds ids alone (D-80).
+func (s *Server) revise(ctx context.Context, uid string, workouts []string) {
+	if s.reviser == nil {
+		return
+	}
+	for _, w := range workouts {
+		if _, err := s.reviser.Revise(ctx, uid, w); err != nil && s.log != nil {
+			s.log.Error("revision failed", "uid", uid, "workout_id", w)
+		}
+	}
 }
 
 // apply applies one entry. An inventory entry gives the version 0,

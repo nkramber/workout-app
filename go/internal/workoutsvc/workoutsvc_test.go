@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -14,6 +15,7 @@ import (
 	workoutappv1 "github.com/nkramber/workout-app/go/gen/workoutapp/v1"
 	"github.com/nkramber/workout-app/go/internal/auth"
 	"github.com/nkramber/workout-app/go/internal/inventory"
+	"github.com/nkramber/workout-app/go/internal/revise"
 	"github.com/nkramber/workout-app/go/internal/workout"
 )
 
@@ -225,5 +227,59 @@ func TestListWorkouts(t *testing.T) {
 	}
 	if _, err := s.ListWorkouts(context.Background(), connect.NewRequest(&workoutappv1.ListWorkoutsRequest{})); connect.CodeOf(err) != connect.CodeUnauthenticated {
 		t.Fatalf("no uid = %v, want Unauthenticated", err)
+	}
+}
+
+// fakeReviser records each revision.
+type fakeReviser struct {
+	calls []string
+	err   error
+}
+
+func (f *fakeReviser) Revise(_ context.Context, uid, w string) (revise.Result, error) {
+	f.calls = append(f.calls, uid+" "+w)
+	return revise.Result{}, f.err
+}
+
+// TestSyncOutboxRevises: the sync revises the plan one time for each
+// finished workout of the batch, after each entry of the batch (D-292).
+// A replayed finish revises again, and the reviser skips a done
+// revision. A failed revision changes no result. The header keeps the
+// target copies (D-291).
+func TestSyncOutboxRevises(t *testing.T) {
+	r := &fakeReviser{}
+	s := New(workout.NewMemory(), inventory.NewMemory()).WithReviser(r, nil)
+	start := headerEntry(1)
+	start.GetWorkout().Targets = []*workoutappv1.SeenTarget{{
+		ExerciseId: "chest_press", RestSeconds: 60,
+		CalibrationSets: []*workoutappv1.PlannedSet{{Reps: 8, LoadTenthLb: 400}},
+		WorkingSets:     []*workoutappv1.PlannedSet{{Reps: 8, LoadTenthLb: 500, RirTarget: 2}},
+	}}
+	finish := proto.Clone(start).(*workoutappv1.OutboxEntry)
+	finish.OpId, finish.At = opID(3), at(3)
+	finish.GetWorkout().Finished = true
+	twice := proto.Clone(finish).(*workoutappv1.OutboxEntry)
+	twice.OpId, twice.At = opID(4), at(4)
+
+	sync(t, s, start, setEntry(2, 1, 8))
+	if len(r.calls) != 0 {
+		t.Fatalf("an open workout revised the plan: %v", r.calls)
+	}
+	sync(t, s, finish, twice)
+	if want := []string{"uid-a " + workoutID}; !slices.Equal(r.calls, want) {
+		t.Fatalf("revisions %v, want %v", r.calls, want)
+	}
+	r.err = errors.New("rpc error: users/uid-a/plan/active: unavailable")
+	for _, res := range sync(t, s, finish) {
+		if res.GetStatus() != workoutappv1.EntryResult_STATUS_APPLIED {
+			t.Fatalf("a failed revision changed a result: %v", res)
+		}
+	}
+	if len(r.calls) != 2 {
+		t.Fatalf("a replayed finish: %d revisions, want 2", len(r.calls))
+	}
+	w := list(t, s)[0]
+	if got := w.GetTargets(); len(got) != 1 || !proto.Equal(got[0], start.GetWorkout().GetTargets()[0]) {
+		t.Fatalf("copies %v", got)
 	}
 }

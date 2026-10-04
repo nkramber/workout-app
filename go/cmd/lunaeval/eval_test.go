@@ -113,7 +113,9 @@ func fakeOutput(f func(set map[string]any)) func(ai.Call) (ai.Reply, error) {
 		if err := json.Unmarshal([]byte(r.Text), &out); err != nil {
 			return r, err
 		}
-		for _, s := range out["sessions"].([]any) {
+		// A reviser output holds reasons alone, so it stays as it is.
+		sessions, _ := out["sessions"].([]any)
+		for _, s := range sessions {
 			for _, e := range s.(map[string]any)["exercises"].([]any) {
 				for _, key := range []string{"calibration_sets", "working_sets"} {
 					for _, w := range e.(map[string]any)[key].([]any) {
@@ -145,7 +147,10 @@ func evaluate(t *testing.T, p ai.Provider, caps ai.Caps, timeout time.Duration) 
 var twoUSD = ai.Caps{User: 2 * ai.USD, Project: 2 * ai.USD}
 
 // The echo reply of the fake gives the targets of the rules, so the
-// policy accepts each proposal, and each scenario passes.
+// policy accepts each planner proposal, and each scenario passes. The
+// echo reason names set 1, so each case with a logged working set gets
+// the reason of Luna. The skipped case of scenario D gets the reason of
+// the rules (D-288).
 func TestRunEcho(t *testing.T) {
 	rep := evaluate(t, &ai.Fake{}, twoUSD, 0)
 	tt := rep.Totals
@@ -154,6 +159,9 @@ func TestRunEcho(t *testing.T) {
 	}
 	if tt.Decisions != tt.Accepted || tt.Cost <= 0 || tt.CostUnknown != 0 {
 		t.Fatalf("totals %+v", tt)
+	}
+	if tt.Revisions != 2*15 || tt.LunaReasons != tt.Revisions-2 || tt.ReasonCauses["no-reason"] != 2 {
+		t.Fatalf("revision totals %d, %d, %v", tt.Revisions, tt.LunaReasons, tt.ReasonCauses)
 	}
 	for _, s := range rep.Scenarios {
 		if !s.Pass() || s.Cases == 0 {
@@ -169,7 +177,8 @@ func TestRunEcho(t *testing.T) {
 }
 
 // A load jump of 50 percent breaks the load ceiling. The policy refuses
-// each proposal, the rules target applies, and each scenario passes.
+// each planner proposal, and the rules target applies. A revision has
+// no proposal, so each scenario passes with the targets of the rules.
 func TestRunJump(t *testing.T) {
 	rep := evaluate(t, &ai.Fake{Reply: fakeOutput(func(s map[string]any) {
 		s["load_lb"] = s["load_lb"].(float64) * 1.5
@@ -179,27 +188,23 @@ func TestRunJump(t *testing.T) {
 		t.Fatalf("totals %+v: want each proposal refused for %s", tt, policy.RuleLoadCeiling)
 	}
 	for _, s := range rep.Scenarios {
-		if !s.Pass() || s.Refused != s.Cases {
-			t.Errorf("scenario %+v: want a refusal and a pass", s)
+		if !s.Pass() {
+			t.Errorf("scenario %+v: want a pass", s)
 		}
 	}
 }
 
-// One more rep at the load of the target breaks the effort ceiling of
-// D-186. The policy refuses each such proposal of the reviser, and each
-// scenario passes. The planner plans calibration sessions alone, and
-// there the reps can go up (D-177).
+// One more rep is valid in a calibration session (D-177), and the
+// planner plans calibration sessions alone, so the policy accepts each
+// planner proposal. Each scenario passes with the targets of the rules.
 func TestRunMoreReps(t *testing.T) {
 	rep := evaluate(t, &ai.Fake{Reply: fakeOutput(func(s map[string]any) {
 		s["reps"] = s["reps"].(float64) + 1
 	})}, twoUSD, 0)
 	for _, s := range rep.Scenarios {
-		if !s.Pass() || s.Refused != s.Cases {
-			t.Errorf("scenario %+v: want each proposal refused and a pass", s)
+		if !s.Pass() {
+			t.Errorf("scenario %+v: want a pass", s)
 		}
-	}
-	if rep.Totals.ByRule[string(policy.RuleEffortCeiling)] == 0 {
-		t.Errorf("totals %+v: want refusals of %s", rep.Totals, policy.RuleEffortCeiling)
 	}
 	for _, c := range rep.Calls {
 		for _, d := range c.Decisions {

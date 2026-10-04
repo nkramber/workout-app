@@ -131,7 +131,7 @@ func (r *Reviser) Revise(ctx context.Context, uid, workoutID string) (Result, er
 			rec.Model, rec.Effort, rec.PromptHash = reply.Model, reply.Effort, reply.PromptHash
 		}
 		ex := plan.Exercise{Target: rec.Target, Record: rec}
-		ex.Reason, ex.ReasonSource, ex.ReasonCause = pick(in, rec, reply)
+		ex.Reason, ex.ReasonSource, ex.ReasonCause = Reason(in, rec, reply)
 		if ex.ReasonSource == policy.SourceLuna {
 			res.Luna++
 		}
@@ -203,7 +203,9 @@ func (r *Reviser) finished(ctx context.Context, uid string) ([]workout.Workout, 
 		after = next
 	}
 	out := slices.DeleteFunc(all, func(w workout.Workout) bool { return !w.Finished })
-	slices.SortFunc(out, func(a, b workout.Workout) int { return cmp.Or(strings.Compare(a.Date, b.Date), strings.Compare(a.ID, b.ID)) })
+	slices.SortFunc(out, func(a, b workout.Workout) int {
+		return cmp.Or(strings.Compare(a.Date, b.Date), strings.Compare(a.ID, b.ID))
+	})
 	return out, nil
 }
 
