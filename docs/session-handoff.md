@@ -20,9 +20,9 @@ The pull request holds:
 
 `make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. An early version marked the cached plan as stale after each sync. That raced the plan request, and 5 to 6 Chromium tests failed in 2 of 2 runs. The mark now follows a new revision alone, and 2 of 2 runs passed.
 
-The state is pending the owner merge. The Codex review did not run yet.
+The Codex review of `a5451328baf687ec3ea13b8c5356cad7b96c6e24` found P2-1. A plan store error can leave a finished workout without a revision after the phone accepts the sync. The verdict is Changes required.
 
-Next action: push, open the pull request, wait for CI, and run `make codex-review`.
+Next action: fix P2-1, run the focused sync and revision checks, push the correction, and request a new Codex review.
 
 ## Facts that expire
 
