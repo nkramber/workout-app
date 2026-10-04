@@ -19,7 +19,7 @@ The owner approved the milestone (D-12), and answered Q-300, Q-301, Q-202, and Q
 
 Codex review: Ready for owner merge for effective head `d7ebdcaa2d8995f68124865308906d2081ae24c6`. No open findings. The review record is `docs/reviews/pr-35.md`.
 
-Next action: verify the review-gate check after this session pushes the review record. Then ask the owner to confirm the merge.
+Next action: ask the owner to confirm the merge.
 
 After the merge, the session of PR-35 reads no deploy, because PR-34 changes only `docs/`. It asks the owner Q-302 to Q-304 first.
 
