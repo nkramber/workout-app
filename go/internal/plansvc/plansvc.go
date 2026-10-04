@@ -171,7 +171,7 @@ func (s *Server) OverrideTarget(ctx context.Context, req *connect.Request[workou
 			}
 			return nil, fmt.Errorf("%w: override: %s", domain.ErrInvalid, strings.Join(parts, "; "))
 		}
-		return &plan.Override{Target: o, Recommendation: rec, Reason: reason, At: s.now().UTC()}, nil
+		return &plan.Override{Target: o, Recommendation: rec, Reason: reason, At: s.now().UTC(), Today: m.GetToday()}, nil
 	})
 	if err != nil {
 		return nil, fail(err)
@@ -345,7 +345,7 @@ func (s *Server) toProto(p plan.Plan) *workoutappv1.Plan {
 				pe.WorkingSets = append(pe.WorkingSets, &workoutappv1.PlannedSet{Reps: int32(w.Reps), LoadTenthLb: int32(w.Load), RirTarget: int32(w.RIR)})
 			}
 			if o := e.Override; o != nil {
-				pe.Override = &workoutappv1.TargetOverride{Reason: o.Reason, CreatedAt: o.At.UTC().Format(time.RFC3339)}
+				pe.Override = &workoutappv1.TargetOverride{Reason: o.Reason, CreatedAt: o.At.UTC().Format(time.RFC3339), Expired: o.Expired}
 				for _, c := range o.Target.Calibration {
 					pe.Override.CalibrationSets = append(pe.Override.CalibrationSets, &workoutappv1.PlannedSet{Reps: int32(c.Reps), LoadTenthLb: int32(c.Load)})
 				}

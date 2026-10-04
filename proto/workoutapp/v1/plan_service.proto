@@ -148,6 +148,10 @@ message TargetOverride {
   string created_at = 4;
   // The recommendation that the override replaced.
   repeated PlannedSet recommended_working_sets = 5;
+  // True when a missed session, a break, or a deload changed the rules of
+  // the date after the save (D-294, D-295). The recommendation then applies,
+  // and the phone uses no expired override in a workout.
+  bool expired = 6;
 }
 
 // CalibrationLoads holds the load of the working sets for each result of one

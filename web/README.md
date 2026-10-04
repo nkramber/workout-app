@@ -69,7 +69,7 @@ The home screen has a "Plan" button. The plan screen reads `GetPlan` with the lo
 
 Each exercise has a "Change target" button. Its form changes the reps and the load of each working set for the next session (D-69, D-293). It needs a reason of 1 to 200 characters, and it calls `OverrideTarget`.
 
-The policy of the server checks the change. The card then shows the override and the reason above the recommendation, and "Use the recommendation" calls `RemoveOverride`. Each call puts the plan in the query cache and in the plan copy, so the next workout starts with the override. A workout with an override shows "Your change" with the recommended set, and its target copy keeps the recommendation and the reason.
+The policy of the server checks the change. The card then shows the override and the reason above the recommendation, and "Use the recommendation" calls `RemoveOverride`. Each call puts the plan in the query cache and in the plan copy, so the next workout starts with the override. An expired override shows a notice, and the workout uses the recommendation. A workout with an override shows "Your change" with the recommended set, and its target copy keeps the recommendation and the reason.
 
 "Make a plan" and "Make a new plan" call `RequestPlan`. Each exercise has an "Exclude" button. It opens a form with an optional reason of 200 characters or fewer, and the form calls `ExcludeExercise` (D-48, D-228).
 

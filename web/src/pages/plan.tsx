@@ -294,7 +294,13 @@ function ExerciseCard({
           </span>
         )}
       </div>
-      {o && (
+      {o?.expired && (
+        <p className="rounded-lg border border-amber-800 bg-amber-950 p-3 text-sm text-amber-100" data-testid="override-expired">
+          Your change no longer applies. A missed week, a break, or a deload changed the target after you saved it, so the
+          recommendation applies. Change the target again if you want.
+        </p>
+      )}
+      {o && !o.expired && (
         <div className="space-y-1 rounded-lg border border-sky-800 bg-sky-950 p-3 text-sm text-sky-100" data-testid="override">
           <p className="font-semibold">Your change for the next session</p>
           <ul className="space-y-1">
@@ -308,7 +314,7 @@ function ExerciseCard({
           <p data-testid="override-reason">{`Your reason: ${o.reason}`}</p>
         </div>
       )}
-      {o && <p className="text-sm font-semibold text-slate-300">Recommendation</p>}
+      {o && !o.expired && <p className="text-sm font-semibold text-slate-300">Recommendation</p>}
       <ul className="space-y-1 text-sm text-slate-200" data-testid="sets">
         {exercise.calibrationSets.map((s, i) => (
           <li key={`c${i}`}>{`Calibration set ${i + 1}: ${setText(s, true)}`}</li>
@@ -414,7 +420,8 @@ function OverrideForm({
   onSave: (sets: { reps: number; loadTenthLb: number }[], reason: string) => Promise<void>;
   onCancel: () => void;
 }) {
-  const start = exercise.override?.workingSets ?? exercise.workingSets;
+  const live = exercise.override && !exercise.override.expired ? exercise.override : undefined;
+  const start = live?.workingSets ?? exercise.workingSets;
   const [drafts, setDrafts] = useState<OverrideDraft[]>(() =>
     start.map((s) => ({ reps: String(s.reps), pounds: formatPounds(s.loadTenthLb) })),
   );

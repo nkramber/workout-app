@@ -68,14 +68,15 @@ func (b *builder) restoreRIR(p domain.PlannedExercise) bool {
 }
 
 // deloadOf gives the date of the session that started the deload of a
-// date, or "" when the date is in no deload. A deload covers the date
-// of its start and the next DeloadDays days. A session in it is a
-// deload session when it comes after the start.
-func (in Input) deloadOf(date string, sessions bool) string {
+// date, or "" when the date is in no deload. A deload covers the
+// DeloadDays dates after the session that started it (D-295). The same
+// dates give the deload targets and the deload sessions, so a session in
+// the deload is no evidence, and a session on the date of the start is
+// evidence.
+func (in Input) deloadOf(date string) string {
 	d := day(date)
 	for _, s := range in.Deloads {
-		from := day(s)
-		if d <= from+DeloadDays && (d > from || (!sessions && d == from)) {
+		if from := day(s); d > from && d <= from+DeloadDays {
 			return s
 		}
 	}
@@ -87,7 +88,7 @@ func (in Input) deloadOf(date string, sessions bool) string {
 // return (D-295), so a deload session is no evidence for the next
 // target. A history of deload sessions alone stays as it is.
 func (in Input) rulesHistory() []Outcome {
-	out := slices.DeleteFunc(slices.Clone(in.History), func(o Outcome) bool { return in.deloadOf(o.Date, true) != "" })
+	out := slices.DeleteFunc(slices.Clone(in.History), func(o Outcome) bool { return in.deloadOf(o.Date) != "" })
 	if len(out) == 0 {
 		return in.History
 	}

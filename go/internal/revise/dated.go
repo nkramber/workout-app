@@ -24,8 +24,9 @@ import (
 // revision gave the target of such an exercise, so the target is a
 // target of the rules (D-288). A deload that a later workout of another
 // exercise started also changes it. Such an exercise gets the target and
-// the reason of the rules, with the cause CauseDate, and it keeps its
-// override. Each other exercise keeps its target and its reason. The
+// the reason of the rules, with the cause CauseDate. Its override stays,
+// and the override expires when the rules of the date changed after its
+// save. Each other exercise keeps its target and its reason. The
 // result shares no memory with p, and ForDate saves nothing: the same
 // history and the same date give the same targets.
 func (r *Reviser) ForDate(ctx context.Context, uid string, p plan.Plan, today string) (plan.Plan, error) {
@@ -73,16 +74,24 @@ func (r *Reviser) ForDate(ctx context.Context, uid string, p plan.Plan, today st
 				r.warn("revise: the policy refused the date", "uid", uid, "exercise_id", string(id), "err", err.Error())
 				continue
 			}
-			if sameTarget(e.Target, now.Target) {
-				continue
-			}
-			x := plan.Exercise{Target: now.Target, Record: now, Reason: now.Reason, ReasonSource: policy.SourceRules, ReasonCause: CauseDate, Override: e.Override}
-			if len(now.Target.Calibration) > 0 {
-				if x.Calibration, err = policy.CalibrationTable(in); err != nil {
-					continue
+			x, change := e, false
+			if !sameTarget(e.Target, now.Target) {
+				x = plan.Exercise{Target: now.Target, Record: now, Reason: now.Reason, ReasonSource: policy.SourceRules, ReasonCause: CauseDate, Override: e.Override}
+				if len(now.Target.Calibration) > 0 {
+					if x.Calibration, err = policy.CalibrationTable(in); err != nil {
+						continue
+					}
 				}
+				change = true
 			}
-			changed[id] = x
+			if o := e.Override; o != nil && stale(in, *o, now) {
+				c := *o
+				c.Expired = true
+				x.Override, change = &c, true
+			}
+			if change {
+				changed[id] = x
+			}
 		}
 	}
 
@@ -100,6 +109,32 @@ func copyPlan(p plan.Plan) plan.Plan {
 		q.Sessions[i].Exercises = slices.Clone(p.Sessions[i].Exercises)
 	}
 	return q
+}
+
+// dateRules are the rules that read the date of the next session.
+var dateRules = []policy.RuleID{policy.RuleMissed, policy.RuleBreakShort, policy.RuleBreakLong, policy.RuleBreakRecalibrate, policy.RuleDeload}
+
+// stale tells whether the rules of the date of the next session changed
+// after the save of an override (D-293 to D-295). The owner chose the
+// override against the recommendation of the date of the save. After a
+// missed session, a break, or the start or the end of a deload, the
+// override no longer has the check of the policy for the new date, so
+// the recommendation applies. An override with a date that the policy
+// refuses is stale too.
+func stale(in policy.Input, o plan.Override, now policy.Record) bool {
+	saved := o.Today
+	if saved == "" {
+		saved = o.At.UTC().Format(domain.DateLayout)
+	}
+	in.Today = saved
+	then, err := policy.Revise(in)
+	if err != nil {
+		return true
+	}
+	of := func(rs []policy.RuleID) []policy.RuleID {
+		return slices.DeleteFunc(slices.Clone(rs), func(r policy.RuleID) bool { return !slices.Contains(dateRules, r) })
+	}
+	return !slices.Equal(of(then.Rules), of(now.Rules))
 }
 
 // sameTarget tells whether two targets have the same sets and rest. A

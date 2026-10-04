@@ -155,9 +155,8 @@ func TestDisruptionAcceptanceStory(t *testing.T) {
 		}
 	})
 
-	// A decline in 2 sessions in a row on 2 exercises starts the deload.
-	// The revision gives the deload to the exercises of the workout that
-	// started it, and the plan on the date gives it to each exercise.
+	// A decline in 2 sessions in a row on 2 exercises starts the deload on
+	// the next date, and the plan on that date gives it to each exercise.
 	t.Run("deload after a decline", func(t *testing.T) {
 		curl := revTarget("biceps_curl", 3, 12, 25)
 		row := revTarget("seated_row", 3, 10, 60)
@@ -174,14 +173,17 @@ func TestDisruptionAcceptanceStory(t *testing.T) {
 			{"ext", "leg_extension", []logged{{1, ext, allDone(ext), false}}, nil},
 		}
 		e := newRevEnv(t, authHost, base, fs, cases)
-		inputs := e.runFrom(cases, daysAgo(4))
+		// The last sessions are yesterday, so today is the first date of
+		// the deload (D-295).
+		inputs := e.runFrom(cases, daysAgo(5))
 		var hs [][]policy.Outcome
 		for _, c := range cases {
 			hs = append(hs, inputs[c.id].History)
 		}
 		starts, err := policy.Deloads(hs)
-		if err != nil || !slices.Equal(starts, []string{today}) {
-			t.Fatalf("Deloads = %v, %v, want [%s]", starts, err, today)
+		yesterday := daysAgo(1).Format(domain.DateLayout)
+		if err != nil || !slices.Equal(starts, []string{yesterday}) {
+			t.Fatalf("Deloads = %v, %v, want [%s]", starts, err, yesterday)
 		}
 		stored, dated := e.planned(), e.on(today)
 		for _, c := range cases {
@@ -206,13 +208,11 @@ func TestDisruptionAcceptanceStory(t *testing.T) {
 					}
 				}
 			}
-			// The last workout of the row started the deload, so its
-			// revision gave the deload to the row alone. The curl and the
-			// extension synced before it, and the plan on the date gives
-			// them the deload.
-			old := targetOf(exerciseOf(stored, 0, c.exercise))
-			if deloaded := len(old.Working) == 2; deloaded != (c.id == "row") {
-				t.Errorf("%s: the plan with no date has %d sets", c.id, len(old.Working))
+			// Each revision gave the target on the date of its workout,
+			// and the deload starts on the next date. So only the plan on
+			// the date gives the deload.
+			if old := targetOf(exerciseOf(stored, 0, c.exercise)); len(old.Working) != 3 {
+				t.Errorf("%s: the plan with no date has %d sets, want 3", c.id, len(old.Working))
 			}
 		}
 	})

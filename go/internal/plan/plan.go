@@ -125,11 +125,18 @@ type Exercise struct {
 // exercise removes the override, because an override is for one
 // session. The reason is data of the owner, so it never goes into a log
 // (D-80).
+//
+// Today is the local date of the save. Expired is never stored: a read
+// of the plan on a date sets it when a missed session, a break, or a
+// deload changed the rules of the date after the save (D-294, D-295).
+// The recommendation then applies.
 type Override struct {
 	Target         domain.PlannedExercise
 	Recommendation domain.PlannedExercise
 	Reason         string
 	At             time.Time
+	Today          string
+	Expired        bool
 }
 
 // SetOverride gives the override to each session of the plan that holds

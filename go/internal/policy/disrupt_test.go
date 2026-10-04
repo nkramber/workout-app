@@ -148,8 +148,11 @@ func TestScenarioDeload(t *testing.T) {
 		in     Input
 		deload bool
 	}{
-		{"h_deload_start", curl, true},
-		{"h_deload_press", press, true},
+		// The date of the session that started the deload is no deload
+		// date, and the next date is the first one (D-295).
+		{"h_deload_trigger_day", curl, false},
+		{"h_deload_start", on(curl, "2026-09-06"), true},
+		{"h_deload_press", on(press, "2026-09-06"), true},
 		{"h_deload_other", on(row, "2026-09-06"), true},
 		{"h_deload_session", on(curl, "2026-09-09", logged), true},
 		{"h_deload_last_day", on(curl, "2026-09-12", logged, logged2), true},
@@ -176,6 +179,29 @@ func TestScenarioDeload(t *testing.T) {
 	}
 	if !slices.Equal(after.Target.Working, before.Target.Working) {
 		t.Errorf("after the deload %+v, want the target of before %+v", after.Target.Working, before.Target.Working)
+	}
+
+	// The deload covers exactly the 7 dates after the session that started
+	// it: 2026-09-06 to 2026-09-12 (D-295).
+	for k := 0; k <= DeloadDays+1; k++ {
+		date := dateText(day("2026-09-05") + k)
+		d, err := Next(on(curl, date))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got, want := slices.Contains(d.Rules, RuleDeload), k >= 1 && k <= DeloadDays; got != want {
+			t.Errorf("%s: deload %v, want %v", date, got, want)
+		}
+	}
+	// A second session on the date of the start is evidence, not a deload
+	// session, as the session that started the deload.
+	same := logged
+	same.Date = "2026-09-05"
+	if in := on(curl, "2026-09-05", same); len(in.rulesHistory()) != len(in.History) {
+		t.Errorf("a session on the date of the start is no evidence")
+	}
+	if in := on(curl, "2026-09-12", logged); len(in.rulesHistory()) != len(in.History)-1 {
+		t.Errorf("a session in the deload is evidence")
 	}
 
 	// The count of sets: 0.6 times, to the nearest set, at least 1.

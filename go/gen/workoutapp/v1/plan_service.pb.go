@@ -495,8 +495,12 @@ type TargetOverride struct {
 	CreatedAt string `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	// The recommendation that the override replaced.
 	RecommendedWorkingSets []*PlannedSet `protobuf:"bytes,5,rep,name=recommended_working_sets,json=recommendedWorkingSets,proto3" json:"recommended_working_sets,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	// True when a missed session, a break, or a deload changed the rules of
+	// the date after the save (D-294, D-295). The recommendation then applies,
+	// and the phone uses no expired override in a workout.
+	Expired       bool `protobuf:"varint,6,opt,name=expired,proto3" json:"expired,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *TargetOverride) Reset() {
@@ -562,6 +566,13 @@ func (x *TargetOverride) GetRecommendedWorkingSets() []*PlannedSet {
 		return x.RecommendedWorkingSets
 	}
 	return nil
+}
+
+func (x *TargetOverride) GetExpired() bool {
+	if x != nil {
+		return x.Expired
+	}
+	return false
 }
 
 // CalibrationLoads holds the load of the working sets for each result of one
@@ -1547,14 +1558,15 @@ const file_workoutapp_v1_plan_service_proto_rawDesc = "" +
 	"\x11calibration_loads\x18\b \x03(\v2\x1f.workoutapp.v1.CalibrationLoadsR\x10calibrationLoads\x12#\n" +
 	"\rreason_source\x18\t \x01(\tR\freasonSource\x129\n" +
 	"\boverride\x18\n" +
-	" \x01(\v2\x1d.workoutapp.v1.TargetOverrideR\boverride\"\xa0\x02\n" +
+	" \x01(\v2\x1d.workoutapp.v1.TargetOverrideR\boverride\"\xba\x02\n" +
 	"\x0eTargetOverride\x12D\n" +
 	"\x10calibration_sets\x18\x01 \x03(\v2\x19.workoutapp.v1.PlannedSetR\x0fcalibrationSets\x12<\n" +
 	"\fworking_sets\x18\x02 \x03(\v2\x19.workoutapp.v1.PlannedSetR\vworkingSets\x12\x16\n" +
 	"\x06reason\x18\x03 \x01(\tR\x06reason\x12\x1d\n" +
 	"\n" +
 	"created_at\x18\x04 \x01(\tR\tcreatedAt\x12S\n" +
-	"\x18recommended_working_sets\x18\x05 \x03(\v2\x19.workoutapp.v1.PlannedSetR\x16recommendedWorkingSets\"\xd0\x01\n" +
+	"\x18recommended_working_sets\x18\x05 \x03(\v2\x19.workoutapp.v1.PlannedSetR\x16recommendedWorkingSets\x12\x18\n" +
+	"\aexpired\x18\x06 \x01(\bR\aexpired\"\xd0\x01\n" +
 	"\x10CalibrationLoads\x12&\n" +
 	"\x0fweight_tenth_lb\x18\x01 \x01(\x05R\rweightTenthLb\x12\"\n" +
 	"\rdown_tenth_lb\x18\x02 \x01(\x05R\vdownTenthLb\x12\"\n" +

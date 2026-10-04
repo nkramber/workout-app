@@ -86,6 +86,7 @@ type overrideDoc struct {
 	Recommendation targetDoc `firestore:"recommendation"`
 	Reason         string    `firestore:"reason"`
 	At             time.Time `firestore:"at"`
+	Today          string    `firestore:"today"`
 }
 
 // calibrationDoc is one row of the table of D-267. A plan of policy
@@ -186,7 +187,7 @@ func encodePlan(p Plan) planDoc {
 		for _, e := range s.Exercises {
 			ed := exerciseDoc{encodeTarget(e.Target), e.Reason, encodeRecord(e.Record), encodeCalibration(e.Calibration), string(e.ReasonSource), e.ReasonCause, nil}
 			if o := e.Override; o != nil {
-				ed.Override = &overrideDoc{encodeTarget(o.Target), encodeTarget(o.Recommendation), o.Reason, o.At.UTC()}
+				ed.Override = &overrideDoc{encodeTarget(o.Target), encodeTarget(o.Recommendation), o.Reason, o.At.UTC(), o.Today}
 			}
 			sd.Exercises = append(sd.Exercises, ed)
 		}
@@ -217,7 +218,7 @@ func (d planDoc) plan() Plan {
 		for _, e := range sd.Exercises {
 			x := Exercise{e.Target.target(), e.Reason, e.Record.record(), decodeCalibration(e.Calibration), policy.Source(e.ReasonSource), e.ReasonCause, nil}
 			if o := e.Override; o != nil {
-				x.Override = &Override{o.Target.target(), o.Recommendation.target(), o.Reason, o.At.UTC()}
+				x.Override = &Override{Target: o.Target.target(), Recommendation: o.Recommendation.target(), Reason: o.Reason, At: o.At.UTC(), Today: o.Today}
 			}
 			s.Exercises = append(s.Exercises, x)
 		}

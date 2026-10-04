@@ -88,7 +88,7 @@ After each `SyncOutbox` batch, `go/internal/revise` revises the plan for each fi
 
 `Reviser.ForDate` gives the targets on a date for `GetPlan` with a date. It applies the long-break table, a missed session, and a deload on that date (D-151, D-179, D-294, D-295). It changes each exercise that the owner logged under the plan, and it saves nothing. A plan with no revision reads no store.
 
-`OverrideTarget` checks an override with `policy.CheckOverride` against the target on the date, and saves it with the recommendation and the reason (D-69, D-293). A refusal gives `INVALID_ARGUMENT` with the rule and the place of each violation, and no reason of the owner. A revision of the exercise removes the override.
+`OverrideTarget` checks an override with `policy.CheckOverride` against the target on the date, and saves it with the recommendation and the reason (D-69, D-293). `ForDate` marks an override as expired when the rules of the date changed after its save, and the recommendation then applies. A refusal gives `INVALID_ARGUMENT` with the rule and the place of each violation, and no reason of the owner. A revision of the exercise removes the override.
 
 ## The Luna evaluation
 

@@ -106,20 +106,50 @@ func TestForDateOverride(t *testing.T) {
 	id := f.workout(1, "2026-10-01", true, log{press, []domain.SetLog{set(12, lb(25), 3), set(12, lb(25), 3), set(12, lb(25), 3)}})
 	f.revise(id)
 	over := target("chest_press", 3, 10, lb(30))
-	o := &plan.Override{Target: over, Recommendation: f.plan().Sessions[0].Exercises[0].Target, Reason: "Felt easy."}
+	o := &plan.Override{Target: over, Recommendation: f.plan().Sessions[0].Exercises[0].Target, Reason: "Felt easy.", Today: "2026-10-02"}
 	if err := f.plans.Update(context.Background(), uid, created, func(p *plan.Plan) error {
 		p.SetOverride("chest_press", o)
 		return nil
 	}); err != nil {
 		t.Fatal(err)
 	}
-	for _, today := range []string{"2026-10-03", "2026-10-09"} {
-		p := f.forDate(today)
+	// The override stays on a date with the rules of the date of its save.
+	// After a missed week or a break, the rules of the date changed, so the
+	// override expires and the recommendation applies (D-293, D-294).
+	// The stored override does not change.
+	for _, tc := range []struct {
+		today   string
+		expired bool
+	}{{"2026-10-03", false}, {"2026-10-07", false}, {"2026-10-08", true}, {"2026-10-20", true}} {
+		p := f.forDate(tc.today)
 		for i := range p.Sessions {
-			if got := p.Sessions[i].Exercises[0].Override; got == nil || got.Reason != "Felt easy." || !sameTarget(got.Target, over) {
-				t.Fatalf("%s session %d: override %+v, want it kept", today, i, got)
+			got := p.Sessions[i].Exercises[0].Override
+			if got == nil || got.Reason != "Felt easy." || !sameTarget(got.Target, over) || got.Expired != tc.expired {
+				t.Fatalf("%s session %d: override %+v, want it with expired %v", tc.today, i, got, tc.expired)
 			}
 		}
+	}
+	if f.plan().Sessions[0].Exercises[0].Override.Expired {
+		t.Fatal("ForDate stored the expiry")
+	}
+	// An override that the owner saved after the missed week, against the
+	// held recommendation, stays.
+	late := *o
+	late.Today = "2026-10-09"
+	if err := f.plans.Update(context.Background(), uid, created, func(p *plan.Plan) error {
+		p.SetOverride("chest_press", &late)
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if got := f.forDate("2026-10-10").Sessions[0].Exercises[0].Override; got == nil || got.Expired {
+		t.Fatalf("an override of the same rules of the date: %+v, want it kept", got)
+	}
+	if err := f.plans.Update(context.Background(), uid, created, func(p *plan.Plan) error {
+		p.SetOverride("chest_press", o)
+		return nil
+	}); err != nil {
+		t.Fatal(err)
 	}
 
 	// The next workout logs the override, and the revision starts from it.

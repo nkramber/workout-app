@@ -10,6 +10,8 @@ import (
 	"connectrpc.com/connect"
 
 	workoutappv1 "github.com/nkramber/workout-app/go/gen/workoutapp/v1"
+	"github.com/nkramber/workout-app/go/internal/auth"
+	"github.com/nkramber/workout-app/go/internal/plan"
 	"github.com/nkramber/workout-app/go/internal/policy"
 )
 
@@ -146,5 +148,52 @@ func TestGetPlanToday(t *testing.T) {
 	res, err := f.client.GetPlan(context.Background(), as("uid-a", &workoutappv1.GetPlanRequest{Today: "2026-10-02"}))
 	if err != nil || res.Msg.GetPlan() == nil {
 		t.Fatalf("GetPlan = %v, %v", res, err)
+	}
+}
+
+// expiring is a Dated that marks each override as expired.
+type expiring struct{}
+
+func (expiring) ForDate(_ context.Context, _ string, p plan.Plan, _ string) (plan.Plan, error) {
+	for i := range p.Sessions {
+		p.Sessions[i].Exercises = slices.Clone(p.Sessions[i].Exercises)
+		for j := range p.Sessions[i].Exercises {
+			if o := p.Sessions[i].Exercises[j].Override; o != nil {
+				c := *o
+				c.Expired = true
+				p.Sessions[i].Exercises[j].Override = &c
+			}
+		}
+	}
+	return p, nil
+}
+
+// TestOverrideExpired: GetPlan with a date gives the expiry of ForDate in
+// the contract, and the stored override stays (D-294, D-295).
+func TestOverrideExpired(t *testing.T) {
+	f := defaultFixture(t)
+	ctx := context.Background()
+	if _, _, err := f.request(t, "uid-a"); err != nil {
+		t.Fatal(err)
+	}
+	stored, _, _ := f.maker.Plans.Get(ctx, "uid-a")
+	rec := stored.Sessions[0].Exercises[0].Target
+	if err := f.maker.Plans.Update(ctx, "uid-a", stored.CreatedAt, func(p *plan.Plan) error {
+		p.SetOverride(rec.Exercise, &plan.Override{Target: rec, Recommendation: rec, Reason: "x", Today: "2026-10-02"})
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	srv := New(f.maker, expiring{})
+	res, err := srv.GetPlan(auth.WithUserID(ctx, "uid-a"), connect.NewRequest(&workoutappv1.GetPlanRequest{Today: "2026-10-02"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if o := res.Msg.GetPlan().GetSessions()[0].GetExercises()[0].GetOverride(); o == nil || !o.GetExpired() {
+		t.Fatalf("override %v, want it expired", o)
+	}
+	again, _, _ := f.maker.Plans.Get(ctx, "uid-a")
+	if o := again.Sessions[0].Exercises[0].Override; o == nil || o.Expired || o.Today != "2026-10-02" {
+		t.Fatalf("stored override %+v, want it stored with no expiry", o)
 	}
 }

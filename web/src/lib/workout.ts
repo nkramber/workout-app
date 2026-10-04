@@ -199,13 +199,16 @@ export function nextSession(count: number, done: readonly number[]): number {
 // the loads of its targets, so its buttons still step between real
 // targets. An exercise with an override of the owner gets the sets of the
 // override, and keeps the recommendation and the reason (D-69, D-293).
+// An expired override gives the recommendation.
 export function workoutExercises(plan: Plan, sessionIndex: number, weights: (exerciseId: string) => number[]): WorkoutExercise[] {
   const session = plan.sessions[sessionIndex];
   if (!session) throw new RangeError(`the plan has no session ${sessionIndex}`);
   return session.exercises.map((e) => {
     const sets = (list: typeof e.workingSets): TargetSet[] =>
       list.map((s) => ({ reps: s.reps, loadTenthLb: s.loadTenthLb, rirTarget: s.rirTarget }));
-    const o = e.override;
+    // An expired override no longer has the check of the policy for the
+    // date, so the recommendation applies (D-294, D-295).
+    const o = e.override && !e.override.expired ? e.override : undefined;
     const calibrationSets = sets(o ? o.calibrationSets : e.calibrationSets);
     const workingSets = sets(o ? o.workingSets : e.workingSets);
     let list = [...new Set(weights(e.exerciseId))].filter((w) => w > 0).sort((a, b) => a - b);

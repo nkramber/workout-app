@@ -304,7 +304,7 @@ func Next(in Input) (Decision, error) {
 	if afterBreak && b.setRIR(3) && ps.gap < BreakDays && !slices.Contains(b.rules, RuleBreakFirst) {
 		b.rule(RuleBreakFirst, "These are your first sessions after a break, so each set stops at 3 reps in reserve.")
 	}
-	if from := in.deloadOf(in.Today, false); from != "" {
+	if from := in.deloadOf(in.Today); from != "" {
 		b.deload(from)
 	}
 	if ps.gap >= RecalibrateDays || calibrating {

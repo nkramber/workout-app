@@ -8,7 +8,9 @@ Date: 2026-10-04. Review of pull request 37, work area 7.2 of `docs/roadmaps/pha
 
 The deploys of `d8f766e` passed: `deploy-api` `c3c4d9ed` and `deploy-web` `bd757c99`. The live `/version` and `/version.json` name `d8f766e`, and the revision `api-00019-s78` has all traffic.
 
-The owner approved one live revision (D-212), approved the milestone (D-12), and answered Q-305 to Q-307 and Q-309 (D-293 to D-296). The owner did not finish the live workout yet, so no reviser call of `d8f766e` exists to read.
+The owner approved one live revision (D-212), approved the milestone (D-12), and answered Q-305 to Q-307 and Q-309 (D-293 to D-296). The owner finished a workout on the iPhone, and saw the next targets with their reasons. The reviser call had the status `ok`, and the plan got 8 new targets, each with a reason of Luna.
+
+The owner then asked for two changes in PR-37: the first set as the calibration, and the collapse of a finished workout (D-297, D-298). Q-310 holds the details of the first change.
 
 The pull request holds:
 
@@ -20,12 +22,15 @@ The pull request holds:
 
 `make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. An early version read the history of the workouts in each `GetPlan` with a date. The browser tests then failed in 4 of 5 runs, and the base `d8f766e` passed 3 of 3. `ForDate` now reads no store for a plan with no revision, and 3 of 3 runs passed.
 
-The Codex review found P2-1 and P2-2. The review record is `docs/reviews/pr-37.md`. The reviewer pushed the review record. Product checks passed on its metadata tip. The review gate rejects the `Changes required` verdict.
+Codex round 1 found P2-1 and P2-2 at `35cf4ef` (`docs/reviews/pr-37.md`). The answers are in `docs/reviews/pr-37-response.md`. The deload now covers the 7 dates after its start. A change of the rules of the date expires an override.
+
+The state is pending CI, the Codex round 2, and the owner merge. Next action: push the answers, and run `make codex-review PR=37`.
 
 ## Facts that expire
 
 | Fact | Date read | Source |
 |---|---|---|
+| The live revision of `d8f766e`: 1 reviser call of 0.0017 USD with the status `ok`, in a `SyncOutbox` call of 19.8 s. The plan got 8 new targets, each with a reason of Luna. Each of the 16 exercises of the plan has a calibration set. | 2026-10-04 | `gcloud logging read`, `users/{uid}/plan/active` |
 | The repository is public. | 2026-09-27 | GitHub repository settings |
 | The owner ended the D-4 period. `OVERRIDE_ENABLED` is `True` on `main`. | 2026-09-29 | D-125, `docs/tools/review_gate.py` |
 | `main` has the live ruleset `review-gate` and the merge settings of `.github/rulesets`. The ruleset requires `verify:contract`, `verify:go`, `verify:emulator`, and `verify:web` too. `make ruleset-check` passed. | 2026-09-29 | `make ruleset-check` |
@@ -77,8 +82,8 @@ The Codex review found P2-1 and P2-2. The review record is `docs/reviews/pr-37.m
 ## Next steps, in order
 
 1. Close PR-36: CI, the Codex review, the owner confirmation, and the merge.
-2. After the live workout, read the reviser call and the revised plan with ids and counts alone (D-212).
-3. Start PR-37 in a clean session (D-12). It reads the deploys of the merge of PR-36 first. Then it states the cost of one live revision with policy version 6, and asks the owner (D-212). It asks Q-308.
+2. Start PR-37 in a clean session (D-12), with the title `feat: the first-set calibration and the reviser evaluation (PR-37)`. It reads the deploys of the merge of PR-36 first. Then it states the cost of one live revision with policy version 6, and asks the owner (D-212).
+3. PR-37 asks Q-310 before the work, and Q-308 before the paid run. It removes the calibration sets, and collapses a finished workout (D-297, D-298).
 
 ## Session records
 
@@ -90,8 +95,10 @@ Branch: `feat/pr-36-overrides-disruptions`. Role: author.
 
 Completed:
 
-- Read the deploys of `d8f766e`. The owner approved one live revision (D-212).
+- Read the deploys of `d8f766e`. The owner approved one live revision (D-212), and the session read it.
 - The owner approved the milestone (D-12), and answered Q-305 to Q-307 and Q-309 (D-293 to D-296).
+- Recorded the requests of the owner for PR-37 (D-297, D-298, Q-310).
+- Answered P2-1 and P2-2 of Codex round 1.
 - Added the policy version 6, the deload dates, the targets on a date, and the overrides.
 - Added `TestDisruptionAcceptanceStory`, unit tests, and a browser test.
 - Changed the registers, both roadmaps, the design, both READMEs, and `AGENTS.md`.
@@ -99,7 +106,6 @@ Completed:
 Open work:
 
 - CI, the Codex review, the owner confirmation, and the merge of PR-36.
-- The read of the live revision after the workout of the owner.
 
 ### Session 36 - 2026-10-04
 

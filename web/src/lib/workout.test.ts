@@ -1,6 +1,6 @@
 import "fake-indexeddb/auto";
 
-import { create, fromJson } from "@bufbuild/protobuf";
+import { clone, create, fromJson } from "@bufbuild/protobuf";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PlanSchema, type Plan } from "../gen/workoutapp/v1/plan_service_pb";
@@ -197,6 +197,17 @@ describe("an override in the next workout (D-293)", () => {
       [10, 1000, 2],
     ]);
     expect(t.overrideReason).toBe("The last session felt easy.");
+  });
+
+  it("uses the recommendation for an expired override (D-294, D-295)", () => {
+    const expired = clone(PlanSchema, overridden);
+    expired.sessions[0].exercises[0].override!.expired = true;
+    const [chest] = workoutExercises(expired, 0, () => []);
+    expect(chest.workingSets).toEqual([
+      { reps: 10, loadTenthLb: 1000, rirTarget: 2 },
+      { reps: 10, loadTenthLb: 1000, rirTarget: 2 },
+    ]);
+    expect(chest.override).toBeUndefined();
   });
 
   it("sends no override fields for an exercise with no override", async () => {
