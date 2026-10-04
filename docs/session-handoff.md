@@ -10,24 +10,24 @@ PR-34 changed only `docs/`, so its merge deployed nothing, and the session read 
 
 The owner approved the milestone (D-12), and answered Q-302 to Q-304 (D-290 to D-292).
 
-Finished work, not committed yet:
+Finished work, in local commits that the session did not push yet:
 
-- The contract: the target copy `SeenTarget` in `WorkoutHeader` and `Workout`, and `PlanRevision` with `reason_source` in the plan. `make proto` ran.
+- The contract: the target copy `SeenTarget` in `WorkoutHeader` and `Workout`, and `PlanRevision` with `reason_source` in the plan.
 - The workout package and its store keep the target copy (D-291).
 - `policy.Revise` gives the decision record of a revised target.
 - The reviser of `go/internal/ai` writes the reason alone, with prompt `luna-prompt-v6`, the schema `luna_reason_v1`, and a time limit of 45 s (D-288, D-292).
 - The plan keeps its revisions, and `plan.Store` has `Update`.
-- The new package `go/internal/revise` reads the history, gives the targets of the rules, calls the reviser, and checks each reason.
+- The package `go/internal/revise` reads the history, gives the targets of the rules, calls the reviser, and checks each reason.
+- `SyncOutbox` revises the plan after each finished workout, and `plansvc` gives the revision. `go/cmd/lunaeval` grades the new reviser.
+- The emulator test `go/cmd/api/revision_emulator_test.go` passes for scenarios A to F.
+- The web header payload holds the target copy.
 
 Open work:
 
-- The unit tests of `go/internal/revise`, and the call of the revision in `SyncOutbox`, with the wiring in `go/cmd/api/main.go`.
-- `plansvc` gives `last_revision` and `reason_source`. `go/cmd/lunaeval` reads the new reviser output.
-- The emulator tests of scenarios A to F through `SyncOutbox`.
-- The web app: the target copy in the header, the screen of the next targets after a workout, unit tests, and a browser test.
-- The documents, the checks, the commits, the pull request, and the Codex review.
+- The web screen of the next targets after a workout, its unit tests, and a browser test. The finish tests of `web/e2e/workout.spec.ts` then tap "Done".
+- The documents, the checks, the push, the pull request, and the Codex review.
 
-Next action: write the unit tests of `go/internal/revise`.
+Next action: write `web/src/lib/revision.ts` and the end screen of `web/src/pages/workout.tsx`.
 
 ## Facts that expire
 

@@ -105,6 +105,14 @@ describe("startWorkout", () => {
     expect(header.plan).toMatchObject({ planCreatedAt: plan.createdAt, sessionIndex: 0 });
     expect(header.finished).toBe(false);
     expect(header.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    // The header holds the target of each exercise that the owner saw
+    // (D-291).
+    expect(header.targets.map((t) => t.exerciseId)).toEqual(w.exercises.map((e) => e.exerciseId));
+    expect(header.targets[0]).toMatchObject({
+      restSeconds: w.exercises[0].restSeconds,
+      calibrationSets: w.exercises[0].calibrationSets.map((c) => expect.objectContaining({ reps: c.reps, loadTenthLb: c.loadTenthLb })),
+      workingSets: w.exercises[0].workingSets.map((c) => expect.objectContaining({ reps: c.reps, loadTenthLb: c.loadTenthLb, rirTarget: c.rirTarget })),
+    });
   });
 
   it("refuses a second open workout, and writes nothing", async () => {

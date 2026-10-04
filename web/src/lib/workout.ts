@@ -106,7 +106,12 @@ function entry(entity: string, entityId: string, baseVersion: number, payload: u
   };
 }
 
+// headerPayload gives the whole header of a workout. It holds the target
+// of each exercise that the owner saw at the start (D-291), so the
+// server reads the history of an exercise after a new plan or a revision
+// too.
 function headerPayload(w: WorkoutRecord): unknown {
+  const sets = (list: TargetSet[]) => list.map((s) => ({ reps: s.reps, loadTenthLb: s.loadTenthLb, rirTarget: s.rirTarget }));
   return toJson(
     WorkoutHeaderSchema,
     create(WorkoutHeaderSchema, {
@@ -115,6 +120,12 @@ function headerPayload(w: WorkoutRecord): unknown {
       skippedExerciseIds: w.skippedExerciseIds,
       endedEarly: w.endedEarly,
       finished: w.finished,
+      targets: w.exercises.map((e) => ({
+        exerciseId: e.exerciseId,
+        restSeconds: e.restSeconds,
+        calibrationSets: sets(e.calibrationSets),
+        workingSets: sets(e.workingSets),
+      })),
     }),
   );
 }
