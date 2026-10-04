@@ -84,7 +84,10 @@ var errStore = connect.NewError(connect.CodeInternal, errors.New("the workout st
 // entry still applies. After the batch, the plan gets a revision for
 // each workout that an applied entry finished (D-292). A replayed entry
 // counts too, so a revision that a dropped answer stopped runs again.
-// The reviser skips a workout that revised the plan already.
+// The reviser skips a workout that revised the plan already. A store
+// failure of a revision gives UNAVAILABLE. Each applied entry stays
+// applied, so the phone sends the batch again, and the revision runs
+// again.
 func (s *Server) SyncOutbox(ctx context.Context, req *connect.Request[workoutappv1.SyncOutboxRequest]) (*connect.Response[workoutappv1.SyncOutboxResponse], error) {
 	id, err := uid(ctx)
 	if err != nil {
@@ -114,22 +117,33 @@ func (s *Server) SyncOutbox(ctx context.Context, req *connect.Request[workoutapp
 		}
 		out.Results = append(out.Results, r)
 	}
-	s.revise(ctx, id, finished)
+	if err := s.revise(ctx, id, finished); err != nil {
+		return nil, err
+	}
 	return connect.NewResponse(out), nil
 }
 
-// revise revises the plan for each finished workout. A failed revision
-// changes no result of the batch, and the plan keeps its targets. The
-// line holds ids alone (D-80).
-func (s *Server) revise(ctx context.Context, uid string, workouts []string) {
+// errRevision is the error of a store failure of a revision. A store
+// error can name a path, so the caller gets a fixed text.
+var errRevision = connect.NewError(connect.CodeUnavailable, errors.New("the revision of the plan failed; send the batch again"))
+
+// revise revises the plan for each finished workout. A failed reviser
+// call is no error: the reasons of the rules show (D-292). A store
+// failure stops the revisions, and gives errRevision. The line holds
+// ids alone (D-80).
+func (s *Server) revise(ctx context.Context, uid string, workouts []string) error {
 	if s.reviser == nil {
-		return
+		return nil
 	}
 	for _, w := range workouts {
-		if _, err := s.reviser.Revise(ctx, uid, w); err != nil && s.log != nil {
-			s.log.Error("revision failed", "uid", uid, "workout_id", w)
+		if _, err := s.reviser.Revise(ctx, uid, w); err != nil {
+			if s.log != nil {
+				s.log.Error("revision failed", "uid", uid, "workout_id", w)
+			}
+			return errRevision
 		}
 	}
+	return nil
 }
 
 // apply applies one entry. An inventory entry gives the version 0,

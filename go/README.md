@@ -83,7 +83,7 @@ After each `SyncOutbox` batch, `go/internal/revise` revises the plan for each fi
 - `policy.Revise` gives the target of the rules and its decision record. Each session of the plan that holds the exercise gets it (D-290). The plan keeps its `created_at`, so each workout keeps its link.
 - One reviser call with `luna-prompt-v6` and the schema `luna_reason_v1` writes each reason (D-288). The call has a time limit of 45 s, and the revision continues when the sync request ends first.
 - `revise.Check` refuses a blocked reason, a reason with no logged set or an unknown set, and a number outside the evidence. The plan then holds the reason of the rules, with the cause in `reason_cause`.
-- A failed revision changes no result of the batch, and the plan keeps its targets. The log line holds ids and counts alone (D-80).
+- A store failure of a revision gives `UNAVAILABLE`. Each applied entry stays applied, so the phone sends the batch again, and the revision runs again. The log line holds ids and counts alone (D-80).
 
 ## The Luna evaluation
 

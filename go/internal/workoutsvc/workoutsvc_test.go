@@ -244,8 +244,9 @@ func (f *fakeReviser) Revise(_ context.Context, uid, w string) (revise.Result, e
 // TestSyncOutboxRevises: the sync revises the plan one time for each
 // finished workout of the batch, after each entry of the batch (D-292).
 // A replayed finish revises again, and the reviser skips a done
-// revision. A failed revision changes no result. The header keeps the
-// target copies (D-291).
+// revision. A store failure of a revision gives UNAVAILABLE, and the
+// entries stay applied, so a replay of the batch runs the revision
+// again. The header keeps the target copies (D-291).
 func TestSyncOutboxRevises(t *testing.T) {
 	r := &fakeReviser{}
 	s := New(workout.NewMemory(), inventory.NewMemory()).WithReviser(r, nil)
@@ -270,13 +271,18 @@ func TestSyncOutboxRevises(t *testing.T) {
 		t.Fatalf("revisions %v, want %v", r.calls, want)
 	}
 	r.err = errors.New("rpc error: users/uid-a/plan/active: unavailable")
+	_, err := s.SyncOutbox(signedIn, connect.NewRequest(&workoutappv1.SyncOutboxRequest{Entries: []*workoutappv1.OutboxEntry{finish}}))
+	if connect.CodeOf(err) != connect.CodeUnavailable || strings.Contains(err.Error(), "users/") {
+		t.Fatalf("a failed revision: %v, want UNAVAILABLE with no path", err)
+	}
+	r.err = nil
 	for _, res := range sync(t, s, finish) {
 		if res.GetStatus() != workoutappv1.EntryResult_STATUS_APPLIED {
-			t.Fatalf("a failed revision changed a result: %v", res)
+			t.Fatalf("the replay after a failed revision: %v", res)
 		}
 	}
-	if len(r.calls) != 2 {
-		t.Fatalf("a replayed finish: %d revisions, want 2", len(r.calls))
+	if len(r.calls) != 3 {
+		t.Fatalf("revisions %d, want 3: the failed one and its replay", len(r.calls))
 	}
 	w := list(t, s)[0]
 	if got := w.GetTargets(); len(got) != 1 || !proto.Equal(got[0], start.GetWorkout().GetTargets()[0]) {

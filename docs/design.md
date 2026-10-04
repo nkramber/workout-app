@@ -119,7 +119,7 @@ One reviser call writes the reason of each new target, with the schema `luna_rea
 - a reason that names no logged set, or a set that the last session did not log,
 - a reason with a number that the evidence does not hold.
 
-The reason of the rules then shows, and the plan records the cause. The call has a time limit of 45 s. After a failed call, a call over the cap, or the time limit, the reasons of the rules show, and the targets stay the same.
+The reason of the rules then shows, and the plan records the cause. The call has a time limit of 45 s. After a failed call, a call over the cap, or the time limit, the reasons of the rules show, and the targets stay the same. A store failure of a revision fails the sync call. The phone keeps the entries and sends them again, and the revision runs again.
 
 After the workout, the end screen shows the next target of each revised exercise with its reason. With no connection, it tells the owner that the next targets show after the sync. The sync then reads the plan copy again (Decision, D-278, D-292). The revision reads the dates of the logged sessions alone, so it does not apply the long-break table before the first session after a break. Work area 7.2 adds that change at the start of a session (Decision, D-66, D-151).
 
