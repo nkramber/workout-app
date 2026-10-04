@@ -17,7 +17,9 @@ The owner approved the milestone (D-12), and answered Q-300, Q-301, Q-202, and Q
 - the split into PR-35 to PR-37 (D-287), with the open questions Q-302 to Q-308,
 - the role of Luna in a revision: the reason alone (D-288), and the reactive deload in work area 7.2 (D-289).
 
-Next action: run `make verify` and `make pr-check`, open the pull request, and run the Codex review.
+Codex review: Ready for owner merge for effective head `d7ebdcaa2d8995f68124865308906d2081ae24c6`. No open findings. The review record is `docs/reviews/pr-35.md`.
+
+Next action: verify the review-gate check after this session pushes the review record. Then ask the owner to confirm the merge.
 
 After the merge, the session of PR-35 reads no deploy, because PR-34 changes only `docs/`. It asks the owner Q-302 to Q-304 first.
 
