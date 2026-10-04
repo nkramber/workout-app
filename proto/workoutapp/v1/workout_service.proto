@@ -5,6 +5,7 @@ package workoutapp.v1;
 option go_package = "github.com/nkramber/workout-app/go/gen/workoutapp/v1;workoutappv1";
 
 import "workoutapp/v1/inventory_service.proto";
+import "workoutapp/v1/plan_service.proto";
 
 // WorkoutService holds the logged sessions of the caller (work areas 6.1 and
 // 6.3). Every call needs a Firebase ID token of a uid on the invite
@@ -21,7 +22,11 @@ import "workoutapp/v1/inventory_service.proto";
 // note or a date of a log (D-80).
 service WorkoutService {
   // SyncOutbox applies a batch of 1 to 100 outbox entries, in the order of
-  // the request (D-259). Each entry applies in its own transaction, so a
+  // the request (D-259). After the batch, the server revises the plan for
+  // each finished workout of the batch (D-292): the rules of the policy give
+  // the next target of each exercise that the workout logged, in each
+  // session of the plan that holds it (D-290). A failed revision does not
+  // change a result, and the plan keeps its targets. Each entry applies in its own transaction, so a
   // refused entry changes nothing, and the other entries still apply. The
   // response holds one result for each entry, in the same order. A batch of
   // more than 100 entries gives INVALID_ARGUMENT with no change.
@@ -133,6 +138,22 @@ message WorkoutHeader {
   bool ended_early = 4;
   // True when the workout ended.
   bool finished = 5;
+  // The target of each exercise of the workout that the owner saw at the
+  // start, one for each exercise (D-291). The server refuses a skip or a set
+  // of an exercise with no target here, when the list is not empty. An
+  // older phone gives no target.
+  repeated SeenTarget targets = 6;
+}
+
+// SeenTarget is the target of one exercise that the owner saw at the start
+// of a workout, as the plan gave it (D-291). A load is a whole number of
+// tenths of a pound.
+message SeenTarget {
+  // An exercise of the catalog that is not a cardio exercise.
+  string exercise_id = 1;
+  int32 rest_seconds = 2;
+  repeated PlannedSet calibration_sets = 3;
+  repeated PlannedSet working_sets = 4;
 }
 
 // SetEntry is the state of one logged set (D-57, D-164, D-249). The entity
@@ -252,6 +273,9 @@ message Workout {
   repeated LoggedExercise exercises = 6;
   // The cardio logs in the order of their time.
   repeated LoggedCardio cardio = 7;
+  // The targets that the owner saw (D-291), or none for a workout of an
+  // older phone.
+  repeated SeenTarget targets = 8;
 }
 
 message ListWorkoutsRequest {

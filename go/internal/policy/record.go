@@ -121,6 +121,34 @@ func Decide(in Input, p Proposal) (Record, error) {
 	return r, nil
 }
 
+// Revise gives the decision record of one exercise after a logged
+// session. The rules of Next give the target, and no proposal exists
+// (D-288). So the source is SourceRules with no cause, and the rules
+// are the rules of Next with no RuleFallback. The caller adds the model
+// id, the effort, and the prompt hash of the reviser call that wrote
+// the reason, when one occurred. The same input and policy version give
+// the same record.
+func Revise(in Input) (Record, error) {
+	d, err := Next(in)
+	if err != nil {
+		return Record{}, err
+	}
+	hash, err := InputHash(in)
+	if err != nil {
+		return Record{}, err
+	}
+	return Record{
+		PolicyVersion: Version,
+		Exercise:      in.Exercise.ID,
+		InputHash:     hash,
+		Source:        SourceRules,
+		Rules:         d.Rules,
+		Loads:         d.Loads,
+		Target:        d.Target,
+		Reason:        d.Reason,
+	}, nil
+}
+
 func clonePlan(p domain.PlannedExercise) domain.PlannedExercise {
 	p.Calibration = slices.Clone(p.Calibration)
 	p.Working = slices.Clone(p.Working)

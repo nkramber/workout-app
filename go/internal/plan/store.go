@@ -6,6 +6,7 @@ import (
 	"slices"
 	"strings"
 	"sync"
+	"time"
 
 	"cloud.google.com/go/firestore"
 	"google.golang.org/grpc/codes"
@@ -27,11 +28,21 @@ const (
 // replace is true, the list of ex, in one transaction (D-227, D-234). It
 // gives ErrConflict, and writes nothing, when the stored exclusions do
 // not have the revision of ex. A new list gets the next revision.
+//
+// Update reads the plan, gives it to change, and writes the result, in
+// one transaction (D-292). It gives ErrPlanReplaced, and writes
+// nothing, when the user has no plan or the plan has another CreatedAt,
+// because a new plan replaced it. An error of change writes nothing.
 type Store interface {
 	Get(ctx context.Context, uid string) (Plan, bool, error)
 	Exclusions(ctx context.Context, uid string) (Exclusions, error)
 	Save(ctx context.Context, uid string, p Plan, ex Exclusions, replace bool) error
+	Update(ctx context.Context, uid string, createdAt time.Time, change func(*Plan) error) error
 }
+
+// ErrPlanReplaced is an update of a plan that a new plan replaced, or
+// of a user with no plan.
+var ErrPlanReplaced = errors.New("plan: a new plan replaced the plan")
 
 var errUID = errors.New("plan: a uid of 1 or more characters with no slash is required")
 
@@ -92,6 +103,25 @@ func (s *Memory) Save(_ context.Context, uid string, p Plan, ex Exclusions, repl
 		s.exclusions[uid] = next
 	}
 	s.plans[uid] = p.clone()
+	return nil
+}
+
+// Update changes the plan of the uid under the lock of the store.
+func (s *Memory) Update(_ context.Context, uid string, createdAt time.Time, change func(*Plan) error) error {
+	if err := checkUID(uid); err != nil {
+		return err
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	p, ok := s.plans[uid]
+	if !ok || !p.CreatedAt.Equal(createdAt) {
+		return ErrPlanReplaced
+	}
+	next := p.clone()
+	if err := change(&next); err != nil {
+		return err
+	}
+	s.plans[uid] = next.clone()
 	return nil
 }
 
@@ -166,6 +196,38 @@ func (s *Firestore) Save(ctx context.Context, uid string, p Plan, ex Exclusions,
 			}
 		}
 		return tx.Set(planRef, encodePlan(p))
+	})
+}
+
+// Update runs one transaction: it reads the plan, changes it, and
+// writes it. Firestore runs the function again when another
+// transaction changes the plan first, so change must have no other
+// effect.
+func (s *Firestore) Update(ctx context.Context, uid string, createdAt time.Time, change func(*Plan) error) error {
+	if err := checkUID(uid); err != nil {
+		return err
+	}
+	ref := s.planRef(uid)
+	return s.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		snap, err := tx.Get(ref)
+		if status.Code(err) == codes.NotFound {
+			return ErrPlanReplaced
+		}
+		if err != nil {
+			return err
+		}
+		var d planDoc
+		if err := snap.DataTo(&d); err != nil {
+			return err
+		}
+		p := d.plan()
+		if !p.CreatedAt.Equal(createdAt) {
+			return ErrPlanReplaced
+		}
+		if err := change(&p); err != nil {
+			return err
+		}
+		return tx.Set(ref, encodePlan(p))
 	})
 }
 

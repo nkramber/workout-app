@@ -40,6 +40,17 @@ type planDoc struct {
 	CatalogVersion    int64         `firestore:"catalog_version"`
 	BodyTablesVersion int64         `firestore:"body_tables_version"`
 	Attempts          int64         `firestore:"attempts"`
+	Revisions         int64         `firestore:"revisions"`
+	LastRevision      *revisionDoc  `firestore:"last_revision"`
+	RevisedWorkouts   []string      `firestore:"revised_workouts"`
+}
+
+// revisionDoc is the last revision of a plan. A plan of an older
+// version has none.
+type revisionDoc struct {
+	WorkoutID string    `firestore:"workout_id"`
+	At        time.Time `firestore:"at"`
+	Exercises []string  `firestore:"exercise_ids"`
 }
 
 type filteredDoc struct {
@@ -61,10 +72,12 @@ type cardioDoc struct {
 }
 
 type exerciseDoc struct {
-	Target      targetDoc        `firestore:"target"`
-	Reason      string           `firestore:"reason"`
-	Record      recordDoc        `firestore:"record"`
-	Calibration []calibrationDoc `firestore:"calibration_loads"`
+	Target       targetDoc        `firestore:"target"`
+	Reason       string           `firestore:"reason"`
+	Record       recordDoc        `firestore:"record"`
+	Calibration  []calibrationDoc `firestore:"calibration_loads"`
+	ReasonSource string           `firestore:"reason_source"`
+	ReasonCause  string           `firestore:"reason_cause"`
 }
 
 // calibrationDoc is one row of the table of D-267. A plan of policy
@@ -152,6 +165,10 @@ func encodePlan(p Plan) planDoc {
 		Model: p.Model, Effort: p.Effort, PromptVersion: p.PromptVersion, PromptHash: p.PromptHash, SchemaName: p.SchemaName,
 		PolicyVersion: int64(p.PolicyVersion), FilterVersion: int64(p.FilterVersion), GuidanceVersion: int64(p.GuidanceVersion),
 		CatalogVersion: int64(p.CatalogVersion), BodyTablesVersion: int64(p.BodyTablesVersion), Attempts: int64(p.Attempts),
+		Revisions: int64(p.Revisions), RevisedWorkouts: strs(p.RevisedWorkouts),
+	}
+	if r := p.LastRevision; r != nil {
+		d.LastRevision = &revisionDoc{WorkoutID: r.WorkoutID, At: r.At.UTC(), Exercises: strs(r.Exercises)}
 	}
 	for _, f := range p.Filtered {
 		d.Filtered = append(d.Filtered, filteredDoc{f.Where, string(f.Rule)})
@@ -159,7 +176,7 @@ func encodePlan(p Plan) planDoc {
 	for _, s := range p.Sessions {
 		sd := sessionDoc{Title: s.Title, WarmUp: string(s.WarmUp), CoolDown: string(s.CoolDown), Exercises: []exerciseDoc{}}
 		for _, e := range s.Exercises {
-			sd.Exercises = append(sd.Exercises, exerciseDoc{encodeTarget(e.Target), e.Reason, encodeRecord(e.Record), encodeCalibration(e.Calibration)})
+			sd.Exercises = append(sd.Exercises, exerciseDoc{encodeTarget(e.Target), e.Reason, encodeRecord(e.Record), encodeCalibration(e.Calibration), string(e.ReasonSource), e.ReasonCause})
 		}
 		if c := s.Cardio; c != nil {
 			sd.Cardio = &cardioDoc{string(c.Exercise), int64(c.Minutes)}
@@ -175,6 +192,10 @@ func (d planDoc) plan() Plan {
 		Model: d.Model, Effort: d.Effort, PromptVersion: d.PromptVersion, PromptHash: d.PromptHash, SchemaName: d.SchemaName,
 		PolicyVersion: int(d.PolicyVersion), FilterVersion: int(d.FilterVersion), GuidanceVersion: int(d.GuidanceVersion),
 		CatalogVersion: int(d.CatalogVersion), BodyTablesVersion: int(d.BodyTablesVersion), Attempts: int(d.Attempts),
+		Revisions: int(d.Revisions), RevisedWorkouts: ids[string](d.RevisedWorkouts),
+	}
+	if r := d.LastRevision; r != nil {
+		p.LastRevision = &Revision{WorkoutID: r.WorkoutID, At: r.At.UTC(), Exercises: ids[domain.ExerciseID](r.Exercises)}
 	}
 	for _, f := range d.Filtered {
 		p.Filtered = append(p.Filtered, ai.Filtered{Where: f.Where, Rule: ai.FilterRule(f.Rule)})
@@ -182,7 +203,7 @@ func (d planDoc) plan() Plan {
 	for _, sd := range d.Sessions {
 		s := Session{Title: sd.Title, WarmUp: ai.GuidanceID(sd.WarmUp), CoolDown: ai.GuidanceID(sd.CoolDown)}
 		for _, e := range sd.Exercises {
-			s.Exercises = append(s.Exercises, Exercise{e.Target.target(), e.Reason, e.Record.record(), decodeCalibration(e.Calibration)})
+			s.Exercises = append(s.Exercises, Exercise{e.Target.target(), e.Reason, e.Record.record(), decodeCalibration(e.Calibration), policy.Source(e.ReasonSource), e.ReasonCause})
 		}
 		if c := sd.Cardio; c != nil {
 			s.Cardio = &domain.PlannedCardio{Exercise: idOf(c.Exercise), Minutes: int(c.Minutes)}

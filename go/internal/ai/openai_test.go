@@ -31,7 +31,7 @@ func server(t *testing.T, status int, body string, check func(r *http.Request, b
 }
 
 func testCall(t *testing.T) Call {
-	input, err := userInput(request(t))
+	input, err := userInput(RolePlanner, request(t))
 	if err != nil {
 		t.Fatal(err)
 	}

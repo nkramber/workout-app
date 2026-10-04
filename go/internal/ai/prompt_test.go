@@ -12,7 +12,9 @@ import (
 
 // TestInstructions: the instructions state the boundary of D-36 with
 // the dated copy of the usage policies of D-93, the limits of the text
-// of Luna, each guidance item, and each rule of the policy.
+// of Luna, and each rule of the policy. The planner instructions hold
+// each guidance item, and the reviser instructions hold none, because
+// the reviser writes the reason alone (D-288).
 func TestInstructions(t *testing.T) {
 	for _, r := range Roles() {
 		text := Instructions(r)
@@ -21,15 +23,19 @@ func TestInstructions(t *testing.T) {
 			"Do not diagnose, treat, or prescribe rehabilitation",
 			"no medical, emergency, diet, or weight-loss advice",
 			"printed 2025-11-07 and effective 2025-10-29",
-			"280 characters", "160 characters", "Write no other text",
+			"160 characters", "Write no other text",
 		} {
 			if !strings.Contains(text, want) {
 				t.Errorf("%s: no %q", r.Name, want)
 			}
 		}
+		planner := r.Name == RolePlanner
+		if strings.Contains(text, "280 characters") != planner {
+			t.Errorf("%s: the summary limit: want it for the planner alone", r.Name)
+		}
 		for _, g := range Guidance() {
-			if !strings.Contains(text, string(g.ID)) {
-				t.Errorf("%s: no guidance item %q", r.Name, g.ID)
+			if strings.Contains(text, string(g.ID)) != planner {
+				t.Errorf("%s: guidance item %q: want it for the planner alone", r.Name, g.ID)
 			}
 		}
 		for _, p := range policy.Rules() {

@@ -280,6 +280,7 @@ type workoutDoc struct {
 	Finished   bool             `firestore:"finished"`
 	Exercises  []exerciseDoc    `firestore:"exercises"`
 	Cardio     []cardioDoc      `firestore:"cardio"`
+	Targets    []targetDoc      `firestore:"targets"`
 	Versions   map[string]int64 `firestore:"versions"`
 	UpdatedAt  time.Time        `firestore:"updated_at"`
 }
@@ -287,6 +288,52 @@ type workoutDoc struct {
 type planDoc struct {
 	CreatedAt    time.Time `firestore:"created_at"`
 	SessionIndex int64     `firestore:"session_index"`
+}
+
+// targetDoc is the copy of the target that the owner saw (D-291), in
+// the form of the plan document. A calibration set stores an RIR of 0
+// (D-150). A workout of an older phone has none.
+type targetDoc struct {
+	Exercise    string      `firestore:"exercise_id"`
+	Rest        int64       `firestore:"rest_seconds"`
+	Calibration []targetSet `firestore:"calibration_sets"`
+	Working     []targetSet `firestore:"working_sets"`
+}
+
+type targetSet struct {
+	Reps int64 `firestore:"reps"`
+	Load int64 `firestore:"load_tenth_lb"`
+	RIR  int64 `firestore:"rir_target"`
+}
+
+func encodeTargets(in []domain.PlannedExercise) []targetDoc {
+	out := make([]targetDoc, 0, len(in))
+	for _, t := range in {
+		d := targetDoc{Exercise: string(t.Exercise), Rest: int64(t.RestSeconds), Calibration: []targetSet{}, Working: []targetSet{}}
+		for _, c := range t.Calibration {
+			d.Calibration = append(d.Calibration, targetSet{Reps: int64(c.Reps), Load: int64(c.Load)})
+		}
+		for _, w := range t.Working {
+			d.Working = append(d.Working, targetSet{int64(w.Reps), int64(w.Load), int64(w.RIR)})
+		}
+		out = append(out, d)
+	}
+	return out
+}
+
+func decodeTargets(in []targetDoc) []domain.PlannedExercise {
+	var out []domain.PlannedExercise
+	for _, d := range in {
+		t := domain.PlannedExercise{Exercise: domain.ExerciseID(d.Exercise), RestSeconds: int(d.Rest)}
+		for _, c := range d.Calibration {
+			t.Calibration = append(t.Calibration, domain.CalibrationSet{Reps: int(c.Reps), Load: domain.Load(c.Load)})
+		}
+		for _, w := range d.Working {
+			t.Working = append(t.Working, domain.WorkingSet{Reps: int(w.Reps), Load: domain.Load(w.Load), RIR: int(w.RIR)})
+		}
+		out = append(out, t)
+	}
+	return out
 }
 
 type exerciseDoc struct {
@@ -327,6 +374,7 @@ func encodeWorkout(w Workout, now time.Time) workoutDoc {
 		Finished:   w.Finished,
 		Exercises:  []exerciseDoc{},
 		Cardio:     []cardioDoc{},
+		Targets:    encodeTargets(w.Targets),
 		Versions:   w.Versions,
 		UpdatedAt:  now,
 	}
@@ -361,6 +409,7 @@ func (d workoutDoc) workout(id string) Workout {
 			Plan:       PlanLink{PlanCreatedAt: d.Plan.CreatedAt.UTC(), SessionIndex: int(d.Plan.SessionIndex)},
 			EndedEarly: d.EndedEarly,
 			Finished:   d.Finished,
+			Targets:    decodeTargets(d.Targets),
 		},
 		Versions: map[string]int64{},
 	}

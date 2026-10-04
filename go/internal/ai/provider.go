@@ -4,8 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"strconv"
 	"sync"
 	"time"
+
+	"github.com/nkramber/workout-app/go/internal/domain"
 )
 
 // Call is one request to a provider: the role, the instructions, the
@@ -96,6 +100,9 @@ func EchoReply(c Call) (Reply, error) {
 	if err := json.Unmarshal(c.Input, &in); err != nil {
 		return Reply{}, errors.New("fake: the input is not the JSON of the layer")
 	}
+	if c.SchemaName == ReasonSchemaName {
+		return echoReasons(c, in), nil
+	}
 	type exercise struct {
 		ID          string        `json:"exercise_id"`
 		Rest        int           `json:"rest_seconds"`
@@ -129,9 +136,50 @@ func EchoReply(c Call) (Reply, error) {
 		}
 		out.Sessions = append(out.Sessions, s)
 	}
-	text := string(encode(out))
+	return echoText(c, encode(out)), nil
+}
+
+func echoText(c Call, out []byte) Reply {
+	text := string(out)
 	return Reply{Text: text, Usage: Usage{
 		InputTokens:  int64(len(c.Instructions)+len(c.Input)) / 4,
 		OutputTokens: int64(len(text)) / 4,
-	}}, nil
+	}}
+}
+
+// EchoReason gives the reason of the fake reviser for the first working
+// set of the last session: "Set 1: 12 reps at 25 lb, 1 in reserve." It
+// names that set, so the check of D-288 accepts it.
+func EchoReason(reps int, weightLb float64, rir int) string {
+	return fmt.Sprintf("Set 1: %d reps at %s lb, %d in reserve.", reps, strconv.FormatFloat(weightLb, 'f', -1, 64), rir)
+}
+
+// echoReasons gives a valid reviser output: for each exercise whose last
+// session has a working set, the reason of EchoReason. An exercise with
+// no such set gets no reason, so the reason of the rules shows.
+func echoReasons(c Call, in wireInput) Reply {
+	type set struct {
+		Kind   string `json:"kind"`
+		Number int    `json:"number"`
+	}
+	type reason struct {
+		ID     string `json:"exercise_id"`
+		Sets   []set  `json:"logged_sets"`
+		Reason string `json:"reason"`
+	}
+	out := struct {
+		Reasons []reason `json:"reasons"`
+	}{Reasons: []reason{}}
+	for _, e := range in.Exercises {
+		if len(e.History) == 0 {
+			continue
+		}
+		for _, s := range e.History[len(e.History)-1].Sets {
+			if s.Kind == string(domain.SetWorking) && s.Number == 1 {
+				out.Reasons = append(out.Reasons, reason{e.ID, []set{{s.Kind, 1}}, EchoReason(s.Reps, s.Weight, s.RIR)})
+				break
+			}
+		}
+	}
+	return echoText(c, encode(out))
 }

@@ -6,13 +6,15 @@ import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobu
 import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import type { DumbbellSet, Estimate } from "./inventory_service_pb";
 import { file_workoutapp_v1_inventory_service } from "./inventory_service_pb";
+import type { PlannedSet } from "./plan_service_pb";
+import { file_workoutapp_v1_plan_service } from "./plan_service_pb";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file workoutapp/v1/workout_service.proto.
  */
 export const file_workoutapp_v1_workout_service: GenFile = /*@__PURE__*/
-  fileDesc("CiN3b3Jrb3V0YXBwL3YxL3dvcmtvdXRfc2VydmljZS5wcm90bxINd29ya291dGFwcC52MSKRBAoLT3V0Ym94RW50cnkSDQoFb3BfaWQYASABKAkSDgoGZW50aXR5GAIgASgJEhEKCWVudGl0eV9pZBgDIAEoCRIUCgxiYXNlX3ZlcnNpb24YBCABKAMSCgoCYXQYBSABKAkSFgoOc2NoZW1hX3ZlcnNpb24YBiABKAUSLwoHd29ya291dBgHIAEoCzIcLndvcmtvdXRhcHAudjEuV29ya291dEhlYWRlckgAEiYKA3NldBgIIAEoCzIXLndvcmtvdXRhcHAudjEuU2V0RW50cnlIABIsCgZjYXJkaW8YCSABKAsyGi53b3Jrb3V0YXBwLnYxLkNhcmRpb0VudHJ5SAASMgoMc2F2ZV9tYWNoaW5lGAogASgLMhoud29ya291dGFwcC52MS5NYWNoaW5lU2F2ZUgAEjgKD2NvbmZpcm1fbWFjaGluZRgLIAEoCzIdLndvcmtvdXRhcHAudjEuTWFjaGluZUNvbmZpcm1IABI2Cg5yZW1vdmVfbWFjaGluZRgMIAEoCzIcLndvcmtvdXRhcHAudjEuTWFjaGluZVJlbW92ZUgAEiwKCXNhdmVfbm90ZRgNIAEoCzIXLndvcmtvdXRhcHAudjEuTm90ZVNhdmVIABIwCgtyZW1vdmVfbm90ZRgOIAEoCzIZLndvcmtvdXRhcHAudjEuTm90ZVJlbW92ZUgAQgkKB3BheWxvYWQiggEKC01hY2hpbmVTYXZlEhgKEHdlaWdodHNfdGVudGhfbGIYASADKAUSLQoJZHVtYmJlbGxzGAIgASgLMhoud29ya291dGFwcC52MS5EdW1iYmVsbFNldBIqCgllc3RpbWF0ZXMYAyADKAsyFy53b3Jrb3V0YXBwLnYxLkVzdGltYXRlIlkKDk1hY2hpbmVDb25maXJtEhgKEHdlaWdodHNfdGVudGhfbGIYASADKAUSLQoJZHVtYmJlbGxzGAIgASgLMhoud29ya291dGFwcC52MS5EdW1iYmVsbFNldCIPCg1NYWNoaW5lUmVtb3ZlIhgKCE5vdGVTYXZlEgwKBHRleHQYASABKAkiDAoKTm90ZVJlbW92ZSI6CghQbGFuTGluaxIXCg9wbGFuX2NyZWF0ZWRfYXQYASABKAkSFQoNc2Vzc2lvbl9pbmRleBgCIAEoBSKJAQoNV29ya291dEhlYWRlchIMCgRkYXRlGAEgASgJEiUKBHBsYW4YAiABKAsyFy53b3Jrb3V0YXBwLnYxLlBsYW5MaW5rEhwKFHNraXBwZWRfZXhlcmNpc2VfaWRzGAMgAygJEhMKC2VuZGVkX2Vhcmx5GAQgASgIEhAKCGZpbmlzaGVkGAUgASgIIqABCghTZXRFbnRyeRISCgp3b3Jrb3V0X2lkGAEgASgJEhMKC2V4ZXJjaXNlX2lkGAIgASgJEgwKBGtpbmQYAyABKAkSDAoEcmVwcxgEIAEoBRIYChB3ZWlnaHRfdGVudGhzX2xiGAUgASgDEgsKA3JpchgGIAEoBRIRCgRwYWluGAcgASgFSACIAQESDAoEbm90ZRgIIAEoCUIHCgVfcGFpbiLqAQoLQ2FyZGlvRW50cnkSEgoKd29ya291dF9pZBgBIAEoCRITCgtleGVyY2lzZV9pZBgCIAEoCRIYChBkdXJhdGlvbl9zZWNvbmRzGAMgASgFEg4KBmVmZm9ydBgEIAEoBRIfChJkaXN0YW5jZV90ZW50aHNfbWkYBSABKAVIAIgBARIXCgpyZXNpc3RhbmNlGAYgASgFSAGIAQESEQoEcGFpbhgHIAEoBUgCiAEBEgwKBG5vdGUYCCABKAlCFQoTX2Rpc3RhbmNlX3RlbnRoc19taUINCgtfcmVzaXN0YW5jZUIHCgVfcGFpbiLJAQoLRW50cnlSZXN1bHQSDQoFb3BfaWQYASABKAkSMQoGc3RhdHVzGAIgASgOMiEud29ya291dGFwcC52MS5FbnRyeVJlc3VsdC5TdGF0dXMSDwoHdmVyc2lvbhgDIAEoAxIMCgRjb2RlGAQgASgJEg8KB21lc3NhZ2UYBSABKAkiSAoGU3RhdHVzEhYKElNUQVRVU19VTlNQRUNJRklFRBAAEhIKDlNUQVRVU19BUFBMSUVEEAESEgoOU1RBVFVTX1JFRlVTRUQQAiJAChFTeW5jT3V0Ym94UmVxdWVzdBIrCgdlbnRyaWVzGAEgAygLMhoud29ya291dGFwcC52MS5PdXRib3hFbnRyeSJBChJTeW5jT3V0Ym94UmVzcG9uc2USKwoHcmVzdWx0cxgBIAMoCzIaLndvcmtvdXRhcHAudjEuRW50cnlSZXN1bHQiiAEKCUxvZ2dlZFNldBIOCgZzZXRfaWQYASABKAkSDAoEa2luZBgCIAEoCRIMCgRyZXBzGAMgASgFEhgKEHdlaWdodF90ZW50aHNfbGIYBCABKAMSCwoDcmlyGAUgASgFEhEKBHBhaW4YBiABKAVIAIgBARIMCgRub3RlGAcgASgJQgcKBV9wYWluIl4KDkxvZ2dlZEV4ZXJjaXNlEhMKC2V4ZXJjaXNlX2lkGAEgASgJEg8KB3NraXBwZWQYAiABKAgSJgoEc2V0cxgDIAMoCzIYLndvcmtvdXRhcHAudjEuTG9nZ2VkU2V0IuoBCgxMb2dnZWRDYXJkaW8SEQoJY2FyZGlvX2lkGAEgASgJEhMKC2V4ZXJjaXNlX2lkGAIgASgJEhgKEGR1cmF0aW9uX3NlY29uZHMYAyABKAUSDgoGZWZmb3J0GAQgASgFEh8KEmRpc3RhbmNlX3RlbnRoc19taRgFIAEoBUgAiAEBEhcKCnJlc2lzdGFuY2UYBiABKAVIAYgBARIRCgRwYWluGAcgASgFSAKIAQESDAoEbm90ZRgIIAEoCUIVChNfZGlzdGFuY2VfdGVudGhzX21pQg0KC19yZXNpc3RhbmNlQgcKBV9wYWluItgBCgdXb3Jrb3V0EhIKCndvcmtvdXRfaWQYASABKAkSDAoEZGF0ZRgCIAEoCRIlCgRwbGFuGAMgASgLMhcud29ya291dGFwcC52MS5QbGFuTGluaxITCgtlbmRlZF9lYXJseRgEIAEoCBIQCghmaW5pc2hlZBgFIAEoCBIwCglleGVyY2lzZXMYBiADKAsyHS53b3Jrb3V0YXBwLnYxLkxvZ2dlZEV4ZXJjaXNlEisKBmNhcmRpbxgHIAMoCzIbLndvcmtvdXRhcHAudjEuTG9nZ2VkQ2FyZGlvIjgKE0xpc3RXb3Jrb3V0c1JlcXVlc3QSDQoFbGltaXQYASABKAUSEgoKcGFnZV90b2tlbhgCIAEoCSJZChRMaXN0V29ya291dHNSZXNwb25zZRIoCgh3b3Jrb3V0cxgBIAMoCzIWLndvcmtvdXRhcHAudjEuV29ya291dBIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkywAEKDldvcmtvdXRTZXJ2aWNlElMKClN5bmNPdXRib3gSIC53b3Jrb3V0YXBwLnYxLlN5bmNPdXRib3hSZXF1ZXN0GiEud29ya291dGFwcC52MS5TeW5jT3V0Ym94UmVzcG9uc2UiABJZCgxMaXN0V29ya291dHMSIi53b3Jrb3V0YXBwLnYxLkxpc3RXb3Jrb3V0c1JlcXVlc3QaIy53b3Jrb3V0YXBwLnYxLkxpc3RXb3Jrb3V0c1Jlc3BvbnNlIgBCQ1pBZ2l0aHViLmNvbS9ua3JhbWJlci93b3Jrb3V0LWFwcC9nby9nZW4vd29ya291dGFwcC92MTt3b3Jrb3V0YXBwdjFiBnByb3RvMw", [file_workoutapp_v1_inventory_service]);
+  fileDesc("CiN3b3Jrb3V0YXBwL3YxL3dvcmtvdXRfc2VydmljZS5wcm90bxINd29ya291dGFwcC52MSKRBAoLT3V0Ym94RW50cnkSDQoFb3BfaWQYASABKAkSDgoGZW50aXR5GAIgASgJEhEKCWVudGl0eV9pZBgDIAEoCRIUCgxiYXNlX3ZlcnNpb24YBCABKAMSCgoCYXQYBSABKAkSFgoOc2NoZW1hX3ZlcnNpb24YBiABKAUSLwoHd29ya291dBgHIAEoCzIcLndvcmtvdXRhcHAudjEuV29ya291dEhlYWRlckgAEiYKA3NldBgIIAEoCzIXLndvcmtvdXRhcHAudjEuU2V0RW50cnlIABIsCgZjYXJkaW8YCSABKAsyGi53b3Jrb3V0YXBwLnYxLkNhcmRpb0VudHJ5SAASMgoMc2F2ZV9tYWNoaW5lGAogASgLMhoud29ya291dGFwcC52MS5NYWNoaW5lU2F2ZUgAEjgKD2NvbmZpcm1fbWFjaGluZRgLIAEoCzIdLndvcmtvdXRhcHAudjEuTWFjaGluZUNvbmZpcm1IABI2Cg5yZW1vdmVfbWFjaGluZRgMIAEoCzIcLndvcmtvdXRhcHAudjEuTWFjaGluZVJlbW92ZUgAEiwKCXNhdmVfbm90ZRgNIAEoCzIXLndvcmtvdXRhcHAudjEuTm90ZVNhdmVIABIwCgtyZW1vdmVfbm90ZRgOIAEoCzIZLndvcmtvdXRhcHAudjEuTm90ZVJlbW92ZUgAQgkKB3BheWxvYWQiggEKC01hY2hpbmVTYXZlEhgKEHdlaWdodHNfdGVudGhfbGIYASADKAUSLQoJZHVtYmJlbGxzGAIgASgLMhoud29ya291dGFwcC52MS5EdW1iYmVsbFNldBIqCgllc3RpbWF0ZXMYAyADKAsyFy53b3Jrb3V0YXBwLnYxLkVzdGltYXRlIlkKDk1hY2hpbmVDb25maXJtEhgKEHdlaWdodHNfdGVudGhfbGIYASADKAUSLQoJZHVtYmJlbGxzGAIgASgLMhoud29ya291dGFwcC52MS5EdW1iYmVsbFNldCIPCg1NYWNoaW5lUmVtb3ZlIhgKCE5vdGVTYXZlEgwKBHRleHQYASABKAkiDAoKTm90ZVJlbW92ZSI6CghQbGFuTGluaxIXCg9wbGFuX2NyZWF0ZWRfYXQYASABKAkSFQoNc2Vzc2lvbl9pbmRleBgCIAEoBSK1AQoNV29ya291dEhlYWRlchIMCgRkYXRlGAEgASgJEiUKBHBsYW4YAiABKAsyFy53b3Jrb3V0YXBwLnYxLlBsYW5MaW5rEhwKFHNraXBwZWRfZXhlcmNpc2VfaWRzGAMgAygJEhMKC2VuZGVkX2Vhcmx5GAQgASgIEhAKCGZpbmlzaGVkGAUgASgIEioKB3RhcmdldHMYBiADKAsyGS53b3Jrb3V0YXBwLnYxLlNlZW5UYXJnZXQinQEKClNlZW5UYXJnZXQSEwoLZXhlcmNpc2VfaWQYASABKAkSFAoMcmVzdF9zZWNvbmRzGAIgASgFEjMKEGNhbGlicmF0aW9uX3NldHMYAyADKAsyGS53b3Jrb3V0YXBwLnYxLlBsYW5uZWRTZXQSLwoMd29ya2luZ19zZXRzGAQgAygLMhkud29ya291dGFwcC52MS5QbGFubmVkU2V0IqABCghTZXRFbnRyeRISCgp3b3Jrb3V0X2lkGAEgASgJEhMKC2V4ZXJjaXNlX2lkGAIgASgJEgwKBGtpbmQYAyABKAkSDAoEcmVwcxgEIAEoBRIYChB3ZWlnaHRfdGVudGhzX2xiGAUgASgDEgsKA3JpchgGIAEoBRIRCgRwYWluGAcgASgFSACIAQESDAoEbm90ZRgIIAEoCUIHCgVfcGFpbiLqAQoLQ2FyZGlvRW50cnkSEgoKd29ya291dF9pZBgBIAEoCRITCgtleGVyY2lzZV9pZBgCIAEoCRIYChBkdXJhdGlvbl9zZWNvbmRzGAMgASgFEg4KBmVmZm9ydBgEIAEoBRIfChJkaXN0YW5jZV90ZW50aHNfbWkYBSABKAVIAIgBARIXCgpyZXNpc3RhbmNlGAYgASgFSAGIAQESEQoEcGFpbhgHIAEoBUgCiAEBEgwKBG5vdGUYCCABKAlCFQoTX2Rpc3RhbmNlX3RlbnRoc19taUINCgtfcmVzaXN0YW5jZUIHCgVfcGFpbiLJAQoLRW50cnlSZXN1bHQSDQoFb3BfaWQYASABKAkSMQoGc3RhdHVzGAIgASgOMiEud29ya291dGFwcC52MS5FbnRyeVJlc3VsdC5TdGF0dXMSDwoHdmVyc2lvbhgDIAEoAxIMCgRjb2RlGAQgASgJEg8KB21lc3NhZ2UYBSABKAkiSAoGU3RhdHVzEhYKElNUQVRVU19VTlNQRUNJRklFRBAAEhIKDlNUQVRVU19BUFBMSUVEEAESEgoOU1RBVFVTX1JFRlVTRUQQAiJAChFTeW5jT3V0Ym94UmVxdWVzdBIrCgdlbnRyaWVzGAEgAygLMhoud29ya291dGFwcC52MS5PdXRib3hFbnRyeSJBChJTeW5jT3V0Ym94UmVzcG9uc2USKwoHcmVzdWx0cxgBIAMoCzIaLndvcmtvdXRhcHAudjEuRW50cnlSZXN1bHQiiAEKCUxvZ2dlZFNldBIOCgZzZXRfaWQYASABKAkSDAoEa2luZBgCIAEoCRIMCgRyZXBzGAMgASgFEhgKEHdlaWdodF90ZW50aHNfbGIYBCABKAMSCwoDcmlyGAUgASgFEhEKBHBhaW4YBiABKAVIAIgBARIMCgRub3RlGAcgASgJQgcKBV9wYWluIl4KDkxvZ2dlZEV4ZXJjaXNlEhMKC2V4ZXJjaXNlX2lkGAEgASgJEg8KB3NraXBwZWQYAiABKAgSJgoEc2V0cxgDIAMoCzIYLndvcmtvdXRhcHAudjEuTG9nZ2VkU2V0IuoBCgxMb2dnZWRDYXJkaW8SEQoJY2FyZGlvX2lkGAEgASgJEhMKC2V4ZXJjaXNlX2lkGAIgASgJEhgKEGR1cmF0aW9uX3NlY29uZHMYAyABKAUSDgoGZWZmb3J0GAQgASgFEh8KEmRpc3RhbmNlX3RlbnRoc19taRgFIAEoBUgAiAEBEhcKCnJlc2lzdGFuY2UYBiABKAVIAYgBARIRCgRwYWluGAcgASgFSAKIAQESDAoEbm90ZRgIIAEoCUIVChNfZGlzdGFuY2VfdGVudGhzX21pQg0KC19yZXNpc3RhbmNlQgcKBV9wYWluIoQCCgdXb3Jrb3V0EhIKCndvcmtvdXRfaWQYASABKAkSDAoEZGF0ZRgCIAEoCRIlCgRwbGFuGAMgASgLMhcud29ya291dGFwcC52MS5QbGFuTGluaxITCgtlbmRlZF9lYXJseRgEIAEoCBIQCghmaW5pc2hlZBgFIAEoCBIwCglleGVyY2lzZXMYBiADKAsyHS53b3Jrb3V0YXBwLnYxLkxvZ2dlZEV4ZXJjaXNlEisKBmNhcmRpbxgHIAMoCzIbLndvcmtvdXRhcHAudjEuTG9nZ2VkQ2FyZGlvEioKB3RhcmdldHMYCCADKAsyGS53b3Jrb3V0YXBwLnYxLlNlZW5UYXJnZXQiOAoTTGlzdFdvcmtvdXRzUmVxdWVzdBINCgVsaW1pdBgBIAEoBRISCgpwYWdlX3Rva2VuGAIgASgJIlkKFExpc3RXb3Jrb3V0c1Jlc3BvbnNlEigKCHdvcmtvdXRzGAEgAygLMhYud29ya291dGFwcC52MS5Xb3Jrb3V0EhcKD25leHRfcGFnZV90b2tlbhgCIAEoCTLAAQoOV29ya291dFNlcnZpY2USUwoKU3luY091dGJveBIgLndvcmtvdXRhcHAudjEuU3luY091dGJveFJlcXVlc3QaIS53b3Jrb3V0YXBwLnYxLlN5bmNPdXRib3hSZXNwb25zZSIAElkKDExpc3RXb3Jrb3V0cxIiLndvcmtvdXRhcHAudjEuTGlzdFdvcmtvdXRzUmVxdWVzdBojLndvcmtvdXRhcHAudjEuTGlzdFdvcmtvdXRzUmVzcG9uc2UiAEJDWkFnaXRodWIuY29tL25rcmFtYmVyL3dvcmtvdXQtYXBwL2dvL2dlbi93b3Jrb3V0YXBwL3YxO3dvcmtvdXRhcHB2MWIGcHJvdG8z", [file_workoutapp_v1_inventory_service, file_workoutapp_v1_plan_service]);
 
 /**
  * OutboxEntry is one entry of the outbox of the phone, in the form of D-132.
@@ -329,6 +331,16 @@ export type WorkoutHeader = Message<"workoutapp.v1.WorkoutHeader"> & {
    * @generated from field: bool finished = 5;
    */
   finished: boolean;
+
+  /**
+   * The target of each exercise of the workout that the owner saw at the
+   * start, one for each exercise (D-291). The server refuses a skip or a set
+   * of an exercise with no target here, when the list is not empty. An
+   * older phone gives no target.
+   *
+   * @generated from field: repeated workoutapp.v1.SeenTarget targets = 6;
+   */
+  targets: SeenTarget[];
 };
 
 /**
@@ -337,6 +349,44 @@ export type WorkoutHeader = Message<"workoutapp.v1.WorkoutHeader"> & {
  */
 export const WorkoutHeaderSchema: GenMessage<WorkoutHeader> = /*@__PURE__*/
   messageDesc(file_workoutapp_v1_workout_service, 7);
+
+/**
+ * SeenTarget is the target of one exercise that the owner saw at the start
+ * of a workout, as the plan gave it (D-291). A load is a whole number of
+ * tenths of a pound.
+ *
+ * @generated from message workoutapp.v1.SeenTarget
+ */
+export type SeenTarget = Message<"workoutapp.v1.SeenTarget"> & {
+  /**
+   * An exercise of the catalog that is not a cardio exercise.
+   *
+   * @generated from field: string exercise_id = 1;
+   */
+  exerciseId: string;
+
+  /**
+   * @generated from field: int32 rest_seconds = 2;
+   */
+  restSeconds: number;
+
+  /**
+   * @generated from field: repeated workoutapp.v1.PlannedSet calibration_sets = 3;
+   */
+  calibrationSets: PlannedSet[];
+
+  /**
+   * @generated from field: repeated workoutapp.v1.PlannedSet working_sets = 4;
+   */
+  workingSets: PlannedSet[];
+};
+
+/**
+ * Describes the message workoutapp.v1.SeenTarget.
+ * Use `create(SeenTargetSchema)` to create a new message.
+ */
+export const SeenTargetSchema: GenMessage<SeenTarget> = /*@__PURE__*/
+  messageDesc(file_workoutapp_v1_workout_service, 8);
 
 /**
  * SetEntry is the state of one logged set (D-57, D-164, D-249). The entity
@@ -406,7 +456,7 @@ export type SetEntry = Message<"workoutapp.v1.SetEntry"> & {
  * Use `create(SetEntrySchema)` to create a new message.
  */
 export const SetEntrySchema: GenMessage<SetEntry> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 8);
+  messageDesc(file_workoutapp_v1_workout_service, 9);
 
 /**
  * CardioEntry is the state of one cardio log (D-123). The entity id of its
@@ -476,7 +526,7 @@ export type CardioEntry = Message<"workoutapp.v1.CardioEntry"> & {
  * Use `create(CardioEntrySchema)` to create a new message.
  */
 export const CardioEntrySchema: GenMessage<CardioEntry> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 9);
+  messageDesc(file_workoutapp_v1_workout_service, 10);
 
 /**
  * EntryResult is the result of one entry.
@@ -525,7 +575,7 @@ export type EntryResult = Message<"workoutapp.v1.EntryResult"> & {
  * Use `create(EntryResultSchema)` to create a new message.
  */
 export const EntryResultSchema: GenMessage<EntryResult> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 10);
+  messageDesc(file_workoutapp_v1_workout_service, 11);
 
 /**
  * @generated from enum workoutapp.v1.EntryResult.Status
@@ -556,7 +606,7 @@ export enum EntryResult_Status {
  * Describes the enum workoutapp.v1.EntryResult.Status.
  */
 export const EntryResult_StatusSchema: GenEnum<EntryResult_Status> = /*@__PURE__*/
-  enumDesc(file_workoutapp_v1_workout_service, 10, 0);
+  enumDesc(file_workoutapp_v1_workout_service, 11, 0);
 
 /**
  * @generated from message workoutapp.v1.SyncOutboxRequest
@@ -573,7 +623,7 @@ export type SyncOutboxRequest = Message<"workoutapp.v1.SyncOutboxRequest"> & {
  * Use `create(SyncOutboxRequestSchema)` to create a new message.
  */
 export const SyncOutboxRequestSchema: GenMessage<SyncOutboxRequest> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 11);
+  messageDesc(file_workoutapp_v1_workout_service, 12);
 
 /**
  * @generated from message workoutapp.v1.SyncOutboxResponse
@@ -592,7 +642,7 @@ export type SyncOutboxResponse = Message<"workoutapp.v1.SyncOutboxResponse"> & {
  * Use `create(SyncOutboxResponseSchema)` to create a new message.
  */
 export const SyncOutboxResponseSchema: GenMessage<SyncOutboxResponse> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 12);
+  messageDesc(file_workoutapp_v1_workout_service, 13);
 
 /**
  * LoggedSet is one set of a logged exercise, in the order of its time.
@@ -641,7 +691,7 @@ export type LoggedSet = Message<"workoutapp.v1.LoggedSet"> & {
  * Use `create(LoggedSetSchema)` to create a new message.
  */
 export const LoggedSetSchema: GenMessage<LoggedSet> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 13);
+  messageDesc(file_workoutapp_v1_workout_service, 14);
 
 /**
  * LoggedExercise is the log of one exercise. A skipped exercise holds no set.
@@ -670,7 +720,7 @@ export type LoggedExercise = Message<"workoutapp.v1.LoggedExercise"> & {
  * Use `create(LoggedExerciseSchema)` to create a new message.
  */
 export const LoggedExerciseSchema: GenMessage<LoggedExercise> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 14);
+  messageDesc(file_workoutapp_v1_workout_service, 15);
 
 /**
  * LoggedCardio is one cardio log.
@@ -724,7 +774,7 @@ export type LoggedCardio = Message<"workoutapp.v1.LoggedCardio"> & {
  * Use `create(LoggedCardioSchema)` to create a new message.
  */
 export const LoggedCardioSchema: GenMessage<LoggedCardio> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 15);
+  messageDesc(file_workoutapp_v1_workout_service, 16);
 
 /**
  * Workout is one logged session, in the form of the session log of the
@@ -771,6 +821,14 @@ export type Workout = Message<"workoutapp.v1.Workout"> & {
    * @generated from field: repeated workoutapp.v1.LoggedCardio cardio = 7;
    */
   cardio: LoggedCardio[];
+
+  /**
+   * The targets that the owner saw (D-291), or none for a workout of an
+   * older phone.
+   *
+   * @generated from field: repeated workoutapp.v1.SeenTarget targets = 8;
+   */
+  targets: SeenTarget[];
 };
 
 /**
@@ -778,7 +836,7 @@ export type Workout = Message<"workoutapp.v1.Workout"> & {
  * Use `create(WorkoutSchema)` to create a new message.
  */
 export const WorkoutSchema: GenMessage<Workout> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 16);
+  messageDesc(file_workoutapp_v1_workout_service, 17);
 
 /**
  * @generated from message workoutapp.v1.ListWorkoutsRequest
@@ -804,7 +862,7 @@ export type ListWorkoutsRequest = Message<"workoutapp.v1.ListWorkoutsRequest"> &
  * Use `create(ListWorkoutsRequestSchema)` to create a new message.
  */
 export const ListWorkoutsRequestSchema: GenMessage<ListWorkoutsRequest> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 17);
+  messageDesc(file_workoutapp_v1_workout_service, 18);
 
 /**
  * @generated from message workoutapp.v1.ListWorkoutsResponse
@@ -828,7 +886,7 @@ export type ListWorkoutsResponse = Message<"workoutapp.v1.ListWorkoutsResponse">
  * Use `create(ListWorkoutsResponseSchema)` to create a new message.
  */
 export const ListWorkoutsResponseSchema: GenMessage<ListWorkoutsResponse> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_workout_service, 18);
+  messageDesc(file_workoutapp_v1_workout_service, 19);
 
 /**
  * WorkoutService holds the logged sessions of the caller (work areas 6.1 and
@@ -850,7 +908,11 @@ export const ListWorkoutsResponseSchema: GenMessage<ListWorkoutsResponse> = /*@_
 export const WorkoutService: GenService<{
   /**
    * SyncOutbox applies a batch of 1 to 100 outbox entries, in the order of
-   * the request (D-259). Each entry applies in its own transaction, so a
+   * the request (D-259). After the batch, the server revises the plan for
+   * each finished workout of the batch (D-292): the rules of the policy give
+   * the next target of each exercise that the workout logged, in each
+   * session of the plan that holds it (D-290). A failed revision does not
+   * change a result, and the plan keeps its targets. Each entry applies in its own transaction, so a
    * refused entry changes nothing, and the other entries still apply. The
    * response holds one result for each entry, in the same order. A batch of
    * more than 100 entries gives INVALID_ARGUMENT with no change.

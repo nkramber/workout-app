@@ -193,13 +193,14 @@ func TestResultCause(t *testing.T) {
 	}
 }
 
-// TestInstructionsV5: the instructions of prompt v5 state the cardio
+// TestInstructionsPlanner: the planner instructions state the cardio
 // rule of D-255, the bound of D-233, the rule of the free text, the
-// reason of a new exercise (D-262), and the retry rule.
-func TestInstructionsV5(t *testing.T) {
+// reason of a new exercise (D-262), and the retry rule. Prompt v6
+// changed the reviser alone (D-288).
+func TestInstructionsPlanner(t *testing.T) {
 	text := Instructions(Planner())
 	for _, s := range []string{
-		"Prompt luna-prompt-v5.",
+		"Prompt luna-prompt-v6.",
 		"Give each session 8 exercises with sets or fewer.",
 		"When the input has cardio exercises, end each session with 20 to 30 minutes of one of them.",
 		"When the input has no cardio exercise, set the cardio exercise_id of each session to \"\" and minutes to 0.",
@@ -209,6 +210,29 @@ func TestInstructionsV5(t *testing.T) {
 	} {
 		if !strings.Contains(text, s) {
 			t.Errorf("the instructions lack %q", s)
+		}
+	}
+}
+
+// TestInstructionsReviser: the reviser instructions give each target as
+// final, ask for the reason alone with the logged sets that it names,
+// and name the numbers that the reason can use (D-288).
+func TestInstructionsReviser(t *testing.T) {
+	text := Instructions(Reviser())
+	for _, s := range []string{
+		"Prompt luna-prompt-v6.",
+		"each target is final",
+		"never propose another target",
+		"logged_sets: each logged set of the last session that the reason names",
+		"Use only numbers of the input",
+	} {
+		if !strings.Contains(text, s) {
+			t.Errorf("the instructions lack %q", s)
+		}
+	}
+	for _, s := range []string{"previous_attempt", "policy_target is the target of the rules for the next session. Propose"} {
+		if strings.Contains(text, s) {
+			t.Errorf("the reviser instructions hold %q of the planner", s)
 		}
 	}
 }

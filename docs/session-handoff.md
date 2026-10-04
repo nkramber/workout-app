@@ -4,24 +4,30 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-04. Roadmap PR-34 of `docs/roadmaps/phase-7-adaptation-loop.md`, on branch `docs/pr-34-phase-7-roadmap`, from base `6274c19`.
+Date: 2026-10-04. Roadmap PR-35 of `docs/roadmaps/phase-7-adaptation-loop.md`, on branch `feat/pr-35-revision`, from base `96e2b1e`. The worktree is `/Volumes/SSD-1TB/workout-app-pr-35`.
 
-Before the work, the session read the deploy of `6274c19`. The build `deploy-web` `6fe91aa9` gave `SUCCESS`, and the live `/version.json` names `6274c19`. No build `deploy-api` ran, and the live `/version` still names `ee3b89b` (D-137).
+PR-34 changed only `docs/`, so its merge deployed nothing, and the session read no deploy.
 
-The owner applied "Update ready" on the iPhone. During a workout, the screen stayed on after a return with no tap, and no notice showed (D-285). The owner approved one live plan (D-212). It took 1 call of 0.0037 USD. It has policy version 5, with a rest of 60 seconds for each of its 16 exercises (D-279).
+The owner approved the milestone (D-12), and answered Q-302 to Q-304 (D-290 to D-292).
 
-The owner approved the milestone (D-12), and answered Q-300, Q-301, Q-202, and Q-194 (D-286 to D-289). The pull request holds:
+Finished work, not committed yet:
 
-- the focused roadmap of Phase 7, with the exit evidence of Phase 6 and the live plan,
-- work area 7.3, "Reviser evaluation", in the high-level roadmap (D-286),
-- the split into PR-35 to PR-37 (D-287), with the open questions Q-302 to Q-308,
-- the role of Luna in a revision: the reason alone (D-288), and the reactive deload in work area 7.2 (D-289).
+- The contract: the target copy `SeenTarget` in `WorkoutHeader` and `Workout`, and `PlanRevision` with `reason_source` in the plan. `make proto` ran.
+- The workout package and its store keep the target copy (D-291).
+- `policy.Revise` gives the decision record of a revised target.
+- The reviser of `go/internal/ai` writes the reason alone, with prompt `luna-prompt-v6`, the schema `luna_reason_v1`, and a time limit of 45 s (D-288, D-292).
+- The plan keeps its revisions, and `plan.Store` has `Update`.
+- The new package `go/internal/revise` reads the history, gives the targets of the rules, calls the reviser, and checks each reason.
 
-Codex review: Ready for owner merge for effective head `d7ebdcaa2d8995f68124865308906d2081ae24c6`. No open findings. The review record is `docs/reviews/pr-35.md`.
+Open work:
 
-Next action: ask the owner to confirm the merge.
+- The unit tests of `go/internal/revise`, and the call of the revision in `SyncOutbox`, with the wiring in `go/cmd/api/main.go`.
+- `plansvc` gives `last_revision` and `reason_source`. `go/cmd/lunaeval` reads the new reviser output.
+- The emulator tests of scenarios A to F through `SyncOutbox`.
+- The web app: the target copy in the header, the screen of the next targets after a workout, unit tests, and a browser test.
+- The documents, the checks, the commits, the pull request, and the Codex review.
 
-After the merge, the session of PR-35 reads no deploy, because PR-34 changes only `docs/`. It asks the owner Q-302 to Q-304 first.
+Next action: write the unit tests of `go/internal/revise`.
 
 ## Facts that expire
 

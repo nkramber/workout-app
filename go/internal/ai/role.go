@@ -11,8 +11,9 @@ type RoleName string
 const (
 	// RolePlanner plans the next sessions of the owner (D-22).
 	RolePlanner RoleName = "planner"
-	// RoleReviser gives the targets of the next session after the owner
-	// logs a session (D-22, D-64).
+	// RoleReviser writes the reason of each next target after the owner
+	// logs a session. The rules of the policy give each target (D-64,
+	// D-288).
 	RoleReviser RoleName = "reviser"
 )
 
@@ -55,6 +56,13 @@ const (
 	plannerSessions = 7
 )
 
+// ReviserTimeout is the time limit of a reviser call. The call runs in
+// the sync of a finished workout, and after the limit the reason of the
+// rules shows (D-292). A reason call has a smaller output than a plan,
+// so the limit is half the limit of a plan (assumption). The live
+// revision of work area 7.2 measures it.
+const ReviserTimeout = 45 * time.Second
+
 var lunaPrices = Prices{Input: 100, CachedInput: 10, CacheWrite: 125, Output: 500}
 
 // Efforts gives each reasoning effort of `gpt-6-luna`, from the model
@@ -70,9 +78,10 @@ func Planner() Role {
 	return Role{RolePlanner, lunaModel, lunaEffort, lunaMaxOutput, plannerSessions, lunaMaxRequest, lunaTimeout, lunaPrices}
 }
 
-// Reviser gives the role that gives the targets of the next session.
+// Reviser gives the role that writes the reason of each target of the
+// next session.
 func Reviser() Role {
-	return Role{RoleReviser, lunaModel, lunaEffort, lunaMaxOutput, 1, lunaMaxRequest, lunaTimeout, lunaPrices}
+	return Role{RoleReviser, lunaModel, lunaEffort, lunaMaxOutput, 1, lunaMaxRequest, ReviserTimeout, lunaPrices}
 }
 
 // Roles gives each role, in a fixed order.

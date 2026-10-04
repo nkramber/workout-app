@@ -288,3 +288,93 @@ func encode(v any) []byte {
 	}
 	return bytes.TrimSpace(b.Bytes())
 }
+
+// Reason is the reason of the reviser for one exercise (D-288). Sets
+// names each logged set of the last session that the reason uses. Text
+// is the reason with its spaces made single, or "" when the filter
+// blocked it, and Blocked then names the rule. The text of Luna never
+// goes into a log (D-80).
+type Reason struct {
+	Exercise domain.ExerciseID
+	Sets     []SetRef
+	Text     string
+	Blocked  FilterRule
+}
+
+// SetRef names one logged set of a session: its kind, and its number
+// inside its kind, from 1.
+type SetRef struct {
+	Kind   domain.SetKind
+	Number int
+}
+
+type outReasons struct {
+	Reasons *[]outReason `json:"reasons"`
+}
+
+type outReason struct {
+	Exercise *domain.ExerciseID `json:"exercise_id"`
+	Sets     *[]outSetRef       `json:"logged_sets"`
+	Reason   *string            `json:"reason"`
+}
+
+type outSetRef struct {
+	Kind   *domain.SetKind `json:"kind"`
+	Number *int            `json:"number"`
+}
+
+// parseReasons reads the output text of a reviser call. It refuses an
+// output that breaks the schema, an exercise that is not in the
+// request, and an exercise with two reasons. An exercise with no reason
+// is valid: the reason of the rules shows for it. It does not check a
+// set against the log: the caller does that (D-288).
+func parseReasons(text string, req Request) ([]Reason, error) {
+	dec := json.NewDecoder(strings.NewReader(text))
+	dec.DisallowUnknownFields()
+	var out outReasons
+	if err := dec.Decode(&out); err != nil {
+		return nil, malformed("not the JSON of the schema")
+	}
+	if _, err := dec.Token(); err != io.EOF {
+		return nil, malformed("text after the JSON")
+	}
+	if out.Reasons == nil {
+		return nil, malformed("a field of the reasons is missing")
+	}
+	known := map[domain.ExerciseID]bool{}
+	for _, x := range req.Exercises {
+		known[x.Exercise.ID] = true
+	}
+	seen := map[domain.ExerciseID]bool{}
+	var list []Reason
+	for i, r := range *out.Reasons {
+		at := fmt.Sprintf("reasons[%d]", i)
+		if r.Exercise == nil || r.Sets == nil || r.Reason == nil {
+			return nil, malformed("%s: a field is missing", at)
+		}
+		if !known[*r.Exercise] {
+			return nil, malformed("%s: not an exercise of the request", at)
+		}
+		if seen[*r.Exercise] {
+			return nil, malformed("%s: the exercise has two reasons", at)
+		}
+		seen[*r.Exercise] = true
+		reason := Reason{Exercise: *r.Exercise}
+		for j, s := range *r.Sets {
+			if s.Kind == nil || s.Number == nil {
+				return nil, malformed("%s.logged_sets[%d]: a field is missing", at, j)
+			}
+			if *s.Kind != domain.SetWorking && *s.Kind != domain.SetCalibration {
+				return nil, malformed("%s.logged_sets[%d]: not a kind of set", at, j)
+			}
+			reason.Sets = append(reason.Sets, SetRef{*s.Kind, *s.Number})
+		}
+		if rule, bad := Filter(*r.Reason, ReasonMax); bad {
+			reason.Blocked = rule
+		} else {
+			reason.Text = strings.Join(strings.Fields(*r.Reason), " ")
+		}
+		list = append(list, reason)
+	}
+	return list, nil
+}

@@ -43,6 +43,11 @@ const SchemaVersion = 1
 // MaxBatch is the largest count of entries in one sync call (D-259).
 const MaxBatch = 100
 
+// MaxTargets is the largest count of target copies in one header. A
+// session of the plan has 8 exercises or fewer (D-233), so the limit
+// leaves room and keeps the document small.
+const MaxTargets = 20
+
 // MaxNoteRunes is the length limit of the note of a set or of a cardio
 // log, in characters (D-261).
 const MaxNoteRunes = 280
@@ -98,13 +103,26 @@ type PlanLink struct {
 
 // Header is the state of a workout with no set and no cardio log.
 // Skipped names the skipped exercises (D-47, D-63). EndedEarly records
-// "finish now", which ends the workout.
+// "finish now", which ends the workout. Targets holds the target of each
+// exercise that the owner saw at the start (D-291). A header of an older
+// phone has none.
 type Header struct {
 	Date       string
 	Plan       PlanLink
 	Skipped    []domain.ExerciseID
 	EndedEarly bool
 	Finished   bool
+	Targets    []domain.PlannedExercise
+}
+
+// Target gives the target copy of an exercise.
+func (h Header) Target(id domain.ExerciseID) (domain.PlannedExercise, bool) {
+	for _, t := range h.Targets {
+		if t.Exercise == id {
+			return t, true
+		}
+	}
+	return domain.PlannedExercise{}, false
 }
 
 // Set is one logged set of a workout. At is the time of the change on
@@ -256,6 +274,19 @@ func (h Header) check(c domain.Catalog) error {
 	if i := h.Plan.SessionIndex; i < 0 || i >= profile.MaxTrainingDays {
 		return invalid("plan link session index %d: want 0 to %d", i, profile.MaxTrainingDays-1)
 	}
+	if len(h.Targets) > MaxTargets {
+		return invalid("targets: %d: want %d or fewer", len(h.Targets), MaxTargets)
+	}
+	copies := map[domain.ExerciseID]bool{}
+	for i, t := range h.Targets {
+		if err := t.Check(c); err != nil {
+			return invalid("targets[%d]: %v", i, err)
+		}
+		if copies[t.Exercise] {
+			return invalid("targets[%d]: exercise %q: in the list two times", i, t.Exercise)
+		}
+		copies[t.Exercise] = true
+	}
 	seen := map[domain.ExerciseID]bool{}
 	for _, id := range h.Skipped {
 		e, ok := c.Exercise(id)
@@ -267,6 +298,9 @@ func (h Header) check(c domain.Catalog) error {
 		}
 		if seen[id] {
 			return invalid("skipped exercise %q: in the list two times", id)
+		}
+		if len(copies) > 0 && !copies[id] {
+			return invalid("skipped exercise %q: the header has no target for it", id)
 		}
 		seen[id] = true
 	}
@@ -288,6 +322,11 @@ func Apply(w *Workout, e Entry, c domain.Catalog) (Workout, int64, error) {
 	if w == nil && e.Entity != EntityWorkout {
 		return Workout{}, 0, fmt.Errorf("%w: %s %s of workout %s", ErrUnknownWorkout, e.Entity, e.EntityID, e.WorkoutID)
 	}
+	if w != nil && e.Entity == EntitySet && len(w.Targets) > 0 {
+		if _, ok := w.Target(e.SetExercise); !ok {
+			return Workout{}, 0, invalid("set of exercise %q: the workout has no target for it", e.SetExercise)
+		}
+	}
 	var out Workout
 	if w == nil {
 		out = Workout{ID: e.EntityID}
@@ -298,6 +337,7 @@ func Apply(w *Workout, e Entry, c domain.Catalog) (Workout, int64, error) {
 	case EntityWorkout:
 		h := *e.Header
 		h.Skipped = slices.Clone(h.Skipped)
+		h.Targets = cloneTargets(h.Targets)
 		out.Header = h
 	case EntitySet:
 		s := Set{ID: e.EntityID, Exercise: e.SetExercise, At: e.At.UTC(), Log: *e.Set}
@@ -373,9 +413,23 @@ func (w Workout) Session() domain.Session {
 	return s
 }
 
+func cloneTargets(in []domain.PlannedExercise) []domain.PlannedExercise {
+	if in == nil {
+		return nil
+	}
+	out := make([]domain.PlannedExercise, len(in))
+	for i, t := range in {
+		t.Calibration = slices.Clone(t.Calibration)
+		t.Working = slices.Clone(t.Working)
+		out[i] = t
+	}
+	return out
+}
+
 func (w Workout) clone() Workout {
 	out := w
 	out.Skipped = slices.Clone(w.Skipped)
+	out.Targets = cloneTargets(w.Targets)
 	out.Sets = slices.Clone(w.Sets)
 	out.Cardio = slices.Clone(w.Cardio)
 	out.Versions = make(map[string]int64, len(w.Versions))

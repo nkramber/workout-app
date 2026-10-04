@@ -176,6 +176,7 @@ func fromProto(in *workoutappv1.OutboxEntry) (workout.Entry, error) {
 			Skipped:    ids(h.GetSkippedExerciseIds()),
 			EndedEarly: h.GetEndedEarly(),
 			Finished:   h.GetFinished(),
+			Targets:    targetsFrom(h.GetTargets()),
 		}
 	case *workoutappv1.OutboxEntry_Set:
 		s := p.Set
@@ -206,6 +207,7 @@ func toProto(w workout.Workout) *workoutappv1.Workout {
 		},
 		EndedEarly: w.EndedEarly,
 		Finished:   w.Finished,
+		Targets:    targetsTo(w.Targets),
 	}
 	// Each stored number passed its check, and the contract gave it as
 	// an int32 or an int64, so it fits again.
@@ -225,6 +227,40 @@ func toProto(w workout.Workout) *workoutappv1.Workout {
 			Effort: int32(c.Log.Effort), DistanceTenthsMi: opt32(c.Log.Distance), Resistance: opt32(c.Log.Resistance),
 			Pain: opt32(c.Log.Pain), Note: c.Log.Note,
 		})
+	}
+	return out
+}
+
+// targetsFrom gives the target copies of the contract (D-291).
+// Header.Check reads each value.
+func targetsFrom(in []*workoutappv1.SeenTarget) []domain.PlannedExercise {
+	var out []domain.PlannedExercise
+	for _, t := range in {
+		p := domain.PlannedExercise{Exercise: domain.ExerciseID(t.GetExerciseId()), RestSeconds: int(t.GetRestSeconds())}
+		for _, c := range t.GetCalibrationSets() {
+			p.Calibration = append(p.Calibration, domain.CalibrationSet{Reps: int(c.GetReps()), Load: domain.Load(c.GetLoadTenthLb())})
+		}
+		for _, w := range t.GetWorkingSets() {
+			p.Working = append(p.Working, domain.WorkingSet{Reps: int(w.GetReps()), Load: domain.Load(w.GetLoadTenthLb()), RIR: int(w.GetRirTarget())})
+		}
+		out = append(out, p)
+	}
+	return out
+}
+
+// targetsTo gives the target copies in the form of the contract. Each
+// stored value came from an int32 of the contract, so it fits again.
+func targetsTo(in []domain.PlannedExercise) []*workoutappv1.SeenTarget {
+	var out []*workoutappv1.SeenTarget
+	for _, t := range in {
+		p := &workoutappv1.SeenTarget{ExerciseId: string(t.Exercise), RestSeconds: int32(t.RestSeconds)}
+		for _, c := range t.Calibration {
+			p.CalibrationSets = append(p.CalibrationSets, &workoutappv1.PlannedSet{Reps: int32(c.Reps), LoadTenthLb: int32(c.Load)})
+		}
+		for _, w := range t.Working {
+			p.WorkingSets = append(p.WorkingSets, &workoutappv1.PlannedSet{Reps: int32(w.Reps), LoadTenthLb: int32(w.Load), RirTarget: int32(w.RIR)})
+		}
+		out = append(out, p)
 	}
 	return out
 }

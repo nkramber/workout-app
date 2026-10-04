@@ -546,7 +546,7 @@ func TestParentCancel(t *testing.T) {
 // of a dollar below.
 func TestCapBoundary(t *testing.T) {
 	req := request(t)
-	input, err := userInput(req)
+	input, err := userInput(RolePlanner, req)
 	if err != nil {
 		t.Fatal(err)
 	}
