@@ -20,7 +20,7 @@ The pull request holds:
 - the form of an override on the plan screen, and the override in the workout,
 - `TestDisruptionAcceptanceStory` over the emulators, unit tests, and a browser test.
 
-`make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. An early version read the history of the workouts in each `GetPlan` with a date. The browser tests then failed in 4 of 5 runs, and the base `d8f766e` passed 3 of 3. `ForDate` now reads no store for a plan with no revision, and 3 of 3 runs passed.
+`make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. An early version read the history of the workouts in each `GetPlan` with a date. The browser tests then failed in 4 of 5 runs, and the base `d8f766e` passed 3 of 3. `ForDate` now reads no store for a plan with no revision. Then 7 of 8 runs passed. The failed run had the 5 Chromium waits of the shared cap documents, as before this pull request.
 
 Codex round 1 found P2-1 and P2-2 at `35cf4ef` (`docs/reviews/pr-37.md`). The answers are in `docs/reviews/pr-37-response.md`. The deload now covers the 7 dates after its start. A change of the rules of the date expires an override.
 
