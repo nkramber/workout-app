@@ -39,7 +39,7 @@ func (r *Reviser) ForDate(ctx context.Context, uid string, p plan.Plan, today st
 	if p.Revisions == 0 {
 		return copyPlan(p), nil
 	}
-	history, err := r.finished(ctx, uid)
+	history, err := r.finished(ctx, uid, MaxHistory)
 	if err != nil {
 		return plan.Plan{}, err
 	}

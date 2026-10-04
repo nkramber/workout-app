@@ -58,7 +58,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 - Each failed attempt adds a document to the top-level collection `aiErrors`. Its field `expire_at` drives the TTL of 90 days (D-236). The document holds the output of Luna, so no log reads it (D-80).
 - The policy decides each exercise of a valid plan, and the plan stores each decision record (D-23, D-176).
 - A target of policy version 7 has no calibration set. The flag `first_set_calibration` tells that its first working set is the calibration (D-297). A plan of policy version 4 to 6 can still hold `calibration_loads` from `policy.CalibrationTable` (D-267).
-- A new plan reads the logged history through `Maker.History`, so an exercise with history gets its target from that history (D-301).
+- A new plan reads up to 2000 logged workouts through `Maker.History`. An exercise with history gets its target from that history (D-301).
 - Policy version 5 gives 60 seconds of rest to each exercise, the leg press too, in each plan (D-279). An exercise with history does not keep an older rest.
 
 ## The workout log

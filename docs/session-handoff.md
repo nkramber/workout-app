@@ -19,7 +19,9 @@ The pull request holds:
 - the scenarios G to J in `go/cmd/lunaeval`, the numbers of each scenario, and the paid run of D-302,
 - the report `docs/research/reviser-evaluation.md`.
 
-`make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. CI passed at `99e984d`. Effective head: `99e984dd3eb23a440b614091c31328c3c6953f8c`. Verdict: Changes required. Open finding: P2-1 in `docs/reviews/pr-38.md`. Next action: fix the history limit, add a regression test, then repeat the Codex review.
+`make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. GitHub PR 38 holds the work.
+
+Codex round 1 found P2-1 at `99e984d` (`docs/reviews/pr-38.md`). A new plan now reads 2000 workouts at most, so an exercise beyond the window of a revision keeps its history. The answer is in `docs/reviews/pr-38-response.md`. Next action: when CI is green, run Codex round 2.
 
 ## Facts that expire
 

@@ -39,6 +39,14 @@ import (
 // the newest first. At 4 sessions each week, it holds about 6 months.
 const MaxHistory = 100
 
+// MaxPlanHistory is the largest count of workouts that a new plan
+// reads, the newest first. At 4 sessions each week, it holds more than
+// 9 years. A new plan gives an exercise with history its target from
+// that history (D-301), so an exercise that the newest MaxHistory
+// workouts omit still gets the return of D-179. Each workout is one
+// document, and a new plan is rare, so the read stays small.
+const MaxPlanHistory = 2000
+
 // pageSize is the page of each read of the workouts.
 const pageSize = 50
 
@@ -89,7 +97,7 @@ func (r *Reviser) Revise(ctx context.Context, uid, workoutID string) (Result, er
 	if !ok || p.Revised(workoutID) {
 		return Result{}, nil
 	}
-	history, err := r.finished(ctx, uid)
+	history, err := r.finished(ctx, uid, MaxHistory)
 	if err != nil {
 		return Result{}, err
 	}
@@ -188,11 +196,11 @@ func (r *Reviser) warn(msg string, args ...any) {
 // finished reads the finished workouts of the user, MaxHistory at most,
 // the oldest first. One date orders its workouts by id, and a workout
 // id is a UUIDv7 of its start, so the order is the order of the start.
-func (r *Reviser) finished(ctx context.Context, uid string) ([]workout.Workout, error) {
+func (r *Reviser) finished(ctx context.Context, uid string, limit int) ([]workout.Workout, error) {
 	var all []workout.Workout
 	after := ""
-	for len(all) < MaxHistory {
-		page, next, err := r.Workouts.List(ctx, uid, min(pageSize, MaxHistory-len(all)), after)
+	for len(all) < limit {
+		page, next, err := r.Workouts.List(ctx, uid, min(pageSize, limit-len(all)), after)
 		if err != nil {
 			return nil, fmt.Errorf("revise: the workouts: %w", err)
 		}
@@ -284,10 +292,11 @@ func (r *Reviser) deloads(uid string, p plan.Plan, history []workout.Workout) []
 
 // History gives the logged history of uid for a new plan: the outcomes
 // of each exercise that a finished workout logged, and the deloads
-// (D-301). A workout of an older phone with no target copy gives no
-// outcome, because no plan links it to the new plan.
+// (D-301). It reads MaxPlanHistory workouts at most. A workout of an
+// older phone with no target copy gives no outcome, because no plan
+// links it to the new plan.
 func (r *Reviser) History(ctx context.Context, uid string) (plan.History, error) {
-	history, err := r.finished(ctx, uid)
+	history, err := r.finished(ctx, uid, MaxPlanHistory)
 	if err != nil {
 		return plan.History{}, err
 	}
