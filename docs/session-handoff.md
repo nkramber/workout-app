@@ -4,7 +4,7 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-04. Review of pull request 37, work area 7.2 of `docs/roadmaps/phase-7-adaptation-loop.md`, on `feat/pr-36-overrides-disruptions`, at effective head `35cf4efd195fa2c5290c1886acff4fda1eef93a4`.
+Date: 2026-10-04. Review of pull request 37, work area 7.2 of `docs/roadmaps/phase-7-adaptation-loop.md`, on `feat/pr-36-overrides-disruptions`, at effective head `05f858c8af3b62bff53600a33ba71048c8bda0cc`.
 
 The deploys of `d8f766e` passed: `deploy-api` `c3c4d9ed` and `deploy-web` `bd757c99`. The live `/version` and `/version.json` name `d8f766e`, and the revision `api-00019-s78` has all traffic.
 
@@ -24,7 +24,7 @@ The pull request holds:
 
 Codex round 1 found P2-1 and P2-2 at `35cf4ef` (`docs/reviews/pr-37.md`). The answers are in `docs/reviews/pr-37-response.md`. The deload now covers the 7 dates after its start. A change of the rules of the date expires an override.
 
-The state is pending CI, the Codex round 2, and the owner merge. Next action: push the answers, and run `make codex-review PR=37`.
+The earlier findings P2-1 and P2-2 are fixed at `05f858c8af3b62bff53600a33ba71048c8bda0cc`. Codex round 2 is ready for owner merge. P3-1 reports a blank line at end of `web/e2e/override.spec.ts`. It does not affect the acceptance story. CI must rerun the review gate after this record reaches origin. Next action: the author asks the owner to confirm the merge.
 
 ## Facts that expire
 
