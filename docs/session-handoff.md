@@ -20,7 +20,7 @@ The pull request holds:
 
 `make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. An early version read the history of the workouts in each `GetPlan` with a date. The browser tests then failed in 4 of 5 runs, and the base `d8f766e` passed 3 of 3. `ForDate` now reads no store for a plan with no revision, and 3 of 3 runs passed.
 
-The Codex review found P2-1 and P2-2. The review record is `docs/reviews/pr-37.md`. The review commit and push remain.
+The Codex review found P2-1 and P2-2. The review record is `docs/reviews/pr-37.md`. The reviewer pushed the review record. Product checks passed on its metadata tip. The review gate rejects the `Changes required` verdict.
 
 ## Facts that expire
 
