@@ -10,24 +10,19 @@ PR-34 changed only `docs/`, so its merge deployed nothing, and the session read 
 
 The owner approved the milestone (D-12), and answered Q-302 to Q-304 (D-290 to D-292).
 
-Finished work, in local commits that the session did not push yet:
+The pull request holds:
 
-- The contract: the target copy `SeenTarget` in `WorkoutHeader` and `Workout`, and `PlanRevision` with `reason_source` in the plan.
-- The workout package and its store keep the target copy (D-291).
-- `policy.Revise` gives the decision record of a revised target.
-- The reviser of `go/internal/ai` writes the reason alone, with prompt `luna-prompt-v6`, the schema `luna_reason_v1`, and a time limit of 45 s (D-288, D-292).
-- The plan keeps its revisions, and `plan.Store` has `Update`.
-- The package `go/internal/revise` reads the history, gives the targets of the rules, calls the reviser, and checks each reason.
-- `SyncOutbox` revises the plan after each finished workout, and `plansvc` gives the revision. `go/cmd/lunaeval` grades the new reviser.
-- The emulator test `go/cmd/api/revision_emulator_test.go` passes for scenarios A to F.
-- The web header payload holds the target copy.
+- the target copy `SeenTarget` in the workout header, kept by the store (D-291),
+- the revision of the plan in `SyncOutbox` after each finished workout, in `go/internal/revise` (D-290, D-292),
+- the reviser of the reason alone, with `luna-prompt-v6`, the schema `luna_reason_v1`, the check of each reason, and a time limit of 45 s (D-288),
+- the screen "Workout done" with the next targets and their reasons, and the target copy in the header of the phone,
+- the emulator test of scenarios A to F through `SyncOutbox`, unit tests, and a browser test.
 
-Open work:
+`make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. An early version marked the cached plan as stale after each sync. That raced the plan request, and 5 to 6 Chromium tests failed in 2 of 2 runs. The mark now follows a new revision alone, and 2 of 2 runs passed.
 
-- The web screen of the next targets after a workout, its unit tests, and a browser test. The finish tests of `web/e2e/workout.spec.ts` then tap "Done".
-- The documents, the checks, the push, the pull request, and the Codex review.
+The state is pending the owner merge. The Codex review did not run yet.
 
-Next action: write `web/src/lib/revision.ts` and the end screen of `web/src/pages/workout.tsx`.
+Next action: push, open the pull request, wait for CI, and run `make codex-review`.
 
 ## Facts that expire
 
@@ -83,10 +78,29 @@ Next action: write `web/src/lib/revision.ts` and the end screen of `web/src/page
 
 ## Next steps, in order
 
-1. Close PR-34: CI, the Codex review, the owner confirmation, and the merge.
-2. Start PR-35 in a clean session (D-12). It reads no deploy, and asks the owner Q-302 to Q-304 first.
+1. Close PR-35: CI, the Codex review, the owner confirmation, and the merge.
+2. Start PR-36 in a clean session (D-12). It reads the deploys of the merge of PR-35 first. Then it states the cost of one live revision, and asks the owner (D-212). It asks Q-305 to Q-307.
 
 ## Session records
+
+### Session 36 - 2026-10-04
+
+Author provider: Claude Code
+
+Branch: `feat/pr-35-revision`. Role: author.
+
+Completed:
+
+- The owner approved the milestone (D-12), and answered Q-302 to Q-304 (D-290 to D-292).
+- Added the target copy to the workout header, and the revision of the plan in the sync of a finished workout.
+- Added the reviser of the reason alone, with its check (D-288).
+- Added the screen "Workout done" with the next targets and their reasons, and the target copy in the header of the phone.
+- Added the emulator tests of scenarios A to F, unit tests, and a browser test.
+- Changed the registers, both roadmaps, the design, both READMEs, and `AGENTS.md`.
+
+Open work:
+
+- CI, the Codex review, the owner confirmation, and the merge of PR-35.
 
 ### Session 35 - 2026-10-04
 
@@ -122,23 +136,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 34 merged as `6274c19`.
-
-### Session 33 - 2026-10-03
-
-Author provider: Claude Code
-
-Branch: `feat/pr-32-outbox-sync`. Role: author.
-
-Completed:
-
-- Read the deploys of `7ed7c0f`, and stated the cost of the live check of D-212.
-- The owner approved the milestone (D-12), and answered Q-286 to Q-292 (D-272 to D-278).
-- Added the inventory entries to `SyncOutbox`, with Go unit tests and emulator tests.
-- Wrote the sync engine, the offline copies, the inventory outbox, and the line of the sync, with unit tests and browser tests.
-- Read the live check of D-212, and changed the rest to 60 seconds with policy version 5 (D-279).
-- Wrote the "Screen lock test" screen (D-282), and answered Codex findings P2-1 and P2-2 with full merit.
-- Changed the registers, both roadmaps, the design, both READMEs, and `AGENTS.md`.
-
-Open work:
-
-- None. GitHub PR 33 merged as `ee3b89b`.

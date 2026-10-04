@@ -5,7 +5,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | Path | Content |
 |---|---|
 | `go/cmd/api` | The entry point, the routes, and the tests of the acceptance story |
-| `go/cmd/lunaeval` | The Luna evaluation of Phase 3: synthetic profiles and the scenarios A to F through the layer and the policy (D-184 to D-186) |
+| `go/cmd/lunaeval` | The Luna evaluation of Phase 3: synthetic profiles and the scenarios A to F through the layer and the policy (D-184 to D-186). A scenario grades the target of the rules and the check of each reason of the reviser (D-288). |
 | `go/internal/auth` | The Firebase ID token check, the allowlist check, and CORS |
 | `go/internal/allowlist` | The invite allowlist of uids in Firestore (D-131) |
 | `go/internal/envguard` | The start guard against an emulator variable, the fake provider, or its delay on Cloud Run (D-129, D-241) |
@@ -16,11 +16,12 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `go/internal/profilesvc` | The calls of `ProfileService` |
 | `go/internal/domain` | The types of the workout domain, the catalog of D-155, the injury areas and the muscle groups with their tables (D-218, D-219), and the check of each type (D-157) |
 | `go/internal/policy` | The versioned safety policy: the bounds of a target, the rounding of a load, the start and the calibration of a new exercise with one calibration set in each session (D-267), the return after a break, the next target, the check of a proposal, the rules fallback, and the decision record (D-23, D-38, D-176) |
-| `go/internal/ai` | The Luna role layer: the planner and reviser roles, the plan schema, the prompt, the guidance catalog, the filter of blocked claims, the cost records, the cap hook, the OpenAI provider, and the fake provider (D-24, D-25, D-152, D-183) |
+| `go/internal/ai` | The Luna role layer: the planner and reviser roles, the plan schema and the reason schema, the prompt, the guidance catalog, the filter of blocked claims, the cost records, the cap hook, the OpenAI provider, and the fake provider (D-24, D-25, D-152, D-183) |
 | `go/internal/plan` | The plan of the owner: the planner request, 4 calls at most with the cause of each failure, the policy check of each exercise, the exclusions, the Firestore stores, and the error records (D-226 to D-238) |
 | `go/internal/plansvc` | The calls of `PlanService`, with a server stream of the progress (D-237) |
-| `go/internal/workout` | The logged sessions of the owner: the outbox entries, the check of each log, the apply of each entry one time, and the Firestore store (D-132, D-256 to D-261) |
-| `go/internal/workoutsvc` | The calls of `WorkoutService`: `SyncOutbox`, with the workout entries and the inventory entries, and `ListWorkouts` |
+| `go/internal/revise` | The revision after a finished workout: the history of each exercise, the targets of the rules, the reviser call, and the check of each reason (D-288, D-290 to D-292) |
+| `go/internal/workout` | The logged sessions of the owner: the outbox entries, the check of each log, the target copies (D-291), the apply of each entry one time, and the Firestore store (D-132, D-256 to D-261) |
+| `go/internal/workoutsvc` | The calls of `WorkoutService`: `SyncOutbox`, with the workout entries, the inventory entries, and the revision of each finished workout, and `ListWorkouts` |
 | `go/internal/capstore` | The lasting cap hook: the spend of each calendar month in UTC in Firestore, with a reservation before each call and a charge after it (D-189, D-190, D-224, D-225) |
 | `go/gen` | The generated code. `make proto` writes it, and Git keeps it. |
 
@@ -72,6 +73,17 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 - A set uses the bounds of D-164. A cardio log uses the fields of D-123, with no least time (D-260). A note has 280 characters or fewer (D-261).
 - The planner gives each session 20 to 30 minutes of cardio when the profile likes a cardio exercise (D-255). The fake provider gives 20 minutes.
 - In `luna-prompt-v5`, the reason of an exercise with an empty history says that the exercise is new, and names no gap (D-262).
+- A workout header holds the target of each exercise that the owner saw at the start (D-291). When the list is not empty, the server refuses a skip or a set of an exercise with no target in it.
+
+## The revision
+
+After each `SyncOutbox` batch, `go/internal/revise` revises the plan for each finished workout of the batch (D-292). A replayed finish counts too, and the plan keeps the id of each workout that revised it, so a revision runs one time.
+
+- The history of an exercise is each finished workout that logged it, of the newest 100, with its target copy. A workout of an older phone with no copy reads the linked session of a plan with no revision.
+- `policy.Revise` gives the target of the rules and its decision record. Each session of the plan that holds the exercise gets it (D-290). The plan keeps its `created_at`, so each workout keeps its link.
+- One reviser call with `luna-prompt-v6` and the schema `luna_reason_v1` writes each reason (D-288). The call has a time limit of 45 s, and the revision continues when the sync request ends first.
+- `revise.Check` refuses a blocked reason, a reason with no logged set or an unknown set, and a number outside the evidence. The plan then holds the reason of the rules, with the cause in `reason_cause`.
+- A failed revision changes no result of the batch, and the plan keeps its targets. The log line holds ids and counts alone (D-80).
 
 ## The Luna evaluation
 

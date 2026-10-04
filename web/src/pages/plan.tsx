@@ -41,10 +41,12 @@ import { danger, ErrorText, field, primary, secondary, Title } from "./inventory
 export function PlanPage({ onBack }: { onBack: () => void }) {
   const plan = useQuery(PlanService.method.getPlan, {});
   // Each read of the plan goes into the offline copy, so the workout
-  // starts with no connection (D-278).
+  // starts with no connection (D-278). A stale plan of the cache waits
+  // for its new read, because a sync can revise the plan (D-292), and the
+  // old plan must not replace the new copy.
   useEffect(() => {
-    if (plan.data) void keepCopy(db, "plan", toJson(GetPlanResponseSchema, plan.data));
-  }, [plan.data]);
+    if (plan.data && !plan.isStale) void keepCopy(db, "plan", toJson(GetPlanResponseSchema, plan.data));
+  }, [plan.data, plan.isStale]);
 
   if (plan.error) {
     return (
