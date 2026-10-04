@@ -1,6 +1,6 @@
 # Workout App - design
 
-This document holds the product thesis, the target experience, the system context, the safety boundaries, and the privacy posture of Workout App. It is the design reference for `docs/roadmaps/high-level-roadmap.md`. The date of this version is 2026-10-03.
+This document holds the product thesis, the target experience, the system context, the safety boundaries, and the privacy posture of Workout App. It is the design reference for `docs/roadmaps/high-level-roadmap.md`. The date of this version is 2026-10-04.
 
 Each statement has a label. **Fact** means a verified fact with a source in `docs/research/`. **Decision** means an owner decision in `docs/decisions.md`. **Recommendation** means a proposal that the owner did not accept yet. **Assumption** means a belief that nobody verified yet. **Open** means a question in `docs/questions.md`.
 
@@ -104,7 +104,9 @@ The server stores each logged session as one Firestore document at `users/{uid}/
 
 ### 3.5 Adaptation
 
-After a session, Luna proposes the next targets from reps, load, reps in reserve, pain, skipped work, and gaps in the history (Decision, D-64). The policy checks the proposal. The app shows a concise reason that names the logged evidence (Decision, D-68). The owner can override a target, and the app keeps the recommendation, the override, and the reason as separate records (Decision, D-69). The engine handles missed sessions and long breaks (Decision, D-66).
+After a session, the rules of the policy give the next targets (Decision, D-288). They read reps, load, reps in reserve, pain, skipped work, and gaps in the history (Decision, D-64). Luna writes the reason alone. The app shows a concise reason that names the logged evidence (Decision, D-68). A check refuses a reason of Luna that names no logged set, and the reason of the rules then shows (Decision, D-288).
+
+The owner can override a target, and the app keeps the recommendation, the override, and the reason as separate records (Decision, D-69). The engine handles missed sessions and long breaks (Decision, D-66).
 
 After a gap of 14 days or more, the load goes down by the long-break table (Decision, D-151, D-179). The first sessions back stop at 3 reps in reserve, with rep progression only. A new exercise starts with a calibration set from the estimate of the owner, or from the lightest weight (Decision, D-150, D-177, D-178). A session has one calibration set, and the calibration table gives the load of its working sets one time (Decision, D-267).
 
@@ -185,7 +187,7 @@ The policy is in `go/internal/policy` (Decision, D-157). It has one version, and
 - The rules fallback of one exercise. When the policy refuses a proposal, or Luna gives none for the exercise, the target comes from the rules alone (Decision, D-23). A plan request with no valid output of Luna gets no fallback plan (Decision, D-230).
 - The decision record of each plan decision, with the fields of D-176. The record is workout data, so it never goes into a log (Decision, D-80, D-176).
 
-The policy has no reactive deload (Decision, D-175). The draft in `tools/spikes/luna_plan/policy.py` is the spike record alone.
+The policy has no reactive deload yet. Work area 7.2 adds the reactive deload of REC-7, with a new policy version (Decision, D-175, D-289). The draft in `tools/spikes/luna_plan/policy.py` is the spike record alone.
 
 The role layer is in `go/internal/ai` (Decision, D-157). It holds these parts:
 
@@ -239,4 +241,4 @@ A change of audience reopens D-78, D-79, D-81, D-34, D-39, and D-40. The high-le
 
 ## 7. Open questions
 
-Q-91 to Q-107 in `docs/questions.md` hold the open questions. Q-90 has an answer (D-84). The high-level roadmap names the phase that needs each answer.
+The section "Open questions" of `docs/questions.md` holds the open questions. On 2026-10-04, Q-103 and Q-302 to Q-308 are open. The high-level roadmap and the focused roadmaps name the phase or the pull request that needs each answer.

@@ -2,7 +2,7 @@
 
 This roadmap gives the path from a blank repository to a safe, useful Workout App for its one user, the owner (D-67). It names the phases, their order, the risk work, the outcomes, the work areas of pull request size, and the exit evidence of each phase. It is not a plan of tasks. A focused roadmap turns one phase into tasks later. `docs/roadmaps/README.md` gives the rules for focused roadmaps.
 
-The date of this version is 2026-10-03. `docs/design.md` holds the product design. `docs/decisions.md` and `docs/questions.md` hold every decision and question that this roadmap cites.
+The date of this version is 2026-10-04. `docs/design.md` holds the product design. `docs/decisions.md` and `docs/questions.md` hold every decision and question that this roadmap cites.
 
 ## 1. Rules of this roadmap
 
@@ -177,12 +177,13 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 
 | Work area | Concerns | Exit evidence |
 |---|---|---|
-| 7.1 Revision after a session | The reviser call and the policy check. Reasons that cite logged sets. | The section 5 scenarios pass end to end with the fake provider. |
-| 7.2 Overrides and disruptions | Separate override records. Missed-session and long-break rules (Q-102). | Scenario tests for a missed week and for a break of the Q-102 length. |
+| 7.1 Revision after a session | The reviser call and the policy check. The rules give each target, and Luna writes the reason alone (D-288). Reasons that cite logged sets. | The section 5 scenarios pass end to end with the fake provider. |
+| 7.2 Overrides and disruptions | Separate override records. Missed-session and long-break rules (Q-102). The reactive deload of REC-7 (D-289). | Scenario tests for a missed week, for a break of the Q-102 length, and for a deload. |
+| 7.3 Reviser evaluation | The paid evaluation of the reviser on the section 5 scenarios (D-286). The check of each reason against the logged sets (D-288). | A report with measured numbers for each scenario, under a cap that the owner approves (D-25). |
 
-**Decisions and questions.** D-37, D-43, D-64 to D-69, Q-92, Q-102, Q-202.
+**Decisions and questions.** D-37, D-43, D-64 to D-69, D-175, D-286 to D-289, Q-92, Q-102, Q-194, Q-202, Q-300 to Q-308.
 
-**Gate.** A paid evaluation of the reviser on the section 5 scenarios runs only with owner approval (D-25).
+**Gate.** Work area 7.3 holds the paid evaluation of the reviser on the section 5 scenarios. It runs only with owner approval (D-25, D-286).
 
 ### Phase 8 - Personal-use operations
 
@@ -228,6 +229,8 @@ The policy of Phase 3 must pass these scenarios. The numbers come from the synth
 | Scenario D | Any | The session ended early | Unlogged sets count as skipped work, not as failed reps (D-63, D-64). |
 | Scenario E | Any | No session for 2 weeks or more (D-151) | Lower the load with the long-break table of D-151, and use 3 reps in reserve with rep progression only for the first sessions back. No failure in those sessions (D-37). |
 | Scenario F | Luna proposes a 50 percent load jump | Any | The policy refuses the proposal, the fallback target applies, and the decision log records the refusal. |
+
+For a revision, Luna writes the reason alone, and the rules give each target (D-288). So in Phase 7, scenario F reads the policy check of a test proposal, as `go/cmd/lunaeval` does. The planner still proposes targets.
 
 ## 6. Test and evaluation strategy
 

@@ -2,7 +2,7 @@
 
 This roadmap splits Phase 6 of `docs/roadmaps/high-level-roadmap.md` into pull requests. `docs/roadmaps/README.md` gives the rules. The high-level roadmap keeps the objective, the order, and the exit evidence of the phase.
 
-The date of this version is 2026-10-03.
+The date of this version is 2026-10-04.
 
 ## 1. Scope and start state
 
@@ -334,4 +334,4 @@ Phase 6 ends when PR-33 merges and the device checks pass. These items give the 
 - The UI tests of PR-31 prove that the timer shows the correct time after a screen lock. The advance comes after the last set. A calibration set gives the load of the working sets with no network.
 - The offline tests of PR-32 replay a full workout with a dropped connection and a stop of the app. The server holds each set one time.
 - After the deploy of PR-32, the owner completes a full workout on the iPhone with no connection. The logs reach Firestore when the app is open and online again. Section 1.8 holds this result.
-- The browser tests of PR-33 prove that the wake lock comes back at a return with no tap. After the deploy, the owner checks it on the iPhone (D-285).
+- The browser tests of PR-33 prove that the wake lock comes back at a return with no tap. After the deploy, the owner checks it on the iPhone (D-285). Section 1.1 of `docs/roadmaps/phase-7-adaptation-loop.md` holds the result.

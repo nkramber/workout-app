@@ -518,6 +518,13 @@ The live check of D-203 failed on 2026-10-02. The app showed "The API did not an
 | Q-298 | What happens to the "Screen lock test" screen? | Remove it, and put the method into the workout. | Answered | D-284 |
 | Q-299 | The iPhone check needs a deploy from `main` (D-14). Which evidence proves the milestone? | The browser tests. The owner checks the iPhone after the deploy. | Answered | D-285 |
 
+## Questions of the Phase 7 roadmap session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-300 | The high-level roadmap has two work areas in Phase 7. Does Phase 7 get a third work area? | Yes. Work area 7.3, "Reviser evaluation". | Answered | D-286 |
+| Q-301 | How does Phase 7 split into pull requests? | Three: PR-35 to PR-37. | Answered | D-287 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |
@@ -540,5 +547,12 @@ The live check of D-203 failed on 2026-10-02. The app showed "The API did not an
 | Q-105 | What happens when a rounded load does not exist on the machine? | D-54 stores the available weights, and D-65 rounds to a global 5 lb step. The two can disagree. Answer on 2026-09-30: the heaviest available weight at or below the rounded load, or the lightest weight (D-149). | Phase 3 | Answered |
 | Q-106 | Do calibration sets for a new machine use three to four reps in reserve, when D-37 sets targets at one to three? | The research recommends more reserve for the first sets on an unknown machine. Answer on 2026-09-30: 3 to 4 reps in reserve, with the calibration table of REC-5 (D-150). | Phase 3 | Answered |
 | Q-107 | Where does the D-40 warning end and emergency advice, which D-36 excludes, begin? | A warning for chest pain needs text that stays inside the fitness boundary. Answer on 2026-09-30: the warning names the symptom and tells the user to stop the exercise, with no referral text (D-153). | Phase 3 | Answered |
-| Q-194 | Does the policy adopt the reactive deload triggers of REC-7 (D-175)? | A decline on 2 or more exercises in 2 or more sessions can need a deload of the full day. The rules of D-168 read one exercise at a time. | Phase 7 | Open |
-| Q-202 | Does Luna keep a role in the targets? | In the Phase 3 evaluation, Luna copied the target of the rules in each of 197 decisions (`docs/research/phase-3-check.md`). | Phase 7 | Open |
+| Q-194 | Does the policy adopt the reactive deload triggers of REC-7 (D-175)? | A decline on 2 or more exercises in 2 or more sessions can need a deload of the full day. The rules of D-168 read one exercise at a time. Answer on 2026-10-04: yes, in work area 7.2, with a new policy version (D-289). | Phase 7 | Answered |
+| Q-202 | Does Luna keep a role in the targets? | In the Phase 3 evaluation, Luna copied the target of the rules in each of 197 decisions (`docs/research/phase-3-check.md`). Answer on 2026-10-04: for a revision, Luna writes the reason alone, and the rules give each target (D-288). | Phase 7 | Answered |
+| Q-302 | After a finished workout, which targets does a revision change: the next session of the plan alone, or each exercise of the plan that the new log changes? | The plan holds one week of sessions, and the phone repeats them (D-211). An exercise can be in more than one session. | PR-35 | Open |
+| Q-303 | Where does the target that the owner saw stay for the history of an exercise? | The rules read the target that the owner saw. A workout log holds only a link to the plan, and a new plan replaces the old plan with no history (D-227). | PR-35 | Open |
+| Q-304 | When does a revision run, and what shows when the phone has no connection at that time? | The policy runs on the server, and the phone logs a workout with no connection (D-77). | PR-35 | Open |
+| Q-305 | Which fields of a target can an override change, and does the next revision start from the override or from the recommendation? | D-69 keeps the recommendation, the override, and the reason as separate records. The rules need one target for the next step. | PR-36 | Open |
+| Q-306 | What does a missed session change when the gap is shorter than 14 days? | D-66 names missed sessions. Today the rules change nothing for a gap under 14 days (D-179). | PR-36 | Open |
+| Q-307 | Which numbers does the reactive deload use (D-289)? | REC-7 of `docs/research/exercise-safety.md` gives 30 to 50 percent fewer sets and 3 reps in reserve for one week. The policy needs one value for each. | PR-36 | Open |
+| Q-308 | Which size and which cap does the paid reviser evaluation use? | The Phase 3 evaluation used 50 calls with a cap of 2 USD (D-184, D-185). A paid run needs the approval of the owner (D-25). | PR-37 | Open |
