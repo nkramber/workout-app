@@ -22,7 +22,7 @@ The pull request holds:
 
 `make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. GitHub PR 38 holds the work.
 
-Codex round 1 found P2-1, and round 2 found P2-2 and P2-3 (`docs/reviews/pr-38.md`). Round 3 found the fixes complete, and gave Blocked for the live check alone. The live check and the claim of D-304 came after round 3. Next action: when CI is green, run Codex round 4.
+Codex round 1 found P2-1, and round 2 found P2-2 and P2-3 (`docs/reviews/pr-38.md`). Round 3 gave Blocked for the live check alone. The live check and the claim of D-304 came after round 3. Codex round 4 approved head `6384afaf28cd5aa445aebb51d792b8dae7e02fea`. Next action: the owner confirms the merge.
 
 ## Facts that expire
 
