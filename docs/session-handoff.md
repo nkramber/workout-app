@@ -4,7 +4,7 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-04. Roadmap PR-36 of `docs/roadmaps/phase-7-adaptation-loop.md`, on branch `feat/pr-36-overrides-disruptions`, from base `d8f766e`. The worktree is `/Volumes/SSD-1TB/workout-app-pr-36`.
+Date: 2026-10-04. Review of pull request 37, work area 7.2 of `docs/roadmaps/phase-7-adaptation-loop.md`, on `feat/pr-36-overrides-disruptions`, at effective head `35cf4efd195fa2c5290c1886acff4fda1eef93a4`.
 
 The deploys of `d8f766e` passed: `deploy-api` `c3c4d9ed` and `deploy-web` `bd757c99`. The live `/version` and `/version.json` name `d8f766e`, and the revision `api-00019-s78` has all traffic.
 
@@ -20,7 +20,7 @@ The pull request holds:
 
 `make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. An early version read the history of the workouts in each `GetPlan` with a date. The browser tests then failed in 4 of 5 runs, and the base `d8f766e` passed 3 of 3. `ForDate` now reads no store for a plan with no revision, and 3 of 3 runs passed.
 
-The state is pending the CI checks, the Codex review, and the owner merge. Next action: push, open the pull request, and run `make codex-review`.
+The Codex review found P2-1 and P2-2. The review record is `docs/reviews/pr-37.md`. The review commit and push remain.
 
 ## Facts that expire
 
