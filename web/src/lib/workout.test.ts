@@ -132,6 +132,80 @@ describe("workoutExercises", () => {
   it("uses the loads of the targets when the machine has no weights", () => {
     const [, chest] = workoutExercises(plan, 0, () => []);
     expect(chest.weights).toEqual([100]);
+    expect(chest.override).toBeUndefined();
+  });
+});
+
+// A plan whose chest press has an override of the owner (D-69, D-293).
+const overridden: Plan = create(PlanSchema, {
+  createdAt: "2026-10-03T08:00:00Z",
+  sessions: [
+    {
+      title: "Session 1",
+      exercises: [
+        {
+          exerciseId: "chest_press",
+          name: "Chest press",
+          restSeconds: 60,
+          workingSets: [
+            { reps: 10, loadTenthLb: 1000, rirTarget: 2 },
+            { reps: 10, loadTenthLb: 1000, rirTarget: 2 },
+          ],
+          override: {
+            workingSets: [
+              { reps: 8, loadTenthLb: 1100, rirTarget: 2 },
+              { reps: 8, loadTenthLb: 1100, rirTarget: 2 },
+            ],
+            reason: "The last session felt easy.",
+            recommendedWorkingSets: [
+              { reps: 10, loadTenthLb: 1000, rirTarget: 2 },
+              { reps: 10, loadTenthLb: 1000, rirTarget: 2 },
+            ],
+          },
+        },
+      ],
+    },
+  ],
+});
+
+describe("an override in the next workout (D-293)", () => {
+  it("gives the sets of the override, and keeps the recommendation and the reason apart", () => {
+    const [chest] = workoutExercises(overridden, 0, () => []);
+    expect(chest.workingSets).toEqual([
+      { reps: 8, loadTenthLb: 1100, rirTarget: 2 },
+      { reps: 8, loadTenthLb: 1100, rirTarget: 2 },
+    ]);
+    expect(chest.override).toEqual({
+      reason: "The last session felt easy.",
+      recommendedWorkingSets: [
+        { reps: 10, loadTenthLb: 1000, rirTarget: 2 },
+        { reps: 10, loadTenthLb: 1000, rirTarget: 2 },
+      ],
+    });
+  });
+
+  it("sends the override, the recommendation, and the reason in the header", async () => {
+    await startWorkout(store, overridden, 0, () => [], now);
+    const [entry] = await pendingOutbox(store);
+    const [t] = fromJson(WorkoutHeaderSchema, entry.payload as never).targets;
+    expect(t.workingSets.map((s) => [s.reps, s.loadTenthLb, s.rirTarget])).toEqual([
+      [8, 1100, 2],
+      [8, 1100, 2],
+    ]);
+    expect(t.recommendedWorkingSets.map((s) => [s.reps, s.loadTenthLb, s.rirTarget])).toEqual([
+      [10, 1000, 2],
+      [10, 1000, 2],
+    ]);
+    expect(t.overrideReason).toBe("The last session felt easy.");
+  });
+
+  it("sends no override fields for an exercise with no override", async () => {
+    await startWorkout(store, plan, 0, weights, now);
+    const [entry] = await pendingOutbox(store);
+    for (const t of fromJson(WorkoutHeaderSchema, entry.payload as never).targets) {
+      expect(t.recommendedWorkingSets).toEqual([]);
+      expect(t.overrideReason).toBe("");
+    }
   });
 });
 

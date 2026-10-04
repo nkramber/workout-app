@@ -60,14 +60,15 @@ In the evaluation of Phase 3, Luna proposed the target of the rules in each of 1
 | Q-302, the targets that a revision changes | Each exercise that the workout logged, in each session of the plan that holds it. | D-290 |
 | Q-303, the place of the target that the owner saw | A copy in the workout log, which the phone makes at the start and the sync sends. | D-291 |
 | Q-304, the time of a revision with no connection | In the sync of the finished workout, with a time limit for the reviser call. The offline plan keeps the old targets until a sync completes. | D-292 |
+| Q-305, the fields of an override | The load and the reps of each working set, with a reason. The next revision starts from the override. | D-293 |
+| Q-306, a missed session under 14 days | A gap of 7 to 13 days holds the load and the reps at 3 reps in reserve for one session. | D-294 |
+| Q-307, the numbers of the deload | A decline in 2 sessions in a row on 2 or more exercises. Then 7 days at 0.6 times the sets, the same load, and 3 reps in reserve. | D-295 |
+| Q-309, the age of a decline | An exercise counts when its last decline is less than 14 days before the start of the deload. | D-296 |
 
 These questions stay open, and section 4 names the session that asks each one:
 
 | Question | Session |
 |---|---|
-| Q-305, the fields of an override | PR-36 |
-| Q-306, a missed session under 14 days | PR-36 |
-| Q-307, the numbers of the deload | PR-36 |
 | Q-308, the size and the cap of the paid evaluation | PR-37 |
 
 Q-103 stays open for the deferred photo work.
@@ -154,7 +155,7 @@ Acceptance story: the scenario tests prove the targets after a missed week and a
 
 Checks: `make contract`, `make go-test`, `make emulator-test`, `make web`, and `make verify`, free. Codex reviews PR-36.
 
-The session asks the owner Q-305 to Q-307 before the work.
+The owner approved the milestone, and answered Q-305 to Q-307 before the work (D-293 to D-295). The session asked Q-309 during the work (D-296). The milestone also holds the long-break table at the start of a session. So the read of the plan gives each target on the date of the next session.
 
 ### PR-37 - The reviser evaluation
 

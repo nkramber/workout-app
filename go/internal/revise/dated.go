@@ -32,6 +32,12 @@ func (r *Reviser) ForDate(ctx context.Context, uid string, p plan.Plan, today st
 	if _, err := time.Parse(domain.DateLayout, today); err != nil {
 		return plan.Plan{}, fmt.Errorf("%w: today: want the form %s", domain.ErrInvalid, domain.DateLayout)
 	}
+	// Each finished workout revises the plan, and a deload starts at a
+	// finished workout. So a plan with no revision has no exercise that
+	// the owner logged under it, and ForDate reads no store for it.
+	if p.Revisions == 0 {
+		return copyPlan(p), nil
+	}
 	history, err := r.finished(ctx, uid)
 	if err != nil {
 		return plan.Plan{}, err
@@ -80,13 +86,20 @@ func (r *Reviser) ForDate(ctx context.Context, uid string, p plan.Plan, today st
 		}
 	}
 
+	q := copyPlan(p)
+	apply(&q, changed)
+	return q, nil
+}
+
+// copyPlan gives a copy of the sessions of a plan, so a change of the
+// copy does not change p.
+func copyPlan(p plan.Plan) plan.Plan {
 	q := p
 	q.Sessions = slices.Clone(p.Sessions)
 	for i := range q.Sessions {
 		q.Sessions[i].Exercises = slices.Clone(p.Sessions[i].Exercises)
 	}
-	apply(&q, changed)
-	return q, nil
+	return q
 }
 
 // sameTarget tells whether two targets have the same sets and rest. A

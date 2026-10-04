@@ -7,7 +7,10 @@ import {
   MAX_REASON_CHARS,
   NO_EXERCISE,
   NO_VALID_PLAN,
+  overrideErrorText,
+  overrideSets,
   planErrorText,
+  planRequest,
   progressText,
   reasonLength,
   restText,
@@ -100,5 +103,48 @@ describe("planErrorText of a change that waits", () => {
     const text = "Your equipment changes did not reach the server. Your plan did not change. Try again when the line above says Synced.";
     expect(planErrorText(new InventoryNotSyncedError())).toBe(text);
     expect(planErrorText(new InventoryNotSyncedError(), { exclude: true })).toBe(`The exercise is not excluded. ${text}`);
+  });
+});
+
+describe("planRequest", () => {
+  it("gives the local date of the next session", () => {
+    expect(planRequest(new Date(2026, 9, 4, 23, 30))).toEqual({ today: "2026-10-04" });
+  });
+});
+
+describe("overrideSets (D-293)", () => {
+  it("reads whole reps and a load in pounds", () => {
+    expect(
+      overrideSets([
+        { reps: "8", pounds: "110" },
+        { reps: " 10 ", pounds: "12.5" },
+      ]),
+    ).toEqual([
+      { reps: 8, loadTenthLb: 1100 },
+      { reps: 10, loadTenthLb: 125 },
+    ]);
+  });
+
+  it("refuses a set with no whole reps or no load", () => {
+    for (const bad of [
+      { reps: "", pounds: "100" },
+      { reps: "8.5", pounds: "100" },
+      { reps: "0", pounds: "100" },
+      { reps: "8", pounds: "" },
+      { reps: "8", pounds: "0" },
+      { reps: "8", pounds: "ten" },
+    ]) {
+      expect(overrideSets([bad])).toBeNull();
+    }
+  });
+});
+
+describe("overrideErrorText (D-293)", () => {
+  it("names the cause and says that nothing changed", () => {
+    expect(overrideErrorText(new ConnectError("x", Code.InvalidArgument), true)).toMatch(/policy did not accept/);
+    expect(overrideErrorText(new ConnectError("x", Code.FailedPrecondition), true)).toMatch(/does not hold this exercise/);
+    expect(overrideErrorText(new ConnectError("x", Code.Aborted), true)).toMatch(/new plan replaced/);
+    expect(overrideErrorText(new ConnectError("x", Code.Internal), true)).toMatch(/not saved/);
+    expect(overrideErrorText(new ConnectError("x", Code.Unknown), false)).toMatch(/^No connection/);
   });
 });

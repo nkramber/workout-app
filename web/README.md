@@ -60,12 +60,16 @@ One screen holds each input, with one save (D-41, D-42, D-208 to D-211). Most in
 
 ## The plan screen
 
-The home screen has a "Plan" button. The plan screen reads `GetPlan`, and it shows the plan of the API in text alone (D-44, D-73):
+The home screen has a "Plan" button. The plan screen reads `GetPlan` with the local date of `web/src/lib/today.ts`, so each target is the target on the date of the next session (D-294, D-295). The sync reads the plan copy with the same date. The screen shows the plan of the API in text alone (D-44, D-73):
 
 - The summary of the plan.
 - For each session: the warm-up, each exercise, the optional cardio, and the cool-down.
 - For each exercise: the calibration sets, the working sets, the rest, and the reason.
 - The mobility and recovery items, and the excluded exercises with their reasons.
+
+Each exercise has a "Change target" button. Its form changes the reps and the load of each working set for the next session (D-69, D-293). It needs a reason of 1 to 200 characters, and it calls `OverrideTarget`.
+
+The policy of the server checks the change. The card then shows the override and the reason above the recommendation, and "Use the recommendation" calls `RemoveOverride`. Each call puts the plan in the query cache and in the plan copy, so the next workout starts with the override. A workout with an override shows "Your change" with the recommended set, and its target copy keeps the recommendation and the reason.
 
 "Make a plan" and "Make a new plan" call `RequestPlan`. Each exercise has an "Exclude" button. It opens a form with an optional reason of 200 characters or fewer, and the form calls `ExcludeExercise` (D-48, D-228).
 

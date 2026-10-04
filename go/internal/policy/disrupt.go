@@ -144,7 +144,7 @@ func totalReps(sets []domain.SetLog) int {
 // A deload starts at the date of a session when 2 or more exercises
 // declined in 2 sessions in a row. An exercise counts when its last 3
 // trained sessions up to that date show 2 declines, and its last one is
-// less than BreakDays days before that date. The sessions of a deload
+// less than BreakDays days before that date (D-296). The sessions of a deload
 // and the sessions before its end start no new deload. So after a
 // deload, each exercise needs 3 new sessions for the next one.
 //

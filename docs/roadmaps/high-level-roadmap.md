@@ -181,7 +181,7 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 | 7.2 Overrides and disruptions | Separate override records. Missed-session and long-break rules (Q-102). The reactive deload of REC-7 (D-289). | Scenario tests for a missed week, for a break of the Q-102 length, and for a deload. |
 | 7.3 Reviser evaluation | The paid evaluation of the reviser on the section 5 scenarios (D-286). The check of each reason against the logged sets (D-288). | A report with measured numbers for each scenario, under a cap that the owner approves (D-25). |
 
-**Decisions and questions.** D-37, D-43, D-64 to D-69, D-175, D-286 to D-292, Q-92, Q-102, Q-194, Q-202, Q-300 to Q-308.
+**Decisions and questions.** D-37, D-43, D-64 to D-69, D-175, D-286 to D-296, Q-92, Q-102, Q-194, Q-202, Q-300 to Q-309.
 
 **Gate.** Work area 7.3 holds the paid evaluation of the reviser on the section 5 scenarios. It runs only with owner approval (D-25, D-286).
 
