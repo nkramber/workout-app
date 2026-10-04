@@ -18,9 +18,9 @@ The owner approved the milestone (D-12), and answered Q-297 to Q-299 (D-283 to D
 
 The release order of the test is the probable cause of D-271 (unverified). The old code showed the notice while it held the lock.
 
-Codex review: Ready for owner merge for effective head `bd65e31ca3478b470e9aac87de3d5b956515e392`. No open findings. The review record awaits publication and the new `review-gate` result.
+Codex review: Ready for owner merge for effective head `bd65e31ca3478b470e9aac87de3d5b956515e392`. No open findings. The review record is on the branch, and the new `review-gate` check passed. The other CI checks await final status.
 
-Next action: wait for the new `review-gate` result, then ask the owner to confirm the merge.
+Next action: wait for the other CI checks, then ask the owner to confirm the merge.
 
 After the merge, the next session reads both deploys. The owner checks the screen lock on the iPhone during a workout, with a return and no tap (D-285).
 
