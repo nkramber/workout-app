@@ -20,9 +20,9 @@ The pull request holds:
 
 `make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. An early version marked the cached plan as stale after each sync. That raced the plan request, and 5 to 6 Chromium tests failed in 2 of 2 runs. The mark now follows a new revision alone, and 2 of 2 runs passed.
 
-The state is pending the owner merge, in GitHub PR 36. In round 1, the Codex review of `a545132` found P2-1. A plan store error can leave a finished workout with no revision. The verdict was Changes required. The author answered P2-1 with full merit in `docs/reviews/pr-36-response.md`. Such an error now gives `UNAVAILABLE`, and the phone sends the batch again.
+The Codex review found P2-1 at `a5451328baf687ec3ea13b8c5356cad7b96c6e24`. The author fixed it at `f457b47ebe9657cbd2514e816ce89d4722e30120`. The round 2 verdict is Ready for owner merge, with no open findings.
 
-Next action: wait for CI, and run `make codex-review PR=36` for round 2.
+Next action: commit and push the review record and this hand-off, then verify the published head and review-gate check. The owner then confirms the merge.
 
 ## Facts that expire
 
