@@ -46,7 +46,7 @@ test("the owner starts the next session, logs a set in three taps, reports a sym
 
   // The reps and the weight come from the target (D-249).
   await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Chest press");
-  await expect(logger(page).getByTestId("set-label")).toHaveText(/^(Calibration set|Set) 1 of \d+$/);
+  await expect(logger(page).getByTestId("set-label")).toHaveText(/^Set 1 of \d+, the calibration$/);
   const firstLabel = (await logger(page).getByTestId("set-label").textContent()) ?? "";
   const target = (await logger(page).getByTestId("set-target").textContent()) ?? "";
   const [, reps, weight] = /^Target: (\d+) reps? at ([\d.]+ lb)/.exec(target) ?? [];
@@ -118,22 +118,24 @@ test("the plus and minus buttons change the reps and step the weight on the list
 
   // Pain and a note are behind one tap (D-57, D-162). A pain report gives
   // the warning of D-169. The first set of a new exercise is the
-  // calibration set, so it offers 0 to 6+ (D-268).
-  await expect(logger(page).getByTestId("set-label")).toHaveText("Calibration set 1 of 1");
+  // calibration, and a plan has no calibration set (D-297). A working set
+  // offers 0 to 4+ (D-249).
+  await expect(logger(page).getByTestId("set-label")).toHaveText("Set 1 of 3, the calibration");
+  await expect(logger(page).getByTestId("calibration-note")).toContainText("Change the weight during the first reps");
   await button(page, "Add pain or a note").click();
   await button(page, "Pain 3").click();
   await logger(page).getByLabel("Note (optional)").fill("Synthetic note.");
-  await expect(button(page, "4+ in reserve")).toHaveCount(0);
-  await button(page, "4 in reserve").click();
+  await expect(button(page, "6+ in reserve")).toHaveCount(0);
+  await button(page, "3 in reserve").click();
   await expect(page.getByRole("alertdialog").getByTestId("warning-text")).toHaveText("You reported pain. Stop this exercise.");
   await button(page, "Continue the workout").click();
   await expect(exercise(page, "chest_press").getByTestId("logged-sets")).toContainText(
-    `${reps - 1} reps at ${final} lb, 4 in reserve, pain 3`,
+    `${reps - 1} reps at ${final} lb, 3 in reserve, pain 3`,
   );
-  // A working set offers 0 to 4+ (D-249).
-  await expect(logger(page).getByTestId("set-label")).toHaveText("Set 1 of 3");
+  // The other sets use the weight of the first set (D-299).
+  await expect(logger(page).getByTestId("set-label")).toHaveText("Set 2 of 3");
+  await expect(logger(page).getByTestId("weight")).toHaveText(`${final} lb`);
   await expect(button(page, "4+ in reserve")).toBeVisible();
-  await expect(button(page, "6+ in reserve")).toHaveCount(0);
 });
 
 test("the cardio log holds the duration and the effort, and the optional fields", async ({ page, request }, info) => {
@@ -225,8 +227,8 @@ test("the plan screen refuses a new plan and an exclusion during a workout", asy
 
 // The rest timer, the preview, and the automatic advance of work area 6.2.
 // The fake plan starts the chest press at the lightest weight, 10 lb,
-// with one calibration set and 3 working sets, and a rest of 60 seconds
-// (D-150, D-279).
+// with 3 working sets, the first set as the calibration, and a rest of
+// 60 seconds (D-279, D-297).
 
 // lock sends the app to the back as a screen lock does, moves the clock
 // of the page by ms with no timer, and brings the app back. The phone
@@ -280,9 +282,9 @@ test("the rest timer is correct after a screen lock, and the next machine comes 
   await button(page, "Dismiss").click();
   await expect(page.getByTestId("rest-timer")).toHaveCount(0);
 
-  // The 3 working sets. After the last one, the preview shows the next
-  // machine, and the rest timer runs (D-60, D-269).
-  for (let i = 1; i <= 3; i++) {
+  // The other 2 working sets. After the last one, the preview shows the
+  // next machine, and the rest timer runs (D-60, D-269).
+  for (let i = 2; i <= 3; i++) {
     await expect(logger(page).getByTestId("set-label")).toHaveText(`Set ${i} of 3`);
     await button(page, "3 in reserve").click();
   }
@@ -300,48 +302,80 @@ test("the rest timer is correct after a screen lock, and the next machine comes 
   await expect(restLeft(page)).toHaveText(/^0:[45]\d$/);
 });
 
-// The calibration step of D-267 with no network: 6+ reps in reserve on
-// the calibration set at 10 lb give two 5 lb steps, and the machine has
-// 20 lb. "Go now" advances at once, and a logged set can be edited.
-test("the calibration set gives the working load with no network, go now advances, and a set can be edited", async ({ page, context, request }, info) => {
+// The first-set calibration with no network (D-297, D-299): the owner
+// changes the weight of the first set from 10 lb to 30 lb, and the other
+// sets get 30 lb. "Go now" advances at once, and a logged set can be
+// edited.
+test("the first set gives the working load with no network, go now advances, and a set can be edited", async ({ page, context, request }, info) => {
   const email = uniqueEmail("workout-calibration", info);
   await makePlanOwner(request, email, MACHINES);
   await holdSync(page);
   await openWithPlan(page, email);
   await button(page, "Workout").click();
   await button(page, "Start Session 1").click();
+  await expect(logger(page).getByTestId("set-label")).toHaveText("Set 1 of 3, the calibration");
   await expect(logger(page).getByTestId("set-target")).toContainText("at 10 lb");
   await context.setOffline(true);
 
-  await button(page, "6+ in reserve").click();
-  await expect(logger(page).getByTestId("set-label")).toHaveText("Set 1 of 3");
-  await expect(logger(page).getByTestId("set-target")).toContainText("at 20 lb");
-  await expect(logger(page).getByTestId("weight")).toHaveText("20 lb");
-  await expect(logger(page).getByTestId("calibration-note")).toHaveText("The calibration set gave this load.");
-  for (let i = 1; i <= 3; i++) await button(page, "3 in reserve").click();
+  await button(page, "Heavier").click();
+  await button(page, "Heavier").click();
+  await expect(logger(page).getByTestId("weight")).toHaveText("30 lb");
+  await button(page, "3 in reserve").click();
+  await expect(logger(page).getByTestId("set-label")).toHaveText("Set 2 of 3");
+  await expect(logger(page).getByTestId("set-target")).toContainText("at 30 lb");
+  await expect(logger(page).getByTestId("weight")).toHaveText("30 lb");
+  await expect(logger(page).getByTestId("calibration-note")).toHaveText("The first set gave this load.");
+  for (let i = 2; i <= 3; i++) await button(page, "3 in reserve").click();
   await expect(page.getByTestId("next-preview")).toBeVisible();
   await button(page, "Go now").click();
   await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Seated row");
 
-  // The edit of the calibration set keeps its kind and its place (D-63).
+  // The edit of the first set keeps its kind and its place (D-63).
   const rows = exercise(page, "chest_press").getByTestId("logged-text");
-  await expect(rows.first()).toContainText("Calibration: ");
-  await expect(rows.first()).toContainText("at 10 lb, 6+ in reserve");
+  await expect(rows.first()).not.toContainText("Calibration: ");
+  await expect(rows.first()).toContainText("at 30 lb, 3 in reserve");
   await button(page, "Edit set 1 of Chest press").click();
   const dialog = page.getByRole("alertdialog");
-  await expect(dialog.getByRole("button", { name: "6+ in reserve", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(dialog.getByRole("button", { name: "3 in reserve", exact: true })).toHaveAttribute("aria-pressed", "true");
   await dialog.getByRole("button", { name: "More reps", exact: true }).click();
-  await dialog.getByRole("button", { name: "5 in reserve", exact: true }).click();
+  await dialog.getByRole("button", { name: "2 in reserve", exact: true }).click();
   await dialog.getByRole("button", { name: "Save the change", exact: true }).click();
   await expect(page.getByRole("alertdialog")).toHaveCount(0);
-  await expect(rows.first()).toContainText("at 10 lb, 5 in reserve");
-  await expect(rows).toHaveCount(4);
+  await expect(rows.first()).toContainText("at 30 lb, 2 in reserve");
+  await expect(rows).toHaveCount(3);
 
   const sets = await page.evaluate(async () => (await window.workoutAppE2E!.pendingOutbox()).filter((e) => e.entity === "set"));
   const firstId = sets[0].entityId;
   expect(sets.filter((e) => e.entityId === firstId)).toHaveLength(2);
-  expect(sets.at(-1)!.payload).toMatchObject({ kind: "calibration", rir: 5 });
+  expect(sets.at(-1)!.payload).toMatchObject({ kind: "working", rir: 2 });
   await context.setOffline(false);
+});
+
+// The acceptance story of PR-37 (D-298): when each exercise is done, the
+// exercise list collapses, so the cardio and the end of the workout show
+// near the top. A tap shows the list again.
+test("a finished exercise list collapses, and the cardio and the end of the workout show near the top", async ({ page, request }, info) => {
+  const email = uniqueEmail("workout-collapse", info);
+  await makePlanOwner(request, email, MACHINES);
+  await holdSync(page);
+  await openWithPlan(page, email);
+  await button(page, "Workout").click();
+  await button(page, "Start Session 1").click();
+  await expect(page.getByTestId("exercises-collapsed")).toHaveCount(0);
+  await expect(page.getByTestId("workout-exercise")).toHaveCount(2);
+
+  await logSets(page);
+  await expect(page.getByTestId("sets-done")).toBeVisible();
+  await expect(page.getByTestId("exercises-summary")).toHaveText("2 of 2 exercises done.");
+  await expect(page.getByTestId("workout-exercise")).toHaveCount(0);
+  await expect(page.getByTestId("cardio-card")).toBeInViewport();
+
+  await button(page, "Show the exercises").click();
+  await expect(page.getByTestId("workout-exercise")).toHaveCount(2);
+  await expect(button(page, "Edit set 1 of Chest press")).toBeVisible();
+  await button(page, "Hide the exercises").click();
+  await expect(page.getByTestId("workout-exercise")).toHaveCount(0);
+  await expect(button(page, "Finish workout")).toBeVisible();
 });
 
 // The acceptance story of PR-31: a skip and "finish now" give the correct
@@ -361,12 +395,12 @@ test("a skip and finish now give the correct session log", async ({ page, reques
   await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Seated row");
   await expect(exercise(page, "chest_press").getByTestId("exercise-skipped")).toHaveText("Skipped");
 
-  // The table applies to the weight that the owner logged (D-249, D-267):
-  // 20 lb in place of 10 lb, at 6+ reps in reserve, gives 30 lb.
+  // The other sets use the weight that the owner logged for the first
+  // set (D-299): 20 lb in place of 10 lb.
   await button(page, "Heavier").click();
   await expect(logger(page).getByTestId("weight")).toHaveText("20 lb");
-  await button(page, "6+ in reserve").click();
-  await expect(logger(page).getByTestId("set-target")).toContainText("at 30 lb");
+  await button(page, "3 in reserve").click();
+  await expect(logger(page).getByTestId("set-target")).toContainText("at 20 lb");
   await button(page, "Finish now").click();
   await expect(page.getByRole("alertdialog").getByTestId("finish-text")).toHaveText(
     "1 exercise has a set with no log, so the workout ends early.",
@@ -385,7 +419,7 @@ test("a skip and finish now give the correct session log", async ({ page, reques
       .map((e) => e.payload as { skippedExerciseIds?: string[]; endedEarly?: boolean; finished?: boolean }),
   }));
   expect(log.workouts).toEqual([{ finished: true, endedEarly: true, skipped: ["chest_press"] }]);
-  expect(log.sets).toEqual([{ exerciseId: "seated_row", kind: "calibration" }]);
+  expect(log.sets).toEqual([{ exerciseId: "seated_row", kind: "working" }]);
   expect(log.headers).toHaveLength(3);
   expect(log.headers[1]).toMatchObject({ skippedExerciseIds: ["chest_press"] });
   expect(log.headers[2]).toMatchObject({ skippedExerciseIds: ["chest_press"], endedEarly: true, finished: true });

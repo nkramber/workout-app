@@ -127,6 +127,7 @@ function headerPayload(w: WorkoutRecord): unknown {
         workingSets: sets(e.workingSets),
         recommendedWorkingSets: e.override ? sets(e.override.recommendedWorkingSets) : [],
         overrideReason: e.override?.reason ?? "",
+        firstSetCalibration: e.firstSetCalibration ?? false,
       })),
     }),
   );
@@ -217,6 +218,7 @@ export function workoutExercises(plan: Plan, sessionIndex: number, weights: (exe
     }
     const out: WorkoutExercise = { exerciseId: e.exerciseId, name: e.name, restSeconds: e.restSeconds, calibrationSets, workingSets, weights: list };
     if (o) out.override = { reason: o.reason, recommendedWorkingSets: sets(e.workingSets) };
+    if (e.firstSetCalibration) out.firstSetCalibration = true;
     if (calibrationSets.length > 0 && e.calibrationLoads.length > 0) {
       out.calibrationLoads = e.calibrationLoads.map((c) => ({
         weight: c.weightTenthLb,
@@ -484,9 +486,17 @@ export function workoutCardio(store: WorkoutAppDB, workoutId: string): Promise<C
 
 // The next set of an exercise: the calibration sets first, then the
 // working sets (D-150). `number` counts from 1 inside its kind.
-// fromCalibration is true when the calibration set gave the load of the
-// working set (D-267).
-export type NextSet = { kind: "working" | "calibration"; number: number; of: number; target: TargetSet; fromCalibration: boolean };
+// fromCalibration is true when the calibration gave the load of the
+// working set (D-267, D-299). calibrates is true for the first working
+// set of the first-set calibration (D-297).
+export type NextSet = {
+  kind: "working" | "calibration";
+  number: number;
+  of: number;
+  target: TargetSet;
+  fromCalibration: boolean;
+  calibrates: boolean;
+};
 
 // calibrationLoad gives the load of the working sets after a logged
 // calibration set, from the loads of the policy (D-150, D-267): 2 or
@@ -507,21 +517,29 @@ export function calibrationLoad(e: WorkoutExercise, s: Pick<SetRecord, "weightTe
 }
 
 // nextSet gives the next planned set of an exercise, or null when each
-// planned set has a log. After the calibration set, each working set
-// gets the load of the calibration table (D-267).
+// planned set has a log. After the calibration set of a plan of policy
+// version 6 or earlier, each working set gets the load of the
+// calibration table (D-267). With the first-set calibration, each later
+// working set gets the weight that the owner logged for the first set
+// (D-299).
 export function nextSet(e: WorkoutExercise, logged: readonly SetRecord[]): NextSet | null {
   const mine = logged.filter((s) => s.exerciseId === e.exerciseId);
   const cals = mine.filter((s) => s.kind === "calibration");
   if (cals.length < e.calibrationSets.length) {
     const n = cals.length;
-    return { kind: "calibration", number: n + 1, of: e.calibrationSets.length, target: e.calibrationSets[n], fromCalibration: false };
+    return { kind: "calibration", number: n + 1, of: e.calibrationSets.length, target: e.calibrationSets[n], fromCalibration: false, calibrates: false };
   }
-  const work = mine.filter((s) => s.kind === "working").length;
-  if (work < e.workingSets.length) {
-    const target = e.workingSets[work];
+  const work = mine.filter((s) => s.kind === "working");
+  if (work.length < e.workingSets.length) {
+    const n = work.length;
+    const set = { kind: "working" as const, number: n + 1, of: e.workingSets.length, target: e.workingSets[n] };
+    if (e.firstSetCalibration) {
+      if (n === 0) return { ...set, fromCalibration: false, calibrates: true };
+      return { ...set, target: { ...set.target, loadTenthLb: work[0].weightTenthsLb }, fromCalibration: true, calibrates: false };
+    }
     const load = cals.length > 0 ? calibrationLoad(e, cals[0]) : null;
-    if (load === null) return { kind: "working", number: work + 1, of: e.workingSets.length, target, fromCalibration: false };
-    return { kind: "working", number: work + 1, of: e.workingSets.length, target: { ...target, loadTenthLb: load }, fromCalibration: true };
+    if (load === null) return { ...set, fromCalibration: false, calibrates: false };
+    return { ...set, target: { ...set.target, loadTenthLb: load }, fromCalibration: true, calibrates: false };
   }
   return null;
 }

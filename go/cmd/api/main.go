@@ -209,6 +209,9 @@ func newHandler(v auth.Verifier, a auth.Allowlist, store inventory.Store, profil
 	mux.Handle(workoutappv1connect.NewInventoryServiceHandler(inventorysvc.New(store), signedIn))
 	mux.Handle(workoutappv1connect.NewProfileServiceHandler(profilesvc.New(profiles), signedIn))
 	reviser := &revise.Reviser{AI: maker.AI, Plans: maker.Plans, Workouts: workouts, Inventory: store, Now: maker.Now, Log: maker.Log}
+	// A new plan reads the logged history, so an exercise with history
+	// gets no calibration (D-301).
+	maker.History = reviser.History
 	mux.Handle(workoutappv1connect.NewPlanServiceHandler(plansvc.New(maker, reviser), signedIn))
 	mux.Handle(workoutappv1connect.NewWorkoutServiceHandler(workoutsvc.New(workouts, store).WithReviser(reviser, maker.Log), signedIn))
 	body, _ := json.Marshal(map[string]string{"commit": buildCommit})

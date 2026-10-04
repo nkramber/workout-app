@@ -1,8 +1,8 @@
-policy version: 6
-rules: start.estimate, calibration.set
+policy version: 7
+rules: start.estimate, calibration.first-set
 target: chest_press, rest 60 s
-  calibration[0]: 8 reps at 70 lb
   working[0]: 8 reps at 70 lb, 3 RIR
   working[1]: 8 reps at 70 lb, 3 RIR
   working[2]: 8 reps at 70 lb, 3 RIR
-reason: This exercise is new, and you return after a long break. It starts at 70 percent of your estimate of 100 lb: 70 lb. The session starts with one calibration set of 8 reps at 70 lb. Stop it at 3 to 4 reps in reserve.
+  working[0] is the calibration
+reason: This exercise is new, and you return after a long break. It starts at 70 percent of your estimate of 100 lb: 70 lb. The first set is the calibration. Change the weight during its first reps when it is too light or too heavy. The other sets use the weight of the first set.

@@ -1,0 +1,2390 @@
+{
+ "provider": "openai",
+ "cap": "1 USD",
+ "model": "gpt-6-luna",
+ "effort": "xhigh",
+ "prompt_version": "luna-prompt-v6",
+ "prompt_hashes": {
+  "planner": "177bb4e2f420c9e749a22ea3ec46c26e8257c50ddb9a093c14dc901e263176c0",
+  "reviser": "bf054a0f230db3ab910496e58424ad35b5bcd08a9062feae0404f6519a94d9fa"
+ },
+ "schema": "luna_plan_v2",
+ "policy_version": 7,
+ "filter_version": 1,
+ "scenario_repeats": 5,
+ "calls": [
+  {
+   "role": "reviser",
+   "item": "A",
+   "repeat": 1,
+   "status": "ok",
+   "seconds": 5.994482042,
+   "usage": {
+    "InputTokens": 3904,
+    "CachedInputTokens": 3901,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 546,
+    "ReasoningTokens": 382
+   },
+   "cost_nano_usd": 312310,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "a_low_rir",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "reason": "Set 3 reached 5 reps at 0 RIR after hard sets, so 25 lb stays and the target is 3 x 8.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "a_twice",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "reason": "Set 3 reached 6 reps at 0 RIR; two short sessions mean the load drops to 20 lb.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "a_pain",
+     "exercise": "leg_extension",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_extension, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "leg_extension, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "Set 3 logged pain 4, so the target stays at 25 lb for one session.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "A",
+   "repeat": 2,
+   "status": "ok",
+   "seconds": 10.840095999999999,
+   "usage": {
+    "InputTokens": 3904,
+    "CachedInputTokens": 3901,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 1447,
+    "ReasoningTokens": 1260
+   },
+   "cost_nano_usd": 762810,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "a_low_rir",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "reason": "Set 3 was 7 reps short at 5 reps and 0 reps in reserve, so the target stays at 25 lb for 3 x 8.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "a_twice",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "reason": "After two sessions fell short, including set 3 at 6 reps and 0 reps in reserve at 25 lb, the target drops to 20 lb for 3 x 12.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "a_pain",
+     "exercise": "leg_extension",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_extension, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "leg_extension, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "Set 3 recorded pain 4, so the target stays at 25 lb for 3 x 12 for one session.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "A",
+   "repeat": 3,
+   "status": "ok",
+   "seconds": 6.625754375,
+   "usage": {
+    "InputTokens": 3904,
+    "CachedInputTokens": 3901,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 648,
+    "ReasoningTokens": 455
+   },
+   "cost_nano_usd": 363310,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "a_low_rir",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "reason": "Working set 3 was 5 reps at 0 RIR, so the load stays at 25 lb and the target is 3 x 8.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "a_twice",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "reason": "Working set 3 was 6 reps at 0 RIR; after two shortfall sessions, the load drops to 20 lb and the target stays at 3 x 12.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "a_pain",
+     "exercise": "leg_extension",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_extension, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "leg_extension, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "Working set 3 was 5 reps at 25 lb with pain 4, so the target stays at 3 x 12 at 25 lb for one session.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "A",
+   "repeat": 4,
+   "status": "ok",
+   "seconds": 7.335362,
+   "usage": {
+    "InputTokens": 3904,
+    "CachedInputTokens": 0,
+    "CacheWriteTokens": 3901,
+    "OutputTokens": 890,
+    "ReasoningTokens": 710
+   },
+   "cost_nano_usd": 932925,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "a_low_rir",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "reason": "Set 3 reached 5 reps at 25 lb with 0 RIR, so the load stays at 25 lb and the target is 3 x 8.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "a_twice",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "reason": "Set 3 reached 6 reps at 25 lb after another shortfall, so the target lowers to 20 lb for 3 x 12.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "a_pain",
+     "exercise": "leg_extension",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_extension, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "leg_extension, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "Set 3 logged pain 4, so the target stays at 3 x 12 at 25 lb for this session.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "A",
+   "repeat": 5,
+   "status": "ok",
+   "seconds": 5.534759583,
+   "usage": {
+    "InputTokens": 3904,
+    "CachedInputTokens": 3901,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 672,
+    "ReasoningTokens": 488
+   },
+   "cost_nano_usd": 375310,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "a_low_rir",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR; 8 at 25 lb, 2 RIR",
+     "reason": "After set 3 reached 5 reps at 0 RIR, the load stays at 25 lb and the target is 3 x 8.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "a_twice",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "reason": "After set 3 reached 6 reps at 0 RIR, two sessions in a row fell short, so the target drops to 20 lb for 3 x 12.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "a_pain",
+     "exercise": "leg_extension",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_extension, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "leg_extension, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "You reported pain 4 on set 3, so the target stays at 25 lb for 3 x 12 for one session.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "B",
+   "repeat": 1,
+   "status": "ok",
+   "seconds": 4.042330625,
+   "usage": {
+    "InputTokens": 3655,
+    "CachedInputTokens": 2468,
+    "CacheWriteTokens": 1184,
+    "OutputTokens": 533,
+    "ReasoningTokens": 338
+   },
+   "cost_nano_usd": 439480,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "b_load_step",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "reason": "Working set 3 reached 12 reps at 25 lb with 4 reps in reserve, so the target moves to 30 lb for 3 x 8.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "b_add_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "Working set 3 reached 10 reps at 25 lb with 3 reps in reserve, so the target is 3 x 12 at 25 lb.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "b_dumbbell_step",
+     "exercise": "db_biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "db_biceps_curl, rest 60 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "final_target": "db_biceps_curl, rest 60 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "reason": "Dumbbell working set 3 reached 20 reps at 15 lb with 3 reps in reserve, so the target moves to 20 lb for 3 x 10.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "B",
+   "repeat": 2,
+   "status": "ok",
+   "seconds": 3.750813417,
+   "usage": {
+    "InputTokens": 3655,
+    "CachedInputTokens": 3652,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 498,
+    "ReasoningTokens": 305
+   },
+   "cost_nano_usd": 285820,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "b_load_step",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "reason": "Working set 1 reached 12 reps at 25 lb with 3 reps in reserve, so the target rises to 30 lb for 3 x 8.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "b_add_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "Working set 1 reached 10 reps at 25 lb with 3 reps in reserve, so the target rises to 3 x 12 at 25 lb.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "b_dumbbell_step",
+     "exercise": "db_biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "db_biceps_curl, rest 60 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "final_target": "db_biceps_curl, rest 60 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "reason": "Working set 1 reached 20 reps at 15 lb with 3 reps in reserve, so the target rises to 20 lb for 3 x 10.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "B",
+   "repeat": 3,
+   "status": "ok",
+   "seconds": 4.362024834,
+   "usage": {
+    "InputTokens": 3655,
+    "CachedInputTokens": 3652,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 597,
+    "ReasoningTokens": 400
+   },
+   "cost_nano_usd": 335320,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "b_load_step",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "reason": "You hit the 12-rep top at 25 lb with 3 RIR in set 1, so the target rises to 30 lb for 3 x 8.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "b_add_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "You completed set 1 at 10 reps and 25 lb with 3 RIR, so the target adds 2 reps to 3 x 12.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "b_dumbbell_step",
+     "exercise": "db_biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "db_biceps_curl, rest 60 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "final_target": "db_biceps_curl, rest 60 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "reason": "You reached 20 reps at 15 lb with 3 RIR in set 1, so the target increases to 20 lb and resets to 3 x 10.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "B",
+   "repeat": 4,
+   "status": "ok",
+   "seconds": 3.834279708,
+   "usage": {
+    "InputTokens": 3655,
+    "CachedInputTokens": 3652,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 502,
+    "ReasoningTokens": 303
+   },
+   "cost_nano_usd": 287820,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "b_load_step",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "reason": "You completed set 1 for 12 reps at 25 lb with 3 reps in reserve, so the target adds load to 30 lb and resets to 3 x 8.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "b_add_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "You completed set 1 for 10 reps at 25 lb with 3 reps in reserve, so the target adds reps to 3 x 12.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "b_dumbbell_step",
+     "exercise": "db_biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "db_biceps_curl, rest 60 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "final_target": "db_biceps_curl, rest 60 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "reason": "You completed set 1 for 20 reps at 15 lb with 3 reps in reserve, so the target adds load to 20 lb and resets to 3 x 10.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "B",
+   "repeat": 5,
+   "status": "ok",
+   "seconds": 3.281938292,
+   "usage": {
+    "InputTokens": 3655,
+    "CachedInputTokens": 3652,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 439,
+    "ReasoningTokens": 226
+   },
+   "cost_nano_usd": 256320,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "b_load_step",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR; 8 at 30 lb, 2 RIR",
+     "reason": "You reached the top of the range with reps to spare: set 3 was 12 reps at 25 lb with 4 in reserve, so the target is 3 x 8 at 30 lb.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "b_add_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "You completed every set with reps to spare: set 3 was 10 reps at 25 lb with 3 in reserve, so the target is 3 x 12.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "b_dumbbell_step",
+     "exercise": "db_biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "db_biceps_curl, rest 60 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "final_target": "db_biceps_curl, rest 60 s: 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR; 10 at 20 lb, 2 RIR",
+     "reason": "You reached the top of the range with reps to spare: set 3 was 20 reps at 15 lb with 3 in reserve, so the target is 3 x 10 at 20 lb.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "C",
+   "repeat": 1,
+   "status": "ok",
+   "seconds": 3.332417167,
+   "usage": {
+    "InputTokens": 3312,
+    "CachedInputTokens": 2468,
+    "CacheWriteTokens": 841,
+    "OutputTokens": 362,
+    "ReasoningTokens": 258
+   },
+   "cost_nano_usd": 311105,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "c_pain_hold",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "Working set 2 recorded pain 3, so the target stays the same for one session.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "c_pain_easy",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "final_target": "chest_press, rest 60 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "reason": "Working set 1 recorded pain 2, so the target stays the same for one session.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "C",
+   "repeat": 2,
+   "status": "ok",
+   "seconds": 3.451735,
+   "usage": {
+    "InputTokens": 3312,
+    "CachedInputTokens": 3309,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 314,
+    "ReasoningTokens": 210
+   },
+   "cost_nano_usd": 190390,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "c_pain_hold",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "Working set 2 had pain 3, so the target stays the same for one session.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "c_pain_easy",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "final_target": "chest_press, rest 60 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "reason": "Working set 1 had pain 2, so the target stays the same for one session.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "C",
+   "repeat": 3,
+   "status": "ok",
+   "seconds": 3.2960626250000002,
+   "usage": {
+    "InputTokens": 3312,
+    "CachedInputTokens": 3309,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 363,
+    "ReasoningTokens": 261
+   },
+   "cost_nano_usd": 214890,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "c_pain_hold",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "The target stays the same for one session after working set 2 had pain 3.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "c_pain_easy",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "final_target": "chest_press, rest 60 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "reason": "The target stays the same for one session after working set 1 had pain 2.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "C",
+   "repeat": 4,
+   "status": "ok",
+   "seconds": 2.730717459,
+   "usage": {
+    "InputTokens": 3312,
+    "CachedInputTokens": 3309,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 256,
+    "ReasoningTokens": 154
+   },
+   "cost_nano_usd": 161390,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "c_pain_hold",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "Your target stays the same for one session after pain was reported on working set 2.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "c_pain_easy",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "final_target": "chest_press, rest 60 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "reason": "Your target stays the same for one session after pain was reported on working set 1.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "C",
+   "repeat": 5,
+   "status": "ok",
+   "seconds": 3.423443959,
+   "usage": {
+    "InputTokens": 3312,
+    "CachedInputTokens": 3309,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 429,
+    "ReasoningTokens": 329
+   },
+   "cost_nano_usd": 247890,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "c_pain_hold",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "Pain 3 was reported on set 2, so this target stays the same.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "c_pain_easy",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "final_target": "chest_press, rest 60 s: 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR; 12 at 60 lb, 2 RIR",
+     "reason": "Pain 2 was reported on set 1, so this target stays the same.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "D",
+   "repeat": 1,
+   "status": "ok",
+   "seconds": 3.432420833,
+   "usage": {
+    "InputTokens": 3203,
+    "CachedInputTokens": 2468,
+    "CacheWriteTokens": 732,
+    "OutputTokens": 423,
+    "ReasoningTokens": 336
+   },
+   "cost_nano_usd": 327980,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "d_unlogged",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "Working sets 1 and 2 were 12 reps at 25 lb with 3 reps in reserve; set 3 was unlogged, so the target stays the same.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "d_skipped",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "You skipped this exercise. The target stays the same.",
+     "safe": true,
+     "reason_source": "rules",
+     "reason_cause": "no-reason"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "D",
+   "repeat": 2,
+   "status": "ok",
+   "seconds": 4.195252083,
+   "usage": {
+    "InputTokens": 3203,
+    "CachedInputTokens": 3200,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 447,
+    "ReasoningTokens": 341
+   },
+   "cost_nano_usd": 255800,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "d_unlogged",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "Working set 1 reached 12 reps at 25 lb with 3 reps in reserve; since the session ended after 2 of 3 sets, the target stays the same.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "d_skipped",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "You skipped this exercise. The target stays the same.",
+     "safe": true,
+     "reason_source": "rules",
+     "reason_cause": "no-logged-set"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "D",
+   "repeat": 3,
+   "status": "ok",
+   "seconds": 3.015219125,
+   "usage": {
+    "InputTokens": 3203,
+    "CachedInputTokens": 3200,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 317,
+    "ReasoningTokens": 232
+   },
+   "cost_nano_usd": 190800,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "d_unlogged",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "You logged 12 reps at 25 lb with 3 reps in reserve on sets 1 and 2, but ended early, so the target stays the same.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "d_skipped",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "You skipped this exercise. The target stays the same.",
+     "safe": true,
+     "reason_source": "rules",
+     "reason_cause": "no-reason"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "D",
+   "repeat": 4,
+   "status": "ok",
+   "seconds": 2.697947666,
+   "usage": {
+    "InputTokens": 3203,
+    "CachedInputTokens": 3200,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 285,
+    "ReasoningTokens": 213
+   },
+   "cost_nano_usd": 174800,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "d_unlogged",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "You logged 12 reps at 25 lb on set 2, but set 3 was unlogged, so the target stays the same.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "d_skipped",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "You skipped this exercise. The target stays the same.",
+     "safe": true,
+     "reason_source": "rules",
+     "reason_cause": "no-reason"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "D",
+   "repeat": 5,
+   "status": "ok",
+   "seconds": 4.565216959,
+   "usage": {
+    "InputTokens": 3203,
+    "CachedInputTokens": 3200,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 570,
+    "ReasoningTokens": 478
+   },
+   "cost_nano_usd": 317300,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "d_unlogged",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "The target stays the same because the session ended early after working set 2 at 12 reps and 25 lb.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "d_skipped",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR; 12 at 25 lb, 2 RIR",
+     "reason": "You skipped this exercise. The target stays the same.",
+     "safe": true,
+     "reason_source": "rules",
+     "reason_cause": "no-logged-set"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "E",
+   "repeat": 1,
+   "status": "ok",
+   "seconds": 5.273358875,
+   "usage": {
+    "InputTokens": 3903,
+    "CachedInputTokens": 2468,
+    "CacheWriteTokens": 1432,
+    "OutputTokens": 724,
+    "ReasoningTokens": 516
+   },
+   "cost_nano_usd": 565980,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "e_short",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "final_target": "chest_press, rest 60 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "reason": "After 21 days without a logged set, this returns to 2 x 12 at 90 lb; your last set was set 1: 12 reps at 100 lb with 3 reps in reserve.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "e_long",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_press, rest 60 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "final_target": "leg_press, rest 60 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "reason": "After 45 days without a logged set, this returns to 2 x 12 at 120 lb; your last set was set 1: 12 reps at 150 lb with 3 reps in reserve.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "e_first_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "reason": "You did set 2 for 10 reps at 45 lb with 3 reps in reserve, so this target adds 2 reps per set to 12.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "E",
+   "repeat": 2,
+   "status": "ok",
+   "seconds": 5.20694125,
+   "usage": {
+    "InputTokens": 3903,
+    "CachedInputTokens": 3900,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 698,
+    "ReasoningTokens": 489
+   },
+   "cost_nano_usd": 388300,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "e_short",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "final_target": "chest_press, rest 60 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "reason": "Your last session's set 1 was 12 reps at 100 lb; after 21 days away, the target is 2 x 12 at 90 lb and 3 RIR.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "e_long",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_press, rest 60 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "final_target": "leg_press, rest 60 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "reason": "Your last session's set 1 was 12 reps at 150 lb; after 45 days away, the target is 2 x 12 at 120 lb and 3 RIR.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "e_first_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "reason": "You did 10 reps at 45 lb with 3 RIR on set 1; since you completed every set with reps to spare, the target is 2 x 12 at 45 lb.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "E",
+   "repeat": 3,
+   "status": "ok",
+   "seconds": 4.958256625,
+   "usage": {
+    "InputTokens": 3903,
+    "CachedInputTokens": 3900,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 602,
+    "ReasoningTokens": 404
+   },
+   "cost_nano_usd": 340300,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "e_short",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "final_target": "chest_press, rest 60 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "reason": "After working set 3 at 100 lb for 12 reps with 3 reps in reserve, the 21-day gap calls for 2 x 12 at 90 lb.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "e_long",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_press, rest 60 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "final_target": "leg_press, rest 60 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "reason": "After working set 3 at 150 lb for 12 reps with 3 reps in reserve, the 45-day gap calls for 2 x 12 at 120 lb.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "e_first_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "reason": "You completed working set 2 for 10 reps at 45 lb with 3 reps in reserve, so the target adds reps to 2 x 12 at the same load.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "E",
+   "repeat": 4,
+   "status": "ok",
+   "seconds": 8.522763791,
+   "usage": {
+    "InputTokens": 3903,
+    "CachedInputTokens": 3900,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 1246,
+    "ReasoningTokens": 1021
+   },
+   "cost_nano_usd": 662300,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "e_short",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "final_target": "chest_press, rest 60 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "reason": "After 21 days away, your return target is 2 x 12 at 90 lb and 3 reps in reserve; working set 1 was 12 reps at 100 lb and 3 reps in reserve.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "e_long",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_press, rest 60 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "final_target": "leg_press, rest 60 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "reason": "After 45 days away, your return target is 2 x 12 at 120 lb and 3 reps in reserve; working set 1 was 12 reps at 150 lb and 3 reps in reserve.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "e_first_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "reason": "You did 10 reps at 45 lb with 3 reps in reserve on working sets 1 and 2, so your target adds reps to 2 x 12 at 45 lb.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "E",
+   "repeat": 5,
+   "status": "ok",
+   "seconds": 5.171409166,
+   "usage": {
+    "InputTokens": 3903,
+    "CachedInputTokens": 3900,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 689,
+    "ReasoningTokens": 487
+   },
+   "cost_nano_usd": 383800,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "e_short",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "final_target": "chest_press, rest 60 s: 12 at 90 lb, 3 RIR; 12 at 90 lb, 3 RIR",
+     "reason": "Working set 1 was 12 reps at 100 lb; after 21 days away, the target is 2 x 12 at 90 lb with 3 RIR.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "e_long",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_press, rest 60 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "final_target": "leg_press, rest 60 s: 12 at 120 lb, 3 RIR; 12 at 120 lb, 3 RIR",
+     "reason": "Working set 1 was 12 reps at 150 lb; after 45 days away, the target is 2 x 12 at 120 lb with 3 RIR.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "e_first_reps",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "final_target": "seated_row, rest 60 s: 12 at 45 lb, 3 RIR; 12 at 45 lb, 3 RIR",
+     "reason": "Working set 1 was 10 reps at 45 lb with 3 RIR; with reps to spare, the target is 2 x 12 at 45 lb and 3 RIR.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "F",
+   "repeat": 1,
+   "status": "ok",
+   "seconds": 3.521208083,
+   "usage": {
+    "InputTokens": 3415,
+    "CachedInputTokens": 2468,
+    "CacheWriteTokens": 944,
+    "OutputTokens": 375,
+    "ReasoningTokens": 237
+   },
+   "cost_nano_usd": 330480,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "f_press",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "final_target": "chest_press, rest 60 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "reason": "You completed set 3 for 12 reps at 100 lb with 3 reps in reserve, so the load rises to 105 lb and the target resets to 8 reps.",
+     "safe": true,
+     "jump_refused": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "f_leg_press",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_press, rest 60 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "final_target": "leg_press, rest 60 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "reason": "You completed set 3 for 12 reps at 200 lb with 3 reps in reserve, so the load rises to 205 lb and the target resets to 8 reps.",
+     "safe": true,
+     "jump_refused": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "F",
+   "repeat": 2,
+   "status": "ok",
+   "seconds": 2.906293834,
+   "usage": {
+    "InputTokens": 3415,
+    "CachedInputTokens": 3412,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 369,
+    "ReasoningTokens": 237
+   },
+   "cost_nano_usd": 218920,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "f_press",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "final_target": "chest_press, rest 60 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "reason": "You reached 12 reps at 100 lb with 3 RIR on set 1, so the load rises to 105 lb for 3 x 8.",
+     "safe": true,
+     "jump_refused": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "f_leg_press",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_press, rest 60 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "final_target": "leg_press, rest 60 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "reason": "You reached 12 reps at 200 lb with 3 RIR on set 1, so the load rises to 205 lb for 3 x 8.",
+     "safe": true,
+     "jump_refused": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "F",
+   "repeat": 3,
+   "status": "ok",
+   "seconds": 3.667490958,
+   "usage": {
+    "InputTokens": 3415,
+    "CachedInputTokens": 3412,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 383,
+    "ReasoningTokens": 251
+   },
+   "cost_nano_usd": 225920,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "f_press",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "final_target": "chest_press, rest 60 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "reason": "You completed working set 1 for 12 reps at 100 lb with 3 reps in reserve, so the target moves to 105 lb for 8 reps.",
+     "safe": true,
+     "jump_refused": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "f_leg_press",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_press, rest 60 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "final_target": "leg_press, rest 60 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "reason": "You completed working set 1 for 12 reps at 200 lb with 3 reps in reserve, so the target moves to 205 lb for 8 reps.",
+     "safe": true,
+     "jump_refused": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "F",
+   "repeat": 4,
+   "status": "ok",
+   "seconds": 4.19630775,
+   "usage": {
+    "InputTokens": 3415,
+    "CachedInputTokens": 3412,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 493,
+    "ReasoningTokens": 349
+   },
+   "cost_nano_usd": 280920,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "f_press",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "final_target": "chest_press, rest 60 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "reason": "You hit the top of the range: set 1 was 12 reps at 100 lb with 3 in reserve, so the load rises to 105 lb for 3 x 8.",
+     "safe": true,
+     "jump_refused": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "f_leg_press",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_press, rest 60 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "final_target": "leg_press, rest 60 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "reason": "You hit the top of the range: set 1 was 12 reps at 200 lb with 3 in reserve, so the load rises to 205 lb for 3 x 8.",
+     "safe": true,
+     "jump_refused": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "F",
+   "repeat": 5,
+   "status": "ok",
+   "seconds": 3.845618334,
+   "usage": {
+    "InputTokens": 3415,
+    "CachedInputTokens": 3412,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 453,
+    "ReasoningTokens": 319
+   },
+   "cost_nano_usd": 260920,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "f_press",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "final_target": "chest_press, rest 60 s: 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR; 8 at 105 lb, 2 RIR",
+     "reason": "You completed set 1 for 12 reps at 100 lb with 3 reps in reserve, so the target rises to 105 lb for 3 x 8.",
+     "safe": true,
+     "jump_refused": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "f_leg_press",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_press, rest 60 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "final_target": "leg_press, rest 60 s: 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR; 8 at 205 lb, 2 RIR",
+     "reason": "You completed set 1 for 12 reps at 200 lb with 3 reps in reserve, so the target rises to 205 lb for 3 x 8.",
+     "safe": true,
+     "jump_refused": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "G",
+   "repeat": 1,
+   "status": "ok",
+   "seconds": 3.5637026670000003,
+   "usage": {
+    "InputTokens": 3572,
+    "CachedInputTokens": 2468,
+    "CacheWriteTokens": 1101,
+    "OutputTokens": 403,
+    "ReasoningTokens": 261
+   },
+   "cost_nano_usd": 364105,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "g_missed_week",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR",
+     "final_target": "chest_press, rest 60 s: 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR",
+     "reason": "Your last session's set 1 was 10 reps at 100 lb with 3 reps in reserve; after 9 days, the target stays the same at 3 reps in reserve.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "g_missed_13",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_press, rest 60 s: 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR",
+     "final_target": "leg_press, rest 60 s: 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR",
+     "reason": "Your last session's set 1 was 12 reps at 150 lb with 3 reps in reserve; after 13 days, the target stays the same at 3 reps in reserve.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "G",
+   "repeat": 2,
+   "status": "ok",
+   "seconds": 5.774652375,
+   "usage": {
+    "InputTokens": 3572,
+    "CachedInputTokens": 3569,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 778,
+    "ReasoningTokens": 650
+   },
+   "cost_nano_usd": 424990,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "g_missed_week",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR",
+     "final_target": "chest_press, rest 60 s: 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR",
+     "reason": "After 9 days, set 1 had 10 reps at 100 lb and 3 RIR, so the target holds with 3 RIR.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "g_missed_13",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_press, rest 60 s: 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR",
+     "final_target": "leg_press, rest 60 s: 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR",
+     "reason": "After 13 days, set 1 had 12 reps at 150 lb and 3 RIR, so the target holds with 3 RIR.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "G",
+   "repeat": 3,
+   "status": "ok",
+   "seconds": 3.5437115,
+   "usage": {
+    "InputTokens": 3572,
+    "CachedInputTokens": 3569,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 385,
+    "ReasoningTokens": 247
+   },
+   "cost_nano_usd": 228490,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "g_missed_week",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR",
+     "final_target": "chest_press, rest 60 s: 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR",
+     "reason": "Your last set 3 was 10 reps at 100 lb with 3 reps in reserve; after 9 days, the target stays the same at 3 reps in reserve.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "g_missed_13",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_press, rest 60 s: 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR",
+     "final_target": "leg_press, rest 60 s: 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR",
+     "reason": "Your last set 3 was 12 reps at 150 lb with 3 reps in reserve; after 13 days, the target stays the same at 3 reps in reserve.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "G",
+   "repeat": 4,
+   "status": "ok",
+   "seconds": 4.166757959,
+   "usage": {
+    "InputTokens": 3572,
+    "CachedInputTokens": 3569,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 516,
+    "ReasoningTokens": 370
+   },
+   "cost_nano_usd": 293990,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "g_missed_week",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR",
+     "final_target": "chest_press, rest 60 s: 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR",
+     "reason": "After 9 days, the target holds at 10 reps and 100 lb with 3 reps in reserve; working set 1 logged 10 reps at 100 lb and 3 in reserve.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "g_missed_13",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_press, rest 60 s: 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR",
+     "final_target": "leg_press, rest 60 s: 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR",
+     "reason": "After 13 days, the target holds at 12 reps and 150 lb with 3 reps in reserve; working set 1 logged 12 reps at 150 lb and 3 in reserve.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "G",
+   "repeat": 5,
+   "status": "ok",
+   "seconds": 3.0092635,
+   "usage": {
+    "InputTokens": 3572,
+    "CachedInputTokens": 3569,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 376,
+    "ReasoningTokens": 242
+   },
+   "cost_nano_usd": 223990,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "g_missed_week",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR",
+     "final_target": "chest_press, rest 60 s: 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR; 10 at 100 lb, 3 RIR",
+     "reason": "Set 3 was 10 reps at 100 lb with 3 reps in reserve; after 9 days, the target stays the same at 3 reps in reserve.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "g_missed_13",
+     "exercise": "leg_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_press, rest 60 s: 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR",
+     "final_target": "leg_press, rest 60 s: 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR; 12 at 150 lb, 3 RIR",
+     "reason": "Set 3 was 12 reps at 150 lb with 3 reps in reserve; after 13 days, the target stays the same at 3 reps in reserve.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "H",
+   "repeat": 1,
+   "status": "ok",
+   "seconds": 6.151164125,
+   "usage": {
+    "InputTokens": 4063,
+    "CachedInputTokens": 2468,
+    "CacheWriteTokens": 1592,
+    "OutputTokens": 771,
+    "ReasoningTokens": 609
+   },
+   "cost_nano_usd": 609480,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "h_deload_curl",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "final_target": "biceps_curl, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "reason": "Your set 2 had 10 reps and set 3 had 9 at 0 RIR; this deload sets 2 x 8 at 25 lb and 3 RIR.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "h_deload_row",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "final_target": "seated_row, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "reason": "Your set 2 had 10 reps and set 3 had 9 at 0 RIR; this deload sets 2 x 8 at 25 lb and 3 RIR.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "H",
+   "repeat": 2,
+   "status": "ok",
+   "seconds": 5.288207833,
+   "usage": {
+    "InputTokens": 4063,
+    "CachedInputTokens": 4060,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 727,
+    "ReasoningTokens": 575
+   },
+   "cost_nano_usd": 404400,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "h_deload_curl",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "final_target": "biceps_curl, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "reason": "Working set 3 was 9 reps at 25 lb; its decline contributes to the two-session pattern, so this deload is 2 x 8 at 25 lb with 3 reps in reserve.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "h_deload_row",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "final_target": "seated_row, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "reason": "Working set 3 was 9 reps at 25 lb; its decline contributes to the two-session pattern, so this deload is 2 x 8 at 25 lb with 3 reps in reserve.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "H",
+   "repeat": 3,
+   "status": "ok",
+   "seconds": 3.899583125,
+   "usage": {
+    "InputTokens": 4063,
+    "CachedInputTokens": 4060,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 453,
+    "ReasoningTokens": 297
+   },
+   "cost_nano_usd": 267400,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "h_deload_curl",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "final_target": "biceps_curl, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "reason": "Your recent decline triggered this week's deload: set 2 had 10 reps at 25 lb with 0 RIR, so the target is 2 x 8 at 25 lb with 3 RIR.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "h_deload_row",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "final_target": "seated_row, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "reason": "Your recent decline triggered this week's deload: set 2 had 10 reps at 25 lb with 0 RIR, so the target is 2 x 8 at 25 lb with 3 RIR.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "H",
+   "repeat": 4,
+   "status": "ok",
+   "seconds": 5.103297209,
+   "usage": {
+    "InputTokens": 4063,
+    "CachedInputTokens": 4060,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 670,
+    "ReasoningTokens": 516
+   },
+   "cost_nano_usd": 375900,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "h_deload_curl",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "final_target": "biceps_curl, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "reason": "Working set 3 was 9 reps at 25 lb and 0 RIR; as part of this week's deload, your target is 2 x 8 at 25 lb with 3 RIR.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "h_deload_row",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "final_target": "seated_row, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "reason": "Working set 3 was 9 reps at 25 lb and 0 RIR; as part of this week's deload, your target is 2 x 8 at 25 lb with 3 RIR.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "H",
+   "repeat": 5,
+   "status": "ok",
+   "seconds": 7.297258083,
+   "usage": {
+    "InputTokens": 4063,
+    "CachedInputTokens": 4060,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 983,
+    "ReasoningTokens": 817
+   },
+   "cost_nano_usd": 532400,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "h_deload_curl",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "final_target": "biceps_curl, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "reason": "Two falling-rep sessions on 2 or more exercises trigger this deload; set 1 logged 12 reps at 25 lb and 1 RIR, so target 2 x 8 at 25 lb at 3 RIR.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "h_deload_row",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "final_target": "seated_row, rest 60 s: 8 at 25 lb, 3 RIR; 8 at 25 lb, 3 RIR",
+     "reason": "Two falling-rep sessions on 2 or more exercises trigger this deload; set 1 logged 12 reps at 25 lb and 1 RIR, so target 2 x 8 at 25 lb at 3 RIR.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "I",
+   "repeat": 1,
+   "status": "ok",
+   "seconds": 3.557742834,
+   "usage": {
+    "InputTokens": 3310,
+    "CachedInputTokens": 2468,
+    "CacheWriteTokens": 839,
+    "OutputTokens": 440,
+    "ReasoningTokens": 314
+   },
+   "cost_nano_usd": 349855,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "i_override",
+     "exercise": "leg_extension",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_extension, rest 60 s: 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR",
+     "final_target": "leg_extension, rest 60 s: 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR",
+     "reason": "Working set 1 reached 10 reps at 30 lb with 3 reps in reserve, so the target adds reps to 3 x 12.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "i_override_short",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "reason": "Working set 2 reached 10 reps at 20 lb, 2 short of target, so the target stays at 3 x 12.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "I",
+   "repeat": 2,
+   "status": "ok",
+   "seconds": 3.5502615410000002,
+   "usage": {
+    "InputTokens": 3310,
+    "CachedInputTokens": 3307,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 421,
+    "ReasoningTokens": 294
+   },
+   "cost_nano_usd": 243870,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "i_override",
+     "exercise": "leg_extension",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_extension, rest 60 s: 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR",
+     "final_target": "leg_extension, rest 60 s: 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR",
+     "reason": "You did set 1 for 10 reps at 30 lb with 3 reps in reserve, so the target adds reps to 3 x 12.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "i_override_short",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "reason": "Set 2 was 10 reps at 20 lb, 2 short of 12, so the target stays at 3 x 12.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "I",
+   "repeat": 3,
+   "status": "ok",
+   "seconds": 3.8278960829999997,
+   "usage": {
+    "InputTokens": 3310,
+    "CachedInputTokens": 3307,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 422,
+    "ReasoningTokens": 297
+   },
+   "cost_nano_usd": 244370,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "i_override",
+     "exercise": "leg_extension",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_extension, rest 60 s: 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR",
+     "final_target": "leg_extension, rest 60 s: 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR",
+     "reason": "You did 10 reps at 30 lb with 3 reps in reserve on set 1, so the target adds reps to 3 x 12.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "i_override_short",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "reason": "Set 2 was 2 reps short at 10 reps and 20 lb, so the target stays at 3 x 12.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "I",
+   "repeat": 4,
+   "status": "ok",
+   "seconds": 3.945923959,
+   "usage": {
+    "InputTokens": 3310,
+    "CachedInputTokens": 3307,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 455,
+    "ReasoningTokens": 329
+   },
+   "cost_nano_usd": 260870,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "i_override",
+     "exercise": "leg_extension",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_extension, rest 60 s: 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR",
+     "final_target": "leg_extension, rest 60 s: 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR",
+     "reason": "Set 1 was 10 reps at 30 lb with 3 in reserve, so the target adds reps to 3 x 12.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "i_override_short",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "reason": "Set 2 reached 10 reps at 20 lb with 1 in reserve, 2 short, so the target stays at 3 x 12.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "I",
+   "repeat": 5,
+   "status": "ok",
+   "seconds": 6.510903625,
+   "usage": {
+    "InputTokens": 3310,
+    "CachedInputTokens": 3307,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 885,
+    "ReasoningTokens": 732
+   },
+   "cost_nano_usd": 475870,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "i_override",
+     "exercise": "leg_extension",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "leg_extension, rest 60 s: 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR",
+     "final_target": "leg_extension, rest 60 s: 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR; 12 at 30 lb, 2 RIR",
+     "reason": "You completed set 1, set 2, and set 3 for 10 reps at 30 lb with 3 in reserve, so the target adds reps to 3 x 12.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "i_override_short",
+     "exercise": "biceps_curl",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "biceps_curl, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "final_target": "biceps_curl, rest 60 s: 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR; 12 at 20 lb, 2 RIR",
+     "reason": "Set 2 reached 10 reps at 20 lb with 1 in reserve, 2 short, so the target stays at 3 x 12.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "J",
+   "repeat": 1,
+   "status": "ok",
+   "seconds": 5.841727542,
+   "usage": {
+    "InputTokens": 3310,
+    "CachedInputTokens": 2468,
+    "CacheWriteTokens": 839,
+    "OutputTokens": 734,
+    "ReasoningTokens": 603
+   },
+   "cost_nano_usd": 496855,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "j_first_set_heavier",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR",
+     "final_target": "chest_press, rest 60 s: 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR",
+     "reason": "Set 1 was 8 reps at 60 lb with 3 reps in reserve, so the target adds reps to 3 x 10.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "j_first_set_lighter",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR",
+     "reason": "Set 3 was 9 reps at 70 lb and 2 reps in reserve; the 1-rep shortfall means the target stays at 3 x 10.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "J",
+   "repeat": 2,
+   "status": "ok",
+   "seconds": 7.558678209,
+   "usage": {
+    "InputTokens": 3310,
+    "CachedInputTokens": 3307,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 1019,
+    "ReasoningTokens": 866
+   },
+   "cost_nano_usd": 542870,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "j_first_set_heavier",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR",
+     "final_target": "chest_press, rest 60 s: 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR",
+     "reason": "Set 1, set 2, and set 3 each reached 8 reps at 60 lb with 3 reps in reserve, so the target adds reps to 3 x 10.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "j_first_set_lighter",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR",
+     "reason": "Set 3 reached 9 reps at 70 lb, 1 short of target, so it repeats at 3 x 10 and 70 lb.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "J",
+   "repeat": 3,
+   "status": "ok",
+   "seconds": 5.8662357499999995,
+   "usage": {
+    "InputTokens": 3310,
+    "CachedInputTokens": 3307,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 769,
+    "ReasoningTokens": 622
+   },
+   "cost_nano_usd": 417870,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "j_first_set_heavier",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR",
+     "final_target": "chest_press, rest 60 s: 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR",
+     "reason": "Working sets 1–3 each reached 8 reps at 60 lb with 3 in reserve, so the target adds reps to 3 x 10.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "j_first_set_lighter",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR",
+     "reason": "Working set 3 was 9 reps at 70 lb with 2 in reserve, 1 rep short; the target stays at 3 x 10.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "J",
+   "repeat": 4,
+   "status": "ok",
+   "seconds": 4.195832375,
+   "usage": {
+    "InputTokens": 3310,
+    "CachedInputTokens": 3307,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 490,
+    "ReasoningTokens": 360
+   },
+   "cost_nano_usd": 278370,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "j_first_set_heavier",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR",
+     "final_target": "chest_press, rest 60 s: 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR",
+     "reason": "Set 1 was 8 reps at 60 lb with 3 in reserve; with reps to spare, the target adds reps to 3 x 10.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "j_first_set_lighter",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR",
+     "reason": "Set 3 was 9 reps at 70 lb with 2 in reserve, one rep short, so the target stays at 3 x 10.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  },
+  {
+   "role": "reviser",
+   "item": "J",
+   "repeat": 5,
+   "status": "ok",
+   "seconds": 6.229455375,
+   "usage": {
+    "InputTokens": 3310,
+    "CachedInputTokens": 3307,
+    "CacheWriteTokens": 0,
+    "OutputTokens": 805,
+    "ReasoningTokens": 669
+   },
+   "cost_nano_usd": 435870,
+   "cost_known": true,
+   "decisions": [
+    {
+     "case": "j_first_set_heavier",
+     "exercise": "chest_press",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "chest_press, rest 60 s: 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR",
+     "final_target": "chest_press, rest 60 s: 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR; 10 at 60 lb, 2 RIR",
+     "reason": "Working set 1 logged 8 reps at 60 lb with 3 reps in reserve, so the target adds reps to 3 x 10.",
+     "safe": true,
+     "reason_source": "luna"
+    },
+    {
+     "case": "j_first_set_lighter",
+     "exercise": "seated_row",
+     "session": 0,
+     "source": "rules",
+     "rules_target": "seated_row, rest 60 s: 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR",
+     "final_target": "seated_row, rest 60 s: 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR; 10 at 70 lb, 2 RIR",
+     "reason": "Working set 3 was 1 rep short at 9 reps, 70 lb, and 2 reps in reserve, so the target stays at 3 x 10 at 70 lb.",
+     "safe": true,
+     "reason_source": "luna"
+    }
+   ]
+  }
+ ],
+ "totals": {
+  "calls": 50,
+  "by_status": {
+   "ok": 50
+  },
+  "schema_pass": 50,
+  "decisions": 0,
+  "luna_proposals": 0,
+  "accepted": 0,
+  "refused": 0,
+  "no_proposal": 0,
+  "not_planned": 0,
+  "refusals_by_rule": {},
+  "filtered_texts": 0,
+  "cardio_items": 0,
+  "revision_decisions": 115,
+  "luna_reasons": 110,
+  "rules_reasons_by_cause": {
+   "no-logged-set": 2,
+   "no-reason": 3
+  },
+  "cost_nano_usd": 17873425,
+  "calls_with_unknown_cost": 0,
+  "max_seconds": 10.840095999999999,
+  "input_tokens": 178235,
+  "output_tokens": 29072,
+  "reasoning_tokens": 21659
+ },
+ "scenarios": [
+  {
+   "id": "A",
+   "title": "3 x 12 at 25 lb, logged 12, 12, 5",
+   "calls": 5,
+   "cases": 15,
+   "safe": 15,
+   "luna_reasons": 15,
+   "refused_reasons": 0,
+   "refused_by_cause": {},
+   "no_reason_read": 0,
+   "jumps": 0,
+   "jumps_refused": 0,
+   "cost_nano_usd": 2746665,
+   "calls_with_unknown_cost": 0,
+   "max_seconds": 10.840095999999999
+  },
+  {
+   "id": "B",
+   "title": "every rep at 3 or more reps in reserve",
+   "calls": 5,
+   "cases": 15,
+   "safe": 15,
+   "luna_reasons": 15,
+   "refused_reasons": 0,
+   "refused_by_cause": {},
+   "no_reason_read": 0,
+   "jumps": 0,
+   "jumps_refused": 0,
+   "cost_nano_usd": 1604760,
+   "calls_with_unknown_cost": 0,
+   "max_seconds": 4.362024834
+  },
+  {
+   "id": "C",
+   "title": "a pain flag on a set",
+   "calls": 5,
+   "cases": 10,
+   "safe": 10,
+   "luna_reasons": 10,
+   "refused_reasons": 0,
+   "refused_by_cause": {},
+   "no_reason_read": 0,
+   "jumps": 0,
+   "jumps_refused": 0,
+   "cost_nano_usd": 1125665,
+   "calls_with_unknown_cost": 0,
+   "max_seconds": 3.451735
+  },
+  {
+   "id": "D",
+   "title": "the session ended early",
+   "calls": 5,
+   "cases": 10,
+   "safe": 10,
+   "luna_reasons": 5,
+   "refused_reasons": 5,
+   "refused_by_cause": {
+    "no-logged-set": 2,
+    "no-reason": 3
+   },
+   "no_reason_read": 0,
+   "jumps": 0,
+   "jumps_refused": 0,
+   "cost_nano_usd": 1266680,
+   "calls_with_unknown_cost": 0,
+   "max_seconds": 4.565216959
+  },
+  {
+   "id": "E",
+   "title": "no session for 2 weeks or more",
+   "calls": 5,
+   "cases": 15,
+   "safe": 15,
+   "luna_reasons": 15,
+   "refused_reasons": 0,
+   "refused_by_cause": {},
+   "no_reason_read": 0,
+   "jumps": 0,
+   "jumps_refused": 0,
+   "cost_nano_usd": 2340680,
+   "calls_with_unknown_cost": 0,
+   "max_seconds": 8.522763791
+  },
+  {
+   "id": "F",
+   "title": "a 50 percent load jump",
+   "calls": 5,
+   "cases": 10,
+   "safe": 10,
+   "luna_reasons": 10,
+   "refused_reasons": 0,
+   "refused_by_cause": {},
+   "no_reason_read": 0,
+   "jumps": 10,
+   "jumps_refused": 10,
+   "cost_nano_usd": 1317160,
+   "calls_with_unknown_cost": 0,
+   "max_seconds": 4.19630775
+  },
+  {
+   "id": "G",
+   "title": "a missed week of 7 to 13 days",
+   "calls": 5,
+   "cases": 10,
+   "safe": 10,
+   "luna_reasons": 10,
+   "refused_reasons": 0,
+   "refused_by_cause": {},
+   "no_reason_read": 0,
+   "jumps": 0,
+   "jumps_refused": 0,
+   "cost_nano_usd": 1535565,
+   "calls_with_unknown_cost": 0,
+   "max_seconds": 5.774652375
+  },
+  {
+   "id": "H",
+   "title": "a decline in 2 sessions on 2 exercises",
+   "calls": 5,
+   "cases": 10,
+   "safe": 10,
+   "luna_reasons": 10,
+   "refused_reasons": 0,
+   "refused_by_cause": {},
+   "no_reason_read": 0,
+   "jumps": 0,
+   "jumps_refused": 0,
+   "cost_nano_usd": 2189580,
+   "calls_with_unknown_cost": 0,
+   "max_seconds": 7.297258083
+  },
+  {
+   "id": "I",
+   "title": "the next session after an override",
+   "calls": 5,
+   "cases": 10,
+   "safe": 10,
+   "luna_reasons": 10,
+   "refused_reasons": 0,
+   "refused_by_cause": {},
+   "no_reason_read": 0,
+   "jumps": 0,
+   "jumps_refused": 0,
+   "cost_nano_usd": 1574835,
+   "calls_with_unknown_cost": 0,
+   "max_seconds": 6.510903625
+  },
+  {
+   "id": "J",
+   "title": "the first set as the calibration",
+   "calls": 5,
+   "cases": 10,
+   "safe": 10,
+   "luna_reasons": 10,
+   "refused_reasons": 0,
+   "refused_by_cause": {},
+   "no_reason_read": 0,
+   "jumps": 0,
+   "jumps_refused": 0,
+   "cost_nano_usd": 2171835,
+   "calls_with_unknown_cost": 0,
+   "max_seconds": 7.558678209
+  }
+ ]
+}

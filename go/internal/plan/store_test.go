@@ -18,8 +18,9 @@ func fullPlan() Plan {
 		Calibration: []domain.CalibrationSet{{Reps: 8, Load: 700}},
 		Working:     []domain.WorkingSet{{Reps: 8, Load: 1500, RIR: 1}}}
 	target := domain.PlannedExercise{Exercise: "chest_press", RestSeconds: 120,
-		Calibration: []domain.CalibrationSet{{Reps: 8, Load: 700}},
-		Working:     []domain.WorkingSet{{Reps: 8, Load: 700, RIR: 3}, {Reps: 8, Load: 700, RIR: 3}}}
+		Calibration:         []domain.CalibrationSet{{Reps: 8, Load: 700}},
+		Working:             []domain.WorkingSet{{Reps: 8, Load: 700, RIR: 3}, {Reps: 8, Load: 700, RIR: 3}},
+		FirstSetCalibration: true}
 	rec := policy.Record{
 		PolicyVersion: 3, Exercise: "chest_press", InputHash: "abc", Model: "m", Effort: "medium", PromptHash: "h",
 		Proposal: &prop, Violations: []policy.Violation{{Rule: policy.RuleLoadCeiling, Where: "working[0]", Detail: "d"}},

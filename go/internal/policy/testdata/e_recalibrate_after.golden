@@ -1,8 +1,7 @@
-policy version: 6
-rules: calibration.reps-only, calibration.set
+policy version: 7
+rules: break.first-sessions
 target: chest_press, rest 60 s
-  calibration[0]: 12 reps at 75 lb
   working[0]: 12 reps at 75 lb, 3 RIR
   working[1]: 12 reps at 75 lb, 3 RIR
   working[2]: 12 reps at 75 lb, 3 RIR
-reason: This exercise is still in calibration, so the load stays the same. The session starts with one calibration set of 12 reps at 75 lb. Stop it at 3 to 4 reps in reserve.
+reason: These are your first sessions after a break, so the load stays the same.

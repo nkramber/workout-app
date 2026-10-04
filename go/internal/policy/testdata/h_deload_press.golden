@@ -1,6 +1,6 @@
-policy version: 6
+policy version: 7
 rules: progress.shortfall-low-rir, deload.reactive
 target: chest_press, rest 60 s
   working[0]: 8 reps at 100 lb, 3 RIR
   working[1]: 8 reps at 100 lb, 3 RIR
-reason: Your reps went down in 2 sessions in a row on 2 or more exercises, so this week is a deload. Until 2026-09-12, the target is 2 x 8 at 100 lb, at 3 reps in reserve. Then it goes back to 3 x 8.
+reason: Your reps went down in 2 sessions in a row on 2 or more exercises, so this week is a deload. Until 2026-09-12, the target is 2 x 8 at 100 lb, at 3 reps in reserve. Then it goes back to 3 x 8 at 100 lb.

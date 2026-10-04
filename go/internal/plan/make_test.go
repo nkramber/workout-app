@@ -181,7 +181,9 @@ func TestCorePlan(t *testing.T) {
 	}
 
 	// The policy accepted each proposal of the echo. Each new exercise
-	// starts at 70 percent of its estimate (D-238).
+	// starts at its estimate, and its first set is the calibration
+	// (D-297, D-300). No target has a calibration set, so the plan holds
+	// no table.
 	for _, s := range p.Sessions {
 		if s.WarmUp != ai.DefaultWarmUp || s.CoolDown != ai.DefaultCoolDown || s.Title == "" {
 			t.Fatalf("session %+v", s)
@@ -190,25 +192,11 @@ func TestCorePlan(t *testing.T) {
 			if e.Record.Source != policy.SourceLuna || e.Record.Exercise != e.Target.Exercise || e.Reason == "" {
 				t.Fatalf("record %+v", e.Record)
 			}
-			if e.Target.Exercise == "chest_press" && e.Target.Working[0].Load != domain.Pounds(70) {
-				t.Fatalf("chest press %+v, want 70 lb from an estimate of 100 lb", e.Target.Working)
+			if e.Target.Exercise == "chest_press" && e.Target.Working[0].Load != domain.Pounds(100) {
+				t.Fatalf("chest press %+v, want 100 lb from an estimate of 100 lb", e.Target.Working)
 			}
-			// Each calibration set gets a row of the table for each
-			// weight of the machine (D-267).
-			if len(e.Target.Calibration) != 1 || len(e.Calibration) < 2 {
-				t.Fatalf("%s: calibration %+v and table %+v", e.Target.Exercise, e.Target.Calibration, e.Calibration)
-			}
-			found := false
-			for k, c := range e.Calibration {
-				if k > 0 && c.Weight <= e.Calibration[k-1].Weight {
-					t.Fatalf("%s: the rows are not in the order of the weights: %+v", e.Target.Exercise, e.Calibration)
-				}
-				if c.Weight == e.Target.Calibration[0].Load {
-					found = c.Keep == c.Weight
-				}
-			}
-			if !found {
-				t.Fatalf("%s: no row keeps the calibration load %s", e.Target.Exercise, e.Target.Calibration[0].Load)
+			if !e.Target.FirstSetCalibration || len(e.Target.Calibration) != 0 || len(e.Calibration) != 0 {
+				t.Fatalf("%s: target %+v and table %+v, want the first-set calibration", e.Target.Exercise, e.Target, e.Calibration)
 			}
 		}
 	}
@@ -219,6 +207,58 @@ func TestCorePlan(t *testing.T) {
 	}
 	if n := len(f.errs.Records()); n != 0 {
 		t.Fatalf("%d error records, want 0", n)
+	}
+}
+
+// TestPlanWithHistory: a new plan gives an exercise with a logged
+// history its target from that history, with no calibration, and a new
+// exercise its start (D-301). A history that the policy refuses counts
+// as none.
+func TestPlanWithHistory(t *testing.T) {
+	lb := domain.Pounds
+	first := domain.PlannedExercise{Exercise: "chest_press", RestSeconds: 60, FirstSetCalibration: true}
+	var sets []domain.SetLog
+	for range 3 {
+		first.Working = append(first.Working, domain.WorkingSet{Reps: 8, Load: lb(100), RIR: 3})
+		// The owner changed the weight during the first set.
+		sets = append(sets, domain.SetLog{Kind: domain.SetWorking, Reps: 8, Weight: lb(110), RIR: 3})
+	}
+	o := policy.Outcome{Date: "2026-09-30", Target: first, Log: domain.ExerciseLog{Exercise: "chest_press", Sets: sets}}
+	for _, tc := range []struct {
+		name  string
+		date  string
+		load  domain.Load
+		first bool
+	}{
+		{"history", "2026-09-30", lb(110), false},
+		// A date after the date of the plan: the policy refuses it.
+		{"refused history", "2026-10-05", lb(100), true},
+	} {
+		f := coreFixture(t)
+		o.Date = tc.date
+		f.m.History = func(context.Context, string) (History, error) {
+			return History{Outcomes: map[domain.ExerciseID][]policy.Outcome{"chest_press": {o}}}, nil
+		}
+		p, err := f.make(t, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, s := range p.Sessions {
+			for _, e := range s.Exercises {
+				want := e.Target.Exercise != "chest_press" || tc.first
+				if e.Target.FirstSetCalibration != want {
+					t.Fatalf("%s: %s first-set calibration %v, want %v", tc.name, e.Target.Exercise, e.Target.FirstSetCalibration, want)
+				}
+				if e.Target.Exercise == "chest_press" && e.Target.Working[0].Load != tc.load {
+					t.Fatalf("%s: chest press %+v, want %s", tc.name, e.Target.Working, tc.load)
+				}
+			}
+		}
+	}
+	f := coreFixture(t)
+	f.m.History = func(context.Context, string) (History, error) { return History{}, errors.New("read failed") }
+	if _, err := f.make(t, nil); err == nil {
+		t.Fatal("a failed read of the history gave no error")
 	}
 }
 
@@ -443,7 +483,7 @@ func TestRefusedExercise(t *testing.T) {
 			if rec.Source != policy.SourceRules || rec.Cause != policy.CauseRefused || len(rec.Violations) == 0 || rec.Proposal == nil {
 				t.Fatalf("chest press record %+v", rec)
 			}
-			if e.Target.Working[0].Load != domain.Pounds(70) || e.Reason != rec.Reason {
+			if e.Target.Working[0].Load != domain.Pounds(100) || e.Reason != rec.Reason {
 				t.Fatalf("chest press target %+v, reason %q", e.Target, e.Reason)
 			}
 		}

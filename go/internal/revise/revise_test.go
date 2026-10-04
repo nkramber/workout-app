@@ -151,7 +151,7 @@ func pressInput(t *testing.T, f *fixture, h ...policy.Outcome) policy.Input {
 	e, _ := domain.DefaultCatalog().Exercise("chest_press")
 	inv, _ := f.inv.Get(context.Background(), uid)
 	entry, _ := inventory.ForPlan(inv).Inventory.Entry(e.Machine)
-	return policy.Input{Exercise: e, Entry: entry, History: h, Today: h[len(h)-1].Date, Returning: true}
+	return policy.Input{Exercise: e, Entry: entry, History: h, Today: h[len(h)-1].Date}
 }
 
 // TestRevise: after a finished workout, the chest press gets the target

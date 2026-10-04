@@ -149,7 +149,7 @@ func (s *Server) OverrideTarget(ctx context.Context, req *connect.Request[workou
 		return nil, fail(err)
 	}
 	p, err := s.change(ctx, id, m.GetToday(), domain.ExerciseID(m.GetExerciseId()), func(rec domain.PlannedExercise, in policy.Input) (*plan.Override, error) {
-		o := domain.PlannedExercise{Exercise: rec.Exercise, RestSeconds: rec.RestSeconds}
+		o := domain.PlannedExercise{Exercise: rec.Exercise, RestSeconds: rec.RestSeconds, FirstSetCalibration: rec.FirstSetCalibration}
 		for i, w := range m.GetWorkingSets() {
 			rir := 0
 			if i < len(rec.Working) {
@@ -337,6 +337,7 @@ func (s *Server) toProto(p plan.Plan) *workoutappv1.Plan {
 			pe := &workoutappv1.PlannedExercise{
 				ExerciseId: string(t.Exercise), Name: s.name(t.Exercise), RestSeconds: int32(t.RestSeconds),
 				Reason: e.Reason, Source: string(e.Record.Source), ReasonSource: string(e.ReasonSourceOf()),
+				FirstSetCalibration: t.FirstSetCalibration,
 			}
 			for _, c := range t.Calibration {
 				pe.CalibrationSets = append(pe.CalibrationSets, &workoutappv1.PlannedSet{Reps: int32(c.Reps), LoadTenthLb: int32(c.Load)})

@@ -53,7 +53,10 @@ export function nextTargets(plan: Plan): NextTarget[] {
     out.push({
       exerciseId: id,
       name: found.name,
-      sets: [...found.calibrationSets.map((c) => `Calibration: ${setText(c, true)}`), ...found.workingSets.map((w) => setText(w, false))],
+      sets: [
+        ...found.calibrationSets.map((c) => `Calibration: ${setText(c, true)}`),
+        ...found.workingSets.map((w, i) => `${i === 0 && found.firstSetCalibration ? "Calibration: " : ""}${setText(w, false)}`),
+      ],
       reason: found.reason,
       fromLuna: found.reasonSource === "luna",
     });

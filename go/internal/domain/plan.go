@@ -26,6 +26,8 @@ func (s WorkingSet) Check() error {
 // CalibrationSet is one set before the working sets that finds the
 // load. It is not a working set, and it stops at 3 to 4 reps in reserve
 // (D-150). The policy holds that rule, so the set holds no RIR target.
+// Only a target of policy version 6 or earlier has one. From version 7,
+// the first working set is the calibration (D-297).
 type CalibrationSet struct {
 	Reps int
 	Load Load
@@ -40,12 +42,16 @@ func (s CalibrationSet) Check() error {
 }
 
 // PlannedExercise is one exercise of a plan day, with its rest, its
-// calibration sets, and its working sets.
+// calibration sets, and its working sets. FirstSetCalibration tells
+// that the first working set is the calibration: the owner changes the
+// weight during its first reps, and the other working sets use the
+// weight that the owner logged for it (D-297, D-299).
 type PlannedExercise struct {
-	Exercise    ExerciseID
-	RestSeconds int
-	Calibration []CalibrationSet
-	Working     []WorkingSet
+	Exercise            ExerciseID
+	RestSeconds         int
+	Calibration         []CalibrationSet
+	Working             []WorkingSet
+	FirstSetCalibration bool
 }
 
 // Check refuses an exercise that is not in the catalog, a cardio

@@ -137,10 +137,11 @@ func stale(in policy.Input, o plan.Override, now policy.Record) bool {
 	return !slices.Equal(of(then.Rules), of(now.Rules))
 }
 
-// sameTarget tells whether two targets have the same sets and rest. A
-// stored target and a target of the rules can differ in an empty list
-// alone.
+// sameTarget tells whether two targets have the same sets, rest, and
+// first-set calibration. A stored target and a target of the rules can
+// differ in an empty list alone.
 func sameTarget(a, b domain.PlannedExercise) bool {
 	return a.Exercise == b.Exercise && a.RestSeconds == b.RestSeconds &&
-		slices.Equal(a.Calibration, b.Calibration) && slices.Equal(a.Working, b.Working)
+		slices.Equal(a.Calibration, b.Calibration) && slices.Equal(a.Working, b.Working) &&
+		a.FirstSetCalibration == b.FirstSetCalibration
 }

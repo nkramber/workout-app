@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/nkramber/workout-app/go/internal/ai"
@@ -288,15 +289,67 @@ func breakReturn(_ Case, final, rules domain.PlannedExercise) string {
 // Scenario F: no load over the next target of the policy.
 func noJump(_ Case, final, rules domain.PlannedExercise) string { return ceiling(final, rules) }
 
+// Scenario G: a missed week (D-294). The target is not harder than the
+// last target, and each set stops at 3 reps in reserve or more.
+func missedWeek(c Case, final, _ domain.PlannedExercise) string {
+	for i, s := range final.Working {
+		if s.RIR < 3 {
+			return fmt.Sprintf("working[%d]: %d RIR: want 3 or more after a missed week", i, s.RIR)
+		}
+	}
+	last := c.Last
+	last.Working = slices.Clone(last.Working)
+	for i := range last.Working {
+		last.Working[i].RIR = min(last.Working[i].RIR, 3)
+	}
+	return noHarder(final, last, "last target")
+}
+
+// Scenario H: the reactive deload (D-295). Fewer sets than the last
+// target, no load over it, and each set at 3 reps in reserve.
+func deload(c Case, final, _ domain.PlannedExercise) string {
+	if len(final.Working) >= len(c.Last.Working) {
+		return fmt.Sprintf("%d sets: want fewer than the %d sets of the last target in a deload", len(final.Working), len(c.Last.Working))
+	}
+	if why := atMostLoad(final, c.Last.Working[0].Load); why != "" {
+		return why
+	}
+	for i, s := range final.Working {
+		if s.RIR != 3 {
+			return fmt.Sprintf("working[%d]: %d RIR: want 3 in a deload", i, s.RIR)
+		}
+	}
+	return ""
+}
+
+// Scenario I: a shortfall after an override holds the target. No set is
+// harder than the override.
+func noHarderThanLast(c Case, final, _ domain.PlannedExercise) string {
+	return noHarder(final, c.Last, "last target")
+}
+
+// Scenario J: the first-set calibration (D-299). The next target starts
+// from the weight that the owner logged for the first set, with no load
+// over the rules target.
+func firstSet(c Case, final, rules domain.PlannedExercise) string {
+	if why := ceiling(final, rules); why != "" {
+		return why
+	}
+	logged := c.Input.History[len(c.Input.History)-1].Log.Sets[0].Weight
+	return atMostLoad(final, logged+policy.Step)
+}
+
 // Scenarios gives the scenarios A to F of section 5 of the high-level
-// roadmap. The inputs follow the golden tests of "go/internal/policy".
+// roadmap, the scenarios G to I of the disruptions of work area 7.2
+// (D-293 to D-296), and scenario J of the first-set calibration (D-299).
+// The inputs follow the golden tests of "go/internal/policy".
 func Scenarios() []Scenario {
 	curl, row, ext := catalogExercise("biceps_curl"), catalogExercise("seated_row"), catalogExercise("leg_extension")
 	press, legs := catalogExercise("chest_press"), catalogExercise("leg_press")
 	dbCurl := catalogExercise("db_biceps_curl")
 	t25 := func(e domain.Exercise) domain.PlannedExercise { return target(e, 3, 12, lb(25)) }
 
-	var a, b, c, d, e, f []Case
+	var a, b, c, d, e, f, g, h, i, j []Case
 	{
 		in, last := history(curl.ID, every2(1), outcome(t25(curl), set(12, lb(25), 1), set(12, lb(25), 1), set(5, lb(25), 0)))
 		a = append(a, newCase("a_low_rir", in, last, shortfall))
@@ -350,6 +403,56 @@ func Scenarios() []Scenario {
 		in, last = history(legs.ID, every2(1), done(target(legs, 3, 12, lb(200))))
 		f = append(f, newCase("f_leg_press", in, last, noJump))
 	}
+	{
+		t := target(press, 3, 10, lb(100))
+		in, last := history(press.ID, []int{9}, done(t))
+		g = append(g, newCase("g_missed_week", in, last, missedWeek))
+		t = target(legs, 3, 12, lb(150))
+		in, last = history(legs.ID, []int{2, 13}, done(t), done(t))
+		g = append(g, newCase("g_missed_13", in, last, missedWeek))
+	}
+	{
+		// A decline in 2 sessions in a row on 2 exercises (D-295): 36,
+		// then 34, then 31 total reps at the same load.
+		decline := func(e domain.Exercise, load domain.Load) policy.Outcome {
+			t := t25(e)
+			return outcome(t, set(12, load, 1), set(10, load, 0), set(9, load, 0))
+		}
+		in1, last1 := history(curl.ID, every2(3), done(t25(curl)),
+			outcome(t25(curl), set(12, lb(25), 2), set(12, lb(25), 1), set(10, lb(25), 0)), decline(curl, lb(25)))
+		in2, last2 := history(row.ID, every2(3), done(t25(row)),
+			outcome(t25(row), set(12, lb(25), 2), set(12, lb(25), 1), set(10, lb(25), 0)), decline(row, lb(25)))
+		dates, err := policy.Deloads([][]policy.Outcome{in1.History, in2.History})
+		if err != nil {
+			panic(err)
+		}
+		in1.Deloads, in2.Deloads = dates, dates
+		h = append(h, newCase("h_deload_curl", in1, last1, deload), newCase("h_deload_row", in2, last2, deload))
+	}
+	{
+		// The owner changed the target to 3 x 10 at 30 lb (D-293), and
+		// logged it. The next target starts from the override.
+		t := target(ext, 3, 10, lb(30))
+		in, last := history(ext.ID, every2(1), done(t))
+		i = append(i, newCase("i_override", in, last, progress))
+		// An override to a lighter load, logged with 2 sets short.
+		t = target(curl, 3, 12, lb(20))
+		in, last = history(curl.ID, every2(1), outcome(t, set(12, lb(20), 2), set(10, lb(20), 1), set(9, lb(20), 0)))
+		i = append(i, newCase("i_override_short", in, last, noHarderThanLast))
+	}
+	{
+		// The first session of a new exercise at 50 lb, with the first
+		// set as the calibration. The owner changed the weight to 60 lb
+		// during the first set, and logged each set at 60 lb.
+		t := target(press, 3, 8, lb(50))
+		t.FirstSetCalibration = true
+		in, last := history(press.ID, every2(1), outcome(t, set(8, lb(60), 3), set(8, lb(60), 3), set(8, lb(60), 3)))
+		j = append(j, newCase("j_first_set_heavier", in, last, firstSet))
+		t = target(row, 3, 10, lb(80))
+		t.FirstSetCalibration = true
+		in, last = history(row.ID, every2(1), outcome(t, set(10, lb(70), 2), set(10, lb(70), 3), set(9, lb(70), 2)))
+		j = append(j, newCase("j_first_set_lighter", in, last, firstSet))
+	}
 	return []Scenario{
 		{"A", "3 x 12 at 25 lb, logged 12, 12, 5", a},
 		{"B", "every rep at 3 or more reps in reserve", b},
@@ -357,5 +460,9 @@ func Scenarios() []Scenario {
 		{"D", "the session ended early", d},
 		{"E", "no session for 2 weeks or more", e},
 		{"F", "a 50 percent load jump", f},
+		{"G", "a missed week of 7 to 13 days", g},
+		{"H", "a decline in 2 sessions on 2 exercises", h},
+		{"I", "the next session after an override", i},
+		{"J", "the first set as the calibration", j},
 	}
 }

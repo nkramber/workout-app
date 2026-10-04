@@ -93,14 +93,13 @@ func (v Violation) String() string {
 // policy (RuleLoadCeiling). Outside a calibration session, a proposal
 // has no more working sets than that target, and a set at the load of
 // the target set of the same position has no more reps and no fewer
-// reps in reserve (RuleEffortCeiling, D-186). In a calibration session,
-// the reps can go up and the reps in reserve are practice (D-177). With no history, that target is the start of
-// D-150. A proposal has a calibration set only when the target of the
-// policy has one, and then it has exactly one, at the reps and the load
-// of its first working set (RuleCalibrationSet, D-181). In the
-// first sessions
-// after a break, each working set stops at 3 reps in reserve, and the
-// proposal has no more sets than the target (RuleBreakFirst).
+// reps in reserve (RuleEffortCeiling, D-186). In a session of the
+// first-set calibration, the reps can go up and the reps in reserve are
+// practice (D-177, D-301). With no history, that target is the start of
+// D-300. A proposal has no calibration set, because the first working
+// set is the calibration (RuleCalibrationFirstSet, D-297). In the first
+// sessions after a break, each working set stops at 3 reps in reserve,
+// and the proposal has no more sets than the target (RuleBreakFirst).
 func Check(p domain.PlannedExercise, in Input) ([]Violation, error) {
 	if err := in.check(); err != nil {
 		return nil, err
@@ -135,39 +134,17 @@ func Check(p domain.PlannedExercise, in Input) ([]Violation, error) {
 	if len(p.Working) == 0 {
 		add(RuleRepBounds, "working", "no working set")
 	}
-	effort := len(d.Target.Calibration) == 0
+	effort := !d.Target.FirstSetCalibration
 	if effort && !first && len(p.Working) > len(d.Target.Working) {
 		add(RuleEffortCeiling, "working", "%d sets: want %d or fewer", len(p.Working), len(d.Target.Working))
 	}
 	if first && len(p.Working) > len(d.Target.Working) {
 		add(RuleBreakFirst, "working", "%d sets: want %d or fewer in the first sessions after a break", len(p.Working), len(d.Target.Working))
 	}
-	switch {
-	case len(d.Target.Calibration) > 0 && len(p.Calibration) == 0:
-		add(RuleCalibrationSet, "calibration", "no calibration set in a calibration session")
-	case len(d.Target.Calibration) == 0 && len(p.Calibration) > 0:
-		add(RuleCalibrationSet, "calibration", "a calibration set outside a calibration session")
-	}
-	if len(p.Calibration) > 1 {
-		add(RuleCalibrationSet, "calibration", "%d calibration sets: want 1", len(p.Calibration))
+	if len(p.Calibration) > 0 {
+		add(RuleCalibrationFirstSet, "calibration", "%d calibration sets: want 0, the first working set is the calibration", len(p.Calibration))
 	}
 	rir := RIRRange(in.Exercise)
-	for i, s := range p.Calibration {
-		where := fmt.Sprintf("calibration[%d]", i)
-		switch {
-		case !RepLimits.Has(s.Reps):
-			add(RuleRepBounds, where, "reps %d: want %d to %d", s.Reps, RepLimits.Min, RepLimits.Max)
-		case len(p.Working) > 0 && s.Reps != p.Working[0].Reps:
-			add(RuleCalibrationSet, where, "reps %d: want %d, the reps of the first working set", s.Reps, p.Working[0].Reps)
-		}
-		checkLoad(where, s.Load)
-		if len(d.Target.Calibration) > 0 && s.Load > d.Target.Calibration[0].Load {
-			add(RuleLoadCeiling, where, "load %s: want %s or less", s.Load, d.Target.Calibration[0].Load)
-		}
-		if len(p.Working) > 0 && s.Load != p.Working[0].Load {
-			add(RuleCalibrationSet, where, "load %s: want %s, the load of the first working set", s.Load, p.Working[0].Load)
-		}
-	}
 	for i, s := range p.Working {
 		where := fmt.Sprintf("working[%d]", i)
 		bounded := RepLimits.Has(s.Reps) && rir.Has(s.RIR) && !(first && s.RIR < 3)

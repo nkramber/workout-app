@@ -48,6 +48,7 @@ func run(ctx context.Context, args []string, getenv func(string) string, stdout 
 	workers := fs.Int("workers", 4, "the calls at the same time")
 	out := fs.String("out", "", "the path of the JSON report (required)")
 	effort := fs.String("effort", "", "the reasoning effort of each call, one of "+strings.Join(ai.Efforts, ", ")+" (default: the effort of the role)")
+	planner := fs.Bool("planner", true, "send the profiles through the planner: false runs the reviser scenarios alone")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -74,9 +75,11 @@ func run(ctx context.Context, args []string, getenv func(string) string, stdout 
 		}
 		provider, name = p, "openai"
 	}
-	profiles, err := Profiles()
-	if err != nil {
-		return err
+	var profiles []Profile
+	if *planner {
+		if profiles, err = Profiles(); err != nil {
+			return err
+		}
 	}
 	client := &ai.Client{Provider: provider, Cap: ai.NewMemoryCap(caps), Effort: *effort}
 	rep, err := Run(ctx, client, profiles, Scenarios(), *repeats, *workers)
@@ -112,7 +115,7 @@ func summary(w io.Writer, r Report) {
 	fmt.Fprintf(w, "refusals by rule: %v, filtered texts %d, cardio items %d\n", t.ByRule, t.Filtered, t.Cardio)
 	fmt.Fprintf(w, "revisions %d, luna reasons %d, rules reasons by cause %v\n", t.Revisions, t.LunaReasons, t.ReasonCauses)
 	for _, s := range r.Scenarios {
-		fmt.Fprintf(w, "scenario %s: pass %v, safe %d of %d, luna reasons %d, jumps refused %d of %d\n",
-			s.ID, s.Pass(), s.Safe, s.Cases, s.LunaReasons, s.JumpsOK, s.Jumps)
+		fmt.Fprintf(w, "scenario %s: pass %v, safe %d of %d, reasons accepted %d, refused %d %v, no reason read %d, jumps refused %d of %d, calls %d, cost %s, max %.1f s\n",
+			s.ID, s.Pass(), s.Safe, s.Cases, s.LunaReasons, s.Refused, s.ByCause, s.NoReason, s.JumpsOK, s.Jumps, s.Calls, s.Cost, s.MaxSeconds)
 	}
 }

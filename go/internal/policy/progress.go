@@ -227,7 +227,6 @@ func Next(in Input) (Decision, error) {
 	}
 	in.History = in.effective()
 	ps := in.pause()
-	calibrating := in.calibrating()
 	before, wasMissed := in.afterMissed()
 	in.History = in.rulesHistory()
 	last := in.History[len(in.History)-1]
@@ -286,8 +285,6 @@ func Next(in Input) (Decision, error) {
 	case !b.allAtTop(reps.Max):
 		b.addReps(2, reps.Max)
 		b.rule(RuleAddReps, fmt.Sprintf("You completed every set with reps to spare. The target is %s.", b.repsText()))
-	case calibrating:
-		b.hold(RuleCalibrationHold, "This exercise is still in calibration, so the load stays the same.")
 	case ps.first:
 		b.hold(RuleBreakFirst, "These are your first sessions after a break, so the load stays the same.")
 	case b.stepUp():
@@ -305,10 +302,10 @@ func Next(in Input) (Decision, error) {
 		b.rule(RuleBreakFirst, "These are your first sessions after a break, so each set stops at 3 reps in reserve.")
 	}
 	if from := in.deloadOf(in.Today); from != "" {
-		b.deload(from)
+		b.deload(from, last.Target)
 	}
-	if ps.gap >= RecalibrateDays || calibrating {
-		b.calibration()
+	if ps.gap >= RecalibrateDays {
+		b.firstSet()
 	}
 	return b.decision(), nil
 }
@@ -356,14 +353,12 @@ func repText(n int) string {
 }
 
 // builder holds the next target while the rules change it. before
-// holds the load of each working set before the rounding, and
-// calBefore the load of the calibration set.
+// holds the load of each working set before the rounding.
 type builder struct {
 	in        Input
 	available []domain.Load
 	target    domain.PlannedExercise
 	before    []domain.Load
-	calBefore domain.Load
 	rules     []RuleID
 	reason    []string
 	note      string
@@ -514,9 +509,6 @@ func (b *builder) decision() Decision {
 		b.rule(RuleLoadAvailable, b.note)
 	}
 	var loads []LoadChange
-	for i, s := range b.target.Calibration {
-		loads = append(loads, LoadChange{fmt.Sprintf("calibration[%d]", i), b.calBefore, s.Load})
-	}
 	for i, s := range b.target.Working {
 		loads = append(loads, LoadChange{fmt.Sprintf("working[%d]", i), b.before[i], s.Load})
 	}

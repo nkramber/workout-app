@@ -151,15 +151,31 @@ type Totals struct {
 
 // ScenarioTotal is the grade of one scenario over each repeat.
 // LunaReasons counts the reasons of Luna that passed the check of
-// D-288.
+// D-288, and Refused the reasons that the check refused, by cause. A
+// reason of the rules after a failed call or with no call is in
+// NoReason, because the check read no reason. Cost and MaxSeconds read
+// the reviser calls of the scenario.
 type ScenarioTotal struct {
-	ID          string `json:"id"`
-	Title       string `json:"title"`
-	Cases       int    `json:"cases"`
-	Safe        int    `json:"safe"`
-	LunaReasons int    `json:"luna_reasons"`
-	Jumps       int    `json:"jumps"`
-	JumpsOK     int    `json:"jumps_refused"`
+	ID          string         `json:"id"`
+	Title       string         `json:"title"`
+	Calls       int            `json:"calls"`
+	Cases       int            `json:"cases"`
+	Safe        int            `json:"safe"`
+	LunaReasons int            `json:"luna_reasons"`
+	Refused     int            `json:"refused_reasons"`
+	ByCause     map[string]int `json:"refused_by_cause"`
+	NoReason    int            `json:"no_reason_read"`
+	Jumps       int            `json:"jumps"`
+	JumpsOK     int            `json:"jumps_refused"`
+	Cost        ai.NanoUSD     `json:"cost_nano_usd"`
+	CostUnknown int            `json:"calls_with_unknown_cost"`
+	MaxSeconds  float64        `json:"max_seconds"`
+}
+
+// checked tells that the check of D-288 read a reason and refused it. A
+// failed call, a capped call, and no call give no reason to check.
+func checked(cause string) bool {
+	return cause != revise.CauseNoCall && cause != revise.CauseCapped && !strings.HasPrefix(cause, "call-")
 }
 
 // Pass tells that each case of the scenario gave the safe behavior.
@@ -175,7 +191,8 @@ type job struct {
 }
 
 // Run sends each profile through the planner one time, and each
-// scenario through the reviser repeats times. Then the policy decides
+// scenario through the reviser repeats times. No profile gives no
+// planner call. Then the policy decides
 // each exercise (D-23). Workers is the count of calls at the same time.
 func Run(ctx context.Context, c *ai.Client, profiles []Profile, scenarios []Scenario, repeats, workers int) (Report, error) {
 	var jobs []job
@@ -385,7 +402,7 @@ func total(calls []Call, scenarios []Scenario) (Totals, []ScenarioTotal) {
 	byID := map[string]*ScenarioTotal{}
 	var sc []ScenarioTotal
 	for _, s := range scenarios {
-		sc = append(sc, ScenarioTotal{ID: s.ID, Title: s.Title})
+		sc = append(sc, ScenarioTotal{ID: s.ID, Title: s.Title, ByCause: map[string]int{}})
 	}
 	for i := range sc {
 		byID[sc[i].ID] = &sc[i]
@@ -408,6 +425,14 @@ func total(calls []Call, scenarios []Scenario) (Totals, []ScenarioTotal) {
 		t.Cardio += len(c.Cardio)
 		t.NotPlanned += len(c.NotPlanned)
 		if c.Role == ai.RoleReviser {
+			if s := byID[c.Item]; s != nil {
+				s.Calls++
+				s.Cost += c.Cost
+				if !c.Known {
+					s.CostUnknown++
+				}
+				s.MaxSeconds = max(s.MaxSeconds, c.Seconds)
+			}
 			reviser(&t, byID[c.Item], c.Decisions)
 			continue
 		}
@@ -449,8 +474,14 @@ func reviser(t *Totals, s *ScenarioTotal, decisions []Decision) {
 		if d.Safe != nil && *d.Safe {
 			s.Safe++
 		}
-		if d.ReasonSource == string(policy.SourceLuna) {
+		switch {
+		case d.ReasonSource == string(policy.SourceLuna):
 			s.LunaReasons++
+		case checked(d.ReasonCause):
+			s.Refused++
+			s.ByCause[d.ReasonCause]++
+		default:
+			s.NoReason++
 		}
 		if d.Jump != nil {
 			s.Jumps++

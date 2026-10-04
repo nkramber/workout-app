@@ -162,6 +162,10 @@ message SeenTarget {
   // override, both are empty.
   repeated PlannedSet recommended_working_sets = 5;
   string override_reason = 6;
+  // The first working set is the calibration (D-297, D-299). The policy
+  // reads the weight that the owner logged for it as the load of the
+  // session.
+  bool first_set_calibration = 7;
 }
 
 // SetEntry is the state of one logged set (D-57, D-164, D-249). The entity

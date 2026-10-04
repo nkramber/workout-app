@@ -46,7 +46,11 @@ test("the owner requests a plan, sees each part, excludes an exercise, and sees 
   }
   const press = exercise(page, "chest_press").first();
   await expect(press.getByRole("heading")).toHaveText("Chest press");
-  await expect(press.getByTestId("sets").getByRole("listitem").first()).toHaveText(/^(Calibration set|Set) 1: \d+ reps? at [\d.]+ lb/);
+  // A new plan has no calibration set, and the first set of a new
+  // exercise is the calibration (D-297).
+  await expect(press.getByTestId("sets").getByRole("listitem").first()).toHaveText(/^Set 1, the calibration: \d+ reps? at [\d.]+ lb/);
+  await expect(press.getByTestId("sets")).not.toContainText("Calibration set");
+  await expect(press.getByTestId("first-set-calibration")).toBeVisible();
   await expect(press.getByTestId("rest")).toHaveText(/^Rest .+ between sets\.$/);
   const guidance = page.getByTestId("guidance");
   await expect(guidance).toContainText("Mobility: Do 10 slow leg swings");

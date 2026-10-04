@@ -1,4 +1,4 @@
-policy version: 6
+policy version: 7
 rules: missed.hold
 target: chest_press, rest 60 s
   working[0]: 10 reps at 100 lb, 3 RIR

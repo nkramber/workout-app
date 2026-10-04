@@ -113,6 +113,9 @@ func renderTarget(b *strings.Builder, p domain.PlannedExercise, loads []LoadChan
 	for i, s := range p.Working {
 		fmt.Fprintf(b, "  working[%d]: %d reps at %s, %d RIR\n", i, s.Reps, s.Load, s.RIR)
 	}
+	if p.FirstSetCalibration {
+		fmt.Fprintf(b, "  working[0] is the calibration\n")
+	}
 	for _, l := range loads {
 		if l.Before != l.After {
 			fmt.Fprintf(b, "  load %s: %s before the rounding, %s after\n", l.Where, l.Before, l.After)

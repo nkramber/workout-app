@@ -101,8 +101,19 @@ func (in Input) rulesHistory() []Outcome {
 //
 // The reason of the deload replaces the reason of the other rules, and
 // it names the target after the deload. The rules stay in the record.
-func (b *builder) deload(from string) {
-	after := b.repsText()
+//
+// A deload week keeps the load of the last target (D-303). When the
+// rules gave a load step, the deload starts from the sets of the last
+// target, and the step comes after the deload.
+func (b *builder) deload(from string, last domain.PlannedExercise) {
+	after := fmt.Sprintf("%s at %s", b.repsText(), b.loadText())
+	for i, s := range b.target.Working {
+		if s.Load > last.Working[min(i, len(last.Working)-1)].Load {
+			hold := newBuilder(b.in, last)
+			b.target.Working, b.before = hold.target.Working, hold.before
+			break
+		}
+	}
 	n := len(b.target.Working)
 	k := max(1, (6*n+5)/10)
 	b.target.Working = b.target.Working[:k]
@@ -216,9 +227,10 @@ type overrideCheck struct {
 // recommendation that it replaces, and gives each violation (D-69,
 // D-293). An override changes the load and the reps of each working set
 // alone. It keeps the count of sets, the reps in reserve, and the rest
-// of the recommendation. Each set has 6 to 20 reps, each load is a
-// valid load of the machine, and a calibration set has the reps and the
-// load of the first working set. No violation means that the policy
+// of the recommendation, and the first-set calibration of it (D-301).
+// Each set has 6 to 20 reps, each load is a valid load of the machine,
+// and a calibration set of policy version 6 or earlier has the reps and
+// the load of the first working set. No violation means that the policy
 // accepts the override (D-23).
 func CheckOverride(o, rec domain.PlannedExercise, in Input) ([]Violation, error) {
 	if err := (Input{Exercise: in.Exercise, Entry: in.Entry}).check(); err != nil {
@@ -239,6 +251,9 @@ func CheckOverride(o, rec domain.PlannedExercise, in Input) ([]Violation, error)
 	}
 	if len(o.Calibration) != len(rec.Calibration) {
 		c.add("calibration", "%d calibration sets: want %d", len(o.Calibration), len(rec.Calibration))
+	}
+	if o.FirstSetCalibration != rec.FirstSetCalibration {
+		c.add("calibration", "first-set calibration %t: want %t, the calibration of the recommendation", o.FirstSetCalibration, rec.FirstSetCalibration)
 	}
 	for i, s := range o.Working {
 		where := fmt.Sprintf("working[%d]", i)

@@ -1,4 +1,4 @@
-policy version: 6
+policy version: 7
 rules: break.sets-restored, progress.load-step
 target: chest_press, rest 60 s
   working[0]: 8 reps at 95 lb, 3 RIR

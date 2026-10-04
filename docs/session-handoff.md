@@ -4,32 +4,29 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-04. Review of pull request 37, work area 7.2 of `docs/roadmaps/phase-7-adaptation-loop.md`, on `feat/pr-36-overrides-disruptions`, at effective head `05f858c8af3b62bff53600a33ba71048c8bda0cc`.
+Date: 2026-10-04. Author of pull request PR-37, work area 7.3 of `docs/roadmaps/phase-7-adaptation-loop.md`, on `feat/pr-37-calibration-evaluation` from base `e18781f`.
 
-The deploys of `d8f766e` passed: `deploy-api` `c3c4d9ed` and `deploy-web` `bd757c99`. The live `/version` and `/version.json` name `d8f766e`, and the revision `api-00019-s78` has all traffic.
+The deploys of `e18781f` passed: `deploy-api` `87489cf0` and `deploy-web` `83635766`. The live `/version` and `/version.json` name `e18781f`, and the revision `api-00020-cfh` has all traffic.
 
-The owner approved one live revision (D-212), approved the milestone (D-12), and answered Q-305 to Q-307 and Q-309 (D-293 to D-296). The owner finished a workout on the iPhone, and saw the next targets with their reasons. The reviser call had the status `ok`, and the plan got 8 new targets, each with a reason of Luna.
-
-The owner then asked for two changes in PR-37: the first set as the calibration, and the collapse of a finished workout (D-297, D-298). Q-310 holds the details of the first change.
+The owner approved one live revision with policy version 6 (D-212), and approved the milestone (D-12). The owner answered Q-310, Q-308, and Q-311 (D-299 to D-303). The live revision waits for the owner, who finishes a workout on the iPhone. The session then reads the reviser call and the plan with ids and counts alone.
 
 The pull request holds:
 
-- the policy version 6, with the hold after a missed session, the reactive deload, the check of an override, and the golden files (D-293 to D-296),
-- the deload dates in each revision, and `Reviser.ForDate`, the targets on the date of the next session for `GetPlan` with a date,
-- the override in the plan, in the target copy of a workout, in the contract, and in `OverrideTarget` and `RemoveOverride`,
-- the form of an override on the plan screen, and the override in the workout,
-- `TestDisruptionAcceptanceStory` over the emulators, unit tests, and a browser test.
+- the policy version 7: the first set of a new exercise is the calibration, and a new exercise starts at the estimate,
+- the history of a new plan through `Maker.History`, and a deload week with no load step (D-303),
+- the flag `first_set_calibration` in the contract, the stores, and the phone,
+- the collapse of a finished exercise list (D-298),
+- the scenarios G to J in `go/cmd/lunaeval`, the numbers of each scenario, and the paid run of D-302,
+- the report `docs/research/reviser-evaluation.md`.
 
-`make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. An early version read the history of the workouts in each `GetPlan` with a date. The browser tests then failed in 4 of 5 runs, and the base `d8f766e` passed 3 of 3. `ForDate` now reads no store for a plan with no revision. Then 7 of 8 runs passed. The failed run had the 5 Chromium waits of the shared cap documents, as before this pull request.
-
-Codex round 1 found P2-1 and P2-2 at `35cf4ef` (`docs/reviews/pr-37.md`). The answers are in `docs/reviews/pr-37-response.md`. The deload now covers the 7 dates after its start. A change of the rules of the date expires an override.
-
-The earlier findings P2-1 and P2-2 are fixed at `05f858c8af3b62bff53600a33ba71048c8bda0cc`. Codex round 2 is ready for owner merge. P3-1 reports a blank line at end of `web/e2e/override.spec.ts`. It does not affect the acceptance story. All required checks pass, including `review-gate`. Next action: the author asks the owner to confirm the merge.
+`make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. Pending the CI, the Codex review, and the owner merge. Next action: push the first round, open the pull request, and run the Codex review after CI is green.
 
 ## Facts that expire
 
 | Fact | Date read | Source |
 |---|---|---|
+| The paid evaluation of D-302: 50 reviser calls of the 10 scenarios with policy version 7 and xhigh, all `ok`. The check accepted 110 reasons and refused 5. Cost 0.0179 USD, the longest call 10.8 s. | 2026-10-04 | `docs/research/reviser-evaluation.md` |
+| The live `/version.json` and `/version` name `e18781f6cf201cf0a7028eee44c95b906c4813d2`, from the builds `deploy-web` `83635766` and `deploy-api` `87489cf0`. The revision `api-00020-cfh` has all traffic. | 2026-10-04 | `curl`, `gcloud builds list`, `gcloud run services describe` |
 | The live revision of `d8f766e`: 1 reviser call of 0.0017 USD with the status `ok`, in a `SyncOutbox` call of 19.8 s. The plan got 8 new targets, each with a reason of Luna. Each of the 16 exercises of the plan has a calibration set. | 2026-10-04 | `gcloud logging read`, `users/{uid}/plan/active` |
 | The repository is public. | 2026-09-27 | GitHub repository settings |
 | The owner ended the D-4 period. `OVERRIDE_ENABLED` is `True` on `main`. | 2026-09-29 | D-125, `docs/tools/review_gate.py` |
@@ -39,7 +36,7 @@ The earlier findings P2-1 and P2-2 are fixed at `05f858c8af3b62bff53600a33ba7104
 | The OpenAI usage policies page returns HTTP 403. The owner accepted a copy printed on 2025-11-07 (D-93). | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
 | `gpt-6-luna` accepts the strict JSON schema of the plan through the Responses API. 60 of 60 plans passed the schema. | 2026-09-28 | `docs/research/luna-plan-spike.md` |
 | `gpt-6-luna` accepts an image with a strict JSON schema. One photo at 1536 px costs 0.00037 USD. | 2026-09-28 | `docs/research/recognition-spike.md` |
-| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `d8f766e`, three triggers, and the allowlist entry. | 2026-10-04 | `docs/setup-gcp.md`, `/version` |
+| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `e18781f`, three triggers, and the allowlist entry. | 2026-10-04 | `docs/setup-gcp.md`, `/version` |
 | The service `api` revision `api-00013-w8w` holds `OPENAI_API_KEY` from `openai-api-key:latest`, `LUNA_CAP_USER_USD=1`, `LUNA_CAP_PROJECT_USD=2`, and a request timeout of 420 s. The TTL policy of `aiErrors.expire_at` is `ACTIVE`. | 2026-10-03 | `gcloud run services describe`, `gcloud firestore fields ttls list` |
 | A Cloud Run service with a secret needs the accessor role for its service identity alone. The page lists `roles/run.admin` for the deployer. | 2026-10-02 | Cloud Run docs, "Configure secrets for services" |
 | The secret `openai-api-key` has version 1, enabled. A free call to the OpenAI model list with it gave HTTP 200 and lists `gpt-6-luna`. | 2026-10-01 | `gcloud secrets versions list`, `curl` |
@@ -53,7 +50,6 @@ The earlier findings P2-1 and P2-2 are fixed at `05f858c8af3b62bff53600a33ba7104
 | The bucket `nk-workout-app-prod-deploy-lock` exists, and each deployer account holds `roles/storage.objectUser` on it alone. | 2026-09-29 | `gcloud storage buckets describe`, `get-iam-policy` |
 | `workout-app-prod` is in use by another Google Cloud project. | 2026-09-29 | `gcloud projects create` |
 | The old project `gym-route-dev` is `DELETE_REQUESTED` since 2026-09-30T03:19:47Z. `gcloud projects undelete` can restore it for 30 days. Its site still gave HTTP 200 at 04:38:56Z. | 2026-09-30 | `gcloud projects describe`, `curl` |
-| The live `/version.json` and `/version` name `d8f766ebc8beb0cc7cd6c67e1ccdef931c0049dd`, from the builds `deploy-web` `bd757c99` and `deploy-api` `c3c4d9ed`. The revision `api-00019-s78` has all traffic. | 2026-10-04 | `curl`, `gcloud builds list`, `gcloud run services describe` |
 | WebKit of Playwright 1.63.0 refuses a navigation of an offline context with "WebKit encountered an internal error", also when the service worker can serve the page. Chromium serves it from the service worker. | 2026-10-03 | `web/e2e/support.ts` |
 | In WebKit of Playwright 1.63.0, a route of the context did not apply to the API calls of a page that opened again after a stop. The service worker controls such a page (unverified cause). | 2026-10-03 | `web/e2e/support.ts` |
 | With 10 workers of Playwright on a Mac of 10 cores, 5 Chromium tests of `make web` waited more than 10 s for a plan of the fake in 1 of 2 runs. The plan requests share the cap documents. More reads of the emulator in each `GetPlan` made such waits occur in 4 of 5 runs. | 2026-10-04 | `make web` |
@@ -81,11 +77,30 @@ The earlier findings P2-1 and P2-2 are fixed at `05f858c8af3b62bff53600a33ba7104
 
 ## Next steps, in order
 
-1. Close PR-36: CI, the Codex review, the owner confirmation, and the merge.
-2. Start PR-37 in a clean session (D-12), with the title `feat: the first-set calibration and the reviser evaluation (PR-37)`. It reads the deploys of the merge of PR-36 first. Then it states the cost of one live revision with policy version 6, and asks the owner (D-212).
-3. PR-37 asks Q-310 before the work, and Q-308 before the paid run. It removes the calibration sets, and collapses a finished workout (D-297, D-298).
+1. Close PR-37: CI, the Codex review, the live revision of the owner, the owner confirmation, and the merge.
+2. After the merge, read the deploys of the merge.
+3. Ask the owner to check the first-set calibration and the collapse on the iPhone. Phase 7 then ends.
 
 ## Session records
+
+### Session 38 - 2026-10-04
+
+Author provider: Claude Code
+
+Branch: `feat/pr-37-calibration-evaluation`. Role: author.
+
+Completed:
+
+- Read the deploys of `e18781f`. The owner approved one live revision (D-212) and the milestone (D-12).
+- The owner answered Q-310, Q-308, and Q-311 (D-299 to D-303).
+- Added the policy version 7, the history of a new plan, and the flag in the contract and the phone.
+- Added the collapse of a finished workout.
+- Added the scenarios G to J and the numbers of each scenario to `go/cmd/lunaeval`, and made the paid run of D-302.
+- Wrote `docs/research/reviser-evaluation.md`, and changed the registers, both roadmaps, the design, both READMEs, and `AGENTS.md`.
+
+Open work:
+
+- The live revision of the owner, CI, the Codex review, the owner confirmation, and the merge of PR-37.
 
 ### Session 37 - 2026-10-04
 
@@ -105,7 +120,7 @@ Completed:
 
 Open work:
 
-- CI, the Codex review, the owner confirmation, and the merge of PR-36.
+- None. GitHub PR 37 merged as `e18781f`.
 
 ### Session 36 - 2026-10-04
 
@@ -125,20 +140,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 36 merged as `d8f766e`.
-
-### Session 35 - 2026-10-04
-
-Author provider: Claude Code
-
-Branch: `docs/pr-34-phase-7-roadmap`. Role: author.
-
-Completed:
-
-- Read the deploy of `6274c19`. The owner checked the screen lock on the iPhone (D-285).
-- The owner approved one live plan (D-212), and the session read it with ids and counts alone.
-- The owner approved the milestone (D-12), and answered Q-300, Q-301, Q-202, and Q-194 (D-286 to D-289).
-- Wrote `docs/roadmaps/phase-7-adaptation-loop.md`, and changed the high-level roadmap, the design, the registers, the roadmap README, and `AGENTS.md`.
-
-Open work:
-
-- None. GitHub PR 35 merged as `96e2b1e`.

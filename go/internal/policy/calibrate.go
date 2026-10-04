@@ -7,24 +7,21 @@ import (
 	"github.com/nkramber/workout-app/go/internal/domain"
 )
 
-// The values of the start and the calibration of a new exercise (D-150,
-// D-177, D-180).
+// The values of the start and the calibration of a new exercise (D-178,
+// D-180, D-300).
 const (
 	// StartSets is the count of working sets of a start.
 	StartSets = 3
-	// CalibrationSessions is the count of calibration sessions of a new
-	// exercise, and after a break of 91 days or more. Each one makes one
-	// change at most (D-267).
-	CalibrationSessions = 3
 	// ReturnPercent is the percent of the estimate or of the last load
 	// after a break of 91 days or more.
 	ReturnPercent = 70
 )
 
-// start gives the target of an exercise with no history (D-150, D-178,
-// D-180): one calibration set and 3 working sets at the bottom of the
-// rep range, at 3 reps in reserve. The load comes from the estimate, or
-// it is the lightest weight when no estimate exists.
+// start gives the target of an exercise with no history (D-178, D-180,
+// D-300, D-301): 3 working sets at the bottom of the rep range, at 3
+// reps in reserve, and the first set is the calibration. The load is
+// the estimate, or the lightest weight when no estimate exists. When
+// Returning is true, the load is 70 percent of the estimate (D-179).
 func start(in Input) Decision {
 	b := &builder{in: in, available: in.Entry.Available()}
 	b.target = domain.PlannedExercise{Exercise: in.Exercise.ID, RestSeconds: DefaultRest(in.Exercise)}
@@ -52,63 +49,40 @@ func start(in Input) Decision {
 	default:
 		b.rule(RuleStartEstimate, fmt.Sprintf("This exercise is new. It starts at %s, from your estimate of %s.", load, in.Estimate))
 	}
-	b.calibration()
+	b.firstSet()
 	return b.decision()
 }
 
-// calibration adds one calibration set at the reps and the load of the
-// first working set (D-150, D-177).
-func (b *builder) calibration() {
-	w := b.target.Working[0]
-	b.target.Calibration = []domain.CalibrationSet{{Reps: w.Reps, Load: w.Load}}
-	b.calBefore = b.before[0]
-	b.rule(RuleCalibrationSet, fmt.Sprintf("The session starts with one calibration set of %d reps at %s. Stop it at 3 to 4 reps in reserve.", w.Reps, w.Load))
-}
-
-// calibrating tells that the next session is a calibration session
-// (D-177). A session with a calibration set in its target is a
-// calibration session. The last sessions of the history count back to
-// a session with no calibration set, or to a break of 91 days or more.
-// Fewer than 3 such sessions with a logged working set give one more.
-func (in Input) calibrating() bool {
-	h := in.History
-	if len(h) == 0 || len(h[len(h)-1].Target.Calibration) == 0 {
-		return false
-	}
-	n, later := 0, -1
-	for i := len(h) - 1; i >= 0; i-- {
-		o := h[i]
-		if len(o.Target.Calibration) == 0 {
-			break
-		}
-		if !o.trained() {
-			continue
-		}
-		d := day(o.Date)
-		if later >= 0 && later-d >= RecalibrateDays {
-			break
-		}
-		n++
-		later = d
-	}
-	return n < CalibrationSessions
+// firstSet makes the first working set the calibration (D-297, D-299).
+// The owner changes the weight during its first reps, and the other
+// working sets use the weight that the owner logged for it.
+func (b *builder) firstSet() {
+	b.target.FirstSetCalibration = true
+	b.rule(RuleCalibrationFirstSet, "The first set is the calibration. Change the weight during its first reps when it is too light or too heavy. The other sets use the weight of the first set.")
 }
 
 // effective gives a copy of the history in which each calibration
-// session has the working load that its first calibration set gave
-// (D-150, D-267). The table applies to the weight that the owner logged,
-// because the owner can change the weight before the log (D-249). The
-// owner logs the working sets at that load, so the rules read the logs
-// against it.
+// session has the working load that its calibration gave. In a session
+// of the first-set calibration, the load is the weight that the owner
+// logged for the first working set (D-299). In a session of policy
+// version 6 or earlier, the table applies to the weight of its first
+// calibration set (D-150, D-267). The table applies to the weight that
+// the owner logged, because the owner can change the weight before the
+// log (D-249). The owner logs the working sets at that load, so the
+// rules read the logs against it.
 func (in Input) effective() []Outcome {
 	out := slices.Clone(in.History)
 	available := in.Entry.Available()
 	for i, o := range out {
-		cal := calibrationSets(o.Log)
-		if len(o.Target.Calibration) == 0 || len(cal) == 0 {
+		var load domain.Load
+		switch cal, logs := calibrationSets(o.Log), o.working(); {
+		case len(o.Target.Calibration) > 0 && len(cal) > 0:
+			load = calibrationLoads(firstLoad(cal[0].Weight, available), available).For(cal[0])
+		case o.Target.FirstSetCalibration && len(logs) > 0:
+			load = firstLoad(logs[0].Weight, available)
+		default:
 			continue
 		}
-		load := calibrationLoads(firstLoad(cal[0].Weight, available), available).For(cal[0])
 		w := slices.Clone(o.Target.Working)
 		for j := range w {
 			w[j].Load = load
@@ -139,9 +113,10 @@ func firstLoad(l domain.Load, available []domain.Load) domain.Load {
 
 // CalibrationLoads gives the load of the working sets of a session
 // after its one calibration set at Weight, for each result of the table
-// of RuleCalibrationTable (D-150, D-267). The plan holds one for each
-// weight of the machine, so the phone applies the table with no network
-// to the weight that the owner logged (D-23, D-249). A machine with no
+// of RuleCalibrationTable (D-150, D-267). A plan of policy version 6 or
+// earlier holds one for each weight of the machine, so the phone applies
+// the table with no network to the weight that the owner logged (D-23,
+// D-249). From version 7, no target has a calibration set (D-297). A machine with no
 // weight for a change keeps the load. A weight that the policy can not
 // give takes the repair of RuleLoadRepair first.
 type CalibrationLoads struct {

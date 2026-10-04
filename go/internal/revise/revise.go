@@ -246,9 +246,9 @@ func (r *Reviser) input(uid string, p plan.Plan, history []workout.Workout, pi i
 	if len(h) == 0 {
 		return policy.Input{}, false
 	}
-	// Each new exercise of a plan starts as a return after a long
-	// break (D-238), so its first sessions count from that start.
-	in := policy.Input{Exercise: e, Entry: entry, History: h, Today: h[len(h)-1].Date, Estimate: pi.Estimates[e.ID], Returning: true, Deloads: deloads}
+	// A new exercise is not a return after a long break (D-300), so the
+	// normal rules apply from its second session (D-301).
+	in := policy.Input{Exercise: e, Entry: entry, History: h, Today: h[len(h)-1].Date, Estimate: pi.Estimates[e.ID], Deloads: deloads}
 	if _, err := policy.Next(in); err != nil {
 		r.warn("revise: the policy refused the input", "uid", uid, "exercise_id", string(e.ID), "err", err.Error())
 		return policy.Input{}, false
@@ -280,6 +280,29 @@ func (r *Reviser) deloads(uid string, p plan.Plan, history []workout.Workout) []
 		return nil
 	}
 	return out
+}
+
+// History gives the logged history of uid for a new plan: the outcomes
+// of each exercise that a finished workout logged, and the deloads
+// (D-301). A workout of an older phone with no target copy gives no
+// outcome, because no plan links it to the new plan.
+func (r *Reviser) History(ctx context.Context, uid string) (plan.History, error) {
+	history, err := r.finished(ctx, uid)
+	if err != nil {
+		return plan.History{}, err
+	}
+	out := plan.History{Outcomes: map[domain.ExerciseID][]policy.Outcome{}, Deloads: r.deloads(uid, plan.Plan{}, history)}
+	for _, w := range history {
+		for _, l := range w.Exercises() {
+			if _, done := out.Outcomes[l.Exercise]; done {
+				continue
+			}
+			if h := outcomes(plan.Plan{}, history, l.Exercise); len(h) > 0 {
+				out.Outcomes[l.Exercise] = h
+			}
+		}
+	}
+	return out, nil
 }
 
 // holds tells whether a session of the plan holds the exercise.

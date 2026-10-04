@@ -3,8 +3,8 @@ import { expect, test, type Page } from "@playwright/test";
 import { holdSync, makePlanOwner, signIn, stopAndOpen, uniqueEmail } from "./support";
 
 // An override of the owner (D-69, D-293). The API uses the fake provider
-// of Luna (D-241), so the chest press of Session 1 starts with one
-// calibration set and 3 working sets at 10 lb. Each machine has the
+// of Luna (D-241), so the chest press of Session 1 starts with 3 working
+// sets at 10 lb, and the first set is the calibration. Each machine has the
 // weights 10 to 200 lb, in steps of 10 lb. The policy of the server
 // checks each override (D-23).
 
@@ -47,9 +47,9 @@ test("an override shows in the next workout, with the recommendation and the rea
   await expect(card(page).getByTestId("override-form")).toHaveCount(0);
   const shown = card(page).getByTestId("override");
   await expect(shown).toContainText("Your change for the next session");
-  await expect(shown.getByRole("listitem").filter({ hasText: /^Set 1: / })).toContainText("at 20 lb");
+  await expect(shown.getByRole("listitem").filter({ hasText: /^Set 1[,:] / })).toContainText("at 20 lb");
   await expect(shown.getByTestId("override-reason")).toHaveText("Your reason: My shoulder feels fine this week.");
-  await expect(card(page).getByTestId("sets").getByRole("listitem").filter({ hasText: /^Set 1: / })).toHaveText(recommended[0]);
+  await expect(card(page).getByTestId("sets").getByRole("listitem").filter({ hasText: /^Set 1[,:] / })).toHaveText(recommended[0]);
 
   // "Use the recommendation" removes the override, and the owner saves it
   // again. One test holds both, so the file makes one plan, because the
@@ -69,12 +69,13 @@ test("an override shows in the next workout, with the recommendation and the rea
   await button(again, "Workout").click();
   await button(again, "Start Session 1").click();
 
-  // The next workout uses the override: the calibration set and each
-  // working set start at 20 lb.
+  // The next workout uses the override: each working set starts at 20 lb,
+  // and the first set stays the calibration (D-301).
   await expect(logger(again).getByTestId("logger-exercise")).toHaveText("Chest press");
+  await expect(logger(again).getByTestId("set-label")).toHaveText(/^Set 1 of \d+, the calibration$/);
   await expect(logger(again).getByTestId("set-target")).toContainText("at 20 lb");
   await button(again, "3 in reserve").click();
-  await expect(logger(again).getByTestId("set-label")).toHaveText(/^Set 1 of \d+$/);
+  await expect(logger(again).getByTestId("set-label")).toHaveText(/^Set 2 of \d+$/);
   await expect(logger(again).getByTestId("set-target")).toContainText("at 20 lb");
   await expect(logger(again).getByTestId("override-note")).toContainText("Your change. Recommended:");
   await expect(logger(again).getByTestId("override-note")).toContainText("at 10 lb");

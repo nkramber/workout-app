@@ -46,7 +46,8 @@ type Progress struct {
 
 // Maker makes the plan of a user. AI holds the provider and the cap
 // hook. Now gives the time, and Log gets a line of ids and numbers for
-// each failed attempt. A nil Log writes no line.
+// each failed attempt. A nil Log writes no line. History gives the
+// logged history of the user, and a nil History gives none.
 type Maker struct {
 	AI        *ai.Client
 	Profiles  profile.Store
@@ -55,6 +56,15 @@ type Maker struct {
 	Errors    ErrorLog
 	Now       func() time.Time
 	Log       *slog.Logger
+	History   func(ctx context.Context, uid string) (History, error)
+}
+
+// History is the logged history of a user for a new plan: the outcomes
+// of each exercise, the oldest first, and the start date of each
+// reactive deload (D-295).
+type History struct {
+	Outcomes map[domain.ExerciseID][]policy.Outcome
+	Deloads  []string
 }
 
 // Make makes a new plan of the user for the date today, and saves it.
@@ -96,7 +106,14 @@ func (m *Maker) Make(ctx context.Context, uid, today string, exclude *Exclusion,
 		}
 	}
 
-	req, inputs := Request(uid, today, prof, inventory.ForPlan(inv), ex, catalog, tables)
+	var h History
+	if m.History != nil {
+		if h, err = m.History(ctx, uid); err != nil {
+			return Plan{}, fmt.Errorf("plan: the history: %w", err)
+		}
+	}
+
+	req, inputs := Request(uid, today, prof, inventory.ForPlan(inv), ex, catalog, tables, h)
 	if len(req.Exercises) == 0 {
 		return Plan{}, ErrNothingToPlan
 	}
@@ -194,9 +211,11 @@ func (m *Maker) record(ctx context.Context, uid string, kind Kind, attempt int, 
 // and the training days of D-211. An exercise is in it when its machine
 // is confirmed (D-49, D-193), it loads no injured area (D-208), and it
 // is not excluded (D-48). A cardio exercise of the preference is in it
-// on the same terms. Each new exercise starts as a return after a long
-// break (D-238). The exclusion reasons stay on the server (D-229).
-func Request(uid, today string, p profile.Profile, inv inventory.PlanInput, ex Exclusions, c domain.Catalog, t domain.BodyTables) (ai.Request, map[domain.ExerciseID]policy.Input) {
+// on the same terms. An exercise with a logged history gets its target
+// from that history, and a new exercise gets the start of the policy
+// (D-300, D-301). A history that the policy refuses counts as none. The
+// exclusion reasons stay on the server (D-229).
+func Request(uid, today string, p profile.Profile, inv inventory.PlanInput, ex Exclusions, c domain.Catalog, t domain.BodyTables, h History) (ai.Request, map[domain.ExerciseID]policy.Input) {
 	pf := profile.ForPlan(p, c, t)
 	req := ai.Request{
 		User: uid, Today: today, Sessions: pf.Sessions,
@@ -219,7 +238,10 @@ func Request(uid, today string, p profile.Profile, inv inventory.PlanInput, ex E
 		if !ok {
 			continue
 		}
-		in := policy.Input{Exercise: e, Entry: entry, Today: today, Estimate: inv.Estimates[id], Returning: true}
+		in := policy.Input{Exercise: e, Entry: entry, Today: today, Estimate: inv.Estimates[id], History: h.Outcomes[id], Deloads: h.Deloads}
+		if _, err := policy.Next(in); err != nil {
+			in.History, in.Deloads = nil, nil
+		}
 		req.Exercises = append(req.Exercises, in)
 		inputs[id] = in
 	}
