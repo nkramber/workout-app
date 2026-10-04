@@ -21,7 +21,7 @@ The pull request holds:
 
 `make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. GitHub PR 38 holds the work.
 
-Codex round 1 found P2-1, and round 2 found P2-2 and P2-3 (`docs/reviews/pr-38.md`). A new plan now reads each workout, so an exercise beyond the window of a revision keeps its history. The design gives the start at the estimate. The answers are in `docs/reviews/pr-38-response.md`. Next action: when CI is green, run Codex round 3.
+Codex round 1 found P2-1, and round 2 found P2-2 and P2-3 (`docs/reviews/pr-38.md`). Round 3 found both fixes complete. The review is Blocked at effective head `0b51b4c5c558fb2c780f930dc4004c2f964f435d`, with no open findings. The owner must complete and read the live revision on the iPhone before PR-37 closes. Next action: record that evidence, then ask the owner to confirm the merge.
 
 ## Facts that expire
 
