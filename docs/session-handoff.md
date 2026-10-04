@@ -24,7 +24,7 @@ The pull request holds:
 
 Codex round 1 found P2-1 and P2-2 at `35cf4ef` (`docs/reviews/pr-37.md`). The answers are in `docs/reviews/pr-37-response.md`. The deload now covers the 7 dates after its start. A change of the rules of the date expires an override.
 
-The earlier findings P2-1 and P2-2 are fixed at `05f858c8af3b62bff53600a33ba71048c8bda0cc`. Codex round 2 is ready for owner merge. P3-1 reports a blank line at end of `web/e2e/override.spec.ts`. It does not affect the acceptance story. CI must rerun the review gate after this record reaches origin. Next action: the author asks the owner to confirm the merge.
+The earlier findings P2-1 and P2-2 are fixed at `05f858c8af3b62bff53600a33ba71048c8bda0cc`. Codex round 2 is ready for owner merge. P3-1 reports a blank line at end of `web/e2e/override.spec.ts`. It does not affect the acceptance story. All required checks pass, including `review-gate`. Next action: the author asks the owner to confirm the merge.
 
 ## Facts that expire
 
