@@ -151,7 +151,7 @@ func pressInput(t *testing.T, f *fixture, h ...policy.Outcome) policy.Input {
 	e, _ := domain.DefaultCatalog().Exercise("chest_press")
 	inv, _ := f.inv.Get(context.Background(), uid)
 	entry, _ := inventory.ForPlan(inv).Inventory.Entry(e.Machine)
-	return policy.Input{Exercise: e, Entry: entry, History: h, Today: h[len(h)-1].Date, Returning: true}
+	return policy.Input{Exercise: e, Entry: entry, History: h, Today: h[len(h)-1].Date}
 }
 
 // TestRevise: after a finished workout, the chest press gets the target
@@ -350,5 +350,99 @@ func TestReviseSkipped(t *testing.T) {
 	}
 	if err := json.Unmarshal(f.fake.Calls()[0].Input, &in); err != nil || len(in.Exercises) != 2 || in.Exercises[1].RulesReason != row.Reason {
 		t.Fatalf("reviser input %+v, %v", in, err)
+	}
+}
+
+// A new plan reads each workout (P2-1 and P2-2 of PR-38): an exercise
+// that the newest 2000 workouts omit keeps its history, so its target is
+// the return of D-179 and not a new start (D-301).
+func TestHistoryBeyondRevisionWindow(t *testing.T) {
+	f := newFixture(t)
+	press := target("chest_press", 3, 12, lb(100))
+	f.workout(1, "2025-06-02", true, log{press, []domain.SetLog{set(12, lb(100), 3), set(12, lb(100), 3), set(12, lb(100), 3)}})
+	row := target("seated_row", 3, 12, lb(40))
+	start := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+	const newer = 2100
+	for n := 2; n <= newer+1; n++ {
+		date := start.AddDate(0, 0, n).Format(domain.DateLayout)
+		f.workout(n, date, true, log{row, []domain.SetLog{set(12, lb(40), 3)}})
+	}
+	h, err := f.reviser.History(context.Background(), uid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := h.Outcomes["chest_press"]; len(got) != 1 || got[0].Date != "2025-06-02" {
+		t.Fatalf("chest press history %+v, want the workout of 2025-06-02", got)
+	}
+	if n := len(h.Outcomes["seated_row"]); n != newer {
+		t.Fatalf("seated row history of %d workouts, want %d", n, newer)
+	}
+	in := pressInput(t, f, h.Outcomes["chest_press"]...)
+	in.Today = "2026-10-05"
+	d, err := policy.Next(in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if d.Rules[0] != policy.RuleBreakRecalibrate || d.Target.Working[0].Load != lb(70) || !d.Target.FirstSetCalibration {
+		t.Fatalf("target %+v by %v, want the return at 70 lb with the first set as the calibration", d.Target, d.Rules)
+	}
+}
+
+// Two syncs of one finished workout at the same time make one reviser
+// call (D-304). The first revision claims the workout before its call,
+// so the second one stops before its call, and the plan gets one
+// revision.
+func TestReviseClaim(t *testing.T) {
+	f := newFixture(t)
+	id := f.workout(1, "2026-10-02", true, log{target("chest_press", 3, 12, lb(25)), []domain.SetLog{set(12, lb(25), 3), set(12, lb(25), 3), set(12, lb(25), 3)}})
+	started, release := make(chan struct{}), make(chan struct{})
+	f.fake.Reply = func(c ai.Call) (ai.Reply, error) {
+		close(started)
+		<-release
+		return ai.EchoReply(c)
+	}
+	first := make(chan Result)
+	go func() {
+		r, err := f.reviser.Revise(context.Background(), uid, id)
+		if err != nil {
+			t.Error(err)
+		}
+		first <- r
+	}()
+	<-started
+	if p := f.plan(); len(p.Claims) != 1 || p.Claims[0].WorkoutID != id {
+		t.Fatalf("claims %+v during the call, want the claim of the workout", p.Claims)
+	}
+	if res := f.revise(id); res.Revised || res.Status != "" {
+		t.Fatalf("the second sync gave %+v, want no revision and no call", res)
+	}
+	close(release)
+	if res := <-first; !res.Revised {
+		t.Fatalf("the first sync gave %+v, want the revision", res)
+	}
+	if p := f.plan(); len(f.fake.Calls()) != 1 || p.Revisions != 1 || len(p.Claims) != 0 {
+		t.Fatalf("%d reviser calls, %d revisions, claims %+v: want 1, 1, and none", len(f.fake.Calls()), p.Revisions, p.Claims)
+	}
+}
+
+// A claim lasts until the end of its lease. A revision that failed
+// before its save leaves its claim, and a replay after the lease
+// revises the plan (D-304).
+func TestReviseClaimLease(t *testing.T) {
+	f := newFixture(t)
+	id := f.workout(1, "2026-10-02", true, log{target("chest_press", 3, 12, lb(25)), []domain.SetLog{set(12, lb(25), 3), set(12, lb(25), 3), set(12, lb(25), 3)}})
+	now := f.reviser.Now()
+	if err := f.plans.Update(context.Background(), uid, created, func(p *plan.Plan) error {
+		p.Claim(id, now, now.Add(Timeout))
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if res := f.revise(id); res.Revised || len(f.fake.Calls()) != 0 {
+		t.Fatalf("a live claim gave %+v and %d calls, want no revision and no call", res, len(f.fake.Calls()))
+	}
+	f.reviser.Now = func() time.Time { return now.Add(Timeout) }
+	if res := f.revise(id); !res.Revised || len(f.fake.Calls()) != 1 || len(f.plan().Claims) != 0 {
+		t.Fatalf("after the lease: %+v, %d calls, claims %+v", res, len(f.fake.Calls()), f.plan().Claims)
 	}
 }

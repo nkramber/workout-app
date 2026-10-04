@@ -104,6 +104,18 @@ func notHarder(final, last domain.PlannedExercise) string {
 	return ""
 }
 
+// oneStep gives the cause when a set has more load than the last load
+// plus one 5 lb step. From the second session of an exercise, the
+// normal rules can add one step (D-147, D-301).
+func oneStep(final, last domain.PlannedExercise) string {
+	for i, s := range final.Working {
+		if s.Load > last.Working[0].Load+domain.Pounds(5) {
+			return fmt.Sprintf("working[%d]: load %s, more than one 5 lb step over %s", i, s.Load, last.Working[0].Load)
+		}
+	}
+	return ""
+}
+
 // revScenarios gives the scenarios A to F of section 5 of the
 // high-level roadmap, as revisions after a logged session. Each case of
 // a scenario holds another exercise.
@@ -179,8 +191,8 @@ func revScenarios() map[string][]revCase {
 				}},
 		},
 		"F": {
-			{"f_press", "chest_press", []logged{{0, revTarget("chest_press", 3, 12, 100), allDone(revTarget("chest_press", 3, 12, 100)), false}}, notHarder},
-			{"f_leg_press", "leg_press", []logged{{0, revTarget("leg_press", 3, 12, 200), allDone(revTarget("leg_press", 3, 12, 200)), false}}, notHarder},
+			{"f_press", "chest_press", []logged{{0, revTarget("chest_press", 3, 12, 100), allDone(revTarget("chest_press", 3, 12, 100)), false}}, oneStep},
+			{"f_leg_press", "leg_press", []logged{{0, revTarget("leg_press", 3, 12, 200), allDone(revTarget("leg_press", 3, 12, 200)), false}}, oneStep},
 		},
 	}
 }
@@ -263,7 +275,7 @@ func (e *revEnv) entry(entity, id string) *workoutappv1.OutboxEntry {
 }
 
 func seenTarget(p domain.PlannedExercise) *workoutappv1.SeenTarget {
-	out := &workoutappv1.SeenTarget{ExerciseId: string(p.Exercise), RestSeconds: int32(p.RestSeconds)}
+	out := &workoutappv1.SeenTarget{ExerciseId: string(p.Exercise), RestSeconds: int32(p.RestSeconds), FirstSetCalibration: p.FirstSetCalibration}
 	for _, s := range p.Working {
 		out.WorkingSets = append(out.WorkingSets, &workoutappv1.PlannedSet{Reps: int32(s.Reps), LoadTenthLb: int32(s.Load), RirTarget: int32(s.RIR)})
 	}
@@ -332,7 +344,7 @@ func (e *revEnv) run(cases []revCase) map[string]policy.Input {
 	for _, c := range cases {
 		ex, _ := domain.DefaultCatalog().Exercise(c.exercise)
 		entry, _ := pi.Inventory.Entry(ex.Machine)
-		in := policy.Input{Exercise: ex, Entry: entry, Returning: true}
+		in := policy.Input{Exercise: ex, Entry: entry}
 		for _, s := range c.sessions {
 			date := start.AddDate(0, 0, s.day).Format(domain.DateLayout)
 			e.session(c, s, date)
@@ -355,7 +367,7 @@ func (e *revEnv) planned() *workoutappv1.Plan {
 }
 
 func targetOf(p *workoutappv1.PlannedExercise) domain.PlannedExercise {
-	out := domain.PlannedExercise{Exercise: domain.ExerciseID(p.GetExerciseId()), RestSeconds: int(p.GetRestSeconds())}
+	out := domain.PlannedExercise{Exercise: domain.ExerciseID(p.GetExerciseId()), RestSeconds: int(p.GetRestSeconds()), FirstSetCalibration: p.GetFirstSetCalibration()}
 	for _, s := range p.GetCalibrationSets() {
 		out.Calibration = append(out.Calibration, domain.CalibrationSet{Reps: int(s.GetReps()), Load: domain.Load(s.GetLoadTenthLb())})
 	}

@@ -40,7 +40,7 @@ func (e *revEnv) runFrom(cases []revCase, start time.Time) map[string]policy.Inp
 	for _, c := range cases {
 		ex, _ := domain.DefaultCatalog().Exercise(c.exercise)
 		entry, _ := pi.Inventory.Entry(ex.Machine)
-		in := policy.Input{Exercise: ex, Entry: entry, Returning: true}
+		in := policy.Input{Exercise: ex, Entry: entry}
 		for _, s := range c.sessions {
 			date := start.AddDate(0, 0, s.day).Format(domain.DateLayout)
 			e.session(c, s, date)
@@ -160,6 +160,9 @@ func TestDisruptionAcceptanceStory(t *testing.T) {
 	t.Run("deload after a decline", func(t *testing.T) {
 		curl := revTarget("biceps_curl", 3, 12, 25)
 		row := revTarget("seated_row", 3, 10, 60)
+		// The leg extension is at the top of its range, so the rules give
+		// a load step. The deload keeps the load of the last target, and
+		// the step waits for the end of the deload (D-303).
 		ext := revTarget("leg_extension", 3, 12, 40)
 		cases := []revCase{
 			{"curl", "biceps_curl", []logged{

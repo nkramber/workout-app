@@ -76,8 +76,12 @@ func (g *gen) target(e domain.Exercise, loads []domain.Load, wild bool) domain.P
 		}
 		p.Working = append(p.Working, s)
 	}
-	if g.pick(10) == 0 {
+	switch g.pick(10) {
+	case 0:
+		// A target of policy version 6 or earlier (D-267).
 		p.Calibration = []domain.CalibrationSet{{Reps: p.Working[0].Reps, Load: load}}
+	case 1:
+		p.FirstSetCalibration = true
 	}
 	if wild {
 		p.RestSeconds = g.pick(400)
@@ -406,19 +410,17 @@ func (g *gen) mutate(t domain.PlannedExercise, in Input) domain.PlannedExercise 
 	case 5:
 		p.Working[i].Load = p.Working[i].Load * 3 / 2 // a 50 percent jump, scenario F
 	case 6:
-		p.Calibration = nil
+		// The rules decide the calibration, so a proposal can not
+		// change it (D-301).
+		p.FirstSetCalibration = !p.FirstSetCalibration
 	case 7:
-		if len(p.Calibration) > 0 {
-			p.Calibration[0].Load = available[g.pick(len(available))]
-		}
+		p.Calibration = append(p.Calibration, domain.CalibrationSet{Reps: p.Working[0].Reps, Load: available[g.pick(len(available))]})
 	case 8:
 		p.Working = append(p.Working, p.Working[i])
 	case 9:
 		p.Working[i].RIR = 2
 	case 10:
-		if len(p.Calibration) > 0 {
-			p.Calibration[0].Reps = 6 + g.pick(15)
-		}
+		p.Working[i].Reps += 1 + g.pick(3)
 	case 11:
 		p.Calibration = append(p.Calibration, domain.CalibrationSet{Reps: p.Working[0].Reps, Load: p.Working[0].Load})
 	}
@@ -434,23 +436,17 @@ func outside(p, ceiling domain.PlannedExercise, in Input) bool {
 	bad := func(reps int, l domain.Load) bool {
 		return reps < 6 || reps > 20 || !slices.Contains(available, l) || (l%Step != 0 && !selected(l, available))
 	}
-	if (len(ceiling.Calibration) > 0) != (len(p.Calibration) > 0) || len(p.Calibration) > 1 {
+	// The first working set is the calibration (D-297).
+	if len(p.Calibration) > 0 {
 		return true
-	}
-	for _, s := range p.Calibration {
-		if bad(s.Reps, s.Load) || (len(ceiling.Calibration) > 0 && s.Load > ceiling.Calibration[0].Load) {
-			return true
-		}
-		if len(p.Working) > 0 && (s.Reps != p.Working[0].Reps || s.Load != p.Working[0].Load) {
-			return true
-		}
 	}
 	first := afterBreak(in)
 	if first && len(p.Working) > len(ceiling.Working) {
 		return true
 	}
-	// The effort ceiling of D-186 applies outside a calibration session.
-	effort := len(ceiling.Calibration) == 0
+	// The effort ceiling of D-186 applies outside a session of the
+	// first-set calibration (D-301).
+	effort := !ceiling.FirstSetCalibration
 	if effort && len(p.Working) > len(ceiling.Working) {
 		return true
 	}
@@ -587,7 +583,10 @@ func TestPropertyFallback(t *testing.T) {
 				t.Fatalf("run %d: a proposal outside the bounds gave source %q, cause %q, violations %v", i, r.Source, r.Cause, r.Violations)
 			}
 		default:
-			if r.Source != SourceLuna || r.Cause != CauseNone || len(r.Violations) > 0 || !reflect.DeepEqual(r.Target, *p.Target) {
+			// The rules decide the calibration (D-301).
+			want := *p.Target
+			want.FirstSetCalibration = next.Target.FirstSetCalibration
+			if r.Source != SourceLuna || r.Cause != CauseNone || len(r.Violations) > 0 || !reflect.DeepEqual(r.Target, want) || !reflect.DeepEqual(*r.Proposal, *p.Target) {
 				t.Fatalf("run %d: a proposal inside the bounds gave %+v", i, r)
 			}
 		}
@@ -635,9 +634,9 @@ func TestPropertyFirstSessions(t *testing.T) {
 	}
 }
 
-// Each start of a new exercise is inside the bounds, with one
-// calibration set and 3 working sets at 3 reps in reserve, and no load
-// above the estimate or the lightest weight (D-150, D-178, D-180).
+// Each start of a new exercise is inside the bounds, with 3 working sets
+// at 3 reps in reserve, the first set as the calibration, and no load
+// above the estimate or the lightest weight (D-178, D-180, D-300).
 func TestPropertyStart(t *testing.T) {
 	g := newGen(11)
 	for i := range propertyRuns {
@@ -656,7 +655,7 @@ func TestPropertyStart(t *testing.T) {
 		if in.Estimate > 0 {
 			top = max(Round(in.Estimate, Other), available[0])
 		}
-		if len(p.Calibration) != 1 || len(p.Working) != StartSets || p.Calibration[0].Load != p.Working[0].Load {
+		if len(p.Calibration) != 0 || !p.FirstSetCalibration || len(p.Working) != StartSets {
 			t.Fatalf("run %d: start %+v", i, p)
 		}
 		for j, s := range p.Working {

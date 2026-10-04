@@ -71,7 +71,6 @@ func TestCheck(t *testing.T) {
 	good := target("chest_press", 2, 10, lb(25))
 	db := dumbbellInput(t, "db_incline_bench_press")
 	db.Estimate = lb(20)
-	cal := []domain.CalibrationSet{{Reps: 10, Load: lb(20)}}
 	for _, tc := range []struct {
 		name string
 		in   Input
@@ -95,46 +94,26 @@ func TestCheck(t *testing.T) {
 		{"more sets", in, func(p *domain.PlannedExercise) { p.Working = append(p.Working, p.Working[0]) }, []RuleID{RuleEffortCeiling}},
 		{"more reps at a lower load", in, func(p *domain.PlannedExercise) { p.Working[0].Load, p.Working[0].Reps = lb(20), 14 }, nil},
 		{"more reps over the bounds", in, func(p *domain.PlannedExercise) { p.Working[0].Reps = 21 }, []RuleID{RuleRepBounds}},
-		{"calibration", in, func(p *domain.PlannedExercise) {
-			p.Calibration = []domain.CalibrationSet{{Reps: 30, Load: lb(11)}}
-		}, []RuleID{RuleCalibrationSet, RuleRepBounds, RuleLoadAvailable, RuleCalibrationSet}},
+		{"calibration set", in, func(p *domain.PlannedExercise) {
+			p.Calibration = []domain.CalibrationSet{{Reps: 10, Load: lb(25)}}
+		}, []RuleID{RuleCalibrationFirstSet}},
 		{"press rir 1", db, func(p *domain.PlannedExercise) {
 			*p = target("db_incline_bench_press", 2, 10, lb(20))
-			p.Calibration = cal
 			p.Working[0].RIR = 1
 		}, []RuleID{RuleRIRPress}},
 		{"start", db, func(p *domain.PlannedExercise) {
 			*p = target("db_incline_bench_press", 3, 10, lb(20))
-			p.Calibration = cal
 		}, nil},
-		{"start light calibration set", db, func(p *domain.PlannedExercise) {
-			*p = target("db_incline_bench_press", 2, 10, lb(20))
-			p.Calibration = []domain.CalibrationSet{{Reps: 10, Load: lb(15)}}
-		}, []RuleID{RuleCalibrationSet}},
-		{"start two calibration sets", db, func(p *domain.PlannedExercise) {
-			*p = target("db_incline_bench_press", 2, 10, lb(20))
-			p.Calibration = []domain.CalibrationSet{{Reps: 10, Load: lb(20)}, {Reps: 10, Load: lb(20)}}
-		}, []RuleID{RuleCalibrationSet}},
-		{"start calibration reps", db, func(p *domain.PlannedExercise) {
-			*p = target("db_incline_bench_press", 2, 10, lb(20))
-			p.Calibration = []domain.CalibrationSet{{Reps: 12, Load: lb(20)}}
-		}, []RuleID{RuleCalibrationSet}},
-		{"history calibration reps", in, func(p *domain.PlannedExercise) {
-			p.Calibration = []domain.CalibrationSet{{Reps: 8, Load: lb(25)}}
-		}, []RuleID{RuleCalibrationSet, RuleCalibrationSet}},
-		{"history calibration set", in, func(p *domain.PlannedExercise) {
-			p.Calibration = []domain.CalibrationSet{{Reps: 10, Load: lb(25)}}
-		}, []RuleID{RuleCalibrationSet}},
-		{"history heavy calibration set", in, func(p *domain.PlannedExercise) {
-			p.Calibration = []domain.CalibrationSet{{Reps: 10, Load: lb(30)}}
-		}, []RuleID{RuleCalibrationSet, RuleCalibrationSet}},
-		{"start no calibration set", db, func(p *domain.PlannedExercise) {
-			*p = target("db_incline_bench_press", 2, 10, lb(20))
-		}, []RuleID{RuleCalibrationSet}},
+		{"start more reps", db, func(p *domain.PlannedExercise) {
+			*p = target("db_incline_bench_press", 3, 12, lb(20))
+		}, nil},
+		{"start calibration set", db, func(p *domain.PlannedExercise) {
+			*p = target("db_incline_bench_press", 3, 10, lb(20))
+			p.Calibration = []domain.CalibrationSet{{Reps: 10, Load: lb(20)}}
+		}, []RuleID{RuleCalibrationFirstSet}},
 		{"start above the estimate", db, func(p *domain.PlannedExercise) {
 			*p = target("db_incline_bench_press", 2, 10, lb(50))
-			p.Calibration = []domain.CalibrationSet{{Reps: 10, Load: lb(25)}}
-		}, []RuleID{RuleLoadCeiling, RuleCalibrationSet, RuleLoadCeiling, RuleLoadCeiling}},
+		}, []RuleID{RuleLoadCeiling, RuleLoadCeiling}},
 	} {
 		p := good
 		p.Working = append([]domain.WorkingSet(nil), good.Working...)

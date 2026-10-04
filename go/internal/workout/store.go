@@ -298,6 +298,9 @@ type targetDoc struct {
 	Rest        int64       `firestore:"rest_seconds"`
 	Calibration []targetSet `firestore:"calibration_sets"`
 	Working     []targetSet `firestore:"working_sets"`
+	// The first working set is the calibration (D-297). A workout of an
+	// older phone has no such field.
+	FirstSet bool `firestore:"first_set_calibration,omitempty"`
 	// After an override of the owner: the recommendation that it
 	// replaced, and the reason of the owner (D-69, D-293).
 	Recommended    []targetSet `firestore:"recommended_working_sets,omitempty"`
@@ -313,7 +316,7 @@ type targetSet struct {
 func encodeTargets(in []domain.PlannedExercise, overrides []SeenOverride) []targetDoc {
 	out := make([]targetDoc, 0, len(in))
 	for _, t := range in {
-		d := targetDoc{Exercise: string(t.Exercise), Rest: int64(t.RestSeconds), Calibration: []targetSet{}, Working: []targetSet{}}
+		d := targetDoc{Exercise: string(t.Exercise), Rest: int64(t.RestSeconds), Calibration: []targetSet{}, Working: []targetSet{}, FirstSet: t.FirstSetCalibration}
 		for _, o := range overrides {
 			if o.Exercise != t.Exercise {
 				continue
@@ -338,7 +341,7 @@ func decodeTargets(in []targetDoc) ([]domain.PlannedExercise, []SeenOverride) {
 	var out []domain.PlannedExercise
 	var overrides []SeenOverride
 	for _, d := range in {
-		t := domain.PlannedExercise{Exercise: domain.ExerciseID(d.Exercise), RestSeconds: int(d.Rest)}
+		t := domain.PlannedExercise{Exercise: domain.ExerciseID(d.Exercise), RestSeconds: int(d.Rest), FirstSetCalibration: d.FirstSet}
 		if d.OverrideReason != "" || len(d.Recommended) > 0 {
 			o := SeenOverride{Exercise: t.Exercise, Reason: d.OverrideReason}
 			for _, w := range d.Recommended {

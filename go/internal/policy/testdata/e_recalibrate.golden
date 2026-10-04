@@ -1,8 +1,8 @@
-policy version: 6
-rules: break.recalibrate, calibration.set
+policy version: 7
+rules: break.recalibrate, calibration.first-set
 target: chest_press, rest 60 s
-  calibration[0]: 12 reps at 70 lb
   working[0]: 12 reps at 70 lb, 3 RIR
   working[1]: 12 reps at 70 lb, 3 RIR
   working[2]: 12 reps at 70 lb, 3 RIR
-reason: Your last logged set of this exercise was 1460 days ago. The load goes down to 70 lb at 3 reps in reserve, and the calibration starts again. The session starts with one calibration set of 12 reps at 70 lb. Stop it at 3 to 4 reps in reserve.
+  working[0] is the calibration
+reason: Your last logged set of this exercise was 1460 days ago. The load goes down to 70 lb at 3 reps in reserve. The first set is the calibration. Change the weight during its first reps when it is too light or too heavy. The other sets use the weight of the first set.

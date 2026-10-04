@@ -31,6 +31,18 @@ func output(t *testing.T, change func(out map[string]any)) string {
 	return string(encode(out))
 }
 
+// calSet adds a calibration set to the second exercise of the first
+// session, at the reps and the load of its first working set, and gives
+// it. From policy version 7, no target has a calibration set (D-297), so
+// the parse tests of a calibration set add one.
+func calSet(out map[string]any) map[string]any {
+	e := exerciseAt(out, 0, 1)
+	w := e["working_sets"].([]any)[0].(map[string]any)
+	c := map[string]any{"reps": w["reps"], "load_lb": w["load_lb"]}
+	e["calibration_sets"] = []any{c}
+	return c
+}
+
 func session0(out map[string]any) map[string]any {
 	return out["sessions"].([]any)[0].(map[string]any)
 }
@@ -70,13 +82,13 @@ func TestParseMalformed(t *testing.T) {
 		{name: "no working sets", change: func(o map[string]any) { delete(exerciseAt(o, 0, 0), "working_sets") }},
 		{name: "no calibration sets", change: func(o map[string]any) { delete(exerciseAt(o, 0, 1), "calibration_sets") }},
 		{name: "rir on a calibration set", change: func(o map[string]any) {
-			exerciseAt(o, 0, 1)["calibration_sets"].([]any)[0].(map[string]any)["rir_target"] = 3
+			calSet(o)["rir_target"] = 3
 		}},
 		{name: "no rir", change: func(o map[string]any) {
 			delete(exerciseAt(o, 0, 0)["working_sets"].([]any)[0].(map[string]any), "rir_target")
 		}},
 		{name: "no calibration load", change: func(o map[string]any) {
-			delete(exerciseAt(o, 0, 1)["calibration_sets"].([]any)[0].(map[string]any), "load_lb")
+			delete(calSet(o), "load_lb")
 		}},
 		{name: "reps not whole", change: func(o map[string]any) {
 			exerciseAt(o, 0, 0)["working_sets"].([]any)[0].(map[string]any)["reps"] = 10.5
@@ -85,7 +97,7 @@ func TestParseMalformed(t *testing.T) {
 			exerciseAt(o, 0, 0)["working_sets"].([]any)[0].(map[string]any)["load_lb"] = 100.25
 		}},
 		{name: "calibration load not in tenths", change: func(o map[string]any) {
-			exerciseAt(o, 0, 1)["calibration_sets"].([]any)[0].(map[string]any)["load_lb"] = 5.05
+			calSet(o)["load_lb"] = 5.05
 		}},
 		{name: "load out of range", change: func(o map[string]any) {
 			exerciseAt(o, 0, 0)["working_sets"].([]any)[0].(map[string]any)["load_lb"] = 1e300

@@ -207,7 +207,7 @@ func TestScenarioFRefusal(t *testing.T) {
 	}
 }
 
-// The start of a new exercise (D-150, D-178, D-179, D-180).
+// The start of a new exercise (D-178, D-179, D-180, D-300).
 func TestStart(t *testing.T) {
 	lb := domain.Pounds
 	weights := []domain.Load{lb(10), lb(14), lb(20), lb(25), lb(30), lb(40)}
@@ -234,11 +234,8 @@ func TestStart(t *testing.T) {
 			t.Fatalf("%s: %v", tc.name, err)
 		}
 		p := d.Target
-		if len(p.Calibration) != 1 || len(p.Working) != StartSets || d.Rules[0] != tc.rule {
+		if len(p.Calibration) != 0 || !p.FirstSetCalibration || len(p.Working) != StartSets || d.Rules[0] != tc.rule || !slices.Contains(d.Rules, RuleCalibrationFirstSet) {
 			t.Fatalf("%s: target %+v, rules %v", tc.name, p, d.Rules)
-		}
-		if p.Calibration[0].Load != tc.want || p.Calibration[0].Reps != 8 {
-			t.Errorf("%s: calibration %+v, want 8 reps at %s", tc.name, p.Calibration[0], tc.want)
 		}
 		for i, s := range p.Working {
 			if s.Load != tc.want || s.Reps != 8 || s.RIR != 3 {
@@ -257,65 +254,70 @@ func TestStart(t *testing.T) {
 	}
 }
 
-// The calibration sessions: the first 3 sessions of a new exercise
-// start with a calibration set, and the load does not go up by double
-// progression in them (D-177). The working load of a calibration
-// session is the load that its calibration set (D-150).
-func TestCalibrationSessions(t *testing.T) {
+// The first-set calibration (D-299, D-301): the first session of a new
+// exercise uses its first set as the calibration, and the next session
+// starts from the weight that the owner logged for the first set, with
+// the normal rules.
+func TestFirstSetCalibration(t *testing.T) {
 	lb := domain.Pounds
-	in := machineInput(t, "leg_extension", stack(10, 150, 5))
-	in.Estimate = lb(50)
-	var loads []domain.Load
-	var cals []int
-	for range 5 {
+	reps := RepRange(exercise(t, "leg_extension"))
+	for _, tc := range []struct {
+		name   string
+		reps   int
+		weight domain.Load
+		want   domain.PlannedExercise
+		rule   RuleID
+	}{
+		{"heavier", reps.Min, lb(60), target("leg_extension", StartSets, reps.Min+2, lb(60)), RuleAddReps},
+		{"lighter", reps.Min, lb(45), target("leg_extension", StartSets, reps.Min+2, lb(45)), RuleAddReps},
+		// A calibration session at the top of the range: the next
+		// session adds one 5 lb step, so the load does not hold.
+		{"top of the range", reps.Max, lb(60), target("leg_extension", StartSets, reps.Min, lb(65)), RuleLoadStep},
+	} {
+		in := machineInput(t, "leg_extension", stack(10, 150, 5))
+		in.Estimate = lb(50)
 		d, err := Next(in)
 		if err != nil {
 			t.Fatal(err)
 		}
-		loads = append(loads, d.Target.Working[0].Load)
-		cals = append(cals, len(d.Target.Calibration))
-		// In the first session, the owner does the calibration set at 5
-		// reps in reserve, so the working sets use one 5 lb step more.
-		// Each working set has 12 reps at 3 reps in reserve.
+		if !d.Target.FirstSetCalibration || d.Target.Working[0].Load != lb(50) {
+			t.Fatalf("%s: start %+v, want the first-set calibration at 50 lb", tc.name, d.Target)
+		}
+		for i := range d.Target.Working {
+			d.Target.Working[i].Reps = tc.reps
+		}
+		// The owner changes the weight during the first set, and logs
+		// each set at that weight.
 		o := done(d.Target)
 		for i := range o.Log.Sets {
-			if o.Log.Sets[i].Kind == domain.SetCalibration {
-				o.Log.Sets[i].RIR = 3
-				if len(in.History) == 0 {
-					o.Log.Sets[i].RIR = 5
-				}
-			} else {
-				o.Log.Sets[i].Weight = loads[len(loads)-1]
-				if len(in.History) == 0 {
-					o.Log.Sets[i].Weight += Step
-				}
-				o.Log.Sets[i].Reps = 12
-			}
+			o.Log.Sets[i].Weight, o.Log.Sets[i].Reps = tc.weight, tc.reps
 		}
-		in.History = append(in.History, o)
+		in.History = []Outcome{o}
 		in = dated(in)
-	}
-	// The fourth session is not a calibration session, so its target
-	// adds one 5 lb step at the top of the range.
-	wantLoads := []domain.Load{lb(50), lb(55), lb(55), lb(60), lb(60)}
-	wantCals := []int{1, 1, 1, 0, 0}
-	if !slices.Equal(loads, wantLoads) || !slices.Equal(cals, wantCals) {
-		t.Errorf("loads %v and calibration sets %v, want %v and %v", loads, cals, wantLoads, wantCals)
+		next, err := Next(in)
+		if err != nil {
+			t.Fatal(err)
+		}
+		want := tc.want
+		for i := range want.Working {
+			want.Working[i].RIR = 3
+		}
+		if next.Target.FirstSetCalibration || !slices.Equal(next.Target.Working, want.Working) || next.Rules[0] != tc.rule {
+			t.Errorf("%s: next %+v, rules %v, want %+v by %s", tc.name, next.Target, next.Rules, want.Working, tc.rule)
+		}
 	}
 }
 
 // A log with more than one calibration set, from a policy before
 // version 4, gives the working load of its first calibration set alone
-// (D-267).
+// (D-267). A history of policy version 6 or earlier keeps the table.
 func TestEffectiveFirstCalibrationSet(t *testing.T) {
 	lb := domain.Pounds
 	in := machineInput(t, "leg_extension", stack(10, 150, 5))
 	in.Estimate = lb(50)
-	d, err := Next(in)
-	if err != nil {
-		t.Fatal(err)
-	}
-	o := done(d.Target)
+	old := target("leg_extension", StartSets, 8, lb(50))
+	old.Calibration = []domain.CalibrationSet{{Reps: 8, Load: lb(50)}}
+	o := done(old)
 	if o.Log.Sets[0].Kind != domain.SetCalibration {
 		t.Fatalf("first set %+v, want a calibration set", o.Log.Sets[0])
 	}

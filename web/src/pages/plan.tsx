@@ -308,7 +308,7 @@ function ExerciseCard({
               <li key={`c${i}`}>{`Calibration set ${i + 1}: ${setText(s, true)}`}</li>
             ))}
             {o.workingSets.map((s, i) => (
-              <li key={`w${i}`}>{`Set ${i + 1}: ${setText(s, false)}`}</li>
+              <li key={`w${i}`}>{`Set ${i + 1}${i === 0 && exercise.firstSetCalibration ? ", the calibration" : ""}: ${setText(s, false)}`}</li>
             ))}
           </ul>
           <p data-testid="override-reason">{`Your reason: ${o.reason}`}</p>
@@ -320,9 +320,15 @@ function ExerciseCard({
           <li key={`c${i}`}>{`Calibration set ${i + 1}: ${setText(s, true)}`}</li>
         ))}
         {exercise.workingSets.map((s, i) => (
-          <li key={`w${i}`}>{`Set ${i + 1}: ${setText(s, false)}`}</li>
+          <li key={`w${i}`}>{`Set ${i + 1}${i === 0 && exercise.firstSetCalibration ? ", the calibration" : ""}: ${setText(s, false)}`}</li>
         ))}
       </ul>
+      {exercise.firstSetCalibration && (
+        <p className="text-sm text-sky-200" data-testid="first-set-calibration">
+          The first set is the calibration. Change the weight during its first reps when it is too light or too heavy. The other sets use
+          the weight of the first set.
+        </p>
+      )}
       <p className="text-sm text-slate-400" data-testid="rest">
         {`Rest ${restText(exercise.restSeconds)} between sets.`}
       </p>

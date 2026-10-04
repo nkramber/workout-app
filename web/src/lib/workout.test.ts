@@ -3,7 +3,7 @@ import "fake-indexeddb/auto";
 import { clone, create, fromJson } from "@bufbuild/protobuf";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { PlanSchema, type Plan } from "../gen/workoutapp/v1/plan_service_pb";
+import { PlannedSetSchema, PlanSchema, type Plan } from "../gen/workoutapp/v1/plan_service_pb";
 import { CardioEntrySchema, SetEntrySchema, WorkoutHeaderSchema } from "../gen/workoutapp/v1/workout_service_pb";
 import { OUTBOX_SCHEMA_VERSION, pendingOutbox, REST_KEY, WorkoutAppDB, type SetRecord } from "./db";
 import {
@@ -490,6 +490,33 @@ describe("nextSet and currentExercise", () => {
     expect(calibrationLoad(press, { weightTenthsLb: 250, rir: 6 })).toBeNull();
     // A plan of policy version 3 has no loads, so the plan load stays.
     expect(nextSet({ ...press, calibrationLoads: undefined }, [cal(6)])).toMatchObject({ target: { loadTenthLb: 200 }, fromCalibration: false });
+  });
+
+  // The first-set calibration of policy version 7 (D-297, D-299).
+  it("makes the first working set the calibration, and gives the later sets its logged weight", async () => {
+    const first = clone(PlanSchema, plan);
+    const e = first.sessions[0].exercises[1];
+    e.firstSetCalibration = true;
+    e.workingSets = [e.workingSets[0], e.workingSets[0], e.workingSets[0]].map((x) => clone(PlannedSetSchema, x));
+    const w = await startWorkout(store, first, 0, weights, now);
+    const chest = w.exercises[1];
+    expect(chest.firstSetCalibration).toBe(true);
+    expect(w.exercises[0].firstSetCalibration).toBeUndefined();
+    const planned = chest.workingSets[0].loadTenthLb;
+    expect(nextSet(chest, [])).toMatchObject({ kind: "working", number: 1, calibrates: true, fromCalibration: false, target: { loadTenthLb: planned } });
+    // The owner changed the weight during the first set, and logged it.
+    const one = { ...set("chest_press", "working"), weightTenthsLb: planned + 100, rir: 1 };
+    expect(nextSet(chest, [one])).toMatchObject({ number: 2, calibrates: false, fromCalibration: true, target: { loadTenthLb: planned + 100 } });
+    // A later set at another weight does not change the load of the
+    // next set.
+    const two = { ...set("chest_press", "working"), weightTenthsLb: planned };
+    expect(nextSet(chest, [one, two])).toMatchObject({ number: 3, fromCalibration: true, target: { loadTenthLb: planned + 100 } });
+
+    // The header sends the flag to the server, so the policy reads the
+    // weight of the first set (D-299).
+    const entries = await pendingOutbox(store);
+    const t = fromJson(WorkoutHeaderSchema, entries[entries.length - 1].payload as never).targets;
+    expect(t.map((x) => x.firstSetCalibration)).toEqual([false, true]);
   });
 
   it("does not give a skipped exercise as the current exercise", async () => {

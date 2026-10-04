@@ -13,7 +13,7 @@ This folder holds the web client of the owner. It holds the installable shell (w
 | `web/src/lib/sync.ts`, `web/src/lib/sync-engine.ts` | The sync of the outbox, the offline copies, and the state of the sync (D-274 to D-278) |
 | `web/src/lib/profile.ts`, `web/src/lib/profile-api.ts` | The form state and the checks of the profile, the text of the injury warning, and the save of the profile |
 | `web/src/lib/plan.ts`, `web/src/lib/plan-api.ts` | The texts of the progress and of the errors of a plan request, the formats of a set and of the rest, and the streams of a plan request and of an exclusion |
-| `web/src/lib/workout.ts` | The start of a workout, the set log, the cardio log, the skip of an exercise, the edit of a set, the end of a workout, each with its outbox entry. Also the calibration step, the rest timer, and the steps of the plus and minus buttons |
+| `web/src/lib/workout.ts` | The start of a workout, the set log, the cardio log, the skip of an exercise, the edit of a set, the end of a workout, each with its outbox entry. Also the first-set calibration, the rest timer, and the steps of the plus and minus buttons |
 | `web/src/lib/symptoms.ts`, `web/src/lib/wake-lock.ts` | The list of symptoms and the text of each warning (D-263), and the screen wake lock (D-265, D-283) |
 | `web/src/lib/firebase.ts` | Firebase Authentication with email and password (D-75) |
 | `web/src/lib/api.ts` | The Connect transport, with the ID token of the owner on each call |
@@ -64,7 +64,7 @@ The home screen has a "Plan" button. The plan screen reads `GetPlan` with the lo
 
 - The summary of the plan.
 - For each session: the warm-up, each exercise, the optional cardio, and the cool-down.
-- For each exercise: the calibration sets, the working sets, the rest, and the reason.
+- For each exercise: the working sets, the rest, and the reason. The first set of a new exercise shows as the calibration (D-297).
 - The mobility and recovery items, and the excluded exercises with their reasons.
 
 Each exercise has a "Change target" button. Its form changes the reps and the load of each working set for the next session (D-69, D-293). It needs a reason of 1 to 200 characters, and it calls `OverrideTarget`.
@@ -83,10 +83,12 @@ The home screen has a "Workout" button. With an open workout on the phone, the b
 
 The start copies the targets of the session and the weights of each machine to the phone. After the start, the workout needs no network (D-62). The phone holds one open workout at most.
 
-- The set log shows the next set of the current exercise: the calibration set first, then the working sets. The reps and the weight come from the target (D-249).
+- The set log shows the next set of the current exercise. The reps and the weight come from the target (D-249).
 - The plus and minus buttons change the reps by 1. They move the weight to the next weight of the list of the machine (D-264).
 - A tap on the reps in reserve logs the set. So the owner logs a set in one tap. A working set offers 0, 1, 2, 3, or 4+, and a calibration set offers 0 to 6+ (D-268).
-- After the calibration set, each working set gets the load of the calibration table (D-267). The plan holds the 4 loads for each weight of the machine, so the table applies to the weight that the owner logged (D-249). The set log shows the note "The calibration set gave this load". A plan of policy version 3 gives the load of the plan. A weight that the machine did not have at the time of the plan does too.
+- The first set of a new exercise is the calibration (D-297). The owner changes the weight during its first reps, and logs the weight that the owner used. Each later set of the exercise gets that weight, with the note "The first set gave this load" (D-299).
+- A plan of policy version 4 to 6 can still hold a calibration set. After it, each working set gets the load of the calibration table (D-267).
+- When each exercise is done, the list of the exercises collapses to one line (D-298). So the cardio and the end of the workout show near the top. "Show the exercises" opens the list again.
 - The log of a set starts the rest timer with the rest of the target, 60 seconds since policy version 5 (D-59, D-172, D-279). The timer reads a stored end time in the `meta` table. So it is correct after a screen lock and after a stop of the app. "-15 s", "+15 s", and "Dismiss" change it, and it never goes below 0 (D-270). At 0 it shows "Rest done" in another color, with no sound and no notification (D-58, D-61).
 - After the last set of an exercise, the screen shows the next machine for 10 seconds, then advances. "Go now" advances at once (D-60, D-269).
 - "Skip this exercise" asks for a confirmation, and writes the skip in the header (D-63, D-170). The owner can pick a skipped exercise again in the list.

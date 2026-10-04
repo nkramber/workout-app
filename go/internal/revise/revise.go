@@ -39,6 +39,13 @@ import (
 // the newest first. At 4 sessions each week, it holds about 6 months.
 const MaxHistory = 100
 
+// AllHistory is the limit of finished that reads each workout. A new
+// plan reads each workout, because it gives an exercise with history its
+// target from that history (D-301). So an exercise that the newest
+// MaxHistory workouts omit still gets the return of D-179. Each workout
+// is one document, and a new plan is rare, so the read stays small.
+const AllHistory = 0
+
 // pageSize is the page of each read of the workouts.
 const pageSize = 50
 
@@ -73,7 +80,7 @@ type Result struct {
 }
 
 // errSeen stops an update when another call revised the plan for the
-// same workout first.
+// same workout first, or a revision of it runs now (D-304).
 var errSeen = errors.New("revise: the plan has this revision")
 
 // Revise revises the plan of uid after the finished workout workoutID.
@@ -89,7 +96,7 @@ func (r *Reviser) Revise(ctx context.Context, uid, workoutID string) (Result, er
 	if !ok || p.Revised(workoutID) {
 		return Result{}, nil
 	}
-	history, err := r.finished(ctx, uid)
+	history, err := r.finished(ctx, uid, MaxHistory)
 	if err != nil {
 		return Result{}, err
 	}
@@ -106,6 +113,23 @@ func (r *Reviser) Revise(ctx context.Context, uid, workoutID string) (Result, er
 	res := Result{}
 	var reply ai.Result
 	if len(inputs) > 0 {
+		// The claim stops a second sync of the same workout before its
+		// reviser call (D-304). The lease is the time limit of this
+		// revision, so a revision that fails leaves no lasting claim.
+		start := r.now().UTC()
+		err := r.Plans.Update(ctx, uid, p.CreatedAt, func(q *plan.Plan) error {
+			if q.Revised(workoutID) || q.Claimed(workoutID, start) {
+				return errSeen
+			}
+			q.Claim(workoutID, start, start.Add(Timeout))
+			return nil
+		})
+		switch {
+		case errors.Is(err, errSeen), errors.Is(err, plan.ErrPlanReplaced):
+			return Result{}, nil
+		case err != nil:
+			return Result{}, fmt.Errorf("revise: the claim: %w", err)
+		}
 		req := ai.Request{User: uid, Today: history[i].Date, Sessions: 1}
 		for _, in := range inputs {
 			req.Exercises = append(req.Exercises, in)
@@ -148,6 +172,7 @@ func (r *Reviser) Revise(ctx context.Context, uid, workoutID string) (Result, er
 		if q.Revised(workoutID) {
 			return errSeen
 		}
+		q.Unclaim(workoutID, now)
 		res.Exercises = apply(q, changed)
 		q.Revisions++
 		q.LastRevision = &plan.Revision{WorkoutID: workoutID, At: now, Exercises: res.Exercises}
@@ -185,14 +210,19 @@ func (r *Reviser) warn(msg string, args ...any) {
 	}
 }
 
-// finished reads the finished workouts of the user, MaxHistory at most,
-// the oldest first. One date orders its workouts by id, and a workout
-// id is a UUIDv7 of its start, so the order is the order of the start.
-func (r *Reviser) finished(ctx context.Context, uid string) ([]workout.Workout, error) {
+// finished reads the finished workouts of the user, the newest limit
+// workouts at most, or each workout for AllHistory. It gives them the
+// oldest first. One date orders its workouts by id, and a workout id is
+// a UUIDv7 of its start, so the order is the order of the start.
+func (r *Reviser) finished(ctx context.Context, uid string, limit int) ([]workout.Workout, error) {
 	var all []workout.Workout
 	after := ""
-	for len(all) < MaxHistory {
-		page, next, err := r.Workouts.List(ctx, uid, min(pageSize, MaxHistory-len(all)), after)
+	for limit == AllHistory || len(all) < limit {
+		n := pageSize
+		if limit != AllHistory {
+			n = min(n, limit-len(all))
+		}
+		page, next, err := r.Workouts.List(ctx, uid, n, after)
 		if err != nil {
 			return nil, fmt.Errorf("revise: the workouts: %w", err)
 		}
@@ -246,9 +276,9 @@ func (r *Reviser) input(uid string, p plan.Plan, history []workout.Workout, pi i
 	if len(h) == 0 {
 		return policy.Input{}, false
 	}
-	// Each new exercise of a plan starts as a return after a long
-	// break (D-238), so its first sessions count from that start.
-	in := policy.Input{Exercise: e, Entry: entry, History: h, Today: h[len(h)-1].Date, Estimate: pi.Estimates[e.ID], Returning: true, Deloads: deloads}
+	// A new exercise is not a return after a long break (D-300), so the
+	// normal rules apply from its second session (D-301).
+	in := policy.Input{Exercise: e, Entry: entry, History: h, Today: h[len(h)-1].Date, Estimate: pi.Estimates[e.ID], Deloads: deloads}
 	if _, err := policy.Next(in); err != nil {
 		r.warn("revise: the policy refused the input", "uid", uid, "exercise_id", string(e.ID), "err", err.Error())
 		return policy.Input{}, false
@@ -280,6 +310,30 @@ func (r *Reviser) deloads(uid string, p plan.Plan, history []workout.Workout) []
 		return nil
 	}
 	return out
+}
+
+// History gives the logged history of uid for a new plan: the outcomes
+// of each exercise that a finished workout logged, and the deloads
+// (D-301). It reads each workout. A workout of an older phone with no
+// target copy gives no outcome, because no plan links it to the new
+// plan.
+func (r *Reviser) History(ctx context.Context, uid string) (plan.History, error) {
+	history, err := r.finished(ctx, uid, AllHistory)
+	if err != nil {
+		return plan.History{}, err
+	}
+	out := plan.History{Outcomes: map[domain.ExerciseID][]policy.Outcome{}, Deloads: r.deloads(uid, plan.Plan{}, history)}
+	for _, w := range history {
+		for _, l := range w.Exercises() {
+			if _, done := out.Outcomes[l.Exercise]; done {
+				continue
+			}
+			if h := outcomes(plan.Plan{}, history, l.Exercise); len(h) > 0 {
+				out.Outcomes[l.Exercise] = h
+			}
+		}
+	}
+	return out, nil
 }
 
 // holds tells whether a session of the plan holds the exercise.

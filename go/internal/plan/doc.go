@@ -43,6 +43,14 @@ type planDoc struct {
 	Revisions         int64         `firestore:"revisions"`
 	LastRevision      *revisionDoc  `firestore:"last_revision"`
 	RevisedWorkouts   []string      `firestore:"revised_workouts"`
+	Claims            []claimDoc    `firestore:"revision_claims,omitempty"`
+}
+
+// claimDoc is a revision that runs now (D-304). A plan of an older
+// version has none.
+type claimDoc struct {
+	WorkoutID string    `firestore:"workout_id"`
+	Until     time.Time `firestore:"until"`
 }
 
 // revisionDoc is the last revision of a plan. A plan of an older
@@ -127,6 +135,9 @@ type targetDoc struct {
 	Rest        int64    `firestore:"rest_seconds"`
 	Calibration []setDoc `firestore:"calibration_sets"`
 	Working     []setDoc `firestore:"working_sets"`
+	// The first working set is the calibration (D-297). A target of
+	// policy version 6 or earlier has no such field.
+	FirstSet bool `firestore:"first_set_calibration,omitempty"`
 }
 
 // setDoc is a set. A calibration set stores an RIR of 0, which no
@@ -179,6 +190,9 @@ func encodePlan(p Plan) planDoc {
 	if r := p.LastRevision; r != nil {
 		d.LastRevision = &revisionDoc{WorkoutID: r.WorkoutID, At: r.At.UTC(), Exercises: strs(r.Exercises)}
 	}
+	for _, c := range p.Claims {
+		d.Claims = append(d.Claims, claimDoc{c.WorkoutID, c.Until.UTC()})
+	}
 	for _, f := range p.Filtered {
 		d.Filtered = append(d.Filtered, filteredDoc{f.Where, string(f.Rule)})
 	}
@@ -210,6 +224,9 @@ func (d planDoc) plan() Plan {
 	if r := d.LastRevision; r != nil {
 		p.LastRevision = &Revision{WorkoutID: r.WorkoutID, At: r.At.UTC(), Exercises: ids[domain.ExerciseID](r.Exercises)}
 	}
+	for _, c := range d.Claims {
+		p.Claims = append(p.Claims, Claim{c.WorkoutID, c.Until.UTC()})
+	}
 	for _, f := range d.Filtered {
 		p.Filtered = append(p.Filtered, ai.Filtered{Where: f.Where, Rule: ai.FilterRule(f.Rule)})
 	}
@@ -231,7 +248,7 @@ func (d planDoc) plan() Plan {
 }
 
 func encodeTarget(t domain.PlannedExercise) targetDoc {
-	d := targetDoc{Exercise: string(t.Exercise), Rest: int64(t.RestSeconds), Calibration: []setDoc{}, Working: []setDoc{}}
+	d := targetDoc{Exercise: string(t.Exercise), Rest: int64(t.RestSeconds), Calibration: []setDoc{}, Working: []setDoc{}, FirstSet: t.FirstSetCalibration}
 	for _, s := range t.Calibration {
 		d.Calibration = append(d.Calibration, setDoc{Reps: int64(s.Reps), Load: int64(s.Load)})
 	}
@@ -242,7 +259,7 @@ func encodeTarget(t domain.PlannedExercise) targetDoc {
 }
 
 func (d targetDoc) target() domain.PlannedExercise {
-	t := domain.PlannedExercise{Exercise: idOf(d.Exercise), RestSeconds: int(d.Rest)}
+	t := domain.PlannedExercise{Exercise: idOf(d.Exercise), RestSeconds: int(d.Rest), FirstSetCalibration: d.FirstSet}
 	for _, s := range d.Calibration {
 		t.Calibration = append(t.Calibration, domain.CalibrationSet{Reps: int(s.Reps), Load: domain.Load(s.Load)})
 	}

@@ -66,8 +66,8 @@ func TestScenarioCases(t *testing.T) {
 			}
 		}
 	}
-	if got := len(Scenarios()); got != 6 {
-		t.Fatalf("%d scenarios, want A to F", got)
+	if got := len(Scenarios()); got != 10 {
+		t.Fatalf("%d scenarios, want A to J", got)
 	}
 }
 
@@ -154,18 +154,27 @@ var twoUSD = ai.Caps{User: 2 * ai.USD, Project: 2 * ai.USD}
 func TestRunEcho(t *testing.T) {
 	rep := evaluate(t, &ai.Fake{}, twoUSD, 0)
 	tt := rep.Totals
-	if tt.Calls != 20+6*2 || tt.SchemaPass != tt.Calls || tt.Refused != 0 || tt.NoProposal != 0 {
+	if tt.Calls != 20+10*2 || tt.SchemaPass != tt.Calls || tt.Refused != 0 || tt.NoProposal != 0 {
 		t.Fatalf("totals %+v", tt)
 	}
 	if tt.Decisions != tt.Accepted || tt.Cost <= 0 || tt.CostUnknown != 0 {
 		t.Fatalf("totals %+v", tt)
 	}
-	if tt.Revisions != 2*15 || tt.LunaReasons != tt.Revisions-2 || tt.ReasonCauses["no-reason"] != 2 {
+	if tt.Revisions != 2*23 || tt.LunaReasons != tt.Revisions-2 || tt.ReasonCauses["no-reason"] != 2 {
 		t.Fatalf("revision totals %d, %d, %v", tt.Revisions, tt.LunaReasons, tt.ReasonCauses)
 	}
 	for _, s := range rep.Scenarios {
 		if !s.Pass() || s.Cases == 0 {
 			t.Errorf("scenario %+v: want a pass", s)
+		}
+		// The numbers of each scenario: each case gives an accepted
+		// reason, a refused reason, or no reason to check.
+		if s.Calls != 2 || s.Cost <= 0 || s.MaxSeconds <= 0 || s.LunaReasons+s.Refused+s.NoReason != s.Cases {
+			t.Errorf("scenario %s: calls %d, cost %s, max %.3f s, reasons %d + %d + %d of %d", s.ID, s.Calls, s.Cost, s.MaxSeconds, s.LunaReasons, s.Refused, s.NoReason, s.Cases)
+		}
+		// The check refuses the empty reason of the skipped case.
+		if s.ID == "D" && (s.Refused != 2 || s.ByCause["no-reason"] != 2) {
+			t.Errorf("scenario D: refused %d %v, want 2 for no-reason", s.Refused, s.ByCause)
 		}
 		if s.ID == "F" && (s.Jumps != s.Cases || s.JumpsOK != s.Jumps) {
 			t.Errorf("scenario F %+v: want each jump refused", s)
@@ -286,7 +295,7 @@ func TestCommand(t *testing.T) {
 		t.Fatal(err)
 	}
 	var rep Report
-	if err := json.Unmarshal(b, &rep); err != nil || rep.Provider != "fake" || rep.Cap != "2 USD" || rep.Totals.Calls != 26 {
+	if err := json.Unmarshal(b, &rep); err != nil || rep.Provider != "fake" || rep.Cap != "2 USD" || rep.Totals.Calls != 30 {
 		t.Fatalf("report %+v, %v", rep.Totals, err)
 	}
 	if rep.Effort != ai.Planner().Effort {
@@ -309,6 +318,22 @@ func TestCommand(t *testing.T) {
 		t.Fatalf("effort %q, %v: want xhigh", rep.Effort, err)
 	}
 	if !strings.Contains(stdout.String(), "effort xhigh") {
+		t.Errorf("summary:\n%s", stdout.String())
+	}
+
+	// -planner=false runs the reviser scenarios alone.
+	stdout.Reset()
+	if err := run(context.Background(), []string{"-cap", "2", "-repeats", "2", "-planner=false", "-out", out}, env, &stdout); err != nil {
+		t.Fatal(err)
+	}
+	if b, err = os.ReadFile(out); err != nil {
+		t.Fatal(err)
+	}
+	rep = Report{}
+	if err := json.Unmarshal(b, &rep); err != nil || rep.Totals.Calls != 20 || rep.Totals.Decisions != 0 {
+		t.Fatalf("report %+v, %v: want 20 reviser calls alone", rep.Totals, err)
+	}
+	if !strings.Contains(stdout.String(), "scenario J: pass true") {
 		t.Errorf("summary:\n%s", stdout.String())
 	}
 

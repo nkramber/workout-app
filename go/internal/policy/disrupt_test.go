@@ -2,6 +2,7 @@ package policy
 
 import (
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/nkramber/workout-app/go/internal/domain"
@@ -207,10 +208,22 @@ func TestScenarioDeload(t *testing.T) {
 	// The count of sets: 0.6 times, to the nearest set, at least 1.
 	for n, want := range map[int]int{1: 1, 2: 1, 3: 2, 4: 2, 5: 3, 6: 4} {
 		b := &builder{in: curl, target: target("biceps_curl", n, 12, lb(25)), before: make([]domain.Load, n)}
-		b.deload("2026-09-05")
+		b.deload("2026-09-05", target("biceps_curl", n, 12, lb(25)))
 		if len(b.target.Working) != want {
 			t.Errorf("%d sets: %d in a deload, want %d", n, len(b.target.Working), want)
 		}
+	}
+
+	// A load step of the rules waits for the end of the deload: the
+	// deload keeps the sets and the load of the last target (D-303).
+	b := &builder{in: curl, target: target("biceps_curl", 3, 8, lb(30)), before: make([]domain.Load, 3)}
+	b.deload("2026-09-05", target("biceps_curl", 3, 12, lb(25)))
+	want := target("biceps_curl", 2, 12, lb(25))
+	for i := range want.Working {
+		want.Working[i].RIR = 3
+	}
+	if !slices.Equal(b.target.Working, want.Working) || !strings.HasSuffix(strings.Join(b.reason, " "), "Then it goes back to 3 x 8 at 30 lb.") {
+		t.Errorf("deload after a load step: %+v, reason %q, want %+v", b.target.Working, b.reason, want.Working)
 	}
 }
 

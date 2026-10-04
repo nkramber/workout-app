@@ -64,15 +64,12 @@ In the evaluation of Phase 3, Luna proposed the target of the rules in each of 1
 | Q-306, a missed session under 14 days | A gap of 7 to 13 days holds the load and the reps at 3 reps in reserve for one session. | D-294 |
 | Q-307, the numbers of the deload | A decline in 2 sessions in a row on 2 or more exercises. Then 7 days at 0.6 times the sets, the same load, and 3 reps in reserve. | D-295 |
 | Q-309, the age of a decline | An exercise counts when its last decline is less than 14 days before the start of the deload. | D-296 |
+| Q-310, the first set as the calibration | The other sets use the weight of the first set, and the first set is a working set. A new exercise starts at the estimate. The first session of each exercise calibrates, and the normal rules start in the second session. | D-299 to D-301 |
+| Q-308, the size and the cap of the paid evaluation | 50 reviser calls with a cap of 1 USD. | D-302 |
+| Q-311, the load of a deload week | The load of the last target, with no load step. | D-303 |
+| Q-312, two syncs of one finished workout | Fix it in PR-37: a revision claims the workout before its reviser call. | D-304 |
 
-These questions stay open, and section 4 names the session that asks each one:
-
-| Question | Session |
-|---|---|
-| Q-308, the size and the cap of the paid evaluation | PR-37 |
-| Q-310, the first set as the calibration | PR-37 |
-
-Q-103 stays open for the deferred photo work.
+No question of this phase stays open. Q-103 stays open for the deferred photo work.
 
 ## 3. Rules for each pull request of this phase
 
@@ -166,7 +163,7 @@ Before the work, the session reads the deploys of the merge of PR-36. It states 
 
 Concerns:
 
-- the removal of the calibration sets, with a new policy version and the answer of Q-310. The first set of an exercise acts as the calibration, only in the first session of a plan (D-297),
+- the removal of the calibration sets, with the policy version 7 and the answer of Q-310. The first set of an exercise acts as the calibration, only in the first session of the exercise (D-297, D-299 to D-301),
 - the collapse of the exercise list when each exercise is done. The cardio and the end of the workout then show near the top (D-298),
 - the evaluation of the reviser in `go/cmd/lunaeval`, with the prompt of D-288, on the scenarios A to F and on the scenarios of PR-36,
 - the check of each reason of Luna against the logged sets (D-68, D-288),
@@ -177,7 +174,9 @@ Acceptance story: the report gives, for each scenario, the count of reasons that
 
 Checks: `make go-test` and `make verify`, free. The evaluation costs money, and runs only after the owner approves the cap. Codex reviews PR-37.
 
-The session asks the owner Q-310 before the work, and Q-308 before the paid run. The paid run uses the new policy version.
+The owner approved the milestone and one live revision on 2026-10-04 (D-12, D-212), and answered Q-310, Q-308, and Q-311 (D-299 to D-303). The paid run used the policy version 7. It cost 0.0179 USD, and its longest call took 10.8 s (`docs/research/reviser-evaluation.md`).
+
+In the live check of D-212, the owner finished 2 workouts on `e18781f`, and made a new plan. Each revision gave the status `ok`, and an 8-exercise revision took 27.0 s. Two syncs of each workout each called the reviser, and one of those calls reached the time limit. The owner accepted the spend, and PR-37 adds the claim of D-304 (D-305).
 
 ## 5. Exit of the phase
 
@@ -186,4 +185,4 @@ Phase 7 ends when PR-37 merges and the device checks pass. These items give the 
 - The emulator tests of PR-35 pass the scenarios A to F end to end with the fake provider (work area 7.1).
 - After the deploy of PR-35, the owner saw the next targets with their reasons on the iPhone. On 2026-10-04, the revision `api-00019-s78` made 1 reviser call with the status `ok` and a cost of 0.0017 USD. The sync call that held it took 19.8 s. The plan got 8 new targets, each with a reason of Luna (PR-36).
 - The scenario tests of PR-36 prove a missed week, a break of the Q-102 length, and a deload (work area 7.2).
-- The report of PR-37 gives the measured numbers of the paid evaluation (work area 7.3).
+- The report of PR-37 gives the measured numbers of the paid evaluation (work area 7.3). On 2026-10-04, 50 reviser calls of the 10 scenarios gave the status `ok`. The check accepted 110 reasons and refused 5, and each case was safe (`docs/research/reviser-evaluation.md`).

@@ -394,8 +394,10 @@ function ActiveWorkout({
       )}
 
       <ExerciseList
+        key={next === null ? "done" : "open"}
         workout={w}
         sets={sets}
+        collapsed={next === null}
         current={previewOn ? undefined : exercise?.exerciseId}
         onPick={(id) => {
           setPreview(null);
@@ -566,7 +568,7 @@ function NextPreview({
         <p className="text-xl font-semibold text-slate-50" data-testid="preview-next">{`Next: ${next.name}`}</p>
         {first && (
           <p className="text-sm text-slate-300" data-testid="preview-target">
-            {`${first.kind === "calibration" ? "Calibration set" : "Set"} ${first.number} of ${first.of}: ${setText(first.target, first.kind === "calibration")}.`}
+            {`${first.kind === "calibration" ? "Calibration set" : "Set"} ${first.number} of ${first.of}${first.calibrates ? ", the calibration" : ""}: ${setText(first.target, first.kind === "calibration")}.`}
           </p>
         )}
       </div>
@@ -582,8 +584,10 @@ function NextPreview({
 // weight come from the target, and the plus and minus buttons change
 // them. A tap on the reps in reserve logs the set. A calibration set
 // offers 0 to 6+ (D-268), and after it the working sets get the load of
-// the calibration table (D-267). Pain and a note are optional, behind
-// one tap (D-57, D-162).
+// the calibration table (D-267). With the first-set calibration, the
+// owner changes the weight during the first set, and the later sets get
+// the weight that the owner logged for it (D-297, D-299). Pain and a
+// note are optional, behind one tap (D-57, D-162).
 function SetLogger({
   workoutId,
   exercise,
@@ -630,7 +634,7 @@ function SetLogger({
           {exercise.name}
         </h3>
         <p className="text-slate-300" data-testid="set-label">
-          {`${calibration ? "Calibration set" : "Set"} ${next.number} of ${next.of}`}
+          {`${calibration ? "Calibration set" : "Set"} ${next.number} of ${next.of}${next.calibrates ? ", the calibration" : ""}`}
         </p>
         <p className="text-sm text-slate-400" data-testid="set-target">
           {`Target: ${setText(next.target, calibration)}. Rest ${restText(exercise.restSeconds)}.`}
@@ -640,9 +644,14 @@ function SetLogger({
             {`Your change. Recommended: ${setText(exercise.override.recommendedWorkingSets[Math.min(next.number, exercise.override.recommendedWorkingSets.length) - 1] ?? next.target, false)}.`}
           </p>
         )}
+        {next.calibrates && (
+          <p className="text-sm text-sky-200" data-testid="calibration-note">
+            Change the weight during the first reps when it is too light or too heavy. Log the weight that you used. The other sets use it.
+          </p>
+        )}
         {next.fromCalibration && (
           <p className="text-sm text-sky-200" data-testid="calibration-note">
-            The calibration set gave this load.
+            {exercise.firstSetCalibration ? "The first set gave this load." : "The calibration set gave this load."}
           </p>
         )}
       </div>
@@ -876,23 +885,44 @@ function NoteField({ value, onChange }: { value: string; onChange: (v: string) =
 
 // ExerciseList shows each exercise with its logged sets. A tap picks the
 // exercise of the next log, and a skipped exercise can be picked again.
-// Each logged set has an edit button (D-63).
+// Each logged set has an edit button (D-63). When each exercise is done,
+// the list collapses to one line, so the cardio and the end of the
+// workout show near the top (D-298). A tap shows the list again.
 function ExerciseList({
   workout,
   sets,
+  collapsed,
   current,
   onPick,
   onEdit,
 }: {
   workout: WorkoutRecord;
   sets: SetRecord[];
+  collapsed: boolean;
   current: string | undefined;
   onPick: (exerciseId: string) => void;
   onEdit: (s: SetRecord, e: WorkoutExercise) => void;
 }) {
+  const [shown, setShown] = useState(false);
+  const toggle = collapsed && (
+    <button type="button" className={`${secondary} w-full`} aria-expanded={shown} data-testid="exercises-toggle" onClick={() => setShown(!shown)}>
+      {shown ? "Hide the exercises" : "Show the exercises"}
+    </button>
+  );
+  if (collapsed && !shown) {
+    const done = workout.exercises.filter((e) => nextSet(e, sets) === null).length;
+    return (
+      <section className="space-y-2" aria-label="Exercises" data-testid="exercises-collapsed">
+        <h3 className="text-base font-semibold text-slate-100">Exercises</h3>
+        <p className="text-sm text-slate-300" data-testid="exercises-summary">{`${done} of ${workout.exercises.length} exercises done.`}</p>
+        {toggle}
+      </section>
+    );
+  }
   return (
     <section className="space-y-3" aria-label="Exercises">
       <h3 className="text-base font-semibold text-slate-100">Exercises</h3>
+      {toggle}
       {workout.exercises.map((e) => {
         const mine = sets.filter((s) => s.exerciseId === e.exerciseId);
         const planned = e.calibrationSets.length + e.workingSets.length;

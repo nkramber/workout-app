@@ -144,16 +144,13 @@ func TestRequestPlan(t *testing.T) {
 	}
 	e := s.GetExercises()[0]
 	if e.GetExerciseId() != "chest_press" || e.GetName() != "Chest press" || e.GetSource() != "luna" || e.GetReason() == "" ||
-		len(e.GetCalibrationSets()) != 1 || len(e.GetWorkingSets()) != 3 || e.GetWorkingSets()[0].GetLoadTenthLb() != 100 || e.GetWorkingSets()[0].GetRirTarget() != 3 {
+		len(e.GetCalibrationSets()) != 0 || len(e.GetWorkingSets()) != 3 || e.GetWorkingSets()[0].GetLoadTenthLb() != 100 || e.GetWorkingSets()[0].GetRirTarget() != 3 {
 		t.Fatalf("exercise %v", e)
 	}
-	// The calibration loads of D-267, one row for each weight. The
-	// machine has 10 lb steps from 10 lb, so at 10 lb a hard set and one
-	// 5 lb step keep the load, and two steps give 20 lb.
-	rows := e.GetCalibrationLoads()
-	if len(rows) == 0 || rows[0].GetWeightTenthLb() != 100 || rows[0].GetDownTenthLb() != 100 || rows[0].GetKeepTenthLb() != 100 ||
-		rows[0].GetUpOneTenthLb() != 100 || rows[0].GetUpTwoTenthLb() != 200 {
-		t.Fatalf("calibration loads %v", rows)
+	// The first set is the calibration, so the plan has no table of
+	// D-267 (D-297).
+	if !e.GetFirstSetCalibration() || len(e.GetCalibrationLoads()) != 0 {
+		t.Fatalf("first-set calibration %v, calibration loads %v", e.GetFirstSetCalibration(), e.GetCalibrationLoads())
 	}
 
 	if e.GetReasonSource() != "luna" || p.GetLastRevision() != nil {

@@ -351,12 +351,14 @@ func (x *GuidanceItem) GetText() string {
 
 // PlannedExercise is the final target of one exercise, after the policy.
 type PlannedExercise struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	ExerciseId      string                 `protobuf:"bytes,1,opt,name=exercise_id,json=exerciseId,proto3" json:"exercise_id,omitempty"`
-	Name            string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	RestSeconds     int32                  `protobuf:"varint,3,opt,name=rest_seconds,json=restSeconds,proto3" json:"rest_seconds,omitempty"`
-	CalibrationSets []*PlannedSet          `protobuf:"bytes,4,rep,name=calibration_sets,json=calibrationSets,proto3" json:"calibration_sets,omitempty"`
-	WorkingSets     []*PlannedSet          `protobuf:"bytes,5,rep,name=working_sets,json=workingSets,proto3" json:"working_sets,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	ExerciseId  string                 `protobuf:"bytes,1,opt,name=exercise_id,json=exerciseId,proto3" json:"exercise_id,omitempty"`
+	Name        string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	RestSeconds int32                  `protobuf:"varint,3,opt,name=rest_seconds,json=restSeconds,proto3" json:"rest_seconds,omitempty"`
+	// A target of policy version 6 or earlier can have one calibration set.
+	// From version 7, the first working set is the calibration (D-297).
+	CalibrationSets []*PlannedSet `protobuf:"bytes,4,rep,name=calibration_sets,json=calibrationSets,proto3" json:"calibration_sets,omitempty"`
+	WorkingSets     []*PlannedSet `protobuf:"bytes,5,rep,name=working_sets,json=workingSets,proto3" json:"working_sets,omitempty"`
 	// The reason for the owner: the reason of Luna after the filter, or the
 	// reason of the rules (D-68, D-182).
 	Reason string `protobuf:"bytes,6,opt,name=reason,proto3" json:"reason,omitempty"`
@@ -368,8 +370,8 @@ type PlannedExercise struct {
 	// of the calibration table (D-150, D-267). It has one entry for each weight
 	// of the machine, the lightest first, so the phone applies the table with
 	// no network to the weight that the owner logged (D-23, D-249). Only an
-	// exercise with a calibration set has entries, and a plan of policy
-	// version 3 has none.
+	// exercise with a calibration set has entries, so a plan of policy
+	// version 3, and each target of version 7 or later, has none.
 	CalibrationLoads []*CalibrationLoads `protobuf:"bytes,8,rep,name=calibration_loads,json=calibrationLoads,proto3" json:"calibration_loads,omitempty"`
 	// "luna" when the reason is the reason of Luna, or "rules" when it is the
 	// reason of the rules. After a revision, a reason of Luna that names no
@@ -378,9 +380,13 @@ type PlannedExercise struct {
 	// The override of the owner for the next session, or none (D-69, D-293).
 	// The sets above stay the recommendation. The phone shows the override
 	// in the next workout.
-	Override      *TargetOverride `protobuf:"bytes,10,opt,name=override,proto3" json:"override,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Override *TargetOverride `protobuf:"bytes,10,opt,name=override,proto3" json:"override,omitempty"`
+	// The first working set is the calibration: the owner changes the weight
+	// during its first reps, and the other working sets use the weight that
+	// the owner logged for it (D-297, D-299). An override keeps it.
+	FirstSetCalibration bool `protobuf:"varint,11,opt,name=first_set_calibration,json=firstSetCalibration,proto3" json:"first_set_calibration,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *PlannedExercise) Reset() {
@@ -481,6 +487,13 @@ func (x *PlannedExercise) GetOverride() *TargetOverride {
 		return x.Override
 	}
 	return nil
+}
+
+func (x *PlannedExercise) GetFirstSetCalibration() bool {
+	if x != nil {
+		return x.FirstSetCalibration
+	}
+	return false
 }
 
 // TargetOverride is an override of the owner for one exercise (D-69, D-293).
@@ -1545,7 +1558,7 @@ const file_workoutapp_v1_plan_service_proto_rawDesc = "" +
 	"\fGuidanceItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04kind\x18\x02 \x01(\tR\x04kind\x12\x12\n" +
-	"\x04text\x18\x03 \x01(\tR\x04text\"\xcb\x03\n" +
+	"\x04text\x18\x03 \x01(\tR\x04text\"\xff\x03\n" +
 	"\x0fPlannedExercise\x12\x1f\n" +
 	"\vexercise_id\x18\x01 \x01(\tR\n" +
 	"exerciseId\x12\x12\n" +
@@ -1558,7 +1571,8 @@ const file_workoutapp_v1_plan_service_proto_rawDesc = "" +
 	"\x11calibration_loads\x18\b \x03(\v2\x1f.workoutapp.v1.CalibrationLoadsR\x10calibrationLoads\x12#\n" +
 	"\rreason_source\x18\t \x01(\tR\freasonSource\x129\n" +
 	"\boverride\x18\n" +
-	" \x01(\v2\x1d.workoutapp.v1.TargetOverrideR\boverride\"\xba\x02\n" +
+	" \x01(\v2\x1d.workoutapp.v1.TargetOverrideR\boverride\x122\n" +
+	"\x15first_set_calibration\x18\v \x01(\bR\x13firstSetCalibration\"\xba\x02\n" +
 	"\x0eTargetOverride\x12D\n" +
 	"\x10calibration_sets\x18\x01 \x03(\v2\x19.workoutapp.v1.PlannedSetR\x0fcalibrationSets\x12<\n" +
 	"\fworking_sets\x18\x02 \x03(\v2\x19.workoutapp.v1.PlannedSetR\vworkingSets\x12\x16\n" +

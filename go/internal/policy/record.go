@@ -108,6 +108,9 @@ func Decide(in Input, p Proposal) (Record, error) {
 		if len(r.Violations) == 0 {
 			r.Source, r.Cause = SourceLuna, CauseNone
 			r.Target = clonePlan(prop)
+			// The rules decide the calibration, and a proposal can not
+			// change it (D-301).
+			r.Target.FirstSetCalibration = d.Target.FirstSetCalibration
 			r.Loads = sameLoads(prop)
 			return r, nil
 		}

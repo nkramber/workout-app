@@ -112,8 +112,8 @@ func (in Input) firstSessions(p pause) bool {
 // or more, from the long-break table (D-151, D-179). The load goes down
 // 10 percent, 20 percent, or to 70 percent, and a halfway value rounds
 // down (D-148). The first two rows remove one set. Each working set
-// stops at 3 reps in reserve. After 91 days or more, Next adds the
-// calibration set.
+// stops at 3 reps in reserve. After 91 days or more, Next makes the
+// first set the calibration (D-301).
 func (b *builder) resume(gap int) {
 	pct, rule := domain.Load(90), RuleBreakShort
 	switch {
@@ -137,7 +137,7 @@ func (b *builder) resume(gap int) {
 	}
 	b.setRIR(3)
 	if rule == RuleBreakRecalibrate {
-		b.rule(rule, fmt.Sprintf("Your last logged set of this exercise was %d days ago. The load goes down to %s at 3 reps in reserve, and the calibration starts again.", gap, b.loadText()))
+		b.rule(rule, fmt.Sprintf("Your last logged set of this exercise was %d days ago. The load goes down to %s at 3 reps in reserve.", gap, b.loadText()))
 		return
 	}
 	b.rule(rule, fmt.Sprintf("Your last logged set of this exercise was %d days ago. The target is %s at %s, at 3 reps in reserve.", gap, b.repsText(), b.loadText()))

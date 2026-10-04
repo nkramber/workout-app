@@ -15,7 +15,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `go/internal/profile` | The profile of the owner: the fields, the checks, the Firestore store, and `ForPlan` (D-41, D-208 to D-221) |
 | `go/internal/profilesvc` | The calls of `ProfileService` |
 | `go/internal/domain` | The types of the workout domain, the catalog of D-155, the injury areas and the muscle groups with their tables (D-218, D-219), and the check of each type (D-157) |
-| `go/internal/policy` | The versioned safety policy: the bounds of a target, the rounding of a load, the start and the calibration of a new exercise with one calibration set in each session (D-267), the return after a break, the hold after a missed session, the reactive deload, the next target, the check of a proposal and of an override, the rules fallback, and the decision record (D-23, D-38, D-176, D-293 to D-295) |
+| `go/internal/policy` | The versioned safety policy: the bounds of a target, the rounding of a load, the start of a new exercise with the first set as the calibration (D-297, D-299 to D-301), the return after a break, the hold after a missed session, the reactive deload, the next target, the check of a proposal and of an override, the rules fallback, and the decision record (D-23, D-38, D-176, D-293 to D-295) |
 | `go/internal/ai` | The Luna role layer: the planner and reviser roles, the plan schema and the reason schema, the prompt, the guidance catalog, the filter of blocked claims, the cost records, the cap hook, the OpenAI provider, and the fake provider (D-24, D-25, D-152, D-183) |
 | `go/internal/plan` | The plan of the owner: the planner request, 4 calls at most with the cause of each failure, the policy check of each exercise, the exclusions, the Firestore stores, and the error records (D-226 to D-238) |
 | `go/internal/plansvc` | The calls of `PlanService`, with a server stream of the progress (D-237), the targets on a date, and the overrides of the owner (D-293) |
@@ -57,7 +57,8 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 - An invalid output gets a retry with its cause and its output, 4 calls at most (D-230, D-231, D-235). A call over the cap ends the request at once.
 - Each failed attempt adds a document to the top-level collection `aiErrors`. Its field `expire_at` drives the TTL of 90 days (D-236). The document holds the output of Luna, so no log reads it (D-80).
 - The policy decides each exercise of a valid plan, and the plan stores each decision record (D-23, D-176).
-- An exercise with a calibration set also stores `calibration_loads` from `policy.CalibrationTable`. Each row gives a weight of the machine and the working load after each result (D-267). The phone applies the table with no network. A plan of policy version 3 has no such field.
+- A target of policy version 7 has no calibration set. The flag `first_set_calibration` tells that its first working set is the calibration (D-297). A plan of policy version 4 to 6 can still hold `calibration_loads` from `policy.CalibrationTable` (D-267).
+- A new plan reads each logged workout through `Maker.History`. An exercise with history gets its target from that history (D-301).
 - Policy version 5 gives 60 seconds of rest to each exercise, the leg press too, in each plan (D-279). An exercise with history does not keep an older rest.
 
 ## The workout log
@@ -77,7 +78,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 
 ## The revision
 
-After each `SyncOutbox` batch, `go/internal/revise` revises the plan for each finished workout of the batch (D-292). A replayed finish counts too, and the plan keeps the id of each workout that revised it, so a revision runs one time.
+After each `SyncOutbox` batch, `go/internal/revise` revises the plan for each finished workout of the batch (D-292). A replayed finish counts too, and the plan keeps the id of each workout that revised it, so a revision runs one time. Before its reviser call, a revision claims the workout in the plan, with a lease of the time limit of a revision (D-304). So a second sync of the same workout makes no second call.
 
 - The history of an exercise is each finished workout that logged it, of the newest 100, with its target copy. A workout of an older phone with no copy reads the linked session of a plan with no revision.
 - `policy.Revise` gives the target of the rules and its decision record. Each session of the plan that holds the exercise gets it (D-290). The plan keeps its `created_at`, so each workout keeps its link.

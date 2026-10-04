@@ -735,8 +735,12 @@ type SeenTarget struct {
 	// override, both are empty.
 	RecommendedWorkingSets []*PlannedSet `protobuf:"bytes,5,rep,name=recommended_working_sets,json=recommendedWorkingSets,proto3" json:"recommended_working_sets,omitempty"`
 	OverrideReason         string        `protobuf:"bytes,6,opt,name=override_reason,json=overrideReason,proto3" json:"override_reason,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	// The first working set is the calibration (D-297, D-299). The policy
+	// reads the weight that the owner logged for it as the load of the
+	// session.
+	FirstSetCalibration bool `protobuf:"varint,7,opt,name=first_set_calibration,json=firstSetCalibration,proto3" json:"first_set_calibration,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *SeenTarget) Reset() {
@@ -809,6 +813,13 @@ func (x *SeenTarget) GetOverrideReason() string {
 		return x.OverrideReason
 	}
 	return ""
+}
+
+func (x *SeenTarget) GetFirstSetCalibration() bool {
+	if x != nil {
+		return x.FirstSetCalibration
+	}
+	return false
 }
 
 // SetEntry is the state of one logged set (D-57, D-164, D-249). The entity
@@ -1717,7 +1728,7 @@ const file_workoutapp_v1_workout_service_proto_rawDesc = "" +
 	"\vended_early\x18\x04 \x01(\bR\n" +
 	"endedEarly\x12\x1a\n" +
 	"\bfinished\x18\x05 \x01(\bR\bfinished\x123\n" +
-	"\atargets\x18\x06 \x03(\v2\x19.workoutapp.v1.SeenTargetR\atargets\"\xd2\x02\n" +
+	"\atargets\x18\x06 \x03(\v2\x19.workoutapp.v1.SeenTargetR\atargets\"\x86\x03\n" +
 	"\n" +
 	"SeenTarget\x12\x1f\n" +
 	"\vexercise_id\x18\x01 \x01(\tR\n" +
@@ -1726,7 +1737,8 @@ const file_workoutapp_v1_workout_service_proto_rawDesc = "" +
 	"\x10calibration_sets\x18\x03 \x03(\v2\x19.workoutapp.v1.PlannedSetR\x0fcalibrationSets\x12<\n" +
 	"\fworking_sets\x18\x04 \x03(\v2\x19.workoutapp.v1.PlannedSetR\vworkingSets\x12S\n" +
 	"\x18recommended_working_sets\x18\x05 \x03(\v2\x19.workoutapp.v1.PlannedSetR\x16recommendedWorkingSets\x12'\n" +
-	"\x0foverride_reason\x18\x06 \x01(\tR\x0eoverrideReason\"\xe4\x01\n" +
+	"\x0foverride_reason\x18\x06 \x01(\tR\x0eoverrideReason\x122\n" +
+	"\x15first_set_calibration\x18\a \x01(\bR\x13firstSetCalibration\"\xe4\x01\n" +
 	"\bSetEntry\x12\x1d\n" +
 	"\n" +
 	"workout_id\x18\x01 \x01(\tR\tworkoutId\x12\x1f\n" +

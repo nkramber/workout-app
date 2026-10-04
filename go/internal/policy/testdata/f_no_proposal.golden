@@ -1,4 +1,4 @@
-policy version: 6
+policy version: 7
 exercise: chest_press
 model: "fake-model", effort: "medium", prompt hash: "prompt-hash"
 source: rules, cause: "no-proposal"
