@@ -22,7 +22,7 @@ The pull request holds:
 
 The Codex review found P2-1 at `a5451328baf687ec3ea13b8c5356cad7b96c6e24`. The author fixed it at `f457b47ebe9657cbd2514e816ce89d4722e30120`. The round 2 verdict is Ready for owner merge, with no open findings.
 
-Next action: commit and push the review record and this hand-off, then verify the published head and review-gate check. The owner then confirms the merge.
+The state is pending the owner merge. Next action: ask the owner to confirm the merge (D-13).
 
 ## Facts that expire
 
