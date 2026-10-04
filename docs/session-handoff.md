@@ -19,7 +19,7 @@ The pull request holds:
 - the scenarios G to J in `go/cmd/lunaeval`, the numbers of each scenario, and the paid run of D-302,
 - the report `docs/research/reviser-evaluation.md`.
 
-`make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. Pending the CI, the Codex review, and the owner merge. Next action: push the first round, open the pull request, and run the Codex review after CI is green.
+`make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. CI passed at `99e984d`. The Codex review found P2-1 in `docs/reviews/pr-38.md`. The author must fix it. Next action: fix the history limit, add a regression test, then repeat the Codex review.
 
 ## Facts that expire
 
