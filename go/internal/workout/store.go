@@ -298,6 +298,10 @@ type targetDoc struct {
 	Rest        int64       `firestore:"rest_seconds"`
 	Calibration []targetSet `firestore:"calibration_sets"`
 	Working     []targetSet `firestore:"working_sets"`
+	// After an override of the owner: the recommendation that it
+	// replaced, and the reason of the owner (D-69, D-293).
+	Recommended    []targetSet `firestore:"recommended_working_sets,omitempty"`
+	OverrideReason string      `firestore:"override_reason,omitempty"`
 }
 
 type targetSet struct {
@@ -306,10 +310,19 @@ type targetSet struct {
 	RIR  int64 `firestore:"rir_target"`
 }
 
-func encodeTargets(in []domain.PlannedExercise) []targetDoc {
+func encodeTargets(in []domain.PlannedExercise, overrides []SeenOverride) []targetDoc {
 	out := make([]targetDoc, 0, len(in))
 	for _, t := range in {
 		d := targetDoc{Exercise: string(t.Exercise), Rest: int64(t.RestSeconds), Calibration: []targetSet{}, Working: []targetSet{}}
+		for _, o := range overrides {
+			if o.Exercise != t.Exercise {
+				continue
+			}
+			d.OverrideReason = o.Reason
+			for _, w := range o.Recommended {
+				d.Recommended = append(d.Recommended, targetSet{int64(w.Reps), int64(w.Load), int64(w.RIR)})
+			}
+		}
 		for _, c := range t.Calibration {
 			d.Calibration = append(d.Calibration, targetSet{Reps: int64(c.Reps), Load: int64(c.Load)})
 		}
@@ -321,10 +334,18 @@ func encodeTargets(in []domain.PlannedExercise) []targetDoc {
 	return out
 }
 
-func decodeTargets(in []targetDoc) []domain.PlannedExercise {
+func decodeTargets(in []targetDoc) ([]domain.PlannedExercise, []SeenOverride) {
 	var out []domain.PlannedExercise
+	var overrides []SeenOverride
 	for _, d := range in {
 		t := domain.PlannedExercise{Exercise: domain.ExerciseID(d.Exercise), RestSeconds: int(d.Rest)}
+		if d.OverrideReason != "" || len(d.Recommended) > 0 {
+			o := SeenOverride{Exercise: t.Exercise, Reason: d.OverrideReason}
+			for _, w := range d.Recommended {
+				o.Recommended = append(o.Recommended, domain.WorkingSet{Reps: int(w.Reps), Load: domain.Load(w.Load), RIR: int(w.RIR)})
+			}
+			overrides = append(overrides, o)
+		}
 		for _, c := range d.Calibration {
 			t.Calibration = append(t.Calibration, domain.CalibrationSet{Reps: int(c.Reps), Load: domain.Load(c.Load)})
 		}
@@ -333,7 +354,7 @@ func decodeTargets(in []targetDoc) []domain.PlannedExercise {
 		}
 		out = append(out, t)
 	}
-	return out
+	return out, overrides
 }
 
 type exerciseDoc struct {
@@ -374,7 +395,7 @@ func encodeWorkout(w Workout, now time.Time) workoutDoc {
 		Finished:   w.Finished,
 		Exercises:  []exerciseDoc{},
 		Cardio:     []cardioDoc{},
-		Targets:    encodeTargets(w.Targets),
+		Targets:    encodeTargets(w.Targets, w.Overrides),
 		Versions:   w.Versions,
 		UpdatedAt:  now,
 	}
@@ -409,10 +430,10 @@ func (d workoutDoc) workout(id string) Workout {
 			Plan:       PlanLink{PlanCreatedAt: d.Plan.CreatedAt.UTC(), SessionIndex: int(d.Plan.SessionIndex)},
 			EndedEarly: d.EndedEarly,
 			Finished:   d.Finished,
-			Targets:    decodeTargets(d.Targets),
 		},
 		Versions: map[string]int64{},
 	}
+	w.Targets, w.Overrides = decodeTargets(d.Targets)
 	for _, id := range d.Skipped {
 		w.Skipped = append(w.Skipped, domain.ExerciseID(id))
 	}

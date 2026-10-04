@@ -18,12 +18,17 @@ import { loadErrorText } from "../lib/errors";
 import {
   localDate,
   MAX_REASON_CHARS,
+  overrideErrorText,
+  overrideSets,
   planErrorText,
+  planRequest,
   progressText,
   reasonLength,
   restText,
   setText,
+  type OverrideDraft,
 } from "../lib/plan";
+import { formatPounds } from "../lib/inventory";
 import { usePlanApi } from "../lib/plan-api";
 import { keepCopy } from "../lib/sync";
 import { activeWorkout } from "../lib/workout";
@@ -37,9 +42,11 @@ import { danger, ErrorText, field, primary, secondary, Title } from "./inventory
 // runs, the screen shows each progress step (D-231, D-239). A failed
 // request shows its error, and the plan does not change (D-230, D-240).
 // While a workout is open on the phone, the screen refuses a new plan
-// and an exclusion (D-252).
+// and an exclusion (D-252). Each target is the target on the local date
+// (D-294, D-295). The owner can change the load and the reps of a target
+// for the next session, with a reason (D-69, D-293).
 export function PlanPage({ onBack }: { onBack: () => void }) {
-  const plan = useQuery(PlanService.method.getPlan, {});
+  const plan = useQuery(PlanService.method.getPlan, planRequest());
   // Each read of the plan goes into the offline copy, so the workout
   // starts with no connection (D-278). A stale plan of the cache waits
   // for its new read, because a sync can revise the plan (D-292), and the
@@ -114,6 +121,10 @@ function PlanView({ plan, exclusions, onBack }: { plan?: Plan; exclusions: Exclu
   const request = () => void run(false, (onProgress, signal) => api.requestPlan(localDate(), onProgress, signal));
   const exclude = (exerciseId: string, reason: string) =>
     void run(true, (onProgress, signal) => api.excludeExercise(localDate(), exerciseId, reason, onProgress, signal));
+  const override: OverrideApi = {
+    save: (exerciseId, sets, reason) => api.overrideTarget(localDate(), exerciseId, sets, reason),
+    remove: (exerciseId) => api.removeOverride(localDate(), exerciseId),
+  };
 
   return (
     <div ref={top} className="space-y-6">
@@ -163,6 +174,7 @@ function PlanView({ plan, exclusions, onBack }: { plan?: Plan; exclusions: Exclu
               onOpen={(exerciseId) => setTarget({ session: i, exerciseId })}
               onCancel={() => setTarget(null)}
               onExclude={exclude}
+              override={override}
             />
           ))}
 
@@ -183,6 +195,7 @@ function SessionCard({
   onOpen,
   onCancel,
   onExclude,
+  override,
 }: {
   session: PlanSession;
   index: number;
@@ -191,6 +204,7 @@ function SessionCard({
   onOpen: (exerciseId: string) => void;
   onCancel: () => void;
   onExclude: (exerciseId: string, reason: string) => void;
+  override: OverrideApi;
 }) {
   return (
     <section
@@ -212,6 +226,7 @@ function SessionCard({
           onOpen={() => onOpen(e.exerciseId)}
           onCancel={onCancel}
           onExclude={(reason) => onExclude(e.exerciseId, reason)}
+          override={override}
         />
       ))}
 
@@ -227,6 +242,12 @@ function SessionCard({
   );
 }
 
+// OverrideApi saves and removes an override of the owner (D-293).
+type OverrideApi = {
+  save: (exerciseId: string, sets: { reps: number; loadTenthLb: number }[], reason: string) => Promise<Plan>;
+  remove: (exerciseId: string) => Promise<Plan>;
+};
+
 function ExerciseCard({
   exercise,
   busy,
@@ -234,6 +255,7 @@ function ExerciseCard({
   onOpen,
   onCancel,
   onExclude,
+  override,
 }: {
   exercise: PlannedExercise;
   busy: boolean;
@@ -241,9 +263,26 @@ function ExerciseCard({
   onOpen: () => void;
   onCancel: () => void;
   onExclude: (reason: string) => void;
+  override: OverrideApi;
 }) {
   const [reason, setReason] = useState("");
   const count = reasonLength(reason);
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const o = exercise.override;
+
+  const remove = async () => {
+    setSaving(true);
+    setError("");
+    try {
+      await override.remove(exercise.exerciseId);
+    } catch (err) {
+      setError(overrideErrorText(err));
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-2 border-t border-slate-800 pt-3" data-testid="plan-exercise" data-exercise-id={exercise.exerciseId}>
@@ -255,6 +294,21 @@ function ExerciseCard({
           </span>
         )}
       </div>
+      {o && (
+        <div className="space-y-1 rounded-lg border border-sky-800 bg-sky-950 p-3 text-sm text-sky-100" data-testid="override">
+          <p className="font-semibold">Your change for the next session</p>
+          <ul className="space-y-1">
+            {o.calibrationSets.map((s, i) => (
+              <li key={`c${i}`}>{`Calibration set ${i + 1}: ${setText(s, true)}`}</li>
+            ))}
+            {o.workingSets.map((s, i) => (
+              <li key={`w${i}`}>{`Set ${i + 1}: ${setText(s, false)}`}</li>
+            ))}
+          </ul>
+          <p data-testid="override-reason">{`Your reason: ${o.reason}`}</p>
+        </div>
+      )}
+      {o && <p className="text-sm font-semibold text-slate-300">Recommendation</p>}
       <ul className="space-y-1 text-sm text-slate-200" data-testid="sets">
         {exercise.calibrationSets.map((s, i) => (
           <li key={`c${i}`}>{`Calibration set ${i + 1}: ${setText(s, true)}`}</li>
@@ -267,11 +321,45 @@ function ExerciseCard({
         {`Rest ${restText(exercise.restSeconds)} between sets.`}
       </p>
       {exercise.reason && <p className="text-sm text-slate-400">{exercise.reason}</p>}
+      <ErrorText testId="override-error">{error}</ErrorText>
 
-      {!open && (
-        <button type="button" className={secondary} disabled={busy} onClick={onOpen}>
-          Exclude
-        </button>
+      {editing && (
+        <OverrideForm
+          exercise={exercise}
+          busy={busy || saving}
+          onSave={async (sets, why) => {
+            setSaving(true);
+            setError("");
+            try {
+              await override.save(exercise.exerciseId, sets, why);
+              setEditing(false);
+            } catch (err) {
+              setError(overrideErrorText(err));
+            } finally {
+              setSaving(false);
+            }
+          }}
+          onCancel={() => {
+            setError("");
+            setEditing(false);
+          }}
+        />
+      )}
+
+      {!open && !editing && (
+        <div className="flex flex-wrap gap-3">
+          <button type="button" className={secondary} disabled={busy || saving} onClick={() => setEditing(true)}>
+            Change target
+          </button>
+          {o && (
+            <button type="button" className={secondary} disabled={busy || saving} onClick={() => void remove()}>
+              Use the recommendation
+            </button>
+          )}
+          <button type="button" className={secondary} disabled={busy || saving} onClick={onOpen}>
+            Exclude
+          </button>
+        </div>
       )}
       {open && (
         <div className="space-y-3 rounded-lg border border-slate-700 p-3" data-testid="exclude-form">
@@ -307,6 +395,85 @@ function ExerciseCard({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// OverrideForm changes the load and the reps of each working set for the
+// next session, with a reason (D-69, D-293). The reps in reserve, the
+// count of sets, and the rest stay as recommended. The server checks the
+// change with the policy before it saves it (D-23).
+function OverrideForm({
+  exercise,
+  busy,
+  onSave,
+  onCancel,
+}: {
+  exercise: PlannedExercise;
+  busy: boolean;
+  onSave: (sets: { reps: number; loadTenthLb: number }[], reason: string) => Promise<void>;
+  onCancel: () => void;
+}) {
+  const start = exercise.override?.workingSets ?? exercise.workingSets;
+  const [drafts, setDrafts] = useState<OverrideDraft[]>(() =>
+    start.map((s) => ({ reps: String(s.reps), pounds: formatPounds(s.loadTenthLb) })),
+  );
+  const [reason, setReason] = useState(exercise.override?.reason ?? "");
+  const count = reasonLength(reason);
+  const sets = overrideSets(drafts);
+  const change = (i: number, part: Partial<OverrideDraft>) => setDrafts((d) => d.map((x, j) => (j === i ? { ...x, ...part } : x)));
+
+  return (
+    <div className="space-y-3 rounded-lg border border-slate-700 p-3" data-testid="override-form">
+      <p className="text-sm text-slate-300">
+        Change the reps and the load of each set for the next session. The reps in reserve stay as recommended.
+      </p>
+      {drafts.map((d, i) => (
+        <div key={i} className="grid grid-cols-[auto_1fr_1fr] items-end gap-3">
+          <span className="pb-2 text-sm text-slate-300">{`Set ${i + 1}`}</span>
+          <label className="block">
+            <span className="text-xs text-slate-400">Reps</span>
+            <input
+              inputMode="numeric"
+              value={d.reps}
+              onChange={(e) => change(i, { reps: e.target.value })}
+              className={field}
+              aria-label={`Set ${i + 1} reps`}
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs text-slate-400">Load (lb)</span>
+            <input
+              inputMode="decimal"
+              value={d.pounds}
+              onChange={(e) => change(i, { pounds: e.target.value })}
+              className={field}
+              aria-label={`Set ${i + 1} load`}
+            />
+          </label>
+        </div>
+      ))}
+      <label className="block">
+        <span className="text-sm font-semibold text-slate-100">Reason</span>
+        <span className="block text-sm text-slate-400">No AI model reads this text.</span>
+        <textarea rows={2} value={reason} onChange={(e) => setReason(e.target.value)} className={field} />
+        <span className={`text-xs ${count > MAX_REASON_CHARS ? "text-red-400" : "text-slate-500"}`}>
+          {count} of {MAX_REASON_CHARS} characters
+        </span>
+      </label>
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          className={primary}
+          disabled={busy || !sets || reason.trim() === "" || count > MAX_REASON_CHARS}
+          onClick={() => sets && void onSave(sets, reason)}
+        >
+          Save the change
+        </button>
+        <button type="button" className={secondary} disabled={busy} onClick={onCancel}>
+          Cancel
+        </button>
+      </div>
     </div>
   );
 }

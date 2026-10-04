@@ -212,35 +212,72 @@ func (r *Reviser) finished(ctx context.Context, uid string) ([]workout.Workout, 
 // inputs gives the policy input of each exercise that the workout
 // logged and the plan holds, in the order of the workout (D-290). An
 // exercise whose machine is not confirmed, or whose input the policy
-// refuses, keeps its target, and a log line names it.
+// refuses, keeps its target, and a log line names it. Each input holds
+// the deloads of the history of each exercise (D-295).
 func (r *Reviser) inputs(uid string, p plan.Plan, history []workout.Workout, w workout.Workout, pi inventory.PlanInput) []policy.Input {
-	catalog := domain.DefaultCatalog()
+	dl := r.deloads(uid, p, history)
 	var out []policy.Input
 	for _, l := range w.Exercises() {
 		if !holds(p, l.Exercise) {
 			continue
 		}
-		e, ok := catalog.Exercise(l.Exercise)
-		if !ok {
-			continue
+		if in, ok := r.input(uid, p, history, pi, l.Exercise, dl); ok {
+			out = append(out, in)
 		}
-		entry, ok := pi.Inventory.Entry(e.Machine)
-		if !ok {
-			r.warn("revise: no confirmed machine", "uid", uid, "exercise_id", string(e.ID))
-			continue
+	}
+	return out
+}
+
+// input gives the policy input of one exercise, with the date of its
+// last session as the date of the next session. It is false for an
+// exercise with no history, with no confirmed machine, or with an input
+// that the policy refuses.
+func (r *Reviser) input(uid string, p plan.Plan, history []workout.Workout, pi inventory.PlanInput, id domain.ExerciseID, deloads []string) (policy.Input, bool) {
+	e, ok := domain.DefaultCatalog().Exercise(id)
+	if !ok {
+		return policy.Input{}, false
+	}
+	entry, ok := pi.Inventory.Entry(e.Machine)
+	if !ok {
+		r.warn("revise: no confirmed machine", "uid", uid, "exercise_id", string(e.ID))
+		return policy.Input{}, false
+	}
+	h := outcomes(p, history, e.ID)
+	if len(h) == 0 {
+		return policy.Input{}, false
+	}
+	// Each new exercise of a plan starts as a return after a long
+	// break (D-238), so its first sessions count from that start.
+	in := policy.Input{Exercise: e, Entry: entry, History: h, Today: h[len(h)-1].Date, Estimate: pi.Estimates[e.ID], Returning: true, Deloads: deloads}
+	if _, err := policy.Next(in); err != nil {
+		r.warn("revise: the policy refused the input", "uid", uid, "exercise_id", string(e.ID), "err", err.Error())
+		return policy.Input{}, false
+	}
+	return in, true
+}
+
+// deloads gives the start date of each reactive deload, from the
+// history of each exercise that a finished workout logged (D-295). A
+// history that the policy refuses gives no deload, and a log line.
+func (r *Reviser) deloads(uid string, p plan.Plan, history []workout.Workout) []string {
+	var ids []domain.ExerciseID
+	for _, w := range history {
+		for _, l := range w.Exercises() {
+			if !slices.Contains(ids, l.Exercise) {
+				ids = append(ids, l.Exercise)
+			}
 		}
-		h := outcomes(p, history, e.ID)
-		if len(h) == 0 {
-			continue
+	}
+	var hs [][]policy.Outcome
+	for _, id := range ids {
+		if h := outcomes(p, history, id); len(h) > 0 {
+			hs = append(hs, h)
 		}
-		// Each new exercise of a plan starts as a return after a long
-		// break (D-238), so its first sessions count from that start.
-		in := policy.Input{Exercise: e, Entry: entry, History: h, Today: h[len(h)-1].Date, Estimate: pi.Estimates[e.ID], Returning: true}
-		if _, err := policy.Next(in); err != nil {
-			r.warn("revise: the policy refused the input", "uid", uid, "exercise_id", string(e.ID), "err", err.Error())
-			continue
-		}
-		out = append(out, in)
+	}
+	out, err := policy.Deloads(hs)
+	if err != nil {
+		r.warn("revise: the policy refused the deload input", "uid", uid, "err", err.Error())
+		return nil
 	}
 	return out
 }

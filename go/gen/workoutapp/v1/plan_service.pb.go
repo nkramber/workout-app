@@ -374,7 +374,11 @@ type PlannedExercise struct {
 	// "luna" when the reason is the reason of Luna, or "rules" when it is the
 	// reason of the rules. After a revision, a reason of Luna that names no
 	// logged set gives the reason of the rules (D-68, D-288).
-	ReasonSource  string `protobuf:"bytes,9,opt,name=reason_source,json=reasonSource,proto3" json:"reason_source,omitempty"`
+	ReasonSource string `protobuf:"bytes,9,opt,name=reason_source,json=reasonSource,proto3" json:"reason_source,omitempty"`
+	// The override of the owner for the next session, or none (D-69, D-293).
+	// The sets above stay the recommendation. The phone shows the override
+	// in the next workout.
+	Override      *TargetOverride `protobuf:"bytes,10,opt,name=override,proto3" json:"override,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -472,6 +476,94 @@ func (x *PlannedExercise) GetReasonSource() string {
 	return ""
 }
 
+func (x *PlannedExercise) GetOverride() *TargetOverride {
+	if x != nil {
+		return x.Override
+	}
+	return nil
+}
+
+// TargetOverride is an override of the owner for one exercise (D-69, D-293).
+// The policy checked its sets (D-23).
+type TargetOverride struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	CalibrationSets []*PlannedSet          `protobuf:"bytes,1,rep,name=calibration_sets,json=calibrationSets,proto3" json:"calibration_sets,omitempty"`
+	WorkingSets     []*PlannedSet          `protobuf:"bytes,2,rep,name=working_sets,json=workingSets,proto3" json:"working_sets,omitempty"`
+	// The reason of the owner, 1 to 200 characters.
+	Reason string `protobuf:"bytes,3,opt,name=reason,proto3" json:"reason,omitempty"`
+	// The time of the save, in RFC 3339 form.
+	CreatedAt string `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// The recommendation that the override replaced.
+	RecommendedWorkingSets []*PlannedSet `protobuf:"bytes,5,rep,name=recommended_working_sets,json=recommendedWorkingSets,proto3" json:"recommended_working_sets,omitempty"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *TargetOverride) Reset() {
+	*x = TargetOverride{}
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TargetOverride) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TargetOverride) ProtoMessage() {}
+
+func (x *TargetOverride) ProtoReflect() protoreflect.Message {
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TargetOverride.ProtoReflect.Descriptor instead.
+func (*TargetOverride) Descriptor() ([]byte, []int) {
+	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *TargetOverride) GetCalibrationSets() []*PlannedSet {
+	if x != nil {
+		return x.CalibrationSets
+	}
+	return nil
+}
+
+func (x *TargetOverride) GetWorkingSets() []*PlannedSet {
+	if x != nil {
+		return x.WorkingSets
+	}
+	return nil
+}
+
+func (x *TargetOverride) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *TargetOverride) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+func (x *TargetOverride) GetRecommendedWorkingSets() []*PlannedSet {
+	if x != nil {
+		return x.RecommendedWorkingSets
+	}
+	return nil
+}
+
 // CalibrationLoads holds the load of the working sets for each result of one
 // calibration set at a weight (D-267).
 type CalibrationLoads struct {
@@ -492,7 +584,7 @@ type CalibrationLoads struct {
 
 func (x *CalibrationLoads) Reset() {
 	*x = CalibrationLoads{}
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[5]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -504,7 +596,7 @@ func (x *CalibrationLoads) String() string {
 func (*CalibrationLoads) ProtoMessage() {}
 
 func (x *CalibrationLoads) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[5]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -517,7 +609,7 @@ func (x *CalibrationLoads) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CalibrationLoads.ProtoReflect.Descriptor instead.
 func (*CalibrationLoads) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{5}
+	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CalibrationLoads) GetWeightTenthLb() int32 {
@@ -568,7 +660,7 @@ type PlannedSet struct {
 
 func (x *PlannedSet) Reset() {
 	*x = PlannedSet{}
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[6]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -580,7 +672,7 @@ func (x *PlannedSet) String() string {
 func (*PlannedSet) ProtoMessage() {}
 
 func (x *PlannedSet) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[6]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -593,7 +685,7 @@ func (x *PlannedSet) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlannedSet.ProtoReflect.Descriptor instead.
 func (*PlannedSet) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{6}
+	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *PlannedSet) GetReps() int32 {
@@ -630,7 +722,7 @@ type PlannedCardio struct {
 
 func (x *PlannedCardio) Reset() {
 	*x = PlannedCardio{}
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[7]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -642,7 +734,7 @@ func (x *PlannedCardio) String() string {
 func (*PlannedCardio) ProtoMessage() {}
 
 func (x *PlannedCardio) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[7]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -655,7 +747,7 @@ func (x *PlannedCardio) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlannedCardio.ProtoReflect.Descriptor instead.
 func (*PlannedCardio) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{7}
+	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *PlannedCardio) GetExerciseId() string {
@@ -693,7 +785,7 @@ type Exclusion struct {
 
 func (x *Exclusion) Reset() {
 	*x = Exclusion{}
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[8]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -705,7 +797,7 @@ func (x *Exclusion) String() string {
 func (*Exclusion) ProtoMessage() {}
 
 func (x *Exclusion) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[8]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -718,7 +810,7 @@ func (x *Exclusion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Exclusion.ProtoReflect.Descriptor instead.
 func (*Exclusion) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{8}
+	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *Exclusion) GetExerciseId() string {
@@ -760,7 +852,7 @@ type PlanProgress struct {
 
 func (x *PlanProgress) Reset() {
 	*x = PlanProgress{}
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[9]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -772,7 +864,7 @@ func (x *PlanProgress) String() string {
 func (*PlanProgress) ProtoMessage() {}
 
 func (x *PlanProgress) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[9]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -785,7 +877,7 @@ func (x *PlanProgress) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PlanProgress.ProtoReflect.Descriptor instead.
 func (*PlanProgress) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{9}
+	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *PlanProgress) GetStep() string {
@@ -817,14 +909,17 @@ func (x *PlanProgress) GetPreviousStatus() string {
 }
 
 type GetPlanRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The optional local date of the owner, as for RequestPlanRequest. With
+	// no date, each target is the target that the plan holds.
+	Today         string `protobuf:"bytes,1,opt,name=today,proto3" json:"today,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetPlanRequest) Reset() {
 	*x = GetPlanRequest{}
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[10]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -836,7 +931,7 @@ func (x *GetPlanRequest) String() string {
 func (*GetPlanRequest) ProtoMessage() {}
 
 func (x *GetPlanRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[10]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -849,7 +944,14 @@ func (x *GetPlanRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPlanRequest.ProtoReflect.Descriptor instead.
 func (*GetPlanRequest) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{10}
+	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetPlanRequest) GetToday() string {
+	if x != nil {
+		return x.Today
+	}
+	return ""
 }
 
 type GetPlanResponse struct {
@@ -864,7 +966,7 @@ type GetPlanResponse struct {
 
 func (x *GetPlanResponse) Reset() {
 	*x = GetPlanResponse{}
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[11]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -876,7 +978,7 @@ func (x *GetPlanResponse) String() string {
 func (*GetPlanResponse) ProtoMessage() {}
 
 func (x *GetPlanResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[11]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -889,7 +991,7 @@ func (x *GetPlanResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPlanResponse.ProtoReflect.Descriptor instead.
 func (*GetPlanResponse) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{11}
+	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetPlanResponse) GetPlan() *Plan {
@@ -921,7 +1023,7 @@ type RequestPlanResponse struct {
 
 func (x *RequestPlanResponse) Reset() {
 	*x = RequestPlanResponse{}
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[12]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -933,7 +1035,7 @@ func (x *RequestPlanResponse) String() string {
 func (*RequestPlanResponse) ProtoMessage() {}
 
 func (x *RequestPlanResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[12]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -946,7 +1048,7 @@ func (x *RequestPlanResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestPlanResponse.ProtoReflect.Descriptor instead.
 func (*RequestPlanResponse) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{12}
+	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *RequestPlanResponse) GetEvent() isRequestPlanResponse_Event {
@@ -1001,7 +1103,7 @@ type RequestPlanRequest struct {
 
 func (x *RequestPlanRequest) Reset() {
 	*x = RequestPlanRequest{}
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[13]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1013,7 +1115,7 @@ func (x *RequestPlanRequest) String() string {
 func (*RequestPlanRequest) ProtoMessage() {}
 
 func (x *RequestPlanRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[13]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1026,7 +1128,7 @@ func (x *RequestPlanRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestPlanRequest.ProtoReflect.Descriptor instead.
 func (*RequestPlanRequest) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{13}
+	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *RequestPlanRequest) GetToday() string {
@@ -1050,7 +1152,7 @@ type ExcludeExerciseRequest struct {
 
 func (x *ExcludeExerciseRequest) Reset() {
 	*x = ExcludeExerciseRequest{}
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[14]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1062,7 +1164,7 @@ func (x *ExcludeExerciseRequest) String() string {
 func (*ExcludeExerciseRequest) ProtoMessage() {}
 
 func (x *ExcludeExerciseRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[14]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1075,7 +1177,7 @@ func (x *ExcludeExerciseRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExcludeExerciseRequest.ProtoReflect.Descriptor instead.
 func (*ExcludeExerciseRequest) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{14}
+	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ExcludeExerciseRequest) GetToday() string {
@@ -1114,7 +1216,7 @@ type ExcludeExerciseResponse struct {
 
 func (x *ExcludeExerciseResponse) Reset() {
 	*x = ExcludeExerciseResponse{}
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[15]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1126,7 +1228,7 @@ func (x *ExcludeExerciseResponse) String() string {
 func (*ExcludeExerciseResponse) ProtoMessage() {}
 
 func (x *ExcludeExerciseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[15]
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1139,7 +1241,7 @@ func (x *ExcludeExerciseResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExcludeExerciseResponse.ProtoReflect.Descriptor instead.
 func (*ExcludeExerciseResponse) Descriptor() ([]byte, []int) {
-	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{15}
+	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ExcludeExerciseResponse) GetEvent() isExcludeExerciseResponse_Event {
@@ -1183,6 +1285,224 @@ func (*ExcludeExerciseResponse_Progress) isExcludeExerciseResponse_Event() {}
 
 func (*ExcludeExerciseResponse_Plan) isExcludeExerciseResponse_Event() {}
 
+type OverrideTargetRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The local date of the owner, as for RequestPlanRequest. The override
+	// replaces the recommendation on this date.
+	Today string `protobuf:"bytes,1,opt,name=today,proto3" json:"today,omitempty"`
+	// The id of an exercise of the plan.
+	ExerciseId string `protobuf:"bytes,2,opt,name=exercise_id,json=exerciseId,proto3" json:"exercise_id,omitempty"`
+	// One set for each working set of the recommendation, with its reps and
+	// its load. The server keeps the reps in reserve of the recommendation.
+	WorkingSets []*PlannedSet `protobuf:"bytes,3,rep,name=working_sets,json=workingSets,proto3" json:"working_sets,omitempty"`
+	// The reason of the owner, 1 to 200 characters.
+	Reason        string `protobuf:"bytes,4,opt,name=reason,proto3" json:"reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OverrideTargetRequest) Reset() {
+	*x = OverrideTargetRequest{}
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OverrideTargetRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OverrideTargetRequest) ProtoMessage() {}
+
+func (x *OverrideTargetRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OverrideTargetRequest.ProtoReflect.Descriptor instead.
+func (*OverrideTargetRequest) Descriptor() ([]byte, []int) {
+	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *OverrideTargetRequest) GetToday() string {
+	if x != nil {
+		return x.Today
+	}
+	return ""
+}
+
+func (x *OverrideTargetRequest) GetExerciseId() string {
+	if x != nil {
+		return x.ExerciseId
+	}
+	return ""
+}
+
+func (x *OverrideTargetRequest) GetWorkingSets() []*PlannedSet {
+	if x != nil {
+		return x.WorkingSets
+	}
+	return nil
+}
+
+func (x *OverrideTargetRequest) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+type OverrideTargetResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The plan on the date of the request.
+	Plan          *Plan `protobuf:"bytes,1,opt,name=plan,proto3" json:"plan,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OverrideTargetResponse) Reset() {
+	*x = OverrideTargetResponse{}
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OverrideTargetResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OverrideTargetResponse) ProtoMessage() {}
+
+func (x *OverrideTargetResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OverrideTargetResponse.ProtoReflect.Descriptor instead.
+func (*OverrideTargetResponse) Descriptor() ([]byte, []int) {
+	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *OverrideTargetResponse) GetPlan() *Plan {
+	if x != nil {
+		return x.Plan
+	}
+	return nil
+}
+
+type RemoveOverrideRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The local date of the owner, as for RequestPlanRequest.
+	Today string `protobuf:"bytes,1,opt,name=today,proto3" json:"today,omitempty"`
+	// The id of an exercise of the plan.
+	ExerciseId    string `protobuf:"bytes,2,opt,name=exercise_id,json=exerciseId,proto3" json:"exercise_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveOverrideRequest) Reset() {
+	*x = RemoveOverrideRequest{}
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveOverrideRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveOverrideRequest) ProtoMessage() {}
+
+func (x *RemoveOverrideRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveOverrideRequest.ProtoReflect.Descriptor instead.
+func (*RemoveOverrideRequest) Descriptor() ([]byte, []int) {
+	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *RemoveOverrideRequest) GetToday() string {
+	if x != nil {
+		return x.Today
+	}
+	return ""
+}
+
+func (x *RemoveOverrideRequest) GetExerciseId() string {
+	if x != nil {
+		return x.ExerciseId
+	}
+	return ""
+}
+
+type RemoveOverrideResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The plan on the date of the request.
+	Plan          *Plan `protobuf:"bytes,1,opt,name=plan,proto3" json:"plan,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveOverrideResponse) Reset() {
+	*x = RemoveOverrideResponse{}
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveOverrideResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveOverrideResponse) ProtoMessage() {}
+
+func (x *RemoveOverrideResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_workoutapp_v1_plan_service_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveOverrideResponse.ProtoReflect.Descriptor instead.
+func (*RemoveOverrideResponse) Descriptor() ([]byte, []int) {
+	return file_workoutapp_v1_plan_service_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *RemoveOverrideResponse) GetPlan() *Plan {
+	if x != nil {
+		return x.Plan
+	}
+	return nil
+}
+
 var File_workoutapp_v1_plan_service_proto protoreflect.FileDescriptor
 
 const file_workoutapp_v1_plan_service_proto_rawDesc = "" +
@@ -1214,7 +1534,7 @@ const file_workoutapp_v1_plan_service_proto_rawDesc = "" +
 	"\fGuidanceItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04kind\x18\x02 \x01(\tR\x04kind\x12\x12\n" +
-	"\x04text\x18\x03 \x01(\tR\x04text\"\x90\x03\n" +
+	"\x04text\x18\x03 \x01(\tR\x04text\"\xcb\x03\n" +
 	"\x0fPlannedExercise\x12\x1f\n" +
 	"\vexercise_id\x18\x01 \x01(\tR\n" +
 	"exerciseId\x12\x12\n" +
@@ -1225,7 +1545,16 @@ const file_workoutapp_v1_plan_service_proto_rawDesc = "" +
 	"\x06reason\x18\x06 \x01(\tR\x06reason\x12\x16\n" +
 	"\x06source\x18\a \x01(\tR\x06source\x12L\n" +
 	"\x11calibration_loads\x18\b \x03(\v2\x1f.workoutapp.v1.CalibrationLoadsR\x10calibrationLoads\x12#\n" +
-	"\rreason_source\x18\t \x01(\tR\freasonSource\"\xd0\x01\n" +
+	"\rreason_source\x18\t \x01(\tR\freasonSource\x129\n" +
+	"\boverride\x18\n" +
+	" \x01(\v2\x1d.workoutapp.v1.TargetOverrideR\boverride\"\xa0\x02\n" +
+	"\x0eTargetOverride\x12D\n" +
+	"\x10calibration_sets\x18\x01 \x03(\v2\x19.workoutapp.v1.PlannedSetR\x0fcalibrationSets\x12<\n" +
+	"\fworking_sets\x18\x02 \x03(\v2\x19.workoutapp.v1.PlannedSetR\vworkingSets\x12\x16\n" +
+	"\x06reason\x18\x03 \x01(\tR\x06reason\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x04 \x01(\tR\tcreatedAt\x12S\n" +
+	"\x18recommended_working_sets\x18\x05 \x03(\v2\x19.workoutapp.v1.PlannedSetR\x16recommendedWorkingSets\"\xd0\x01\n" +
 	"\x10CalibrationLoads\x12&\n" +
 	"\x0fweight_tenth_lb\x18\x01 \x01(\x05R\rweightTenthLb\x12\"\n" +
 	"\rdown_tenth_lb\x18\x02 \x01(\x05R\vdownTenthLb\x12\"\n" +
@@ -1252,8 +1581,9 @@ const file_workoutapp_v1_plan_service_proto_rawDesc = "" +
 	"\x04step\x18\x01 \x01(\tR\x04step\x12\x18\n" +
 	"\aattempt\x18\x02 \x01(\x05R\aattempt\x12!\n" +
 	"\fmax_attempts\x18\x03 \x01(\x05R\vmaxAttempts\x12'\n" +
-	"\x0fprevious_status\x18\x04 \x01(\tR\x0epreviousStatus\"\x10\n" +
-	"\x0eGetPlanRequest\"t\n" +
+	"\x0fprevious_status\x18\x04 \x01(\tR\x0epreviousStatus\"&\n" +
+	"\x0eGetPlanRequest\x12\x14\n" +
+	"\x05today\x18\x01 \x01(\tR\x05today\"t\n" +
 	"\x0fGetPlanResponse\x12'\n" +
 	"\x04plan\x18\x01 \x01(\v2\x13.workoutapp.v1.PlanR\x04plan\x128\n" +
 	"\n" +
@@ -1273,9 +1603,25 @@ const file_workoutapp_v1_plan_service_proto_rawDesc = "" +
 	"\x17ExcludeExerciseResponse\x129\n" +
 	"\bprogress\x18\x01 \x01(\v2\x1b.workoutapp.v1.PlanProgressH\x00R\bprogress\x12)\n" +
 	"\x04plan\x18\x02 \x01(\v2\x13.workoutapp.v1.PlanH\x00R\x04planB\a\n" +
-	"\x05event2\x99\x02\n" +
+	"\x05event\"\xa4\x01\n" +
+	"\x15OverrideTargetRequest\x12\x14\n" +
+	"\x05today\x18\x01 \x01(\tR\x05today\x12\x1f\n" +
+	"\vexercise_id\x18\x02 \x01(\tR\n" +
+	"exerciseId\x12<\n" +
+	"\fworking_sets\x18\x03 \x03(\v2\x19.workoutapp.v1.PlannedSetR\vworkingSets\x12\x16\n" +
+	"\x06reason\x18\x04 \x01(\tR\x06reason\"A\n" +
+	"\x16OverrideTargetResponse\x12'\n" +
+	"\x04plan\x18\x01 \x01(\v2\x13.workoutapp.v1.PlanR\x04plan\"N\n" +
+	"\x15RemoveOverrideRequest\x12\x14\n" +
+	"\x05today\x18\x01 \x01(\tR\x05today\x12\x1f\n" +
+	"\vexercise_id\x18\x02 \x01(\tR\n" +
+	"exerciseId\"A\n" +
+	"\x16RemoveOverrideResponse\x12'\n" +
+	"\x04plan\x18\x01 \x01(\v2\x13.workoutapp.v1.PlanR\x04plan2\xdb\x03\n" +
 	"\vPlanService\x12J\n" +
-	"\aGetPlan\x12\x1d.workoutapp.v1.GetPlanRequest\x1a\x1e.workoutapp.v1.GetPlanResponse\"\x00\x12X\n" +
+	"\aGetPlan\x12\x1d.workoutapp.v1.GetPlanRequest\x1a\x1e.workoutapp.v1.GetPlanResponse\"\x00\x12_\n" +
+	"\x0eOverrideTarget\x12$.workoutapp.v1.OverrideTargetRequest\x1a%.workoutapp.v1.OverrideTargetResponse\"\x00\x12_\n" +
+	"\x0eRemoveOverride\x12$.workoutapp.v1.RemoveOverrideRequest\x1a%.workoutapp.v1.RemoveOverrideResponse\"\x00\x12X\n" +
 	"\vRequestPlan\x12!.workoutapp.v1.RequestPlanRequest\x1a\".workoutapp.v1.RequestPlanResponse\"\x000\x01\x12d\n" +
 	"\x0fExcludeExercise\x12%.workoutapp.v1.ExcludeExerciseRequest\x1a&.workoutapp.v1.ExcludeExerciseResponse\"\x000\x01BCZAgithub.com/nkramber/workout-app/go/gen/workoutapp/v1;workoutappv1b\x06proto3"
 
@@ -1291,24 +1637,29 @@ func file_workoutapp_v1_plan_service_proto_rawDescGZIP() []byte {
 	return file_workoutapp_v1_plan_service_proto_rawDescData
 }
 
-var file_workoutapp_v1_plan_service_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_workoutapp_v1_plan_service_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
 var file_workoutapp_v1_plan_service_proto_goTypes = []any{
 	(*Plan)(nil),                    // 0: workoutapp.v1.Plan
 	(*PlanRevision)(nil),            // 1: workoutapp.v1.PlanRevision
 	(*PlanSession)(nil),             // 2: workoutapp.v1.PlanSession
 	(*GuidanceItem)(nil),            // 3: workoutapp.v1.GuidanceItem
 	(*PlannedExercise)(nil),         // 4: workoutapp.v1.PlannedExercise
-	(*CalibrationLoads)(nil),        // 5: workoutapp.v1.CalibrationLoads
-	(*PlannedSet)(nil),              // 6: workoutapp.v1.PlannedSet
-	(*PlannedCardio)(nil),           // 7: workoutapp.v1.PlannedCardio
-	(*Exclusion)(nil),               // 8: workoutapp.v1.Exclusion
-	(*PlanProgress)(nil),            // 9: workoutapp.v1.PlanProgress
-	(*GetPlanRequest)(nil),          // 10: workoutapp.v1.GetPlanRequest
-	(*GetPlanResponse)(nil),         // 11: workoutapp.v1.GetPlanResponse
-	(*RequestPlanResponse)(nil),     // 12: workoutapp.v1.RequestPlanResponse
-	(*RequestPlanRequest)(nil),      // 13: workoutapp.v1.RequestPlanRequest
-	(*ExcludeExerciseRequest)(nil),  // 14: workoutapp.v1.ExcludeExerciseRequest
-	(*ExcludeExerciseResponse)(nil), // 15: workoutapp.v1.ExcludeExerciseResponse
+	(*TargetOverride)(nil),          // 5: workoutapp.v1.TargetOverride
+	(*CalibrationLoads)(nil),        // 6: workoutapp.v1.CalibrationLoads
+	(*PlannedSet)(nil),              // 7: workoutapp.v1.PlannedSet
+	(*PlannedCardio)(nil),           // 8: workoutapp.v1.PlannedCardio
+	(*Exclusion)(nil),               // 9: workoutapp.v1.Exclusion
+	(*PlanProgress)(nil),            // 10: workoutapp.v1.PlanProgress
+	(*GetPlanRequest)(nil),          // 11: workoutapp.v1.GetPlanRequest
+	(*GetPlanResponse)(nil),         // 12: workoutapp.v1.GetPlanResponse
+	(*RequestPlanResponse)(nil),     // 13: workoutapp.v1.RequestPlanResponse
+	(*RequestPlanRequest)(nil),      // 14: workoutapp.v1.RequestPlanRequest
+	(*ExcludeExerciseRequest)(nil),  // 15: workoutapp.v1.ExcludeExerciseRequest
+	(*ExcludeExerciseResponse)(nil), // 16: workoutapp.v1.ExcludeExerciseResponse
+	(*OverrideTargetRequest)(nil),   // 17: workoutapp.v1.OverrideTargetRequest
+	(*OverrideTargetResponse)(nil),  // 18: workoutapp.v1.OverrideTargetResponse
+	(*RemoveOverrideRequest)(nil),   // 19: workoutapp.v1.RemoveOverrideRequest
+	(*RemoveOverrideResponse)(nil),  // 20: workoutapp.v1.RemoveOverrideResponse
 }
 var file_workoutapp_v1_plan_service_proto_depIdxs = []int32{
 	2,  // 0: workoutapp.v1.Plan.sessions:type_name -> workoutapp.v1.PlanSession
@@ -1316,28 +1667,39 @@ var file_workoutapp_v1_plan_service_proto_depIdxs = []int32{
 	1,  // 2: workoutapp.v1.Plan.last_revision:type_name -> workoutapp.v1.PlanRevision
 	3,  // 3: workoutapp.v1.PlanSession.warm_up:type_name -> workoutapp.v1.GuidanceItem
 	4,  // 4: workoutapp.v1.PlanSession.exercises:type_name -> workoutapp.v1.PlannedExercise
-	7,  // 5: workoutapp.v1.PlanSession.cardio:type_name -> workoutapp.v1.PlannedCardio
+	8,  // 5: workoutapp.v1.PlanSession.cardio:type_name -> workoutapp.v1.PlannedCardio
 	3,  // 6: workoutapp.v1.PlanSession.cool_down:type_name -> workoutapp.v1.GuidanceItem
-	6,  // 7: workoutapp.v1.PlannedExercise.calibration_sets:type_name -> workoutapp.v1.PlannedSet
-	6,  // 8: workoutapp.v1.PlannedExercise.working_sets:type_name -> workoutapp.v1.PlannedSet
-	5,  // 9: workoutapp.v1.PlannedExercise.calibration_loads:type_name -> workoutapp.v1.CalibrationLoads
-	0,  // 10: workoutapp.v1.GetPlanResponse.plan:type_name -> workoutapp.v1.Plan
-	8,  // 11: workoutapp.v1.GetPlanResponse.exclusions:type_name -> workoutapp.v1.Exclusion
-	9,  // 12: workoutapp.v1.RequestPlanResponse.progress:type_name -> workoutapp.v1.PlanProgress
-	0,  // 13: workoutapp.v1.RequestPlanResponse.plan:type_name -> workoutapp.v1.Plan
-	9,  // 14: workoutapp.v1.ExcludeExerciseResponse.progress:type_name -> workoutapp.v1.PlanProgress
-	0,  // 15: workoutapp.v1.ExcludeExerciseResponse.plan:type_name -> workoutapp.v1.Plan
-	10, // 16: workoutapp.v1.PlanService.GetPlan:input_type -> workoutapp.v1.GetPlanRequest
-	13, // 17: workoutapp.v1.PlanService.RequestPlan:input_type -> workoutapp.v1.RequestPlanRequest
-	14, // 18: workoutapp.v1.PlanService.ExcludeExercise:input_type -> workoutapp.v1.ExcludeExerciseRequest
-	11, // 19: workoutapp.v1.PlanService.GetPlan:output_type -> workoutapp.v1.GetPlanResponse
-	12, // 20: workoutapp.v1.PlanService.RequestPlan:output_type -> workoutapp.v1.RequestPlanResponse
-	15, // 21: workoutapp.v1.PlanService.ExcludeExercise:output_type -> workoutapp.v1.ExcludeExerciseResponse
-	19, // [19:22] is the sub-list for method output_type
-	16, // [16:19] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	7,  // 7: workoutapp.v1.PlannedExercise.calibration_sets:type_name -> workoutapp.v1.PlannedSet
+	7,  // 8: workoutapp.v1.PlannedExercise.working_sets:type_name -> workoutapp.v1.PlannedSet
+	6,  // 9: workoutapp.v1.PlannedExercise.calibration_loads:type_name -> workoutapp.v1.CalibrationLoads
+	5,  // 10: workoutapp.v1.PlannedExercise.override:type_name -> workoutapp.v1.TargetOverride
+	7,  // 11: workoutapp.v1.TargetOverride.calibration_sets:type_name -> workoutapp.v1.PlannedSet
+	7,  // 12: workoutapp.v1.TargetOverride.working_sets:type_name -> workoutapp.v1.PlannedSet
+	7,  // 13: workoutapp.v1.TargetOverride.recommended_working_sets:type_name -> workoutapp.v1.PlannedSet
+	0,  // 14: workoutapp.v1.GetPlanResponse.plan:type_name -> workoutapp.v1.Plan
+	9,  // 15: workoutapp.v1.GetPlanResponse.exclusions:type_name -> workoutapp.v1.Exclusion
+	10, // 16: workoutapp.v1.RequestPlanResponse.progress:type_name -> workoutapp.v1.PlanProgress
+	0,  // 17: workoutapp.v1.RequestPlanResponse.plan:type_name -> workoutapp.v1.Plan
+	10, // 18: workoutapp.v1.ExcludeExerciseResponse.progress:type_name -> workoutapp.v1.PlanProgress
+	0,  // 19: workoutapp.v1.ExcludeExerciseResponse.plan:type_name -> workoutapp.v1.Plan
+	7,  // 20: workoutapp.v1.OverrideTargetRequest.working_sets:type_name -> workoutapp.v1.PlannedSet
+	0,  // 21: workoutapp.v1.OverrideTargetResponse.plan:type_name -> workoutapp.v1.Plan
+	0,  // 22: workoutapp.v1.RemoveOverrideResponse.plan:type_name -> workoutapp.v1.Plan
+	11, // 23: workoutapp.v1.PlanService.GetPlan:input_type -> workoutapp.v1.GetPlanRequest
+	17, // 24: workoutapp.v1.PlanService.OverrideTarget:input_type -> workoutapp.v1.OverrideTargetRequest
+	19, // 25: workoutapp.v1.PlanService.RemoveOverride:input_type -> workoutapp.v1.RemoveOverrideRequest
+	14, // 26: workoutapp.v1.PlanService.RequestPlan:input_type -> workoutapp.v1.RequestPlanRequest
+	15, // 27: workoutapp.v1.PlanService.ExcludeExercise:input_type -> workoutapp.v1.ExcludeExerciseRequest
+	12, // 28: workoutapp.v1.PlanService.GetPlan:output_type -> workoutapp.v1.GetPlanResponse
+	18, // 29: workoutapp.v1.PlanService.OverrideTarget:output_type -> workoutapp.v1.OverrideTargetResponse
+	20, // 30: workoutapp.v1.PlanService.RemoveOverride:output_type -> workoutapp.v1.RemoveOverrideResponse
+	13, // 31: workoutapp.v1.PlanService.RequestPlan:output_type -> workoutapp.v1.RequestPlanResponse
+	16, // 32: workoutapp.v1.PlanService.ExcludeExercise:output_type -> workoutapp.v1.ExcludeExerciseResponse
+	28, // [28:33] is the sub-list for method output_type
+	23, // [23:28] is the sub-list for method input_type
+	23, // [23:23] is the sub-list for extension type_name
+	23, // [23:23] is the sub-list for extension extendee
+	0,  // [0:23] is the sub-list for field type_name
 }
 
 func init() { file_workoutapp_v1_plan_service_proto_init() }
@@ -1345,11 +1707,11 @@ func file_workoutapp_v1_plan_service_proto_init() {
 	if File_workoutapp_v1_plan_service_proto != nil {
 		return
 	}
-	file_workoutapp_v1_plan_service_proto_msgTypes[12].OneofWrappers = []any{
+	file_workoutapp_v1_plan_service_proto_msgTypes[13].OneofWrappers = []any{
 		(*RequestPlanResponse_Progress)(nil),
 		(*RequestPlanResponse_Plan)(nil),
 	}
-	file_workoutapp_v1_plan_service_proto_msgTypes[15].OneofWrappers = []any{
+	file_workoutapp_v1_plan_service_proto_msgTypes[16].OneofWrappers = []any{
 		(*ExcludeExerciseResponse_Progress)(nil),
 		(*ExcludeExerciseResponse_Plan)(nil),
 	}
@@ -1359,7 +1721,7 @@ func file_workoutapp_v1_plan_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_workoutapp_v1_plan_service_proto_rawDesc), len(file_workoutapp_v1_plan_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   16,
+			NumMessages:   21,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

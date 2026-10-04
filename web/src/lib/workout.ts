@@ -125,6 +125,8 @@ function headerPayload(w: WorkoutRecord): unknown {
         restSeconds: e.restSeconds,
         calibrationSets: sets(e.calibrationSets),
         workingSets: sets(e.workingSets),
+        recommendedWorkingSets: e.override ? sets(e.override.recommendedWorkingSets) : [],
+        overrideReason: e.override?.reason ?? "",
       })),
     }),
   );
@@ -195,20 +197,23 @@ export function nextSession(count: number, done: readonly number[]): number {
 // workoutExercises copies the exercises of a plan session, with the
 // weights of each machine (D-264). An exercise with no known weights gets
 // the loads of its targets, so its buttons still step between real
-// targets.
+// targets. An exercise with an override of the owner gets the sets of the
+// override, and keeps the recommendation and the reason (D-69, D-293).
 export function workoutExercises(plan: Plan, sessionIndex: number, weights: (exerciseId: string) => number[]): WorkoutExercise[] {
   const session = plan.sessions[sessionIndex];
   if (!session) throw new RangeError(`the plan has no session ${sessionIndex}`);
   return session.exercises.map((e) => {
     const sets = (list: typeof e.workingSets): TargetSet[] =>
       list.map((s) => ({ reps: s.reps, loadTenthLb: s.loadTenthLb, rirTarget: s.rirTarget }));
-    const calibrationSets = sets(e.calibrationSets);
-    const workingSets = sets(e.workingSets);
+    const o = e.override;
+    const calibrationSets = sets(o ? o.calibrationSets : e.calibrationSets);
+    const workingSets = sets(o ? o.workingSets : e.workingSets);
     let list = [...new Set(weights(e.exerciseId))].filter((w) => w > 0).sort((a, b) => a - b);
     if (list.length === 0) {
       list = [...new Set([...calibrationSets, ...workingSets].map((s) => s.loadTenthLb))].sort((a, b) => a - b);
     }
     const out: WorkoutExercise = { exerciseId: e.exerciseId, name: e.name, restSeconds: e.restSeconds, calibrationSets, workingSets, weights: list };
+    if (o) out.override = { reason: o.reason, recommendedWorkingSets: sets(e.workingSets) };
     if (calibrationSets.length > 0 && e.calibrationLoads.length > 0) {
       out.calibrationLoads = e.calibrationLoads.map((c) => ({
         weight: c.weightTenthLb,

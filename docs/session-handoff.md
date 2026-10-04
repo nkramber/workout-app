@@ -4,25 +4,27 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-04. Roadmap PR-35 of `docs/roadmaps/phase-7-adaptation-loop.md`, on branch `feat/pr-35-revision`, from base `96e2b1e`. The worktree is `/Volumes/SSD-1TB/workout-app-pr-35`.
+Date: 2026-10-04. Roadmap PR-36 of `docs/roadmaps/phase-7-adaptation-loop.md`, on branch `feat/pr-36-overrides-disruptions`, from base `d8f766e`. The worktree is `/Volumes/SSD-1TB/workout-app-pr-36`. The draft body is `.local/pr-body.md`. The script `.local/emu.sh` runs one Go emulator test.
 
-PR-34 changed only `docs/`, so its merge deployed nothing, and the session read no deploy.
+The deploys of `d8f766e` passed: `deploy-api` `c3c4d9ed` and `deploy-web` `bd757c99`. The live `/version` and `/version.json` name `d8f766e`, and the revision `api-00019-s78` has all traffic.
 
-The owner approved the milestone (D-12), and answered Q-302 to Q-304 (D-290 to D-292).
+The owner approved one live revision (D-212), approved the milestone (D-12), and answered Q-305 to Q-307 (D-293 to D-295). The owner did not finish the live workout yet. The session reads the reviser call and the revised plan with ids and counts alone when it comes.
 
-The pull request holds:
+Finished, not committed:
 
-- the target copy `SeenTarget` in the workout header, kept by the store (D-291),
-- the revision of the plan in `SyncOutbox` after each finished workout, in `go/internal/revise` (D-290, D-292),
-- the reviser of the reason alone, with `luna-prompt-v6`, the schema `luna_reason_v1`, the check of each reason, and a time limit of 45 s (D-288),
-- the screen "Workout done" with the next targets and their reasons, and the target copy in the header of the phone,
-- the emulator test of scenarios A to F through `SyncOutbox`, unit tests, and a browser test.
+- the policy version 6, with the rule of a missed session, the reactive deload, the override check, and the golden files (D-293 to D-295),
+- the deload dates in the revision, and `ForDate` of `go/internal/revise`, the targets on the date of the next session,
+- the override in the plan, in the workout log, in the contract, and in `PlanService`,
+- `TestDisruptionAcceptanceStory`, which passed,
+- the client: the date in each plan read, the override form of the plan screen, and the override in the workout.
 
-`make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. An early version marked the cached plan as stale after each sync. That raced the plan request, and 5 to 6 Chromium tests failed in 2 of 2 runs. The mark now follows a new revision alone, and 2 of 2 runs passed.
+Open work:
 
-The Codex review found P2-1 at `a5451328baf687ec3ea13b8c5356cad7b96c6e24`. The author fixed it at `f457b47ebe9657cbd2514e816ce89d4722e30120`. The round 2 verdict is Ready for owner merge, with no open findings.
+- the unit tests of the client, a browser test of the override, and the Go unit tests of `ForDate` and of `PlanService`,
+- the full checks, the documents, the commit, and the pull request,
+- the Codex review, the owner confirmation, and the merge.
 
-The state is pending the owner merge. Next action: ask the owner to confirm the merge (D-13).
+Next action: write the client unit tests and the browser test, then run `make web`.
 
 ## Facts that expire
 

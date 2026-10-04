@@ -6,6 +6,8 @@ package plansvc
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 	"time"
 
 	"connectrpc.com/connect"
@@ -15,20 +17,31 @@ import (
 	"github.com/nkramber/workout-app/go/internal/ai"
 	"github.com/nkramber/workout-app/go/internal/auth"
 	"github.com/nkramber/workout-app/go/internal/domain"
+	"github.com/nkramber/workout-app/go/internal/inventory"
 	"github.com/nkramber/workout-app/go/internal/plan"
+	"github.com/nkramber/workout-app/go/internal/policy"
 )
 
 // Server implements workoutappv1connect.PlanServiceHandler.
 type Server struct {
 	maker   *plan.Maker
+	dated   Dated
 	catalog domain.Catalog
+}
+
+// Dated gives a plan with the targets of the rules on a date, the date
+// of the next session. "go/internal/revise" implements it.
+type Dated interface {
+	ForDate(ctx context.Context, uid string, p plan.Plan, today string) (plan.Plan, error)
 }
 
 var _ workoutappv1connect.PlanServiceHandler = (*Server)(nil)
 
 // New gives a server over the maker, with the product catalog (D-155).
-func New(m *plan.Maker) *Server {
-	return &Server{maker: m, catalog: domain.DefaultCatalog()}
+// Dated gives the targets on a date. A nil Dated gives the targets that
+// the plan holds.
+func New(m *plan.Maker, d Dated) *Server {
+	return &Server{maker: m, dated: d, catalog: domain.DefaultCatalog()}
 }
 
 func uid(ctx context.Context) (string, error) {
@@ -47,13 +60,13 @@ func fail(err error) error {
 	switch {
 	case errors.Is(err, domain.ErrInvalid):
 		return connect.NewError(connect.CodeInvalidArgument, err)
-	case errors.Is(err, plan.ErrNoProfile), errors.Is(err, plan.ErrNothingToPlan):
+	case errors.Is(err, plan.ErrNoProfile), errors.Is(err, plan.ErrNothingToPlan), errors.Is(err, errNoPlan), errors.Is(err, errNoExercise):
 		return connect.NewError(connect.CodeFailedPrecondition, err)
 	case errors.Is(err, plan.ErrCapped):
 		return connect.NewError(connect.CodeResourceExhausted, err)
 	case errors.Is(err, plan.ErrNoValidPlan):
 		return connect.NewError(connect.CodeUnavailable, err)
-	case errors.Is(err, plan.ErrConflict):
+	case errors.Is(err, plan.ErrConflict), errors.Is(err, plan.ErrPlanReplaced):
 		return connect.NewError(connect.CodeAborted, err)
 	case errors.Is(err, context.Canceled):
 		return connect.NewError(connect.CodeCanceled, errors.New("the request ended"))
@@ -63,15 +76,27 @@ func fail(err error) error {
 	return connect.NewError(connect.CodeInternal, errors.New("the plan request failed"))
 }
 
-// GetPlan gives the plan and the exclusions of the caller.
-func (s *Server) GetPlan(ctx context.Context, _ *connect.Request[workoutappv1.GetPlanRequest]) (*connect.Response[workoutappv1.GetPlanResponse], error) {
+// GetPlan gives the plan and the exclusions of the caller. With a date,
+// each target is the target on that date.
+func (s *Server) GetPlan(ctx context.Context, req *connect.Request[workoutappv1.GetPlanRequest]) (*connect.Response[workoutappv1.GetPlanResponse], error) {
 	id, err := uid(ctx)
 	if err != nil {
 		return nil, err
 	}
+	today := req.Msg.GetToday()
+	if today != "" {
+		if err := s.maker.CheckToday(today); err != nil {
+			return nil, fail(err)
+		}
+	}
 	p, ok, err := s.maker.Plans.Get(ctx, id)
 	if err != nil {
 		return nil, fail(err)
+	}
+	if ok {
+		if p, err = s.onDate(ctx, id, p, today); err != nil {
+			return nil, fail(err)
+		}
 	}
 	ex, err := s.maker.Plans.Exclusions(ctx, id)
 	if err != nil {
@@ -85,6 +110,154 @@ func (s *Server) GetPlan(ctx context.Context, _ *connect.Request[workoutappv1.Ge
 		out.Exclusions = append(out.Exclusions, &workoutappv1.Exclusion{ExerciseId: string(e.Exercise), Name: s.name(e.Exercise), Reason: e.Reason})
 	}
 	return connect.NewResponse(out), nil
+}
+
+// onDate gives the plan with the targets on a date, or the plan as it is
+// for no date or no Dated.
+func (s *Server) onDate(ctx context.Context, uid string, p plan.Plan, today string) (plan.Plan, error) {
+	if today == "" || s.dated == nil {
+		return p, nil
+	}
+	return s.dated.ForDate(ctx, uid, p, today)
+}
+
+func (s *Server) now() time.Time {
+	if s.maker.Now == nil {
+		return time.Now()
+	}
+	return s.maker.Now()
+}
+
+// errNoPlan is an override for a caller with no plan.
+var errNoPlan = errors.New("plan: request a plan first")
+
+// errNoExercise is an override of an exercise that no session of the
+// plan holds.
+var errNoExercise = errors.New("plan: no session of the plan holds the exercise")
+
+// OverrideTarget saves an override of the owner (D-69, D-293). The
+// recommendation is the target on the date of the request. The policy
+// checks the override before the save (D-23).
+func (s *Server) OverrideTarget(ctx context.Context, req *connect.Request[workoutappv1.OverrideTargetRequest]) (*connect.Response[workoutappv1.OverrideTargetResponse], error) {
+	id, err := uid(ctx)
+	if err != nil {
+		return nil, err
+	}
+	m := req.Msg
+	reason, err := plan.OverrideReason(m.GetReason())
+	if err != nil {
+		return nil, fail(err)
+	}
+	p, err := s.change(ctx, id, m.GetToday(), domain.ExerciseID(m.GetExerciseId()), func(rec domain.PlannedExercise, in policy.Input) (*plan.Override, error) {
+		o := domain.PlannedExercise{Exercise: rec.Exercise, RestSeconds: rec.RestSeconds}
+		for i, w := range m.GetWorkingSets() {
+			rir := 0
+			if i < len(rec.Working) {
+				rir = rec.Working[i].RIR
+			}
+			o.Working = append(o.Working, domain.WorkingSet{Reps: int(w.GetReps()), Load: domain.Load(w.GetLoadTenthLb()), RIR: rir})
+		}
+		if len(rec.Calibration) > 0 && len(o.Working) > 0 {
+			o.Calibration = []domain.CalibrationSet{{Reps: o.Working[0].Reps, Load: o.Working[0].Load}}
+		}
+		v, err := policy.CheckOverride(o, rec, in)
+		if err != nil {
+			return nil, err
+		}
+		if len(v) > 0 {
+			parts := make([]string, len(v))
+			for i, x := range v {
+				parts[i] = x.String()
+			}
+			return nil, fmt.Errorf("%w: override: %s", domain.ErrInvalid, strings.Join(parts, "; "))
+		}
+		return &plan.Override{Target: o, Recommendation: rec, Reason: reason, At: s.now().UTC()}, nil
+	})
+	if err != nil {
+		return nil, fail(err)
+	}
+	return connect.NewResponse(&workoutappv1.OverrideTargetResponse{Plan: s.toProto(p)}), nil
+}
+
+// RemoveOverride removes the override of an exercise.
+func (s *Server) RemoveOverride(ctx context.Context, req *connect.Request[workoutappv1.RemoveOverrideRequest]) (*connect.Response[workoutappv1.RemoveOverrideResponse], error) {
+	id, err := uid(ctx)
+	if err != nil {
+		return nil, err
+	}
+	m := req.Msg
+	p, err := s.change(ctx, id, m.GetToday(), domain.ExerciseID(m.GetExerciseId()), func(domain.PlannedExercise, policy.Input) (*plan.Override, error) {
+		return nil, nil
+	})
+	if err != nil {
+		return nil, fail(err)
+	}
+	return connect.NewResponse(&workoutappv1.RemoveOverrideResponse{Plan: s.toProto(p)}), nil
+}
+
+// change saves the override that f gives for an exercise, in one
+// transaction with the read of the plan, and gives the plan on the date.
+// f gets the recommendation on the date and the policy input of the
+// exercise. A nil override removes the override.
+func (s *Server) change(ctx context.Context, uid, today string, ex domain.ExerciseID, f func(domain.PlannedExercise, policy.Input) (*plan.Override, error)) (plan.Plan, error) {
+	if err := s.maker.CheckToday(today); err != nil {
+		return plan.Plan{}, err
+	}
+	e, ok := s.catalog.Exercise(ex)
+	if !ok || e.Kind == domain.KindCardio {
+		return plan.Plan{}, fmt.Errorf("%w: override: the exercise is not a resistance exercise of the catalog", domain.ErrInvalid)
+	}
+	p, ok, err := s.maker.Plans.Get(ctx, uid)
+	if err != nil {
+		return plan.Plan{}, err
+	}
+	if !ok {
+		return plan.Plan{}, errNoPlan
+	}
+	dated, err := s.onDate(ctx, uid, p, today)
+	if err != nil {
+		return plan.Plan{}, err
+	}
+	rec, ok := target(dated, ex)
+	if !ok {
+		return plan.Plan{}, errNoExercise
+	}
+	inv, err := s.maker.Inventory.Get(ctx, uid)
+	if err != nil {
+		return plan.Plan{}, err
+	}
+	entry, ok := inventory.ForPlan(inv).Inventory.Entry(e.Machine)
+	if !ok {
+		return plan.Plan{}, fmt.Errorf("%w: override: the machine of the exercise is not confirmed", domain.ErrInvalid)
+	}
+	o, err := f(rec, policy.Input{Exercise: e, Entry: entry})
+	if err != nil {
+		return plan.Plan{}, err
+	}
+	err = s.maker.Plans.Update(ctx, uid, p.CreatedAt, func(q *plan.Plan) error {
+		if !q.SetOverride(ex, o) {
+			return errNoExercise
+		}
+		return nil
+	})
+	if err != nil {
+		return plan.Plan{}, err
+	}
+	dated.SetOverride(ex, o)
+	return dated, nil
+}
+
+// target gives the target of an exercise in the first session that
+// holds it.
+func target(p plan.Plan, id domain.ExerciseID) (domain.PlannedExercise, bool) {
+	for _, s := range p.Sessions {
+		for _, e := range s.Exercises {
+			if e.Target.Exercise == id {
+				return e.Target, true
+			}
+		}
+	}
+	return domain.PlannedExercise{}, false
 }
 
 // RequestPlan makes a new plan, and streams each step and the plan.
@@ -170,6 +343,18 @@ func (s *Server) toProto(p plan.Plan) *workoutappv1.Plan {
 			}
 			for _, w := range t.Working {
 				pe.WorkingSets = append(pe.WorkingSets, &workoutappv1.PlannedSet{Reps: int32(w.Reps), LoadTenthLb: int32(w.Load), RirTarget: int32(w.RIR)})
+			}
+			if o := e.Override; o != nil {
+				pe.Override = &workoutappv1.TargetOverride{Reason: o.Reason, CreatedAt: o.At.UTC().Format(time.RFC3339)}
+				for _, c := range o.Target.Calibration {
+					pe.Override.CalibrationSets = append(pe.Override.CalibrationSets, &workoutappv1.PlannedSet{Reps: int32(c.Reps), LoadTenthLb: int32(c.Load)})
+				}
+				for _, w := range o.Target.Working {
+					pe.Override.WorkingSets = append(pe.Override.WorkingSets, &workoutappv1.PlannedSet{Reps: int32(w.Reps), LoadTenthLb: int32(w.Load), RirTarget: int32(w.RIR)})
+				}
+				for _, w := range o.Recommendation.Working {
+					pe.Override.RecommendedWorkingSets = append(pe.Override.RecommendedWorkingSets, &workoutappv1.PlannedSet{Reps: int32(w.Reps), LoadTenthLb: int32(w.Load), RirTarget: int32(w.RIR)})
+				}
 			}
 			for _, c := range e.Calibration {
 				pe.CalibrationLoads = append(pe.CalibrationLoads, &workoutappv1.CalibrationLoads{

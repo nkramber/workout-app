@@ -2,8 +2,10 @@ import { Code, ConnectError } from "@connectrpc/connect";
 
 import type { PlanProgress, PlannedSet } from "../gen/workoutapp/v1/plan_service_pb";
 import { isNoConnection } from "./errors";
-import { formatPounds } from "./inventory";
+import { formatPounds, parsePounds } from "./inventory";
 import { InventoryNotSyncedError } from "./sync";
+
+export { localDate, planRequest } from "./today";
 
 // The texts and the formats of the plan screen (work area 5.2). The owner
 // chose the text of each progress step (D-239) and of each error (D-240).
@@ -96,13 +98,6 @@ function baseText(err: unknown, sawProgress: boolean, isOnline: boolean | undefi
   }
 }
 
-// localDate gives the local date of the owner as YYYY-MM-DD, the "today"
-// of a plan request.
-export function localDate(now = new Date()): string {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-}
-
 // setText gives one target set. A calibration set has no RIR target
 // (D-150).
 export function setText(s: Pick<PlannedSet, "reps" | "loadTenthLb" | "rirTarget">, calibration: boolean): string {
@@ -117,4 +112,44 @@ export function restText(seconds: number): string {
   const min = Math.floor(seconds / 60);
   const s = seconds % 60;
   return s === 0 ? `${min} min` : `${min} min ${s} s`;
+}
+
+// overrideErrorText gives the text of a failed change of an override
+// (D-293). With no connection, nothing is saved: an override needs the
+// policy check of the server (D-23).
+export function overrideErrorText(err: unknown, isOnline?: boolean): string {
+  if (isNoConnection(err, isOnline)) return "No connection. The change is not saved. Try again when the phone is online.";
+  switch (ConnectError.from(err).code) {
+    case Code.InvalidArgument:
+      return "The policy did not accept the change. Each set needs 6 to 20 reps and a weight of the machine, and the reason can not be empty.";
+    case Code.FailedPrecondition:
+      return "The plan does not hold this exercise now. Read the plan again.";
+    case Code.Aborted:
+      return "A new plan replaced the plan. Read the plan again.";
+    case Code.PermissionDenied:
+      return "This account is not on the allowlist.";
+    case Code.Unauthenticated:
+      return "The API did not accept the sign-in.";
+    case Code.Internal:
+      return "The server failed. The change is not saved.";
+    default:
+      return "The API did not answer. The change is not saved.";
+  }
+}
+
+// OverrideDraft is one working set of an override form, as text.
+export type OverrideDraft = { reps: string; pounds: string };
+
+// overrideSets reads the sets of an override form. It gives null when a
+// set has no whole count of reps or no load in pounds. The server checks
+// the bounds (D-23, D-293).
+export function overrideSets(drafts: readonly OverrideDraft[]): { reps: number; loadTenthLb: number }[] | null {
+  const out: { reps: number; loadTenthLb: number }[] = [];
+  for (const d of drafts) {
+    const reps = /^\d{1,2}$/.test(d.reps.trim()) ? Number(d.reps.trim()) : NaN;
+    const load = parsePounds(d.pounds);
+    if (!Number.isInteger(reps) || reps <= 0 || load === null) return null;
+    out.push({ reps, loadTenthLb: load });
+  }
+  return out;
 }

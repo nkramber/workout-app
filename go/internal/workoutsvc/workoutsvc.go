@@ -231,8 +231,8 @@ func fromProto(in *workoutappv1.OutboxEntry) (workout.Entry, error) {
 			Skipped:    ids(h.GetSkippedExerciseIds()),
 			EndedEarly: h.GetEndedEarly(),
 			Finished:   h.GetFinished(),
-			Targets:    targetsFrom(h.GetTargets()),
 		}
+		e.Header.Targets, e.Header.Overrides = targetsFrom(h.GetTargets())
 	case *workoutappv1.OutboxEntry_Set:
 		s := p.Set
 		e.WorkoutID, e.SetExercise = s.GetWorkoutId(), domain.ExerciseID(s.GetExerciseId())
@@ -262,7 +262,7 @@ func toProto(w workout.Workout) *workoutappv1.Workout {
 		},
 		EndedEarly: w.EndedEarly,
 		Finished:   w.Finished,
-		Targets:    targetsTo(w.Targets),
+		Targets:    targetsTo(w.Targets, w.Overrides),
 	}
 	// Each stored number passed its check, and the contract gave it as
 	// an int32 or an int64, so it fits again.
@@ -286,12 +286,21 @@ func toProto(w workout.Workout) *workoutappv1.Workout {
 	return out
 }
 
-// targetsFrom gives the target copies of the contract (D-291).
-// Header.Check reads each value.
-func targetsFrom(in []*workoutappv1.SeenTarget) []domain.PlannedExercise {
+// targetsFrom gives the target copies of the contract (D-291), and the
+// record of each override among them (D-293). Header.Check reads each
+// value.
+func targetsFrom(in []*workoutappv1.SeenTarget) ([]domain.PlannedExercise, []workout.SeenOverride) {
 	var out []domain.PlannedExercise
+	var overrides []workout.SeenOverride
 	for _, t := range in {
 		p := domain.PlannedExercise{Exercise: domain.ExerciseID(t.GetExerciseId()), RestSeconds: int(t.GetRestSeconds())}
+		if t.GetOverrideReason() != "" || len(t.GetRecommendedWorkingSets()) > 0 {
+			o := workout.SeenOverride{Exercise: p.Exercise, Reason: t.GetOverrideReason()}
+			for _, w := range t.GetRecommendedWorkingSets() {
+				o.Recommended = append(o.Recommended, domain.WorkingSet{Reps: int(w.GetReps()), Load: domain.Load(w.GetLoadTenthLb()), RIR: int(w.GetRirTarget())})
+			}
+			overrides = append(overrides, o)
+		}
 		for _, c := range t.GetCalibrationSets() {
 			p.Calibration = append(p.Calibration, domain.CalibrationSet{Reps: int(c.GetReps()), Load: domain.Load(c.GetLoadTenthLb())})
 		}
@@ -300,15 +309,24 @@ func targetsFrom(in []*workoutappv1.SeenTarget) []domain.PlannedExercise {
 		}
 		out = append(out, p)
 	}
-	return out
+	return out, overrides
 }
 
 // targetsTo gives the target copies in the form of the contract. Each
 // stored value came from an int32 of the contract, so it fits again.
-func targetsTo(in []domain.PlannedExercise) []*workoutappv1.SeenTarget {
+func targetsTo(in []domain.PlannedExercise, overrides []workout.SeenOverride) []*workoutappv1.SeenTarget {
 	var out []*workoutappv1.SeenTarget
 	for _, t := range in {
 		p := &workoutappv1.SeenTarget{ExerciseId: string(t.Exercise), RestSeconds: int32(t.RestSeconds)}
+		for _, o := range overrides {
+			if o.Exercise != t.Exercise {
+				continue
+			}
+			p.OverrideReason = o.Reason
+			for _, w := range o.Recommended {
+				p.RecommendedWorkingSets = append(p.RecommendedWorkingSets, &workoutappv1.PlannedSet{Reps: int32(w.Reps), LoadTenthLb: int32(w.Load), RirTarget: int32(w.RIR)})
+			}
+		}
 		for _, c := range t.Calibration {
 			p.CalibrationSets = append(p.CalibrationSets, &workoutappv1.PlannedSet{Reps: int32(c.Reps), LoadTenthLb: int32(c.Load)})
 		}

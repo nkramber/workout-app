@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file workoutapp/v1/plan_service.proto.
  */
 export const file_workoutapp_v1_plan_service: GenFile = /*@__PURE__*/
-  fileDesc("CiB3b3Jrb3V0YXBwL3YxL3BsYW5fc2VydmljZS5wcm90bxINd29ya291dGFwcC52MSKNAgoEUGxhbhISCgpjcmVhdGVkX2F0GAEgASgJEg0KBXRvZGF5GAIgASgJEg8KB3N1bW1hcnkYAyABKAkSLAoIc2Vzc2lvbnMYBCADKAsyGi53b3Jrb3V0YXBwLnYxLlBsYW5TZXNzaW9uEi0KCGd1aWRhbmNlGAUgAygLMhsud29ya291dGFwcC52MS5HdWlkYW5jZUl0ZW0SFgoOcHJvbXB0X3ZlcnNpb24YBiABKAkSFgoOcG9saWN5X3ZlcnNpb24YByABKAUSEAoIYXR0ZW1wdHMYCCABKAUSMgoNbGFzdF9yZXZpc2lvbhgJIAEoCzIbLndvcmtvdXRhcHAudjEuUGxhblJldmlzaW9uIkwKDFBsYW5SZXZpc2lvbhISCgp3b3Jrb3V0X2lkGAEgASgJEhIKCnJldmlzZWRfYXQYAiABKAkSFAoMZXhlcmNpc2VfaWRzGAMgAygJItsBCgtQbGFuU2Vzc2lvbhINCgV0aXRsZRgBIAEoCRIsCgd3YXJtX3VwGAIgASgLMhsud29ya291dGFwcC52MS5HdWlkYW5jZUl0ZW0SMQoJZXhlcmNpc2VzGAMgAygLMh4ud29ya291dGFwcC52MS5QbGFubmVkRXhlcmNpc2USLAoGY2FyZGlvGAQgASgLMhwud29ya291dGFwcC52MS5QbGFubmVkQ2FyZGlvEi4KCWNvb2xfZG93bhgFIAEoCzIbLndvcmtvdXRhcHAudjEuR3VpZGFuY2VJdGVtIjYKDEd1aWRhbmNlSXRlbRIKCgJpZBgBIAEoCRIMCgRraW5kGAIgASgJEgwKBHRleHQYAyABKAkiowIKD1BsYW5uZWRFeGVyY2lzZRITCgtleGVyY2lzZV9pZBgBIAEoCRIMCgRuYW1lGAIgASgJEhQKDHJlc3Rfc2Vjb25kcxgDIAEoBRIzChBjYWxpYnJhdGlvbl9zZXRzGAQgAygLMhkud29ya291dGFwcC52MS5QbGFubmVkU2V0Ei8KDHdvcmtpbmdfc2V0cxgFIAMoCzIZLndvcmtvdXRhcHAudjEuUGxhbm5lZFNldBIOCgZyZWFzb24YBiABKAkSDgoGc291cmNlGAcgASgJEjoKEWNhbGlicmF0aW9uX2xvYWRzGAggAygLMh8ud29ya291dGFwcC52MS5DYWxpYnJhdGlvbkxvYWRzEhUKDXJlYXNvbl9zb3VyY2UYCSABKAkiiwEKEENhbGlicmF0aW9uTG9hZHMSFwoPd2VpZ2h0X3RlbnRoX2xiGAEgASgFEhUKDWRvd25fdGVudGhfbGIYAiABKAUSFQoNa2VlcF90ZW50aF9sYhgDIAEoBRIXCg91cF9vbmVfdGVudGhfbGIYBCABKAUSFwoPdXBfdHdvX3RlbnRoX2xiGAUgASgFIkUKClBsYW5uZWRTZXQSDAoEcmVwcxgBIAEoBRIVCg1sb2FkX3RlbnRoX2xiGAIgASgFEhIKCnJpcl90YXJnZXQYAyABKAUiQwoNUGxhbm5lZENhcmRpbxITCgtleGVyY2lzZV9pZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB21pbnV0ZXMYAyABKAUiPgoJRXhjbHVzaW9uEhMKC2V4ZXJjaXNlX2lkGAEgASgJEgwKBG5hbWUYAiABKAkSDgoGcmVhc29uGAMgASgJIlwKDFBsYW5Qcm9ncmVzcxIMCgRzdGVwGAEgASgJEg8KB2F0dGVtcHQYAiABKAUSFAoMbWF4X2F0dGVtcHRzGAMgASgFEhcKD3ByZXZpb3VzX3N0YXR1cxgEIAEoCSIQCg5HZXRQbGFuUmVxdWVzdCJiCg9HZXRQbGFuUmVzcG9uc2USIQoEcGxhbhgBIAEoCzITLndvcmtvdXRhcHAudjEuUGxhbhIsCgpleGNsdXNpb25zGAIgAygLMhgud29ya291dGFwcC52MS5FeGNsdXNpb24idAoTUmVxdWVzdFBsYW5SZXNwb25zZRIvCghwcm9ncmVzcxgBIAEoCzIbLndvcmtvdXRhcHAudjEuUGxhblByb2dyZXNzSAASIwoEcGxhbhgCIAEoCzITLndvcmtvdXRhcHAudjEuUGxhbkgAQgcKBWV2ZW50IiMKElJlcXVlc3RQbGFuUmVxdWVzdBINCgV0b2RheRgBIAEoCSJMChZFeGNsdWRlRXhlcmNpc2VSZXF1ZXN0Eg0KBXRvZGF5GAEgASgJEhMKC2V4ZXJjaXNlX2lkGAIgASgJEg4KBnJlYXNvbhgDIAEoCSJ4ChdFeGNsdWRlRXhlcmNpc2VSZXNwb25zZRIvCghwcm9ncmVzcxgBIAEoCzIbLndvcmtvdXRhcHAudjEuUGxhblByb2dyZXNzSAASIwoEcGxhbhgCIAEoCzITLndvcmtvdXRhcHAudjEuUGxhbkgAQgcKBWV2ZW50MpkCCgtQbGFuU2VydmljZRJKCgdHZXRQbGFuEh0ud29ya291dGFwcC52MS5HZXRQbGFuUmVxdWVzdBoeLndvcmtvdXRhcHAudjEuR2V0UGxhblJlc3BvbnNlIgASWAoLUmVxdWVzdFBsYW4SIS53b3Jrb3V0YXBwLnYxLlJlcXVlc3RQbGFuUmVxdWVzdBoiLndvcmtvdXRhcHAudjEuUmVxdWVzdFBsYW5SZXNwb25zZSIAMAESZAoPRXhjbHVkZUV4ZXJjaXNlEiUud29ya291dGFwcC52MS5FeGNsdWRlRXhlcmNpc2VSZXF1ZXN0GiYud29ya291dGFwcC52MS5FeGNsdWRlRXhlcmNpc2VSZXNwb25zZSIAMAFCQ1pBZ2l0aHViLmNvbS9ua3JhbWJlci93b3Jrb3V0LWFwcC9nby9nZW4vd29ya291dGFwcC92MTt3b3Jrb3V0YXBwdjFiBnByb3RvMw");
+  fileDesc("CiB3b3Jrb3V0YXBwL3YxL3BsYW5fc2VydmljZS5wcm90bxINd29ya291dGFwcC52MSKNAgoEUGxhbhISCgpjcmVhdGVkX2F0GAEgASgJEg0KBXRvZGF5GAIgASgJEg8KB3N1bW1hcnkYAyABKAkSLAoIc2Vzc2lvbnMYBCADKAsyGi53b3Jrb3V0YXBwLnYxLlBsYW5TZXNzaW9uEi0KCGd1aWRhbmNlGAUgAygLMhsud29ya291dGFwcC52MS5HdWlkYW5jZUl0ZW0SFgoOcHJvbXB0X3ZlcnNpb24YBiABKAkSFgoOcG9saWN5X3ZlcnNpb24YByABKAUSEAoIYXR0ZW1wdHMYCCABKAUSMgoNbGFzdF9yZXZpc2lvbhgJIAEoCzIbLndvcmtvdXRhcHAudjEuUGxhblJldmlzaW9uIkwKDFBsYW5SZXZpc2lvbhISCgp3b3Jrb3V0X2lkGAEgASgJEhIKCnJldmlzZWRfYXQYAiABKAkSFAoMZXhlcmNpc2VfaWRzGAMgAygJItsBCgtQbGFuU2Vzc2lvbhINCgV0aXRsZRgBIAEoCRIsCgd3YXJtX3VwGAIgASgLMhsud29ya291dGFwcC52MS5HdWlkYW5jZUl0ZW0SMQoJZXhlcmNpc2VzGAMgAygLMh4ud29ya291dGFwcC52MS5QbGFubmVkRXhlcmNpc2USLAoGY2FyZGlvGAQgASgLMhwud29ya291dGFwcC52MS5QbGFubmVkQ2FyZGlvEi4KCWNvb2xfZG93bhgFIAEoCzIbLndvcmtvdXRhcHAudjEuR3VpZGFuY2VJdGVtIjYKDEd1aWRhbmNlSXRlbRIKCgJpZBgBIAEoCRIMCgRraW5kGAIgASgJEgwKBHRleHQYAyABKAki1AIKD1BsYW5uZWRFeGVyY2lzZRITCgtleGVyY2lzZV9pZBgBIAEoCRIMCgRuYW1lGAIgASgJEhQKDHJlc3Rfc2Vjb25kcxgDIAEoBRIzChBjYWxpYnJhdGlvbl9zZXRzGAQgAygLMhkud29ya291dGFwcC52MS5QbGFubmVkU2V0Ei8KDHdvcmtpbmdfc2V0cxgFIAMoCzIZLndvcmtvdXRhcHAudjEuUGxhbm5lZFNldBIOCgZyZWFzb24YBiABKAkSDgoGc291cmNlGAcgASgJEjoKEWNhbGlicmF0aW9uX2xvYWRzGAggAygLMh8ud29ya291dGFwcC52MS5DYWxpYnJhdGlvbkxvYWRzEhUKDXJlYXNvbl9zb3VyY2UYCSABKAkSLwoIb3ZlcnJpZGUYCiABKAsyHS53b3Jrb3V0YXBwLnYxLlRhcmdldE92ZXJyaWRlItcBCg5UYXJnZXRPdmVycmlkZRIzChBjYWxpYnJhdGlvbl9zZXRzGAEgAygLMhkud29ya291dGFwcC52MS5QbGFubmVkU2V0Ei8KDHdvcmtpbmdfc2V0cxgCIAMoCzIZLndvcmtvdXRhcHAudjEuUGxhbm5lZFNldBIOCgZyZWFzb24YAyABKAkSEgoKY3JlYXRlZF9hdBgEIAEoCRI7ChhyZWNvbW1lbmRlZF93b3JraW5nX3NldHMYBSADKAsyGS53b3Jrb3V0YXBwLnYxLlBsYW5uZWRTZXQiiwEKEENhbGlicmF0aW9uTG9hZHMSFwoPd2VpZ2h0X3RlbnRoX2xiGAEgASgFEhUKDWRvd25fdGVudGhfbGIYAiABKAUSFQoNa2VlcF90ZW50aF9sYhgDIAEoBRIXCg91cF9vbmVfdGVudGhfbGIYBCABKAUSFwoPdXBfdHdvX3RlbnRoX2xiGAUgASgFIkUKClBsYW5uZWRTZXQSDAoEcmVwcxgBIAEoBRIVCg1sb2FkX3RlbnRoX2xiGAIgASgFEhIKCnJpcl90YXJnZXQYAyABKAUiQwoNUGxhbm5lZENhcmRpbxITCgtleGVyY2lzZV9pZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB21pbnV0ZXMYAyABKAUiPgoJRXhjbHVzaW9uEhMKC2V4ZXJjaXNlX2lkGAEgASgJEgwKBG5hbWUYAiABKAkSDgoGcmVhc29uGAMgASgJIlwKDFBsYW5Qcm9ncmVzcxIMCgRzdGVwGAEgASgJEg8KB2F0dGVtcHQYAiABKAUSFAoMbWF4X2F0dGVtcHRzGAMgASgFEhcKD3ByZXZpb3VzX3N0YXR1cxgEIAEoCSIfCg5HZXRQbGFuUmVxdWVzdBINCgV0b2RheRgBIAEoCSJiCg9HZXRQbGFuUmVzcG9uc2USIQoEcGxhbhgBIAEoCzITLndvcmtvdXRhcHAudjEuUGxhbhIsCgpleGNsdXNpb25zGAIgAygLMhgud29ya291dGFwcC52MS5FeGNsdXNpb24idAoTUmVxdWVzdFBsYW5SZXNwb25zZRIvCghwcm9ncmVzcxgBIAEoCzIbLndvcmtvdXRhcHAudjEuUGxhblByb2dyZXNzSAASIwoEcGxhbhgCIAEoCzITLndvcmtvdXRhcHAudjEuUGxhbkgAQgcKBWV2ZW50IiMKElJlcXVlc3RQbGFuUmVxdWVzdBINCgV0b2RheRgBIAEoCSJMChZFeGNsdWRlRXhlcmNpc2VSZXF1ZXN0Eg0KBXRvZGF5GAEgASgJEhMKC2V4ZXJjaXNlX2lkGAIgASgJEg4KBnJlYXNvbhgDIAEoCSJ4ChdFeGNsdWRlRXhlcmNpc2VSZXNwb25zZRIvCghwcm9ncmVzcxgBIAEoCzIbLndvcmtvdXRhcHAudjEuUGxhblByb2dyZXNzSAASIwoEcGxhbhgCIAEoCzITLndvcmtvdXRhcHAudjEuUGxhbkgAQgcKBWV2ZW50InwKFU92ZXJyaWRlVGFyZ2V0UmVxdWVzdBINCgV0b2RheRgBIAEoCRITCgtleGVyY2lzZV9pZBgCIAEoCRIvCgx3b3JraW5nX3NldHMYAyADKAsyGS53b3Jrb3V0YXBwLnYxLlBsYW5uZWRTZXQSDgoGcmVhc29uGAQgASgJIjsKFk92ZXJyaWRlVGFyZ2V0UmVzcG9uc2USIQoEcGxhbhgBIAEoCzITLndvcmtvdXRhcHAudjEuUGxhbiI7ChVSZW1vdmVPdmVycmlkZVJlcXVlc3QSDQoFdG9kYXkYASABKAkSEwoLZXhlcmNpc2VfaWQYAiABKAkiOwoWUmVtb3ZlT3ZlcnJpZGVSZXNwb25zZRIhCgRwbGFuGAEgASgLMhMud29ya291dGFwcC52MS5QbGFuMtsDCgtQbGFuU2VydmljZRJKCgdHZXRQbGFuEh0ud29ya291dGFwcC52MS5HZXRQbGFuUmVxdWVzdBoeLndvcmtvdXRhcHAudjEuR2V0UGxhblJlc3BvbnNlIgASXwoOT3ZlcnJpZGVUYXJnZXQSJC53b3Jrb3V0YXBwLnYxLk92ZXJyaWRlVGFyZ2V0UmVxdWVzdBolLndvcmtvdXRhcHAudjEuT3ZlcnJpZGVUYXJnZXRSZXNwb25zZSIAEl8KDlJlbW92ZU92ZXJyaWRlEiQud29ya291dGFwcC52MS5SZW1vdmVPdmVycmlkZVJlcXVlc3QaJS53b3Jrb3V0YXBwLnYxLlJlbW92ZU92ZXJyaWRlUmVzcG9uc2UiABJYCgtSZXF1ZXN0UGxhbhIhLndvcmtvdXRhcHAudjEuUmVxdWVzdFBsYW5SZXF1ZXN0GiIud29ya291dGFwcC52MS5SZXF1ZXN0UGxhblJlc3BvbnNlIgAwARJkCg9FeGNsdWRlRXhlcmNpc2USJS53b3Jrb3V0YXBwLnYxLkV4Y2x1ZGVFeGVyY2lzZVJlcXVlc3QaJi53b3Jrb3V0YXBwLnYxLkV4Y2x1ZGVFeGVyY2lzZVJlc3BvbnNlIgAwAUJDWkFnaXRodWIuY29tL25rcmFtYmVyL3dvcmtvdXQtYXBwL2dvL2dlbi93b3Jrb3V0YXBwL3YxO3dvcmtvdXRhcHB2MWIGcHJvdG8z");
 
 /**
  * Plan is the plan of one week: one session for each training day of the
@@ -270,6 +270,15 @@ export type PlannedExercise = Message<"workoutapp.v1.PlannedExercise"> & {
    * @generated from field: string reason_source = 9;
    */
   reasonSource: string;
+
+  /**
+   * The override of the owner for the next session, or none (D-69, D-293).
+   * The sets above stay the recommendation. The phone shows the override
+   * in the next workout.
+   *
+   * @generated from field: workoutapp.v1.TargetOverride override = 10;
+   */
+  override?: TargetOverride | undefined;
 };
 
 /**
@@ -278,6 +287,52 @@ export type PlannedExercise = Message<"workoutapp.v1.PlannedExercise"> & {
  */
 export const PlannedExerciseSchema: GenMessage<PlannedExercise> = /*@__PURE__*/
   messageDesc(file_workoutapp_v1_plan_service, 4);
+
+/**
+ * TargetOverride is an override of the owner for one exercise (D-69, D-293).
+ * The policy checked its sets (D-23).
+ *
+ * @generated from message workoutapp.v1.TargetOverride
+ */
+export type TargetOverride = Message<"workoutapp.v1.TargetOverride"> & {
+  /**
+   * @generated from field: repeated workoutapp.v1.PlannedSet calibration_sets = 1;
+   */
+  calibrationSets: PlannedSet[];
+
+  /**
+   * @generated from field: repeated workoutapp.v1.PlannedSet working_sets = 2;
+   */
+  workingSets: PlannedSet[];
+
+  /**
+   * The reason of the owner, 1 to 200 characters.
+   *
+   * @generated from field: string reason = 3;
+   */
+  reason: string;
+
+  /**
+   * The time of the save, in RFC 3339 form.
+   *
+   * @generated from field: string created_at = 4;
+   */
+  createdAt: string;
+
+  /**
+   * The recommendation that the override replaced.
+   *
+   * @generated from field: repeated workoutapp.v1.PlannedSet recommended_working_sets = 5;
+   */
+  recommendedWorkingSets: PlannedSet[];
+};
+
+/**
+ * Describes the message workoutapp.v1.TargetOverride.
+ * Use `create(TargetOverrideSchema)` to create a new message.
+ */
+export const TargetOverrideSchema: GenMessage<TargetOverride> = /*@__PURE__*/
+  messageDesc(file_workoutapp_v1_plan_service, 5);
 
 /**
  * CalibrationLoads holds the load of the working sets for each result of one
@@ -327,7 +382,7 @@ export type CalibrationLoads = Message<"workoutapp.v1.CalibrationLoads"> & {
  * Use `create(CalibrationLoadsSchema)` to create a new message.
  */
 export const CalibrationLoadsSchema: GenMessage<CalibrationLoads> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 5);
+  messageDesc(file_workoutapp_v1_plan_service, 6);
 
 /**
  * PlannedSet is one target set. A calibration set has no RIR target, so its
@@ -357,7 +412,7 @@ export type PlannedSet = Message<"workoutapp.v1.PlannedSet"> & {
  * Use `create(PlannedSetSchema)` to create a new message.
  */
 export const PlannedSetSchema: GenMessage<PlannedSet> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 6);
+  messageDesc(file_workoutapp_v1_plan_service, 7);
 
 /**
  * PlannedCardio is the optional cardio of a session, 5 to 30 minutes
@@ -387,7 +442,7 @@ export type PlannedCardio = Message<"workoutapp.v1.PlannedCardio"> & {
  * Use `create(PlannedCardioSchema)` to create a new message.
  */
 export const PlannedCardioSchema: GenMessage<PlannedCardio> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 7);
+  messageDesc(file_workoutapp_v1_plan_service, 8);
 
 /**
  * Exclusion is one excluded exercise (D-48).
@@ -419,7 +474,7 @@ export type Exclusion = Message<"workoutapp.v1.Exclusion"> & {
  * Use `create(ExclusionSchema)` to create a new message.
  */
 export const ExclusionSchema: GenMessage<Exclusion> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 8);
+  messageDesc(file_workoutapp_v1_plan_service, 9);
 
 /**
  * PlanProgress is one step of a request that makes a plan (D-231).
@@ -461,12 +516,19 @@ export type PlanProgress = Message<"workoutapp.v1.PlanProgress"> & {
  * Use `create(PlanProgressSchema)` to create a new message.
  */
 export const PlanProgressSchema: GenMessage<PlanProgress> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 9);
+  messageDesc(file_workoutapp_v1_plan_service, 10);
 
 /**
  * @generated from message workoutapp.v1.GetPlanRequest
  */
 export type GetPlanRequest = Message<"workoutapp.v1.GetPlanRequest"> & {
+  /**
+   * The optional local date of the owner, as for RequestPlanRequest. With
+   * no date, each target is the target that the plan holds.
+   *
+   * @generated from field: string today = 1;
+   */
+  today: string;
 };
 
 /**
@@ -474,7 +536,7 @@ export type GetPlanRequest = Message<"workoutapp.v1.GetPlanRequest"> & {
  * Use `create(GetPlanRequestSchema)` to create a new message.
  */
 export const GetPlanRequestSchema: GenMessage<GetPlanRequest> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 10);
+  messageDesc(file_workoutapp_v1_plan_service, 11);
 
 /**
  * @generated from message workoutapp.v1.GetPlanResponse
@@ -500,7 +562,7 @@ export type GetPlanResponse = Message<"workoutapp.v1.GetPlanResponse"> & {
  * Use `create(GetPlanResponseSchema)` to create a new message.
  */
 export const GetPlanResponseSchema: GenMessage<GetPlanResponse> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 11);
+  messageDesc(file_workoutapp_v1_plan_service, 12);
 
 /**
  * RequestPlanResponse is one event of the stream: a progress event, or the
@@ -532,7 +594,7 @@ export type RequestPlanResponse = Message<"workoutapp.v1.RequestPlanResponse"> &
  * Use `create(RequestPlanResponseSchema)` to create a new message.
  */
 export const RequestPlanResponseSchema: GenMessage<RequestPlanResponse> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 12);
+  messageDesc(file_workoutapp_v1_plan_service, 13);
 
 /**
  * @generated from message workoutapp.v1.RequestPlanRequest
@@ -552,7 +614,7 @@ export type RequestPlanRequest = Message<"workoutapp.v1.RequestPlanRequest"> & {
  * Use `create(RequestPlanRequestSchema)` to create a new message.
  */
 export const RequestPlanRequestSchema: GenMessage<RequestPlanRequest> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 13);
+  messageDesc(file_workoutapp_v1_plan_service, 14);
 
 /**
  * @generated from message workoutapp.v1.ExcludeExerciseRequest
@@ -585,7 +647,7 @@ export type ExcludeExerciseRequest = Message<"workoutapp.v1.ExcludeExerciseReque
  * Use `create(ExcludeExerciseRequestSchema)` to create a new message.
  */
 export const ExcludeExerciseRequestSchema: GenMessage<ExcludeExerciseRequest> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 14);
+  messageDesc(file_workoutapp_v1_plan_service, 15);
 
 /**
  * ExcludeExerciseResponse is one event of the stream, as in
@@ -617,7 +679,113 @@ export type ExcludeExerciseResponse = Message<"workoutapp.v1.ExcludeExerciseResp
  * Use `create(ExcludeExerciseResponseSchema)` to create a new message.
  */
 export const ExcludeExerciseResponseSchema: GenMessage<ExcludeExerciseResponse> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 15);
+  messageDesc(file_workoutapp_v1_plan_service, 16);
+
+/**
+ * @generated from message workoutapp.v1.OverrideTargetRequest
+ */
+export type OverrideTargetRequest = Message<"workoutapp.v1.OverrideTargetRequest"> & {
+  /**
+   * The local date of the owner, as for RequestPlanRequest. The override
+   * replaces the recommendation on this date.
+   *
+   * @generated from field: string today = 1;
+   */
+  today: string;
+
+  /**
+   * The id of an exercise of the plan.
+   *
+   * @generated from field: string exercise_id = 2;
+   */
+  exerciseId: string;
+
+  /**
+   * One set for each working set of the recommendation, with its reps and
+   * its load. The server keeps the reps in reserve of the recommendation.
+   *
+   * @generated from field: repeated workoutapp.v1.PlannedSet working_sets = 3;
+   */
+  workingSets: PlannedSet[];
+
+  /**
+   * The reason of the owner, 1 to 200 characters.
+   *
+   * @generated from field: string reason = 4;
+   */
+  reason: string;
+};
+
+/**
+ * Describes the message workoutapp.v1.OverrideTargetRequest.
+ * Use `create(OverrideTargetRequestSchema)` to create a new message.
+ */
+export const OverrideTargetRequestSchema: GenMessage<OverrideTargetRequest> = /*@__PURE__*/
+  messageDesc(file_workoutapp_v1_plan_service, 17);
+
+/**
+ * @generated from message workoutapp.v1.OverrideTargetResponse
+ */
+export type OverrideTargetResponse = Message<"workoutapp.v1.OverrideTargetResponse"> & {
+  /**
+   * The plan on the date of the request.
+   *
+   * @generated from field: workoutapp.v1.Plan plan = 1;
+   */
+  plan?: Plan | undefined;
+};
+
+/**
+ * Describes the message workoutapp.v1.OverrideTargetResponse.
+ * Use `create(OverrideTargetResponseSchema)` to create a new message.
+ */
+export const OverrideTargetResponseSchema: GenMessage<OverrideTargetResponse> = /*@__PURE__*/
+  messageDesc(file_workoutapp_v1_plan_service, 18);
+
+/**
+ * @generated from message workoutapp.v1.RemoveOverrideRequest
+ */
+export type RemoveOverrideRequest = Message<"workoutapp.v1.RemoveOverrideRequest"> & {
+  /**
+   * The local date of the owner, as for RequestPlanRequest.
+   *
+   * @generated from field: string today = 1;
+   */
+  today: string;
+
+  /**
+   * The id of an exercise of the plan.
+   *
+   * @generated from field: string exercise_id = 2;
+   */
+  exerciseId: string;
+};
+
+/**
+ * Describes the message workoutapp.v1.RemoveOverrideRequest.
+ * Use `create(RemoveOverrideRequestSchema)` to create a new message.
+ */
+export const RemoveOverrideRequestSchema: GenMessage<RemoveOverrideRequest> = /*@__PURE__*/
+  messageDesc(file_workoutapp_v1_plan_service, 19);
+
+/**
+ * @generated from message workoutapp.v1.RemoveOverrideResponse
+ */
+export type RemoveOverrideResponse = Message<"workoutapp.v1.RemoveOverrideResponse"> & {
+  /**
+   * The plan on the date of the request.
+   *
+   * @generated from field: workoutapp.v1.Plan plan = 1;
+   */
+  plan?: Plan | undefined;
+};
+
+/**
+ * Describes the message workoutapp.v1.RemoveOverrideResponse.
+ * Use `create(RemoveOverrideResponseSchema)` to create a new message.
+ */
+export const RemoveOverrideResponseSchema: GenMessage<RemoveOverrideResponse> = /*@__PURE__*/
+  messageDesc(file_workoutapp_v1_plan_service, 20);
 
 /**
  * PlanService holds the one plan of the caller and the excluded exercises
@@ -639,7 +807,10 @@ export const ExcludeExerciseResponseSchema: GenMessage<ExcludeExerciseResponse> 
 export const PlanService: GenService<{
   /**
    * GetPlan returns the current plan and the exclusions of the caller. A
-   * caller with no plan gets no plan.
+   * caller with no plan gets no plan. With a date, each target is the
+   * target of the rules on that date, the date of the next session: the
+   * long-break table, a missed session, and a deload apply (D-151, D-179,
+   * D-294, D-295). The server saves no change.
    *
    * @generated from rpc workoutapp.v1.PlanService.GetPlan
    */
@@ -647,6 +818,33 @@ export const PlanService: GenService<{
     methodKind: "unary";
     input: typeof GetPlanRequestSchema;
     output: typeof GetPlanResponseSchema;
+  },
+  /**
+   * OverrideTarget saves an override of the owner for the next session of
+   * one exercise (D-69, D-293). The override changes the load and the reps
+   * of each working set alone, and it needs a reason. The policy checks it
+   * first, and a refused override gives INVALID_ARGUMENT with the rule and
+   * the place of each violation (D-23). The plan keeps the recommendation,
+   * the override, and the reason as separate records. A revision of the
+   * exercise removes the override.
+   *
+   * @generated from rpc workoutapp.v1.PlanService.OverrideTarget
+   */
+  overrideTarget: {
+    methodKind: "unary";
+    input: typeof OverrideTargetRequestSchema;
+    output: typeof OverrideTargetResponseSchema;
+  },
+  /**
+   * RemoveOverride removes the override of one exercise, so the
+   * recommendation shows again.
+   *
+   * @generated from rpc workoutapp.v1.PlanService.RemoveOverride
+   */
+  removeOverride: {
+    methodKind: "unary";
+    input: typeof RemoveOverrideRequestSchema;
+    output: typeof RemoveOverrideResponseSchema;
   },
   /**
    * RequestPlan makes a new plan. The stream sends a progress event at each

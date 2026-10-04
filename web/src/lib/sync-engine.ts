@@ -7,6 +7,7 @@ import { PlanService } from "../gen/workoutapp/v1/plan_service_pb";
 
 import { transport } from "./api";
 import { db, withReopen, type RefusedEntry } from "./db";
+import { planRequest } from "./today";
 import { revisedAt } from "./revision";
 import { connectClient, SyncEngine, type SyncStatus } from "./sync";
 
@@ -29,7 +30,7 @@ export function useSync(): void {
   useEffect(() => {
     if (revised === null) return;
     if (seen.current !== null && seen.current !== revised) {
-      const key = createConnectQueryKey({ schema: PlanService.method.getPlan, transport, input: {}, cardinality: "finite" });
+      const key = createConnectQueryKey({ schema: PlanService.method.getPlan, transport, input: planRequest(), cardinality: "finite" });
       void queryClient.invalidateQueries({ queryKey: key });
     }
     seen.current = revised;

@@ -14,6 +14,7 @@ import {
 import { INVENTORY_ENTITIES, withReopen, type CopyKey, type OutboxEntry, type WorkoutAppDB } from "./db";
 import { isNoConnection } from "./errors";
 import { localInventory } from "./inventory-api";
+import { planRequest } from "./today";
 
 // The sync of the outbox (work area 6.3). The phone sends its outbox
 // through SyncOutbox of `proto/workoutapp/v1/workout_service.proto`, in
@@ -56,7 +57,7 @@ export function connectClient(transport: Transport): SyncClient {
   return {
     syncOutbox: (entries) => workouts.syncOutbox({ entries }),
     copies: async () => {
-      const [catalog, inventory, plan] = await Promise.all([inventories.getCatalog({}), inventories.getInventory({}), plans.getPlan({})]);
+      const [catalog, inventory, plan] = await Promise.all([inventories.getCatalog({}), inventories.getInventory({}), plans.getPlan(planRequest())]);
       return {
         catalog: toJson(GetCatalogResponseSchema, catalog),
         inventory: toJson(GetInventoryResponseSchema, inventory),

@@ -275,11 +275,18 @@ func seenTarget(p domain.PlannedExercise) *workoutappv1.SeenTarget {
 // apply.
 func (e *revEnv) session(c revCase, s logged, date string) {
 	e.t.Helper()
+	e.sessionSeen(c, s, date, seenTarget(s.target))
+}
+
+// sessionSeen sends one workout as session does, with a target copy of
+// the test.
+func (e *revEnv) sessionSeen(c revCase, s logged, date string, seen *workoutappv1.SeenTarget) {
+	e.t.Helper()
 	id := fmt.Sprintf("01920000-0000-7000-a000-%012x", e.ops+1)
 	header := func(finished bool) *workoutappv1.OutboxEntry {
 		h := &workoutappv1.WorkoutHeader{
 			Date: date, Plan: &workoutappv1.PlanLink{PlanCreatedAt: e.created.Format(time.RFC3339Nano), SessionIndex: 0},
-			Targets: []*workoutappv1.SeenTarget{seenTarget(s.target)}, Finished: finished, EndedEarly: finished && s.ended,
+			Targets: []*workoutappv1.SeenTarget{seen}, Finished: finished, EndedEarly: finished && s.ended,
 		}
 		if finished && len(s.sets) == 0 {
 			h.SkippedExerciseIds = []string{string(c.exercise)}

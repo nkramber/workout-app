@@ -208,8 +208,8 @@ func newHandler(v auth.Verifier, a auth.Allowlist, store inventory.Store, profil
 	mux.Handle(workoutappv1connect.NewUserServiceHandler(usersvc.Server{}, signedIn))
 	mux.Handle(workoutappv1connect.NewInventoryServiceHandler(inventorysvc.New(store), signedIn))
 	mux.Handle(workoutappv1connect.NewProfileServiceHandler(profilesvc.New(profiles), signedIn))
-	mux.Handle(workoutappv1connect.NewPlanServiceHandler(plansvc.New(maker), signedIn))
 	reviser := &revise.Reviser{AI: maker.AI, Plans: maker.Plans, Workouts: workouts, Inventory: store, Now: maker.Now, Log: maker.Log}
+	mux.Handle(workoutappv1connect.NewPlanServiceHandler(plansvc.New(maker, reviser), signedIn))
 	mux.Handle(workoutappv1connect.NewWorkoutServiceHandler(workoutsvc.New(workouts, store).WithReviser(reviser, maker.Log), signedIn))
 	body, _ := json.Marshal(map[string]string{"commit": buildCommit})
 	mux.HandleFunc("GET "+VersionPath, func(w http.ResponseWriter, _ *http.Request) {

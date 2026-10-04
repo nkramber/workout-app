@@ -19,8 +19,24 @@ option go_package = "github.com/nkramber/workout-app/go/gen/workoutapp/v1;workou
 // numbers alone (D-80).
 service PlanService {
   // GetPlan returns the current plan and the exclusions of the caller. A
-  // caller with no plan gets no plan.
+  // caller with no plan gets no plan. With a date, each target is the
+  // target of the rules on that date, the date of the next session: the
+  // long-break table, a missed session, and a deload apply (D-151, D-179,
+  // D-294, D-295). The server saves no change.
   rpc GetPlan(GetPlanRequest) returns (GetPlanResponse) {}
+
+  // OverrideTarget saves an override of the owner for the next session of
+  // one exercise (D-69, D-293). The override changes the load and the reps
+  // of each working set alone, and it needs a reason. The policy checks it
+  // first, and a refused override gives INVALID_ARGUMENT with the rule and
+  // the place of each violation (D-23). The plan keeps the recommendation,
+  // the override, and the reason as separate records. A revision of the
+  // exercise removes the override.
+  rpc OverrideTarget(OverrideTargetRequest) returns (OverrideTargetResponse) {}
+
+  // RemoveOverride removes the override of one exercise, so the
+  // recommendation shows again.
+  rpc RemoveOverride(RemoveOverrideRequest) returns (RemoveOverrideResponse) {}
 
   // RequestPlan makes a new plan. The stream sends a progress event at each
   // step, then the plan in the last event (D-237). The new plan replaces the
@@ -115,6 +131,23 @@ message PlannedExercise {
   // reason of the rules. After a revision, a reason of Luna that names no
   // logged set gives the reason of the rules (D-68, D-288).
   string reason_source = 9;
+  // The override of the owner for the next session, or none (D-69, D-293).
+  // The sets above stay the recommendation. The phone shows the override
+  // in the next workout.
+  TargetOverride override = 10;
+}
+
+// TargetOverride is an override of the owner for one exercise (D-69, D-293).
+// The policy checked its sets (D-23).
+message TargetOverride {
+  repeated PlannedSet calibration_sets = 1;
+  repeated PlannedSet working_sets = 2;
+  // The reason of the owner, 1 to 200 characters.
+  string reason = 3;
+  // The time of the save, in RFC 3339 form.
+  string created_at = 4;
+  // The recommendation that the override replaced.
+  repeated PlannedSet recommended_working_sets = 5;
 }
 
 // CalibrationLoads holds the load of the working sets for each result of one
@@ -170,7 +203,11 @@ message PlanProgress {
   string previous_status = 4;
 }
 
-message GetPlanRequest {}
+message GetPlanRequest {
+  // The optional local date of the owner, as for RequestPlanRequest. With
+  // no date, each target is the target that the plan holds.
+  string today = 1;
+}
 
 message GetPlanResponse {
   // The plan, or no plan when the caller has none.
@@ -210,4 +247,34 @@ message ExcludeExerciseResponse {
     PlanProgress progress = 1;
     Plan plan = 2;
   }
+}
+
+message OverrideTargetRequest {
+  // The local date of the owner, as for RequestPlanRequest. The override
+  // replaces the recommendation on this date.
+  string today = 1;
+  // The id of an exercise of the plan.
+  string exercise_id = 2;
+  // One set for each working set of the recommendation, with its reps and
+  // its load. The server keeps the reps in reserve of the recommendation.
+  repeated PlannedSet working_sets = 3;
+  // The reason of the owner, 1 to 200 characters.
+  string reason = 4;
+}
+
+message OverrideTargetResponse {
+  // The plan on the date of the request.
+  Plan plan = 1;
+}
+
+message RemoveOverrideRequest {
+  // The local date of the owner, as for RequestPlanRequest.
+  string today = 1;
+  // The id of an exercise of the plan.
+  string exercise_id = 2;
+}
+
+message RemoveOverrideResponse {
+  // The plan on the date of the request.
+  Plan plan = 1;
 }

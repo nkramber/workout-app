@@ -1,4 +1,4 @@
-policy version: 5
+policy version: 6
 rules: progress.no-heavier
 target: chest_press, rest 60 s
   working[0]: 12 reps at 30 lb, 2 RIR
