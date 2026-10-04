@@ -44,7 +44,13 @@ const (
 // WorkoutServiceClient is a client for the workoutapp.v1.WorkoutService service.
 type WorkoutServiceClient interface {
 	// SyncOutbox applies a batch of 1 to 100 outbox entries, in the order of
-	// the request (D-259). Each entry applies in its own transaction, so a
+	// the request (D-259). After the batch, the server revises the plan for
+	// each finished workout of the batch (D-292): the rules of the policy give
+	// the next target of each exercise that the workout logged, in each
+	// session of the plan that holds it (D-290). A failed call of Luna gives
+	// the reasons of the rules. A store failure of a revision gives UNAVAILABLE.
+	// Each applied entry stays applied, so a replay of the batch applies nothing
+	// again, and runs the revision again. Each entry applies in its own transaction, so a
 	// refused entry changes nothing, and the other entries still apply. The
 	// response holds one result for each entry, in the same order. A batch of
 	// more than 100 entries gives INVALID_ARGUMENT with no change.
@@ -99,7 +105,13 @@ func (c *workoutServiceClient) ListWorkouts(ctx context.Context, req *connect.Re
 // WorkoutServiceHandler is an implementation of the workoutapp.v1.WorkoutService service.
 type WorkoutServiceHandler interface {
 	// SyncOutbox applies a batch of 1 to 100 outbox entries, in the order of
-	// the request (D-259). Each entry applies in its own transaction, so a
+	// the request (D-259). After the batch, the server revises the plan for
+	// each finished workout of the batch (D-292): the rules of the policy give
+	// the next target of each exercise that the workout logged, in each
+	// session of the plan that holds it (D-290). A failed call of Luna gives
+	// the reasons of the rules. A store failure of a revision gives UNAVAILABLE.
+	// Each applied entry stays applied, so a replay of the batch applies nothing
+	// again, and runs the revision again. Each entry applies in its own transaction, so a
 	// refused entry changes nothing, and the other entries still apply. The
 	// response holds one result for each entry, in the same order. A batch of
 	// more than 100 entries gives INVALID_ARGUMENT with no change.

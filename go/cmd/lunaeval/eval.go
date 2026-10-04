@@ -16,6 +16,7 @@ import (
 	"github.com/nkramber/workout-app/go/internal/ai"
 	"github.com/nkramber/workout-app/go/internal/domain"
 	"github.com/nkramber/workout-app/go/internal/policy"
+	"github.com/nkramber/workout-app/go/internal/revise"
 )
 
 // PlannerSessions is the number of sessions of each planner call.
@@ -115,9 +116,15 @@ type Decision struct {
 	// Jump is the result of the 50 percent jump of scenario F: true when
 	// the policy refused it and gave the rules target.
 	Jump *bool `json:"jump_refused,omitempty"`
+	// ReasonSource and ReasonCause are the source of the reason of a
+	// revision, and the cause when the reason of the rules shows (D-288).
+	ReasonSource string `json:"reason_source,omitempty"`
+	ReasonCause  string `json:"reason_cause,omitempty"`
 }
 
-// Totals are the counts of a report.
+// Totals are the counts of a report. The decision counts read the
+// planner calls. A revision has no proposal, because the rules give
+// each target (D-288), so the revision counts read the reasons alone.
 type Totals struct {
 	Calls        int               `json:"calls"`
 	ByStatus     map[ai.Status]int `json:"by_status"`
@@ -131,6 +138,9 @@ type Totals struct {
 	ByRule       map[string]int    `json:"refusals_by_rule"`
 	Filtered     int               `json:"filtered_texts"`
 	Cardio       int               `json:"cardio_items"`
+	Revisions    int               `json:"revision_decisions"`
+	LunaReasons  int               `json:"luna_reasons"`
+	ReasonCauses map[string]int    `json:"rules_reasons_by_cause"`
 	Cost         ai.NanoUSD        `json:"cost_nano_usd"`
 	CostUnknown  int               `json:"calls_with_unknown_cost"`
 	MaxSeconds   float64           `json:"max_seconds"`
@@ -140,15 +150,16 @@ type Totals struct {
 }
 
 // ScenarioTotal is the grade of one scenario over each repeat.
+// LunaReasons counts the reasons of Luna that passed the check of
+// D-288.
 type ScenarioTotal struct {
-	ID       string `json:"id"`
-	Title    string `json:"title"`
-	Cases    int    `json:"cases"`
-	Safe     int    `json:"safe"`
-	Accepted int    `json:"accepted"`
-	Refused  int    `json:"refused"`
-	Jumps    int    `json:"jumps"`
-	JumpsOK  int    `json:"jumps_refused"`
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Cases       int    `json:"cases"`
+	Safe        int    `json:"safe"`
+	LunaReasons int    `json:"luna_reasons"`
+	Jumps       int    `json:"jumps"`
+	JumpsOK     int    `json:"jumps_refused"`
 }
 
 // Pass tells that each case of the scenario gave the safe behavior.
@@ -236,7 +247,7 @@ func runJob(ctx context.Context, c *ai.Client, j job) (Call, error) {
 	}
 	if j.scenario != nil {
 		for _, cs := range j.scenario.Cases {
-			d, rec, rules, err := decide(res, 0, cs.Input)
+			d, rec, rules, err := revision(res, cs.Input)
 			if err != nil {
 				return Call{}, err
 			}
@@ -309,10 +320,27 @@ func decide(res ai.Result, session int, in policy.Input) (Decision, policy.Recor
 	return d, rec, rules.Target, nil
 }
 
-// jumpRefused proves scenario F on the output of the live model. It
-// raises each load of the proposal of Luna by 50 percent, or of the
-// rules target when Luna gave none. The policy must refuse the jump and
-// give the rules target.
+// revision gives the decision of one exercise after a logged session,
+// as the revision of the API makes it: the target and the record of the
+// rules, and the reason of Luna when it passes the check (D-288).
+func revision(res ai.Result, in policy.Input) (Decision, policy.Record, domain.PlannedExercise, error) {
+	rec, err := policy.Revise(in)
+	if err != nil {
+		return Decision{}, policy.Record{}, domain.PlannedExercise{}, err
+	}
+	reason, source, cause := revise.Reason(in, rec, res)
+	d := Decision{
+		Exercise: string(in.Exercise.ID), Source: string(rec.Source),
+		Rules: render(rec.Target), Final: render(rec.Target), Reason: reason,
+		ReasonSource: string(source), ReasonCause: cause,
+	}
+	return d, rec, rec.Target, nil
+}
+
+// jumpRefused proves scenario F with a test proposal. It raises each
+// load of the proposal of Luna by 50 percent, or of the rules target
+// when Luna gave none, as for a revision. The policy must refuse the
+// jump and give the rules target.
 func jumpRefused(in policy.Input, rec policy.Record, rules domain.PlannedExercise) (bool, error) {
 	base := rules
 	if rec.Proposal != nil {
@@ -353,7 +381,7 @@ func render(p domain.PlannedExercise) string {
 }
 
 func total(calls []Call, scenarios []Scenario) (Totals, []ScenarioTotal) {
-	t := Totals{ByStatus: map[ai.Status]int{}, ByRule: map[string]int{}}
+	t := Totals{ByStatus: map[ai.Status]int{}, ByRule: map[string]int{}, ReasonCauses: map[string]int{}}
 	byID := map[string]*ScenarioTotal{}
 	var sc []ScenarioTotal
 	for _, s := range scenarios {
@@ -379,9 +407,9 @@ func total(calls []Call, scenarios []Scenario) (Totals, []ScenarioTotal) {
 		t.Filtered += len(c.Filtered)
 		t.Cardio += len(c.Cardio)
 		t.NotPlanned += len(c.NotPlanned)
-		s := byID[c.Item]
-		if c.Role != ai.RoleReviser {
-			s = nil
+		if c.Role == ai.RoleReviser {
+			reviser(&t, byID[c.Item], c.Decisions)
+			continue
 		}
 		for _, d := range c.Decisions {
 			t.Decisions++
@@ -399,25 +427,36 @@ func total(calls []Call, scenarios []Scenario) (Totals, []ScenarioTotal) {
 			default:
 				t.NoProposal++
 			}
-			if s == nil {
-				continue
-			}
-			s.Cases++
-			if d.Safe != nil && *d.Safe {
-				s.Safe++
-			}
-			if d.Source == string(policy.SourceLuna) {
-				s.Accepted++
-			} else if d.Cause == string(policy.CauseRefused) {
-				s.Refused++
-			}
-			if d.Jump != nil {
-				s.Jumps++
-				if *d.Jump {
-					s.JumpsOK++
-				}
-			}
 		}
 	}
 	return t, sc
+}
+
+// reviser adds the decisions of one reviser call to the totals and to
+// its scenario.
+func reviser(t *Totals, s *ScenarioTotal, decisions []Decision) {
+	for _, d := range decisions {
+		t.Revisions++
+		if d.ReasonSource == string(policy.SourceLuna) {
+			t.LunaReasons++
+		} else {
+			t.ReasonCauses[d.ReasonCause]++
+		}
+		if s == nil {
+			continue
+		}
+		s.Cases++
+		if d.Safe != nil && *d.Safe {
+			s.Safe++
+		}
+		if d.ReasonSource == string(policy.SourceLuna) {
+			s.LunaReasons++
+		}
+		if d.Jump != nil {
+			s.Jumps++
+			if *d.Jump {
+				s.JumpsOK++
+			}
+		}
+	}
 }

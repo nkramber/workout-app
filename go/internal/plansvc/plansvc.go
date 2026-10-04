@@ -147,6 +147,13 @@ func (s *Server) toProto(p plan.Plan) *workoutappv1.Plan {
 		CreatedAt: p.CreatedAt.UTC().Format(time.RFC3339), Today: p.Today, Summary: p.Summary,
 		PromptVersion: p.PromptVersion, PolicyVersion: int32(p.PolicyVersion), Attempts: int32(p.Attempts),
 	}
+	if r := p.LastRevision; r != nil {
+		rev := &workoutappv1.PlanRevision{WorkoutId: r.WorkoutID, RevisedAt: r.At.UTC().Format(time.RFC3339)}
+		for _, id := range r.Exercises {
+			rev.ExerciseIds = append(rev.ExerciseIds, string(id))
+		}
+		out.LastRevision = rev
+	}
 	for _, g := range p.Guidance {
 		out.Guidance = append(out.Guidance, guidance(g))
 	}
@@ -156,7 +163,7 @@ func (s *Server) toProto(p plan.Plan) *workoutappv1.Plan {
 			t := e.Target
 			pe := &workoutappv1.PlannedExercise{
 				ExerciseId: string(t.Exercise), Name: s.name(t.Exercise), RestSeconds: int32(t.RestSeconds),
-				Reason: e.Reason, Source: string(e.Record.Source),
+				Reason: e.Reason, Source: string(e.Record.Source), ReasonSource: string(e.ReasonSourceOf()),
 			}
 			for _, c := range t.Calibration {
 				pe.CalibrationSets = append(pe.CalibrationSets, &workoutappv1.PlannedSet{Reps: int32(c.Reps), LoadTenthLb: int32(c.Load)})

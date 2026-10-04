@@ -435,3 +435,32 @@ func TestRecord(t *testing.T) {
 		t.Errorf("Decide of a bad input: %v, want ErrInput", err)
 	}
 }
+
+// A revision gives the target and the reason of Next, with the source
+// "rules", no cause, and no fallback rule, because no proposal exists
+// (D-288).
+func TestRevise(t *testing.T) {
+	lb := domain.Pounds
+	in := machineInput(t, "chest_press", stack(10, 200, 5))
+	in.History = []Outcome{outcome(target("chest_press", 3, 12, lb(25)), set(12, lb(25), 1), set(12, lb(25), 1), set(5, lb(25), 0))}
+	in = dated(in)
+	r, err := Revise(in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	d, _ := Next(in)
+	hash, _ := InputHash(in)
+	want := Record{
+		PolicyVersion: Version, Exercise: "chest_press", InputHash: hash, Source: SourceRules,
+		Rules: d.Rules, Loads: d.Loads, Target: d.Target, Reason: d.Reason,
+	}
+	if !reflect.DeepEqual(r, want) {
+		t.Fatalf("Revise = %+v, want %+v", r, want)
+	}
+	if slices.Contains(r.Rules, RuleFallback) || r.Cause != CauseNone || r.Proposal != nil {
+		t.Errorf("a revision record names a fallback: %+v", r)
+	}
+	if _, err := Revise(Input{}); !errors.Is(err, ErrInput) {
+		t.Errorf("Revise of a bad input: %v, want ErrInput", err)
+	}
+}

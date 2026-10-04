@@ -261,7 +261,7 @@ func build(res ai.Result, inputs map[domain.ExerciseID]policy.Input, today strin
 			if err != nil {
 				return Plan{}, fmt.Errorf("plan: the policy: %w", err)
 			}
-			ex := Exercise{Target: rec.Target, Reason: res.Reason(i, rec), Record: rec}
+			ex := Exercise{Target: rec.Target, Reason: res.Reason(i, rec), Record: rec, ReasonSource: rec.Source}
 			if len(rec.Target.Calibration) > 0 {
 				if ex.Calibration, err = policy.CalibrationTable(in); err != nil {
 					return Plan{}, fmt.Errorf("plan: the calibration loads: %w", err)

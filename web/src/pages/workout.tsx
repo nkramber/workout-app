@@ -8,8 +8,9 @@ import { available, formatPounds } from "../lib/inventory";
 import { useOfflineInventory } from "../lib/inventory-api";
 import { restText, setText } from "../lib/plan";
 import { PAIN_WARNING, SYMPTOMS, symptomWarning } from "../lib/symptoms";
+import { NO_CHANGE_TEXT, NONE_TEXT, nextState, WAITING_TEXT, waitsForSync } from "../lib/revision";
 import { noCopyText } from "../lib/sync";
-import { engine, useSyncWhenMissing } from "../lib/sync-engine";
+import { engine, useSyncStatus, useSyncWhenMissing } from "../lib/sync-engine";
 import type { WakeStatus } from "../lib/wake-lock";
 import {
   activeWorkout,
@@ -55,9 +56,77 @@ import { danger, ErrorText, field, primary, secondary, Title } from "./inventory
 export function WorkoutPage({ onBack, wake }: { onBack: () => void; wake: WakeStatus }) {
   // null while the store loads, and undefined when no workout is open.
   const active = useLiveQuery(() => activeWorkout(db), [], null);
+  // The id of the workout that the owner finished on this screen, so the
+  // end screen shows its next targets.
+  const [finished, setFinished] = useState<string | null>(null);
+  if (finished) return <WorkoutDone workoutId={finished} onDone={onBack} />;
   if (active === null) return <p className="text-slate-400">Loading…</p>;
-  if (active) return <ActiveWorkout key={active.id} workout={active} wake={wake} onBack={onBack} />;
+  if (active) return <ActiveWorkout key={active.id} workout={active} wake={wake} onBack={onBack} onFinished={setFinished} />;
   return <StartWorkout onBack={onBack} />;
+}
+
+// WorkoutDone shows the next targets after a workout (D-290, D-292). The
+// sync sends the workout, the server revises the plan, and the sync then
+// reads the plan copy again (D-278). Until the copy holds the revision,
+// the screen tells the owner that the targets show after the sync.
+function WorkoutDone({ workoutId, onDone }: { workoutId: string; onDone: () => void }) {
+  const planCopy = useLiveQuery(() => withReopen(db, async () => (await db.copies.get("plan")) ?? null), [], undefined);
+  const waiting = useLiveQuery(() => withReopen(db, () => db.outbox.filter((e) => waitsForSync(e, workoutId)).count()), [workoutId], null);
+  const sync = useSyncStatus();
+  if (planCopy === undefined || waiting === null) return <p className="text-slate-400">Loading…</p>;
+  const plan = planCopy ? fromJson(GetPlanResponseSchema, planCopy.json as JsonValue, { ignoreUnknownFields: true }).plan : undefined;
+  const state = nextState(plan, workoutId, waiting > 0 || sync.running);
+
+  return (
+    <div className="space-y-6">
+      <Title>Workout done</Title>
+      <section className="space-y-3" aria-label="Next targets" data-testid="next-targets">
+        <h3 className="text-base font-semibold text-slate-100">Next targets</h3>
+        {state.kind === "waiting" && (
+          <>
+            <p className="text-slate-300" data-testid="next-wait">
+              {WAITING_TEXT}
+            </p>
+            {sync.error && (
+              <button type="button" className={secondary} onClick={() => void engine.syncNow()}>
+                Sync now
+              </button>
+            )}
+          </>
+        )}
+        {state.kind === "none" && (
+          <p className="text-slate-300" data-testid="next-none">
+            {NONE_TEXT}
+          </p>
+        )}
+        {state.kind === "revised" && state.targets.length === 0 && (
+          <p className="text-slate-300" data-testid="next-none">
+            {NO_CHANGE_TEXT}
+          </p>
+        )}
+        {state.kind === "revised" && state.targets.length > 0 && (
+          <ul className="space-y-3">
+            {state.targets.map((t) => (
+              <li key={t.exerciseId} className="space-y-1 rounded-lg border border-slate-800 p-3" data-testid="next-target" data-exercise-id={t.exerciseId}>
+                <p className="font-semibold text-slate-100">{t.name}</p>
+                <ul className="text-sm text-slate-300">
+                  {t.sets.map((text, i) => (
+                    <li key={i}>{text}</li>
+                  ))}
+                </ul>
+                <p className="text-sm text-slate-400" data-testid="next-reason">
+                  {t.reason}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+      <button type="button" className={`${primary} min-h-14 w-full text-lg`} onClick={onDone}>
+        Done
+      </button>
+    </div>
+  );
 }
 
 // StartWorkout reads the offline copies of the plan, the catalog, and the
@@ -203,7 +272,17 @@ function useNow(on: boolean): number {
 // screen shows the next machine for PREVIEW_SECONDS, then advances
 // (D-60, D-269). Each cue is visual alone, and the app sends no
 // notification (D-58, D-61).
-function ActiveWorkout({ workout: w, wake, onBack }: { workout: WorkoutRecord; wake: WakeStatus; onBack: () => void }) {
+function ActiveWorkout({
+  workout: w,
+  wake,
+  onBack,
+  onFinished,
+}: {
+  workout: WorkoutRecord;
+  wake: WakeStatus;
+  onBack: () => void;
+  onFinished: (workoutId: string) => void;
+}) {
   const sets = useLiveQuery(() => workoutSets(db, w.id), [w.id], null);
   const cardio = useLiveQuery(() => workoutCardio(db, w.id), [w.id], null);
   const rest = useLiveQuery(() => restTimer(db, w.id), [w.id], null);
@@ -245,7 +324,7 @@ function ActiveWorkout({ workout: w, wake, onBack }: { workout: WorkoutRecord; w
     setError("");
     try {
       await finishWorkout(db, w.id);
-      onBack();
+      onFinished(w.id);
     } catch {
       setDialog(null);
       setError("The phone did not save the end of the workout. Try again.");

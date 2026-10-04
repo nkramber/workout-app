@@ -54,6 +54,21 @@ message Plan {
   int32 policy_version = 7;
   // The count of calls that the plan needed, from 1 to 4.
   int32 attempts = 8;
+  // The last revision of the plan after a finished workout, or none
+  // (D-290, D-292). A revision keeps created_at, so a workout of the plan
+  // keeps its link.
+  PlanRevision last_revision = 9;
+}
+
+// PlanRevision names the last revision of a plan.
+message PlanRevision {
+  // The id of the finished workout that started the revision.
+  string workout_id = 1;
+  // The time of the revision, in RFC 3339 form in UTC.
+  string revised_at = 2;
+  // Each exercise that got a new target, in the order of the plan. Each
+  // session of the plan that holds one of them has its new target (D-290).
+  repeated string exercise_ids = 3;
 }
 
 // PlanSession is one session of a plan (D-44).
@@ -86,7 +101,8 @@ message PlannedExercise {
   // reason of the rules (D-68, D-182).
   string reason = 6;
   // "luna" when the policy accepted the proposal of Luna, or "rules" when
-  // the target is the target of the rules alone (D-23).
+  // the target is the target of the rules alone (D-23). A revised target is
+  // always "rules" (D-288).
   string source = 7;
   // The load of the working sets after the calibration set, for each result
   // of the calibration table (D-150, D-267). It has one entry for each weight
@@ -95,6 +111,10 @@ message PlannedExercise {
   // exercise with a calibration set has entries, and a plan of policy
   // version 3 has none.
   repeated CalibrationLoads calibration_loads = 8;
+  // "luna" when the reason is the reason of Luna, or "rules" when it is the
+  // reason of the rules. After a revision, a reason of Luna that names no
+  // logged set gives the reason of the rules (D-68, D-288).
+  string reason_source = 9;
 }
 
 // CalibrationLoads holds the load of the working sets for each result of one

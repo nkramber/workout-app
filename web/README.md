@@ -91,6 +91,7 @@ The start copies the targets of the session and the weights of each machine to t
 - The cardio card logs the minutes and the effort from 1 to 10. The distance, the resistance level, pain, and a note are optional (D-123, D-165). Each number must fit its `int32` field of the contract.
 - "Report a symptom" shows the seven symptoms of D-263. A pick shows the warning. The owner continues after the confirmation, or uses "Finish now" (D-40, D-153, D-251). The phone keeps no symptom report.
 - "Finish now" asks for a confirmation when an exercise that the owner did not skip has a set with no log. The workout then ends early, and each exercise with no logged set counts as skipped (D-63).
+- After the end of a workout, the screen "Workout done" shows the next target of each exercise of the workout, with its reason (D-290, D-292). `web/src/lib/revision.ts` reads them from the plan copy when the copy holds the revision of the workout. While an entry of the workout waits for the sync, the screen tells the owner that the next targets show after the sync. "Done" goes back to the home screen.
 
 While a workout is open, the plan screen refuses a new plan and an exclusion (D-252). The app holds the screen wake lock from the start of a workout to its end, on each screen. It asks for the lock again at each return to the front, focus, `pageshow` event, and tap. So a return needs no tap (D-283). A release makes no request of its own, and only the newest request sets the state. When the phone refuses the lock, the workout screen shows "The screen can turn off. Tap the screen to try again." with the error name (D-265).
 
@@ -98,7 +99,7 @@ While a workout is open, the plan screen refuses a new plan and an exclusion (D-
 
 Dexie on IndexedDB holds the local state. Each change and its outbox entry go into one transaction (D-132). An outbox entry holds a UUIDv7 op id, the entity and its id, and the base version. It also holds the payload, the time, the attempts, and the schema version.
 
-Version 2 of the store adds the workouts, the sets, and the cardio logs. The payload of each workout entry is the JSON form of `WorkoutHeader`, `SetEntry`, or `CardioEntry` of `proto/workoutapp/v1/workout_service.proto`, with the whole new state of the entity. The payload of an inventory entry is the JSON form of the payload field of `OutboxEntry`, such as `{"saveMachine": {...}}`. The op ids of the phone rise strictly, so the outbox keeps the order of two changes of one millisecond.
+Version 2 of the store adds the workouts, the sets, and the cardio logs. The payload of each workout entry is the JSON form of `WorkoutHeader`, `SetEntry`, or `CardioEntry` of `proto/workoutapp/v1/workout_service.proto`, with the whole new state of the entity. A header holds the target of each exercise from the start of the workout (D-291). The payload of an inventory entry is the JSON form of the payload field of `OutboxEntry`, such as `{"saveMachine": {...}}`. The op ids of the phone rise strictly, so the outbox keeps the order of two changes of one millisecond.
 
 Version 3 adds the refused entries and the offline copies. It removes the settings of the skeleton and their outbox entries.
 
@@ -109,6 +110,8 @@ Version 3 adds the refused entries and the offline copies. It removes the settin
 The sync runs while the app is open alone, because iOS has no background sync for a web app (D-21). It runs at the open, at each focus and return, at each reconnect, and after each new entry. After a failure, it tries again after 5 s, 15 s, 60 s, and then each 5 minutes (D-277). A plan request and an exclusion run a sync first, so the plan reads each change of the inventory.
 
 After each drain, the sync reads the catalog, the inventory, and the plan again, and keeps a copy of each. The server wins, and the screens put the entries that wait on the new copy (D-258). The plan screen and the profile gate keep their copies too. So with no connection, the app opens, and a workout starts from the copies (D-278).
+
+A sync of a finished workout revises the plan on the server (D-292). So each sync that passes marks the cached `GetPlan` as stale. The plan screen keeps a fresh read of the plan alone in the copy.
 
 The line below the header shows "Synced", the count of the entries that wait, "Offline", "Sync failed", and the count of the refused entries (D-276). A tap opens the detail with "Sync now", and each refused entry with "Dismiss".
 

@@ -1,8 +1,13 @@
+import { createConnectQueryKey } from "@connectrpc/connect-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useLiveQuery } from "dexie-react-hooks";
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
+
+import { PlanService } from "../gen/workoutapp/v1/plan_service_pb";
 
 import { transport } from "./api";
 import { db, withReopen, type RefusedEntry } from "./db";
+import { revisedAt } from "./revision";
 import { connectClient, SyncEngine, type SyncStatus } from "./sync";
 
 // The one sync engine of the app (work area 6.3). The signed-in part of
@@ -10,9 +15,25 @@ import { connectClient, SyncEngine, type SyncStatus } from "./sync";
 // signed-in owner.
 export const engine = new SyncEngine(db, connectClient(transport));
 
-// useSync starts the engine while the component shows.
+// useSync starts the engine while the component shows. A sync of a
+// finished workout revises the plan on the server (D-292), and the sync
+// then keeps the new plan copy. So a new revision in the plan copy marks
+// the cached plan as stale, and the plan screen reads the plan again. A
+// sync with no revision leaves the cache, so it never races a plan
+// request.
 export function useSync(): void {
+  const queryClient = useQueryClient();
   useEffect(() => engine.start(), []);
+  const revised = useLiveQuery(() => withReopen(db, async () => revisedAt((await db.copies.get("plan"))?.json)), [], null);
+  const seen = useRef<string | null>(null);
+  useEffect(() => {
+    if (revised === null) return;
+    if (seen.current !== null && seen.current !== revised) {
+      const key = createConnectQueryKey({ schema: PlanService.method.getPlan, transport, input: {}, cardinality: "finite" });
+      void queryClient.invalidateQueries({ queryKey: key });
+    }
+    seen.current = revised;
+  }, [revised, queryClient]);
 }
 
 // useSyncStatus gives the state of the sync, the count of the entries

@@ -4,24 +4,25 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-04. Roadmap PR-34 of `docs/roadmaps/phase-7-adaptation-loop.md`, on branch `docs/pr-34-phase-7-roadmap`, from base `6274c19`.
+Date: 2026-10-04. Roadmap PR-35 of `docs/roadmaps/phase-7-adaptation-loop.md`, on branch `feat/pr-35-revision`, from base `96e2b1e`. The worktree is `/Volumes/SSD-1TB/workout-app-pr-35`.
 
-Before the work, the session read the deploy of `6274c19`. The build `deploy-web` `6fe91aa9` gave `SUCCESS`, and the live `/version.json` names `6274c19`. No build `deploy-api` ran, and the live `/version` still names `ee3b89b` (D-137).
+PR-34 changed only `docs/`, so its merge deployed nothing, and the session read no deploy.
 
-The owner applied "Update ready" on the iPhone. During a workout, the screen stayed on after a return with no tap, and no notice showed (D-285). The owner approved one live plan (D-212). It took 1 call of 0.0037 USD. It has policy version 5, with a rest of 60 seconds for each of its 16 exercises (D-279).
+The owner approved the milestone (D-12), and answered Q-302 to Q-304 (D-290 to D-292).
 
-The owner approved the milestone (D-12), and answered Q-300, Q-301, Q-202, and Q-194 (D-286 to D-289). The pull request holds:
+The pull request holds:
 
-- the focused roadmap of Phase 7, with the exit evidence of Phase 6 and the live plan,
-- work area 7.3, "Reviser evaluation", in the high-level roadmap (D-286),
-- the split into PR-35 to PR-37 (D-287), with the open questions Q-302 to Q-308,
-- the role of Luna in a revision: the reason alone (D-288), and the reactive deload in work area 7.2 (D-289).
+- the target copy `SeenTarget` in the workout header, kept by the store (D-291),
+- the revision of the plan in `SyncOutbox` after each finished workout, in `go/internal/revise` (D-290, D-292),
+- the reviser of the reason alone, with `luna-prompt-v6`, the schema `luna_reason_v1`, the check of each reason, and a time limit of 45 s (D-288),
+- the screen "Workout done" with the next targets and their reasons, and the target copy in the header of the phone,
+- the emulator test of scenarios A to F through `SyncOutbox`, unit tests, and a browser test.
 
-Codex review: Ready for owner merge for effective head `d7ebdcaa2d8995f68124865308906d2081ae24c6`. No open findings. The review record is `docs/reviews/pr-35.md`.
+`make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. An early version marked the cached plan as stale after each sync. That raced the plan request, and 5 to 6 Chromium tests failed in 2 of 2 runs. The mark now follows a new revision alone, and 2 of 2 runs passed.
 
-Next action: ask the owner to confirm the merge.
+The Codex review found P2-1 at `a5451328baf687ec3ea13b8c5356cad7b96c6e24`. The author fixed it at `f457b47ebe9657cbd2514e816ce89d4722e30120`. The round 2 verdict is Ready for owner merge, with no open findings.
 
-After the merge, the session of PR-35 reads no deploy, because PR-34 changes only `docs/`. It asks the owner Q-302 to Q-304 first.
+The state is pending the owner merge. Next action: ask the owner to confirm the merge (D-13).
 
 ## Facts that expire
 
@@ -77,10 +78,29 @@ After the merge, the session of PR-35 reads no deploy, because PR-34 changes onl
 
 ## Next steps, in order
 
-1. Close PR-34: CI, the Codex review, the owner confirmation, and the merge.
-2. Start PR-35 in a clean session (D-12). It reads no deploy, and asks the owner Q-302 to Q-304 first.
+1. Close PR-35: CI, the Codex review, the owner confirmation, and the merge.
+2. Start PR-36 in a clean session (D-12). It reads the deploys of the merge of PR-35 first. Then it states the cost of one live revision, and asks the owner (D-212). It asks Q-305 to Q-307.
 
 ## Session records
+
+### Session 36 - 2026-10-04
+
+Author provider: Claude Code
+
+Branch: `feat/pr-35-revision`. Role: author.
+
+Completed:
+
+- The owner approved the milestone (D-12), and answered Q-302 to Q-304 (D-290 to D-292).
+- Added the target copy to the workout header, and the revision of the plan in the sync of a finished workout.
+- Added the reviser of the reason alone, with its check (D-288).
+- Added the screen "Workout done" with the next targets and their reasons, and the target copy in the header of the phone.
+- Added the emulator tests of scenarios A to F, unit tests, and a browser test.
+- Changed the registers, both roadmaps, the design, both READMEs, and `AGENTS.md`.
+
+Open work:
+
+- CI, the Codex review, the owner confirmation, and the merge of PR-35.
 
 ### Session 35 - 2026-10-04
 
@@ -116,23 +136,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 34 merged as `6274c19`.
-
-### Session 33 - 2026-10-03
-
-Author provider: Claude Code
-
-Branch: `feat/pr-32-outbox-sync`. Role: author.
-
-Completed:
-
-- Read the deploys of `7ed7c0f`, and stated the cost of the live check of D-212.
-- The owner approved the milestone (D-12), and answered Q-286 to Q-292 (D-272 to D-278).
-- Added the inventory entries to `SyncOutbox`, with Go unit tests and emulator tests.
-- Wrote the sync engine, the offline copies, the inventory outbox, and the line of the sync, with unit tests and browser tests.
-- Read the live check of D-212, and changed the rest to 60 seconds with policy version 5 (D-279).
-- Wrote the "Screen lock test" screen (D-282), and answered Codex findings P2-1 and P2-2 with full merit.
-- Changed the registers, both roadmaps, the design, both READMEs, and `AGENTS.md`.
-
-Open work:
-
-- None. GitHub PR 33 merged as `ee3b89b`.

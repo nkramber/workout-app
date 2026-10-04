@@ -57,14 +57,14 @@ In the evaluation of Phase 3, Luna proposed the target of the rules in each of 1
 | Q-301, the split | Three pull requests: PR-35 to PR-37, as section 4 gives them. | D-287 |
 | Q-202, the role of Luna in the targets | For a revision, Luna writes the reason alone, and the rules give each target. | D-288 |
 | Q-194, the reactive deload of REC-7 | Yes, in work area 7.2, with a new policy version. | D-289 |
+| Q-302, the targets that a revision changes | Each exercise that the workout logged, in each session of the plan that holds it. | D-290 |
+| Q-303, the place of the target that the owner saw | A copy in the workout log, which the phone makes at the start and the sync sends. | D-291 |
+| Q-304, the time of a revision with no connection | In the sync of the finished workout, with a time limit for the reviser call. The offline plan keeps the old targets until a sync completes. | D-292 |
 
 These questions stay open, and section 4 names the session that asks each one:
 
 | Question | Session |
 |---|---|
-| Q-302, the targets that a revision changes | PR-35 |
-| Q-303, the place of the target that the owner saw | PR-35 |
-| Q-304, the time of a revision with no connection | PR-35 |
 | Q-305, the fields of an override | PR-36 |
 | Q-306, a missed session under 14 days | PR-36 |
 | Q-307, the numbers of the deload | PR-36 |
@@ -129,13 +129,13 @@ Concerns:
 - the screen of the next targets with each reason after a workout, and the offline copy of the revised plan (D-278),
 - the scenarios A to F of the high-level roadmap end to end with the fake provider.
 
-Recommendation: a failed call or a call that the cap refuses gives the reason of the rules too, and the targets stay the same.
+A failed call, or a call that the cap refuses, gives the reason of the rules too, and the targets stay the same (D-292).
 
 Acceptance story: the emulator tests send the logged sets of each scenario of section 5 of the high-level roadmap through `SyncOutbox`, and finish the workout. The plan then holds the targets of the rules, each with a reason that names a logged set. A reason of the fake provider with no logged set gives the reason of the rules. A browser test shows the next targets and their reasons after the end of a workout.
 
 Checks: `make contract`, `make go-test`, `make emulator-test`, `make web`, and `make verify`, free. Codex reviews PR-35.
 
-The session asks the owner Q-302 to Q-304 before the work.
+The owner approved the milestone, and answered Q-302 to Q-304 before the work (D-290 to D-292).
 
 ### PR-36 - The overrides and the disruptions
 

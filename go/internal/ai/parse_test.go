@@ -15,7 +15,7 @@ import (
 func output(t *testing.T, change func(out map[string]any)) string {
 	t.Helper()
 	req := request(t)
-	input, err := userInput(req)
+	input, err := userInput(RolePlanner, req)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -188,7 +188,7 @@ func TestEchoReplyFull(t *testing.T) {
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			req.Cardio = tc.cardio
-			input, err := userInput(req)
+			input, err := userInput(RolePlanner, req)
 			if err != nil {
 				t.Fatal(err)
 			}

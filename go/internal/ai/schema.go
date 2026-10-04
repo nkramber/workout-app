@@ -72,6 +72,48 @@ var schemaOnce = sync.OnceValue(func() []byte {
 	return b
 })
 
+// ReasonSchemaName is the name and the version of the schema of the
+// reviser. For a revision, Luna writes the reason alone, and the rules
+// give each target (D-288).
+const ReasonSchemaName = "luna_reason_v1"
+
+// ReasonSchema gives the strict JSON schema of the output of the
+// reviser: one reason for each exercise, with the logged sets that it
+// names. A set has its kind and its number inside its kind, from 1. The
+// schema holds no target, so the reviser can not change one.
+func ReasonSchema() []byte { return reasonSchemaOnce() }
+
+var reasonSchemaOnce = sync.OnceValue(func() []byte {
+	var strength []string
+	for _, e := range domain.DefaultCatalog().Exercises {
+		if e.Kind != domain.KindCardio {
+			strength = append(strength, string(e.ID))
+		}
+	}
+	set := object(obj{
+		"kind":   enum([]string{string(domain.SetWorking), string(domain.SetCalibration)}),
+		"number": typ("integer"),
+	})
+	reason := object(obj{
+		"exercise_id": enum(strength),
+		"logged_sets": array(set),
+		"reason":      typ("string"),
+	})
+	b, err := json.Marshal(object(obj{"reasons": array(reason)}))
+	if err != nil {
+		panic(err)
+	}
+	return b
+})
+
+// schemaOf gives the schema name and the schema of a role.
+func schemaOf(r Role) (string, []byte) {
+	if r.Name == RoleReviser {
+		return ReasonSchemaName, ReasonSchema()
+	}
+	return SchemaName, Schema()
+}
+
 type obj = map[string]any
 
 func typ(t string) obj { return obj{"type": t} }

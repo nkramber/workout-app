@@ -9,7 +9,7 @@
 //     no cross-origin call.
 //   - FIREBASE_AUTH_EMULATOR_HOST, FIRESTORE_EMULATOR_HOST: the local
 //     emulators. The API refuses them on Cloud Run (D-129).
-//   - OPENAI_API_KEY: the key of the planner calls, from the secret
+//   - OPENAI_API_KEY: the key of the planner and reviser calls, from the secret
 //     openai-api-key. The API refuses to start without it.
 //   - LUNA_CAP_USER_USD, LUNA_CAP_PROJECT_USD: the monthly AI caps of
 //     D-188. The API refuses to start without them.
@@ -49,6 +49,7 @@ import (
 	"github.com/nkramber/workout-app/go/internal/plansvc"
 	"github.com/nkramber/workout-app/go/internal/profile"
 	"github.com/nkramber/workout-app/go/internal/profilesvc"
+	"github.com/nkramber/workout-app/go/internal/revise"
 	"github.com/nkramber/workout-app/go/internal/usersvc"
 	"github.com/nkramber/workout-app/go/internal/workout"
 	"github.com/nkramber/workout-app/go/internal/workoutsvc"
@@ -199,7 +200,8 @@ func run(ctx context.Context, logger *slog.Logger, environ []string, getenv func
 // newHandler builds the routes. Each call of UserService,
 // InventoryService, ProfileService, PlanService, and WorkoutService needs
 // a token of a uid on the allowlist. The version route needs no sign-in, and it gives
-// the commit alone.
+// the commit alone. The sync of a finished workout revises the plan with
+// the AI client and the stores of the maker (D-292).
 func newHandler(v auth.Verifier, a auth.Allowlist, store inventory.Store, profiles profile.Store, maker *plan.Maker, workouts workout.Store, origin, buildCommit string) http.Handler {
 	mux := http.NewServeMux()
 	signedIn := connect.WithInterceptors(auth.Interceptor(v, a))
@@ -207,7 +209,8 @@ func newHandler(v auth.Verifier, a auth.Allowlist, store inventory.Store, profil
 	mux.Handle(workoutappv1connect.NewInventoryServiceHandler(inventorysvc.New(store), signedIn))
 	mux.Handle(workoutappv1connect.NewProfileServiceHandler(profilesvc.New(profiles), signedIn))
 	mux.Handle(workoutappv1connect.NewPlanServiceHandler(plansvc.New(maker), signedIn))
-	mux.Handle(workoutappv1connect.NewWorkoutServiceHandler(workoutsvc.New(workouts, store), signedIn))
+	reviser := &revise.Reviser{AI: maker.AI, Plans: maker.Plans, Workouts: workouts, Inventory: store, Now: maker.Now, Log: maker.Log}
+	mux.Handle(workoutappv1connect.NewWorkoutServiceHandler(workoutsvc.New(workouts, store).WithReviser(reviser, maker.Log), signedIn))
 	body, _ := json.Marshal(map[string]string{"commit": buildCommit})
 	mux.HandleFunc("GET "+VersionPath, func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

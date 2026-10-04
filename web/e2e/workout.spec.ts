@@ -174,6 +174,8 @@ test("finish now skips the exercises with no set, and the next session comes nex
     "2 exercises have a set with no log, so the workout ends early. An exercise with no logged set counts as skipped.",
   );
   await page.getByRole("alertdialog").getByRole("button", { name: "Finish now", exact: true }).click();
+  await expect(page.getByTestId("next-targets")).toBeVisible();
+  await button(page, "Done").click();
   await expect(button(page, "Workout")).toBeVisible();
 
   // Session 1 is done, so Session 2 is next, and the owner can pick
@@ -215,6 +217,7 @@ test("the plan screen refuses a new plan and an exclusion during a workout", asy
   await button(page, "Continue workout").click();
   await button(page, "Finish now").click();
   await page.getByRole("alertdialog").getByRole("button", { name: "Finish now", exact: true }).click();
+  await button(page, "Done").click();
   await button(page, "Plan").click();
   await expect(page.getByTestId("workout-lock")).toHaveCount(0);
   await expect(button(page, "Make a new plan")).toBeEnabled();
@@ -369,6 +372,9 @@ test("a skip and finish now give the correct session log", async ({ page, reques
     "1 exercise has a set with no log, so the workout ends early.",
   );
   await page.getByRole("alertdialog").getByRole("button", { name: "Finish now", exact: true }).click();
+  // The sync is held, so the next targets wait for it (D-292).
+  await expect(page.getByTestId("next-wait")).toHaveText("The next targets show after the sync. The phone syncs when it is online.");
+  await button(page, "Done").click();
   await expect(button(page, "Workout")).toBeVisible();
 
   const log = await page.evaluate(async () => ({
@@ -621,6 +627,8 @@ test("a full workout with no connection, a stop of the app, and a dropped answer
   await button(page, "Log cardio").click();
   await expect(card.getByTestId("cardio-logged")).toBeVisible();
   await button(page, "Finish workout").click();
+  await expect(page.getByTestId("next-wait")).toBeVisible();
+  await button(page, "Done").click();
   await expect(button(page, "Workout")).toBeVisible();
   const waiting = logged + 3; // the sets, the cardio log, and the start and the end of the workout
   await expect(syncLine(page)).toHaveText(`Offline · ${waiting} waiting`);
@@ -653,4 +661,45 @@ test("a full workout with no connection, a stop of the app, and a dropped answer
   expect(serverSets).toHaveLength(logged);
   expect(new Set(serverSets).size).toBe(logged);
   expect([...serverSets].sort()).toEqual(phone.sets.map((s) => s.id).sort());
+});
+
+// The acceptance story of PR-35 (work area 7.1). The owner finishes a
+// workout with no connection, and the end screen tells that the next
+// targets show after the sync (D-292). At the reconnect, the sync sends
+// the workout, the server revises the plan, and the sync reads the plan
+// copy again (D-278). The end screen then shows the next target of each
+// exercise of the workout with its reason. The reason of the fake names
+// set 1 (D-288). The skipped exercise gets the reason of the rules.
+test("the next targets and their reasons show after the end of a workout", async ({ page, context, request }, info) => {
+  const email = uniqueEmail("workout-revision", info);
+  await makePlanOwner(request, email, MACHINES);
+  await openWithPlan(page, email);
+  await expect(syncLine(page)).toHaveText("Synced");
+  await button(page, "Workout").click();
+  await button(page, "Start Session 1").click();
+  expect(await logSets(page, 2)).toBe(2);
+
+  await context.setOffline(true);
+  await button(page, "Finish now").click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Finish now", exact: true }).click();
+  await expect(page.getByTestId("next-wait")).toHaveText("The next targets show after the sync. The phone syncs when it is online.");
+
+  await context.setOffline(false);
+  const targets = page.getByTestId("next-target");
+  await expect(targets).toHaveCount(2, { timeout: 20_000 });
+  const press = page.locator('[data-testid="next-target"][data-exercise-id="chest_press"]');
+  await expect(press).toContainText("Chest press");
+  await expect(press.getByTestId("next-reason")).toHaveText(/^Set 1: \d+ reps at [\d.]+ lb, 3 in reserve\.$/);
+  const row = page.locator('[data-testid="next-target"][data-exercise-id="seated_row"]');
+  await expect(row.getByTestId("next-reason")).toContainText("You skipped this exercise. The target stays the same.");
+  const reason = await press.getByTestId("next-reason").textContent();
+
+  // The plan screen shows the revised plan with the same reason.
+  await button(page, "Done").click();
+  await button(page, "Plan").click();
+  await expect(page.getByText(reason ?? "", { exact: true }).first()).toBeVisible();
+
+  // The server holds the target copy of the workout (D-291).
+  const { workouts } = await callApi<{ workouts: { targets?: { exerciseId: string }[] }[] }>(request, email, "WorkoutService/ListWorkouts", {});
+  expect(workouts[0].targets?.map((t) => t.exerciseId)).toEqual(["chest_press", "seated_row"]);
 });

@@ -54,7 +54,34 @@ type Plan struct {
 	BodyTablesVersion int
 	// Attempts is the count of calls that the plan needed.
 	Attempts int
+
+	// Revisions counts the revisions after a finished workout (D-292).
+	// A revision keeps CreatedAt, so a workout keeps its link to the
+	// plan (D-248). LastRevision is nil before the first revision.
+	Revisions    int
+	LastRevision *Revision
+	// RevisedWorkouts holds the id of each finished workout that revised
+	// the plan, the oldest first, MaxRevisedWorkouts at most. A replay of
+	// the sync does not revise the plan two times.
+	RevisedWorkouts []string
 }
+
+// MaxRevisedWorkouts is the largest count of workout ids that a plan
+// keeps. A replay of the sync comes soon after its first call, so a
+// short list is enough.
+const MaxRevisedWorkouts = 50
+
+// Revision is the last revision of a plan: the finished workout that
+// started it, its time, and each exercise that got a new target, in
+// the order of the plan (D-290).
+type Revision struct {
+	WorkoutID string
+	At        time.Time
+	Exercises []domain.ExerciseID
+}
+
+// Revised tells whether a finished workout revised the plan.
+func (p Plan) Revised(workoutID string) bool { return slices.Contains(p.RevisedWorkouts, workoutID) }
 
 // Session is one session of a plan (D-44). The title comes from a
 // template, and the warm-up and the cool-down from the guidance catalog
@@ -72,11 +99,28 @@ type Session struct {
 // Calibration holds the loads of the working sets after a calibration
 // set at each weight of the machine, and it is nil when the target has no
 // calibration set (D-267).
+//
+// ReasonSource tells whether the reason is the reason of Luna or of the
+// rules. ReasonCause tells why the reason of the rules shows after a
+// revision, or it is "" (D-288). A plan of an older version has no
+// source, and ReasonSourceOf gives it from the record.
 type Exercise struct {
-	Target      domain.PlannedExercise
-	Reason      string
-	Record      policy.Record
-	Calibration []policy.CalibrationLoads
+	Target       domain.PlannedExercise
+	Reason       string
+	Record       policy.Record
+	Calibration  []policy.CalibrationLoads
+	ReasonSource policy.Source
+	ReasonCause  string
+}
+
+// ReasonSourceOf gives the source of the reason. A plan reason of Luna
+// shows when the policy accepted the proposal of Luna, so a stored
+// exercise with no source has the source of its record.
+func (e Exercise) ReasonSourceOf() policy.Source {
+	if e.ReasonSource != "" {
+		return e.ReasonSource
+	}
+	return e.Record.Source
 }
 
 // MaxReasonRunes is the length limit of the reason of an exclusion, in

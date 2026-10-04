@@ -106,6 +106,23 @@ The server stores each logged session as one Firestore document at `users/{uid}/
 
 After a session, the rules of the policy give the next targets (Decision, D-288). They read reps, load, reps in reserve, pain, skipped work, and gaps in the history (Decision, D-64). Luna writes the reason alone. The app shows a concise reason that names the logged evidence (Decision, D-68). A check refuses a reason of Luna that names no logged set, and the reason of the rules then shows (Decision, D-288).
 
+The revision runs on the server when `SyncOutbox` applies a finished workout (Decision, D-292). It reads these inputs:
+
+- The finished workouts of the owner, 100 at most. Each workout holds the target of each exercise that the owner saw at its start (Decision, D-291). A workout of an older phone has no such copy. For it, the revision reads the linked session of a plan with no revision.
+- The confirmed machine of each exercise, as for a plan (Decision, D-49, D-193). Each exercise of a plan starts as a return after a long break, so the first sessions count from its start (Decision, D-238).
+
+Each exercise that the workout logged gets the new target of the rules in each session of the plan that holds it (Decision, D-290). A skip counts as a log. The plan keeps its creation time, so each workout keeps its link to the plan. The plan records the last revision, and a replay of the sync does not revise the plan two times.
+
+One reviser call writes the reason of each new target, with the schema `luna_reason_v1` and the prompt `luna-prompt-v6`. The output names the logged sets that each reason uses. The check refuses these reasons (Decision, D-68, D-288):
+
+- a reason that the filter blocks,
+- a reason that names no logged set, or a set that the last session did not log,
+- a reason with a number that the evidence does not hold.
+
+The reason of the rules then shows, and the plan records the cause. The call has a time limit of 45 s. After a failed call, a call over the cap, or the time limit, the reasons of the rules show, and the targets stay the same. A store failure of a revision fails the sync call. The phone keeps the entries and sends them again, and the revision runs again.
+
+After the workout, the end screen shows the next target of each revised exercise with its reason. With no connection, it tells the owner that the next targets show after the sync. The sync then reads the plan copy again (Decision, D-278, D-292). The revision reads the dates of the logged sessions alone, so it does not apply the long-break table before the first session after a break. Work area 7.2 adds that change at the start of a session (Decision, D-66, D-151).
+
 The owner can override a target, and the app keeps the recommendation, the override, and the reason as separate records (Decision, D-69). The engine handles missed sessions and long breaks (Decision, D-66).
 
 After a gap of 14 days or more, the load goes down by the long-break table (Decision, D-151, D-179). The first sessions back stop at 3 reps in reserve, with rep progression only. A new exercise starts with a calibration set from the estimate of the owner, or from the lightest weight (Decision, D-150, D-177, D-178). A session has one calibration set, and the calibration table gives the load of its working sets one time (Decision, D-267).
@@ -193,6 +210,7 @@ The role layer is in `go/internal/ai` (Decision, D-157). It holds these parts:
 
 - The planner and the reviser roles on `gpt-6-luna` at xhigh effort (D-253). The role holds the model id, so a call site names a role alone (Decision, D-22, D-24).
 - The strict plan schema. Its enums hold the ids of the catalog of D-155 and of the guidance catalog, so a valid output names no unknown id (Decision, D-152).
+- The strict reason schema of the reviser. It holds a reason and the logged sets that it names for each exercise, and no target (Decision, D-288).
 - The prompt, with the boundary of D-36 and the dated copy of the usage policies of D-93, and each rule of the policy.
 - A cost record for each call, and a cap hook that reserves the worst-case cost before the call. The hook refuses a call over the cap. The cap values come from the configuration. The caps are 1 USD for the user and 2 USD for the project, for each calendar month in UTC (Decision, D-25, D-188, D-190). The API uses the lasting cap hook of `go/internal/capstore`. It keeps the spend of each month in Firestore, so a new instance of the API does not reset it (Decision, D-189, D-224). A failed call charges the reserved worst-case cost (Decision, D-225).
 - The filter of blocked claims on each text of Luna (Decision, D-183).
@@ -241,4 +259,4 @@ A change of audience reopens D-78, D-79, D-81, D-34, D-39, and D-40. The high-le
 
 ## 7. Open questions
 
-The section "Open questions" of `docs/questions.md` holds the open questions. On 2026-10-04, Q-103 and Q-302 to Q-308 are open. The high-level roadmap and the focused roadmaps name the phase or the pull request that needs each answer.
+The section "Open questions" of `docs/questions.md` holds the open questions. On 2026-10-04, Q-103 and Q-305 to Q-308 are open. The high-level roadmap and the focused roadmaps name the phase or the pull request that needs each answer.

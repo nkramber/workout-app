@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -18,6 +19,7 @@ import (
 	"github.com/nkramber/workout-app/go/internal/domain"
 	"github.com/nkramber/workout-app/go/internal/inventory"
 	"github.com/nkramber/workout-app/go/internal/plan"
+	"github.com/nkramber/workout-app/go/internal/policy"
 	"github.com/nkramber/workout-app/go/internal/profile"
 )
 
@@ -154,9 +156,31 @@ func TestRequestPlan(t *testing.T) {
 		t.Fatalf("calibration loads %v", rows)
 	}
 
+	if e.GetReasonSource() != "luna" || p.GetLastRevision() != nil {
+		t.Fatalf("reason source %q, last revision %v", e.GetReasonSource(), p.GetLastRevision())
+	}
+
 	res, err := f.client.GetPlan(context.Background(), as("uid-a", &workoutappv1.GetPlanRequest{}))
 	if err != nil || res.Msg.GetPlan().GetCreatedAt() != p.GetCreatedAt() || len(res.Msg.GetExclusions()) != 0 {
 		t.Fatalf("GetPlan = %v, %v", res, err)
+	}
+
+	// A revision gives the last revision and the reason source of each
+	// revised exercise (D-288, D-290).
+	at := time.Date(2026, 10, 3, 9, 0, 0, 0, time.UTC)
+	created := time.Date(2026, 10, 2, 15, 0, 0, 0, time.UTC)
+	if err := f.maker.Plans.Update(context.Background(), "uid-a", created, func(q *plan.Plan) error {
+		q.LastRevision = &plan.Revision{WorkoutID: "w1", At: at, Exercises: []domain.ExerciseID{"chest_press"}}
+		q.Sessions[0].Exercises[0].ReasonSource = policy.SourceRules
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	res, err = f.client.GetPlan(context.Background(), as("uid-a", &workoutappv1.GetPlanRequest{}))
+	r := res.Msg.GetPlan().GetLastRevision()
+	if err != nil || r.GetWorkoutId() != "w1" || r.GetRevisedAt() != "2026-10-03T09:00:00Z" || !slices.Equal(r.GetExerciseIds(), []string{"chest_press"}) ||
+		res.Msg.GetPlan().GetSessions()[0].GetExercises()[0].GetReasonSource() != "rules" {
+		t.Fatalf("GetPlan after a revision = %v, %v", res, err)
 	}
 	other, err := f.client.GetPlan(context.Background(), as("uid-b", &workoutappv1.GetPlanRequest{}))
 	if err != nil || other.Msg.GetPlan() != nil {

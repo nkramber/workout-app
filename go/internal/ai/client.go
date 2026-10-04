@@ -78,8 +78,9 @@ type Client struct {
 	Effort   string
 }
 
-// Result is the outcome of one call. Plan is nil unless Status is
-// StatusOK. Output is the output text of the model, or "" when the call
+// Result is the outcome of one call. For the planner, Plan is nil
+// unless Status is StatusOK. For the reviser, Reasons holds the reasons
+// when Status is StatusOK, and Plan is nil. Output is the output text of the model, or "" when the call
 // gave none. Cause tells why a call failed, and it is "" for StatusOK.
 // A cause holds ids, positions, and numbers alone, but an output can
 // hold text of Luna, so it never goes into a log (D-80).
@@ -90,6 +91,7 @@ type Result struct {
 	PromptHash string
 	Status     Status
 	Plan       *Plan
+	Reasons    []Reason
 	Cost       CostRecord
 	Output     string
 	Cause      string
@@ -100,8 +102,9 @@ func (c *Client) Plan(ctx context.Context, req Request) (Result, error) {
 	return c.call(ctx, Planner(), req)
 }
 
-// Revise calls the reviser for the next session after a logged
-// session. The request has 1 session.
+// Revise calls the reviser for the reasons of the next targets after a
+// logged session (D-288). The request has 1 session, and the policy
+// input of each exercise holds its history up to that session.
 func (c *Client) Revise(ctx context.Context, req Request) (Result, error) {
 	return c.call(ctx, Reviser(), req)
 }
@@ -132,11 +135,12 @@ func (c *Client) call(ctx context.Context, role Role, req Request) (Result, erro
 		}
 		seen[x.Exercise.ID] = true
 	}
-	input, err := userInput(req)
+	input, err := userInput(role.Name, req)
 	if err != nil {
 		return Result{}, err
 	}
-	call := Call{Role: role, Instructions: Instructions(role), Input: input, SchemaName: SchemaName, Schema: Schema()}
+	name, schema := schemaOf(role)
+	call := Call{Role: role, Instructions: Instructions(role), Input: input, SchemaName: name, Schema: schema}
 	r := Result{Role: role.Name, Model: role.Model, Effort: role.Effort, PromptHash: PromptHash(role)}
 	rec := CostRecord{User: req.User, Role: role.Name, Model: role.Model, Effort: role.Effort, PromptHash: r.PromptHash}
 	done := func(st Status, cause string) (Result, error) {
@@ -192,6 +196,14 @@ func (c *Client) call(ctx context.Context, role Role, req Request) (Result, erro
 		return done(StatusRefusal, "the model refused the request")
 	case reply.Incomplete:
 		return done(StatusIncomplete, "the output stopped before its end")
+	}
+	if role.Name == RoleReviser {
+		reasons, err := parseReasons(reply.Text, req)
+		if err != nil {
+			return done(StatusMalformed, err.Error())
+		}
+		r.Reasons = reasons
+		return done(StatusOK, "")
 	}
 	p, err := parse(reply.Text, req)
 	if err != nil {
