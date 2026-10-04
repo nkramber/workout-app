@@ -8,7 +8,7 @@ Date: 2026-10-04. Author of pull request PR-37, work area 7.3 of `docs/roadmaps/
 
 The deploys of `e18781f` passed: `deploy-api` `87489cf0` and `deploy-web` `83635766`. The live `/version` and `/version.json` name `e18781f`, and the revision `api-00020-cfh` has all traffic.
 
-The owner approved one live revision with policy version 6 (D-212), and approved the milestone (D-12). The owner answered Q-310, Q-308, and Q-311 (D-299 to D-303). The live revision waits for the owner, who finishes a workout on the iPhone. The session then reads the reviser call and the plan with ids and counts alone.
+The owner approved one live revision with policy version 6 (D-212), and approved the milestone (D-12). The owner answered Q-310, Q-308, Q-311, and Q-312 (D-299 to D-304). The live check found two reviser calls for each synced workout, and the owner accepted its spend (D-305).
 
 The pull request holds:
 
@@ -17,11 +17,12 @@ The pull request holds:
 - the flag `first_set_calibration` in the contract, the stores, and the phone,
 - the collapse of a finished exercise list (D-298),
 - the scenarios G to J in `go/cmd/lunaeval`, the numbers of each scenario, and the paid run of D-302,
-- the report `docs/research/reviser-evaluation.md`.
+- the report `docs/research/reviser-evaluation.md`,
+- the claim of a revision before its reviser call (D-304).
 
 `make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. GitHub PR 38 holds the work.
 
-Codex round 1 found P2-1, and round 2 found P2-2 and P2-3 (`docs/reviews/pr-38.md`). Round 3 found both fixes complete. The review is Blocked at effective head `0b51b4c5c558fb2c780f930dc4004c2f964f435d`, with no open findings. The owner must complete and read the live revision on the iPhone before PR-37 closes. Next action: record that evidence, then ask the owner to confirm the merge.
+Codex round 1 found P2-1, and round 2 found P2-2 and P2-3 (`docs/reviews/pr-38.md`). Round 3 found the fixes complete, and gave Blocked for the live check alone. The live check and the claim of D-304 came after round 3. Next action: when CI is green, run Codex round 4.
 
 ## Facts that expire
 
@@ -29,6 +30,7 @@ Codex round 1 found P2-1, and round 2 found P2-2 and P2-3 (`docs/reviews/pr-38.m
 |---|---|---|
 | The paid evaluation of D-302: 50 reviser calls of the 10 scenarios with policy version 7 and xhigh, all `ok`. The check accepted 110 reasons and refused 5. Cost 0.0179 USD, the longest call 10.8 s. | 2026-10-04 | `docs/research/reviser-evaluation.md` |
 | The live `/version.json` and `/version` name `e18781f6cf201cf0a7028eee44c95b906c4813d2`, from the builds `deploy-web` `83635766` and `deploy-api` `87489cf0`. The revision `api-00020-cfh` has all traffic. | 2026-10-04 | `curl`, `gcloud builds list`, `gcloud run services describe` |
+| The live check of `e18781f`: the owner finished 2 workouts and made a new plan. 4 reviser calls and 1 planner call, 0.0065 USD known and 0.0257 USD against the cap. Each revision gave `ok`, and an 8-exercise sync took 27.0 s. A duplicate call of a second sync reached the limit of 45 s (D-304, D-305). | 2026-10-04 | `gcloud logging read`, `users/{uid}/plan/active` |
 | The live revision of `d8f766e`: 1 reviser call of 0.0017 USD with the status `ok`, in a `SyncOutbox` call of 19.8 s. The plan got 8 new targets, each with a reason of Luna. Each of the 16 exercises of the plan has a calibration set. | 2026-10-04 | `gcloud logging read`, `users/{uid}/plan/active` |
 | The repository is public. | 2026-09-27 | GitHub repository settings |
 | The owner ended the D-4 period. `OVERRIDE_ENABLED` is `True` on `main`. | 2026-09-29 | D-125, `docs/tools/review_gate.py` |
@@ -79,7 +81,7 @@ Codex round 1 found P2-1, and round 2 found P2-2 and P2-3 (`docs/reviews/pr-38.m
 
 ## Next steps, in order
 
-1. Close PR-37: CI, the Codex review, the live revision of the owner, the owner confirmation, and the merge.
+1. Close PR-37: CI, the Codex review, the owner confirmation, and the merge.
 2. After the merge, read the deploys of the merge.
 3. Ask the owner to check the first-set calibration and the collapse on the iPhone. Phase 7 then ends.
 
@@ -99,10 +101,11 @@ Completed:
 - Added the collapse of a finished workout.
 - Added the scenarios G to J and the numbers of each scenario to `go/cmd/lunaeval`, and made the paid run of D-302.
 - Wrote `docs/research/reviser-evaluation.md`, and changed the registers, both roadmaps, the design, both READMEs, and `AGENTS.md`.
+- Answered P2-1 to P2-3 of Codex, and read the live check of the owner. Added the claim of D-304.
 
 Open work:
 
-- The live revision of the owner, CI, the Codex review, the owner confirmation, and the merge of PR-37.
+- CI, the Codex review, the owner confirmation, and the merge of PR-37.
 
 ### Session 37 - 2026-10-04
 

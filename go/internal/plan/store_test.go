@@ -5,6 +5,7 @@ import (
 	"errors"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/nkramber/workout-app/go/internal/ai"
 	"github.com/nkramber/workout-app/go/internal/domain"
@@ -42,6 +43,7 @@ func fullPlan() Plan {
 		PolicyVersion: 3, FilterVersion: 1, GuidanceVersion: 1, CatalogVersion: 1, BodyTablesVersion: 1, Attempts: 2,
 		Revisions: 2, LastRevision: &Revision{WorkoutID: "w2", At: now, Exercises: []domain.ExerciseID{"chest_press"}},
 		RevisedWorkouts: []string{"w1", "w2"},
+		Claims:          []Claim{{WorkoutID: "w3", Until: now.Add(time.Minute)}},
 	}
 }
 
@@ -170,5 +172,25 @@ func TestMemoryUpdate(t *testing.T) {
 	got, _, _ := s.Get(ctx, uid)
 	if got.Summary != "summary" || got.Revisions != 3 || !got.Revised("w1") || got.Revised("w3") {
 		t.Fatalf("plan after the updates: %q, %d", got.Summary, got.Revisions)
+	}
+}
+
+// A claim lasts until the end of its lease, and a new claim or an
+// unclaim removes each claim whose lease ended (D-304).
+func TestClaims(t *testing.T) {
+	var p Plan
+	p.Claim("w1", now, now.Add(time.Minute))
+	p.Claim("w2", now, now.Add(2*time.Minute))
+	if !p.Claimed("w1", now) || p.Claimed("w1", now.Add(time.Minute)) || p.Claimed("w3", now) {
+		t.Fatalf("claims %+v", p.Claims)
+	}
+	p.Claim("w3", now.Add(time.Minute), now.Add(3*time.Minute))
+	if len(p.Claims) != 2 || p.Claims[0].WorkoutID != "w2" {
+		t.Fatalf("claims %+v: want w2 and w3 after the lease of w1", p.Claims)
+	}
+	p.Unclaim("w2", now)
+	p.Unclaim("w3", now)
+	if p.Claims != nil {
+		t.Fatalf("claims %+v: want none", p.Claims)
 	}
 }

@@ -64,6 +64,40 @@ type Plan struct {
 	// the plan, the oldest first, MaxRevisedWorkouts at most. A replay of
 	// the sync does not revise the plan two times.
 	RevisedWorkouts []string
+	// Claims holds each revision that runs now, until its save or the end
+	// of its lease. A second sync of the same workout then makes no
+	// reviser call (D-304).
+	Claims []Claim
+}
+
+// Claim is a revision that runs now: the finished workout, and the end
+// of its lease. A revision that fails before its save keeps its claim
+// until the lease ends, so a later replay revises the plan.
+type Claim struct {
+	WorkoutID string
+	Until     time.Time
+}
+
+// Claimed tells whether a revision of the workout runs at the time now.
+func (p Plan) Claimed(workoutID string, now time.Time) bool {
+	return slices.ContainsFunc(p.Claims, func(c Claim) bool { return c.WorkoutID == workoutID && now.Before(c.Until) })
+}
+
+// Claim records a revision of the workout that runs until the time
+// until. It removes each claim of the workout and each claim whose
+// lease ended at the time now.
+func (p *Plan) Claim(workoutID string, now, until time.Time) {
+	p.Unclaim(workoutID, now)
+	p.Claims = append(p.Claims, Claim{WorkoutID: workoutID, Until: until.UTC()})
+}
+
+// Unclaim removes each claim of the workout and each claim whose lease
+// ended at the time now.
+func (p *Plan) Unclaim(workoutID string, now time.Time) {
+	p.Claims = slices.DeleteFunc(p.Claims, func(c Claim) bool { return c.WorkoutID == workoutID || !now.Before(c.Until) })
+	if len(p.Claims) == 0 {
+		p.Claims = nil
+	}
 }
 
 // MaxRevisedWorkouts is the largest count of workout ids that a plan

@@ -78,7 +78,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 
 ## The revision
 
-After each `SyncOutbox` batch, `go/internal/revise` revises the plan for each finished workout of the batch (D-292). A replayed finish counts too, and the plan keeps the id of each workout that revised it, so a revision runs one time.
+After each `SyncOutbox` batch, `go/internal/revise` revises the plan for each finished workout of the batch (D-292). A replayed finish counts too, and the plan keeps the id of each workout that revised it, so a revision runs one time. Before its reviser call, a revision claims the workout in the plan, with a lease of the time limit of a revision (D-304). So a second sync of the same workout makes no second call.
 
 - The history of an exercise is each finished workout that logged it, of the newest 100, with its target copy. A workout of an older phone with no copy reads the linked session of a plan with no revision.
 - `policy.Revise` gives the target of the rules and its decision record. Each session of the plan that holds the exercise gets it (D-290). The plan keeps its `created_at`, so each workout keeps its link.

@@ -67,6 +67,7 @@ In the evaluation of Phase 3, Luna proposed the target of the rules in each of 1
 | Q-310, the first set as the calibration | The other sets use the weight of the first set, and the first set is a working set. A new exercise starts at the estimate. The first session of each exercise calibrates, and the normal rules start in the second session. | D-299 to D-301 |
 | Q-308, the size and the cap of the paid evaluation | 50 reviser calls with a cap of 1 USD. | D-302 |
 | Q-311, the load of a deload week | The load of the last target, with no load step. | D-303 |
+| Q-312, two syncs of one finished workout | Fix it in PR-37: a revision claims the workout before its reviser call. | D-304 |
 
 No question of this phase stays open. Q-103 stays open for the deferred photo work.
 
@@ -174,6 +175,8 @@ Acceptance story: the report gives, for each scenario, the count of reasons that
 Checks: `make go-test` and `make verify`, free. The evaluation costs money, and runs only after the owner approves the cap. Codex reviews PR-37.
 
 The owner approved the milestone and one live revision on 2026-10-04 (D-12, D-212), and answered Q-310, Q-308, and Q-311 (D-299 to D-303). The paid run used the policy version 7. It cost 0.0179 USD, and its longest call took 10.8 s (`docs/research/reviser-evaluation.md`).
+
+In the live check of D-212, the owner finished 2 workouts on `e18781f`, and made a new plan. Each revision gave the status `ok`, and an 8-exercise revision took 27.0 s. Two syncs of each workout each called the reviser, and one of those calls reached the time limit. The owner accepted the spend, and PR-37 adds the claim of D-304 (D-305).
 
 ## 5. Exit of the phase
 

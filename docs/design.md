@@ -112,7 +112,7 @@ The revision runs on the server when `SyncOutbox` applies a finished workout (De
 - The finished workouts of the owner, 100 at most. Each workout holds the target of each exercise that the owner saw at its start (Decision, D-291). A workout of an older phone has no such copy. For it, the revision reads the linked session of a plan with no revision.
 - The confirmed machine of each exercise, as for a plan (Decision, D-49, D-193). Each exercise of a plan starts as a return after a long break, so the first sessions count from its start (Decision, D-238).
 
-Each exercise that the workout logged gets the new target of the rules in each session of the plan that holds it (Decision, D-290). A skip counts as a log. The plan keeps its creation time, so each workout keeps its link to the plan. The plan records the last revision, and a replay of the sync does not revise the plan two times.
+Each exercise that the workout logged gets the new target of the rules in each session of the plan that holds it (Decision, D-290). A skip counts as a log. The plan keeps its creation time, so each workout keeps its link to the plan. The plan records the last revision, and a replay of the sync does not revise the plan two times. Before its reviser call, a revision claims the workout in the plan, so a second sync of the same workout makes no second call (Decision, D-304).
 
 One reviser call writes the reason of each new target, with the schema `luna_reason_v1` and the prompt `luna-prompt-v6`. The output names the logged sets that each reason uses. The check refuses these reasons (Decision, D-68, D-288):
 

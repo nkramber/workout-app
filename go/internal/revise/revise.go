@@ -80,7 +80,7 @@ type Result struct {
 }
 
 // errSeen stops an update when another call revised the plan for the
-// same workout first.
+// same workout first, or a revision of it runs now (D-304).
 var errSeen = errors.New("revise: the plan has this revision")
 
 // Revise revises the plan of uid after the finished workout workoutID.
@@ -113,6 +113,23 @@ func (r *Reviser) Revise(ctx context.Context, uid, workoutID string) (Result, er
 	res := Result{}
 	var reply ai.Result
 	if len(inputs) > 0 {
+		// The claim stops a second sync of the same workout before its
+		// reviser call (D-304). The lease is the time limit of this
+		// revision, so a revision that fails leaves no lasting claim.
+		start := r.now().UTC()
+		err := r.Plans.Update(ctx, uid, p.CreatedAt, func(q *plan.Plan) error {
+			if q.Revised(workoutID) || q.Claimed(workoutID, start) {
+				return errSeen
+			}
+			q.Claim(workoutID, start, start.Add(Timeout))
+			return nil
+		})
+		switch {
+		case errors.Is(err, errSeen), errors.Is(err, plan.ErrPlanReplaced):
+			return Result{}, nil
+		case err != nil:
+			return Result{}, fmt.Errorf("revise: the claim: %w", err)
+		}
 		req := ai.Request{User: uid, Today: history[i].Date, Sessions: 1}
 		for _, in := range inputs {
 			req.Exercises = append(req.Exercises, in)
@@ -155,6 +172,7 @@ func (r *Reviser) Revise(ctx context.Context, uid, workoutID string) (Result, er
 		if q.Revised(workoutID) {
 			return errSeen
 		}
+		q.Unclaim(workoutID, now)
 		res.Exercises = apply(q, changed)
 		q.Revisions++
 		q.LastRevision = &plan.Revision{WorkoutID: workoutID, At: now, Exercises: res.Exercises}

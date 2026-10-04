@@ -43,6 +43,14 @@ type planDoc struct {
 	Revisions         int64         `firestore:"revisions"`
 	LastRevision      *revisionDoc  `firestore:"last_revision"`
 	RevisedWorkouts   []string      `firestore:"revised_workouts"`
+	Claims            []claimDoc    `firestore:"revision_claims,omitempty"`
+}
+
+// claimDoc is a revision that runs now (D-304). A plan of an older
+// version has none.
+type claimDoc struct {
+	WorkoutID string    `firestore:"workout_id"`
+	Until     time.Time `firestore:"until"`
 }
 
 // revisionDoc is the last revision of a plan. A plan of an older
@@ -182,6 +190,9 @@ func encodePlan(p Plan) planDoc {
 	if r := p.LastRevision; r != nil {
 		d.LastRevision = &revisionDoc{WorkoutID: r.WorkoutID, At: r.At.UTC(), Exercises: strs(r.Exercises)}
 	}
+	for _, c := range p.Claims {
+		d.Claims = append(d.Claims, claimDoc{c.WorkoutID, c.Until.UTC()})
+	}
 	for _, f := range p.Filtered {
 		d.Filtered = append(d.Filtered, filteredDoc{f.Where, string(f.Rule)})
 	}
@@ -212,6 +223,9 @@ func (d planDoc) plan() Plan {
 	}
 	if r := d.LastRevision; r != nil {
 		p.LastRevision = &Revision{WorkoutID: r.WorkoutID, At: r.At.UTC(), Exercises: ids[domain.ExerciseID](r.Exercises)}
+	}
+	for _, c := range d.Claims {
+		p.Claims = append(p.Claims, Claim{c.WorkoutID, c.Until.UTC()})
 	}
 	for _, f := range d.Filtered {
 		p.Filtered = append(p.Filtered, ai.Filtered{Where: f.Where, Rule: ai.FilterRule(f.Rule)})
