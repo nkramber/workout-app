@@ -353,18 +353,19 @@ func TestReviseSkipped(t *testing.T) {
 	}
 }
 
-// A new plan reads more workouts than a revision (P2-1 of PR-38): an
-// exercise that the newest MaxHistory workouts omit keeps its history,
-// so its target is the return of D-179 and not a new start (D-301).
+// A new plan reads each workout (P2-1 and P2-2 of PR-38): an exercise
+// that the newest 2000 workouts omit keeps its history, so its target is
+// the return of D-179 and not a new start (D-301).
 func TestHistoryBeyondRevisionWindow(t *testing.T) {
 	f := newFixture(t)
 	press := target("chest_press", 3, 12, lb(100))
 	f.workout(1, "2025-06-02", true, log{press, []domain.SetLog{set(12, lb(100), 3), set(12, lb(100), 3), set(12, lb(100), 3)}})
 	row := target("seated_row", 3, 12, lb(40))
 	start := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
-	for n := 2; n <= MaxHistory+20; n++ {
-		date := start.AddDate(0, 0, 2*n).Format(domain.DateLayout)
-		f.workout(n, date, true, log{row, []domain.SetLog{set(12, lb(40), 3), set(12, lb(40), 3), set(12, lb(40), 3)}})
+	const newer = 2100
+	for n := 2; n <= newer+1; n++ {
+		date := start.AddDate(0, 0, n).Format(domain.DateLayout)
+		f.workout(n, date, true, log{row, []domain.SetLog{set(12, lb(40), 3)}})
 	}
 	h, err := f.reviser.History(context.Background(), uid)
 	if err != nil {
@@ -373,8 +374,8 @@ func TestHistoryBeyondRevisionWindow(t *testing.T) {
 	if got := h.Outcomes["chest_press"]; len(got) != 1 || got[0].Date != "2025-06-02" {
 		t.Fatalf("chest press history %+v, want the workout of 2025-06-02", got)
 	}
-	if n := len(h.Outcomes["seated_row"]); n != MaxHistory+19 {
-		t.Fatalf("seated row history of %d workouts, want %d", n, MaxHistory+19)
+	if n := len(h.Outcomes["seated_row"]); n != newer {
+		t.Fatalf("seated row history of %d workouts, want %d", n, newer)
 	}
 	in := pressInput(t, f, h.Outcomes["chest_press"]...)
 	in.Today = "2026-10-05"

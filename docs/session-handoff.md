@@ -21,7 +21,7 @@ The pull request holds:
 
 `make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. GitHub PR 38 holds the work.
 
-Codex round 1 found P2-1 at `99e984d` (`docs/reviews/pr-38.md`). It is fixed at `d9bfc6e`. Codex round 2 found P2-2 and P2-3 at `d9bfc6e`. The verdict is Changes required. The record and this hand-off need a commit and push. Next action: answer P2-2 and P2-3, then run the checks and Codex round 3.
+Codex round 1 found P2-1, and round 2 found P2-2 and P2-3 (`docs/reviews/pr-38.md`). A new plan now reads each workout, so an exercise beyond the window of a revision keeps its history. The design gives the start at the estimate. The answers are in `docs/reviews/pr-38-response.md`. Next action: when CI is green, run Codex round 3.
 
 ## Facts that expire
 
