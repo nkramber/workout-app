@@ -103,6 +103,23 @@ Each of the 9 exercises has one calibration set, and `calibration_loads` with a 
 
 The owner logged a calibration set on the iPhone, and the log was correct (D-268). After a return to the app, the screen lock still needed a tap (D-271). The owner asked for 60 seconds of rest, and for a probe of the screen lock with no tap. PR-32 holds both (D-279 to D-282).
 
+### 1.8 The deploy of PR-32
+
+The session of PR-33 read these facts on 2026-10-04:
+
+- PR-32 merged to `main` as `ee3b89b` at 22:01:16Z on 2026-10-03.
+- The build `deploy-web` `05254463` gave SUCCESS at 22:06:23Z. The build `deploy-api` `d9988047` gave SUCCESS at 22:07:05Z.
+- The live `/version` and the live `/version.json` both named `ee3b89b`, and the revision `api-00018-vhd` served all traffic (D-137).
+
+The owner ran the method "Wake Lock, no tap" of the "Screen lock test" on the iPhone. The screen stayed on after a return to the app with no tap, and the owner saw no battery drain. The owner gave no result of the two video methods, and picked the Wake Lock API (D-283).
+
+The owner completed a full workout on the iPhone with no connection, and then opened the app online. The session read Firestore with ids and counts alone:
+
+- At 02:22:49Z, the first open of the new version sent two workouts of 2026-10-03, which the phone kept since then.
+- The workout of session 2 holds 16 sets of 4 exercises, 1 cardio log, and no skipped exercise. The phone logged each set with no connection, and the server applied each op id one time.
+- The server marked the workout finished at 02:38:06Z, after the owner finished it online.
+- The 22 set ids of the 4 workouts are all different, and each of the 31 op ids has one document.
+
 ## 2. Owner answers for this phase
 
 | Question | Answer | Decision |
@@ -148,8 +165,11 @@ The owner logged a calibration set on the iPhone, and the log was correct (D-268
 | Q-294, the screen lock with no tap | A probe of each method, then the owner picks one. | D-280 |
 | Q-295, the place of these changes | PR-32. | D-281 |
 | Q-296, the run of the probe | A "Screen lock test" screen. The next pull request applies the method. | D-282 |
+| Q-297, the method of the screen lock | "Wake Lock, no tap". | D-283 |
+| Q-298, the "Screen lock test" screen | Remove it, and put the method into the workout. | D-284 |
+| Q-299, the evidence of the screen lock | The browser tests, then the iPhone after the deploy. | D-285 |
 
-No open question blocks PR-32. Section 4 names the questions that each session asks. Q-194 and Q-202 stay open for Phase 7. Q-103 stays open for the deferred photo work.
+No open question blocks PR-33. Section 4 names the questions that each session asks. Q-194 and Q-202 stay open for Phase 7. Q-103 stays open for the deferred photo work.
 
 ## 3. Rules for each pull request of this phase
 
@@ -177,6 +197,7 @@ The PR-<n> order is the order of work. Each pull request needs the one before it
 | PR-30 | 6.1 | `feat: the workout screen and set log (PR-30)` | the live plan at xhigh before the work (D-212) |
 | PR-31 | 6.2 | `feat: the rest timer and automatic advance (PR-31)` | the live plan of prompt v5 before the work (D-212) |
 | PR-32 | 6.3 | `feat: the outbox sync (PR-32)` | none |
+| PR-33 | 6.2 | `feat: the screen lock with no tap (PR-33)` | the live plan of policy version 5 before the work (D-212) |
 
 ### PR-28 - The Phase 6 focused roadmap
 
@@ -288,11 +309,29 @@ After the deploy of the merge, the owner completes a full workout on the iPhone 
 
 Questions for the session: the confirmation of a machine with no connection (D-201). Also the place on the phone of an entry that the server refused. Also the order of the inventory entries and the workout entries in one sync. The owner answered them (D-273 to D-275).
 
+### PR-33 - The screen lock with no tap
+
+Branch: `feat/pr-33-screen-lock`. Work area 6.2. It needs PR-32 on `main`.
+
+Concerns:
+
+- the method "Wake Lock, no tap" in the workout: a request at the start, and at each return, focus, `pageshow` event, and tap (D-283),
+- no request of its own at a release, and the state of the newest request alone, so a late answer shows no notice,
+- the notice "The screen can turn off." only after a refused request, with no video fallback (D-265),
+- the removal of the "Screen lock test" screen from Diagnostics (D-284).
+
+Acceptance story: the browser tests prove that the wake lock comes back at each return to the front with no tap. A refusal at a return shows the notice, and the next return removes it with no tap (D-285).
+
+Checks: `make web` and `make verify`, free. Codex reviews PR-33.
+
+After the deploy of the merge, the owner checks the screen lock on the iPhone. The check is a return to the app during a workout, with no tap. The next session records the result (D-285).
+
 ## 5. Exit of the phase
 
-Phase 6 ends when PR-32 merges and the device check passes. These items give the exit evidence of `docs/roadmaps/high-level-roadmap.md`:
+Phase 6 ends when PR-33 merges and the device checks pass. These items give the exit evidence of `docs/roadmaps/high-level-roadmap.md`:
 
 - The browser tests of PR-30 log a set in three taps or fewer.
 - The UI tests of PR-31 prove that the timer shows the correct time after a screen lock. The advance comes after the last set. A calibration set gives the load of the working sets with no network.
 - The offline tests of PR-32 replay a full workout with a dropped connection and a stop of the app. The server holds each set one time.
-- After the deploy of PR-32, the owner completes a full workout on the iPhone with no connection. The logs reach Firestore when the app is open and online again.
+- After the deploy of PR-32, the owner completes a full workout on the iPhone with no connection. The logs reach Firestore when the app is open and online again. Section 1.8 holds this result.
+- The browser tests of PR-33 prove that the wake lock comes back at a return with no tap. After the deploy, the owner checks it on the iPhone (D-285).

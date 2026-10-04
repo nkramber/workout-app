@@ -510,6 +510,14 @@ The live check of D-203 failed on 2026-10-02. The app showed "The API did not an
 | Q-295 | Where do the change of the rest and the probe of the screen lock go? | Into PR-32. | Answered | D-281 |
 | Q-296 | The probe needs an HTTPS page, and a deploy comes from `main` alone (D-14). How does the probe run? | A "Screen lock test" screen in PR-32. After the deploy, the owner runs it, and the next pull request applies the method. | Answered | D-282 |
 
+## Questions of the screen lock session
+
+| # | Question | Answer | Status | Decision |
+|---|---|---|---|---|
+| Q-297 | Which method of the "Screen lock test" does the workout use (D-282)? | "Wake Lock, no tap". | Answered | D-283 |
+| Q-298 | What happens to the "Screen lock test" screen? | Remove it, and put the method into the workout. | Answered | D-284 |
+| Q-299 | The iPhone check needs a deploy from `main` (D-14). Which evidence proves the milestone? | The browser tests. The owner checks the iPhone after the deploy. | Answered | D-285 |
+
 ## Open questions
 
 | # | Question | Why it matters | Ask when | Status |

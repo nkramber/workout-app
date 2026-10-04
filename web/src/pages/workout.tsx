@@ -198,7 +198,7 @@ function useNow(on: boolean): number {
 }
 
 // ActiveWorkout is the open workout. It shows a notice when the phone
-// refuses the screen wake lock of the app (D-265, D-271). A logged set
+// refuses the screen wake lock of the app (D-265, D-283). A logged set
 // starts the rest timer (D-59). After the last set of an exercise, the
 // screen shows the next machine for PREVIEW_SECONDS, then advances
 // (D-60, D-269). Each cue is visual alone, and the app sends no

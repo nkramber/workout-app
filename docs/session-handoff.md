@@ -4,26 +4,23 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-03. Roadmap PR-32 of `docs/roadmaps/phase-6-guided-workout.md`, GitHub #33, on branch `feat/pr-32-outbox-sync`, from base `7ed7c0f`.
+Date: 2026-10-04. Roadmap PR-33 of `docs/roadmaps/phase-6-guided-workout.md`, on branch `feat/pr-33-screen-lock`, from base `ee3b89b`.
 
-Before the work, the session read the deploy of `7ed7c0f`. The build `deploy-web` `b386e8a9` and the build `deploy-api` `481821e0` gave `SUCCESS`. The live `/version` and `/version.json` both name `7ed7c0f`, and the revision `api-00017-dnm` serves all traffic (D-137).
+Before the work, the session read the deploy of `ee3b89b`. The build `deploy-web` `05254463` and the build `deploy-api` `d9988047` gave `SUCCESS`. The live `/version` and `/version.json` both name `ee3b89b`, and the revision `api-00018-vhd` serves all traffic (D-137).
 
-The owner approved the live check of D-212. At 20:08Z, the API made 1 planner call of 0.0023 USD. The plan has policy version 4, and each of the 9 exercises has a row of `calibration_loads` for each weight of its machine (D-267). The owner logged a calibration set correctly (D-268). After a return, the screen lock still needed a tap (D-271).
+The owner ran "Wake Lock, no tap" of the "Screen lock test" on the iPhone. The screen stayed on after a return with no tap, with no battery drain (D-283). The owner completed a full workout with no connection, and opened the app online. Firestore holds each set one time, and the workout is finished (exit of Phase 6). Section 1.8 of the focused roadmap holds the counts.
 
-The owner approved the milestone (D-12), answered Q-286 to Q-292 (D-272 to D-278), and widened it after Codex round 1 (D-279 to D-282). The pull request holds:
+The owner approved the milestone (D-12), and answered Q-297 to Q-299 (D-283 to D-285). The pull request holds:
 
-- `SyncOutbox` with the inventory entries, each applied one time by its op id (D-272),
-- the sync engine, the refused list, the line of the sync, and the offline copies (D-274 to D-278),
-- the inventory changes in the outbox, and a confirmation with no connection (D-250, D-273),
-- a rest of 60 seconds for each exercise, with policy version 5 (D-279),
-- a "Screen lock test" screen under Diagnostics (D-280 to D-282),
-- the offline acceptance tests in `web/e2e/workout.spec.ts` and `web/e2e/inventory.spec.ts`.
+- the method "Wake Lock, no tap" in `web/src/lib/wake-lock.ts`: no request at a release, and the state of the newest request alone (D-283),
+- the removal of the "Screen lock test" screen (D-284),
+- unit tests, and a browser test with the release order that the old code failed (D-285).
 
-Codex rounds 1 and 2 gave "Changes required" with P2-1 and P2-2. Both findings are fixed. The current Codex record approves effective head `ea2182a8680e1ef9656cf2082c01e4b42a53617e`. The author must wait for the new `review-gate` result and owner confirmation.
+The release order of the test is the probable cause of D-271 (unverified). The old code showed the notice while it held the lock.
 
-Next action: wait for the `review-gate` result, then ask the owner to confirm the merge.
+Next action: push, wait for CI, and run the Codex review.
 
-After the merge, the next session reads both deploys. The owner completes a full workout on the iPhone with no connection (exit of Phase 6), and runs the "Screen lock test". The next pull request applies the method that the owner picks (D-282).
+After the merge, the next session reads both deploys. The owner checks the screen lock on the iPhone during a workout, with a return and no tap (D-285).
 
 ## Facts that expire
 
@@ -37,20 +34,21 @@ After the merge, the next session reads both deploys. The owner completes a full
 | The OpenAI usage policies page returns HTTP 403. The owner accepted a copy printed on 2025-11-07 (D-93). | 2026-09-28 | `docs/research/platform-cloud-and-ai.md` |
 | `gpt-6-luna` accepts the strict JSON schema of the plan through the Responses API. 60 of 60 plans passed the schema. | 2026-09-28 | `docs/research/luna-plan-spike.md` |
 | `gpt-6-luna` accepts an image with a strict JSON schema. One photo at 1536 px costs 0.00037 USD. | 2026-09-28 | `docs/research/recognition-spike.md` |
-| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `7ed7c0f`, three triggers, and the allowlist entry. | 2026-10-03 | `docs/setup-gcp.md`, `/version` |
+| The project `nk-workout-app-prod` holds billing, the 10 USD budget, Firestore with PITR, daily backups, and delete protection, the service `api` of build `ee3b89b`, three triggers, and the allowlist entry. | 2026-10-04 | `docs/setup-gcp.md`, `/version` |
 | The service `api` revision `api-00013-w8w` holds `OPENAI_API_KEY` from `openai-api-key:latest`, `LUNA_CAP_USER_USD=1`, `LUNA_CAP_PROJECT_USD=2`, and a request timeout of 420 s. The TTL policy of `aiErrors.expire_at` is `ACTIVE`. | 2026-10-03 | `gcloud run services describe`, `gcloud firestore fields ttls list` |
 | A Cloud Run service with a secret needs the accessor role for its service identity alone. The page lists `roles/run.admin` for the deployer. | 2026-10-02 | Cloud Run docs, "Configure secrets for services" |
 | The secret `openai-api-key` has version 1, enabled. A free call to the OpenAI model list with it gave HTTP 200 and lists `gpt-6-luna`. | 2026-10-01 | `gcloud secrets versions list`, `curl` |
 | With the same 50 calls of `go/cmd/lunaeval`, xhigh cost 0.0740 USD and medium 0.0426 USD. The longest xhigh call took 63.6 s, and each effort passed 50 of 50. | 2026-10-03 | `docs/research/luna-effort-check.md` |
 | A live plan at xhigh of `luna-prompt-v5` and policy version 4 took 1 call of 0.0023 USD, with 2 sessions of 5 and 4 exercises. Each exercise has a calibration row for each weight of its machine. | 2026-10-03 | `gcloud logging read`, `users/{uid}/plan/active` |
 | WebKit fixed the Screen Wake Lock for Home Screen apps in iOS 18.4. On iOS 27.0, the lock worked in the Home Screen app of the probe, from Chrome 154. | 2026-10-03 | PC-2, PC-8, `docs/research/iphone-platform-spike.md` |
+| On iOS 27.0, a request of the wake lock at each return, focus, and `pageshow` event kept the screen on after a return with no tap. The owner saw no battery drain. | 2026-10-04 | The "Screen lock test" of `ee3b89b`, the owner |
 | In the Home Screen app on iOS 27.0 with Chrome 154, `100dvh` leaves out the band of the status bar. A shell of `100dvh` ended 62 pt above the bottom edge of an iPhone 16 Pro. | 2026-10-03 | The screenshot of the owner, `web/src/lib/app-height.ts` |
 | Chromium of Playwright 1.63.0 does not apply the display mode `standalone` of `Emulation.setEmulatedMedia`. | 2026-10-03 | `web/e2e/shell.spec.ts` |
 | `gpt-6-luna` at medium effort passed the schema `luna_plan_v2` in 50 of 50 calls. A planner call cost 0.0017 USD on average, and the longest call took 33.0 s. | 2026-10-02 | `docs/research/phase-3-check.md` |
 | The bucket `nk-workout-app-prod-deploy-lock` exists, and each deployer account holds `roles/storage.objectUser` on it alone. | 2026-09-29 | `gcloud storage buckets describe`, `get-iam-policy` |
 | `workout-app-prod` is in use by another Google Cloud project. | 2026-09-29 | `gcloud projects create` |
 | The old project `gym-route-dev` is `DELETE_REQUESTED` since 2026-09-30T03:19:47Z. `gcloud projects undelete` can restore it for 30 days. Its site still gave HTTP 200 at 04:38:56Z. | 2026-09-30 | `gcloud projects describe`, `curl` |
-| The live `/version` and the live `/version.json` name `7ed7c0f474954164b9988b3ad9a04dcc2d5a448c`, from the builds `deploy-api` `481821e0` and `deploy-web` `b386e8a9`. The revision `api-00017-dnm` serves it. | 2026-10-03 | `curl`, `gcloud builds list`, `gcloud run services describe` |
+| The live `/version` and the live `/version.json` name `ee3b89bd54c5f3637e01b463c542f3aa81435c14`, from the builds `deploy-api` `d9988047` and `deploy-web` `05254463`. The revision `api-00018-vhd` serves it. | 2026-10-04 | `curl`, `gcloud builds list`, `gcloud run services describe` |
 | WebKit of Playwright 1.63.0 refuses a navigation of an offline context with "WebKit encountered an internal error", also when the service worker can serve the page. Chromium serves it from the service worker. | 2026-10-03 | `web/e2e/support.ts` |
 | In WebKit of Playwright 1.63.0, a route of the context did not apply to the API calls of a page that opened again after a stop. The service worker controls such a page (unverified cause). | 2026-10-03 | `web/e2e/support.ts` |
 | With 10 workers of Playwright on a Mac of 10 cores, 5 Chromium tests of `make web` waited more than 10 s for a plan of the fake in 1 of 2 runs. The plan requests share the cap documents. | 2026-10-03 | `make web` |
@@ -78,11 +76,29 @@ After the merge, the next session reads both deploys. The owner completes a full
 
 ## Next steps, in order
 
-1. Close PR-32: CI, the Codex review, the owner confirmation, and the merge.
-2. After the merge, read both deploys (D-137). The owner completes a full workout on the iPhone with no connection, and opens the app online. The logs must reach Firestore (exit of Phase 6). The owner runs the "Screen lock test", and picks a method (D-282).
+1. Close PR-33: CI, the Codex review, the owner confirmation, and the merge.
+2. After the merge, read both deploys (D-137). The owner checks the screen lock on the iPhone during a workout, with a return and no tap (D-285).
 3. Start the Phase 7 roadmap in a clean session (D-12).
 
 ## Session records
+
+### Session 34 - 2026-10-04
+
+Author provider: Claude Code
+
+Branch: `feat/pr-33-screen-lock`. Role: author.
+
+Completed:
+
+- Read the deploys of `ee3b89b`, and read the offline workout in Firestore with ids and counts alone.
+- The owner reported the "Screen lock test", approved the milestone (D-12), and answered Q-297 to Q-299 (D-283 to D-285).
+- Changed the wake lock to the method "Wake Lock, no tap", with unit tests and a browser test.
+- Removed the "Screen lock test" screen.
+- Changed the registers, both roadmaps, the design, and `web/README.md`.
+
+Open work:
+
+- CI, the Codex review, the owner confirmation, and the merge of PR-33.
 
 ### Session 33 - 2026-10-03
 
@@ -102,7 +118,7 @@ Completed:
 
 Open work:
 
-- The `review-gate` result, the owner confirmation, and the merge of PR-32.
+- None. GitHub PR 33 merged as `ee3b89b`.
 
 ### Session 32 - 2026-10-03
 
@@ -122,23 +138,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 32 merged as `7ed7c0f`.
-
-### Session 31 - 2026-10-03
-
-Author provider: Claude Code
-
-Branch: `feat/pr-30-workout-screen`. Role: author.
-
-Completed:
-
-- Read the deploys of `ac739c1`, and read the live check of D-212 in the logs and Firestore, with ids alone.
-- The owner approved the milestone and added prompt v5 (D-12, D-262), and answered Q-276 to Q-279 (D-262 to D-265).
-- Wrote the workout screen, the workout store, the symptoms, and the wake lock, with unit tests and browser tests.
-- Changed the prompt to v5 with a Go test, and connected the update hold of D-133 to the open workout.
-- Made the op ids rise strictly, after a unit test showed two outbox entries of one millisecond in a random order.
-- Answered Codex findings P2-1 and P2-2 with full merit.
-- Changed the registers, both roadmaps, the design, both READMEs, and `AGENTS.md`.
-
-Open work:
-
-- None. GitHub PR 31 merged as `eaa18b6`.

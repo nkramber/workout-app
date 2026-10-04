@@ -385,7 +385,7 @@ test("a skip and finish now give the correct session log", async ({ page, reques
   expect(log.headers[2]).toMatchObject({ skippedExerciseIds: ["chest_press"], endedEarly: true, finished: true });
 });
 
-// D-271: the notice names the error, and a tap gets the lock again. The
+// D-271 and D-283: the notice names the error, and a tap gets the lock again. The
 // fake lock of this test refuses each request until the test allows it.
 test("a refused wake lock shows the error name, and a tap gets the lock again", async ({ page, request }, info) => {
   const email = uniqueEmail("workout-wake", info);
@@ -412,6 +412,140 @@ test("a refused wake lock shows the error name, and a tap gets the lock again", 
   await page.evaluate(() => ((window as unknown as { wakeRefuse: boolean }).wakeRefuse = false));
   await page.getByRole("heading", { name: "Session 1", exact: true }).click();
   await expect(page.getByTestId("wake-off")).toHaveCount(0);
+});
+
+// D-283: the method "Wake Lock, no tap". The fake lock follows the order
+// of a phone that releases the lock while the page still shows, before
+// the app goes to the back. A request while the app leaves gets its
+// answer only after the return, and the answer is a refusal. At the
+// return, the app gets the lock again with no tap, and the late refusal
+// shows no notice. A refusal at a return shows the notice, and the next
+// return removes it with no tap. The fake counts the requests, the taps,
+// and the locks that it holds.
+test("the wake lock comes back at each return to the front with no tap", async ({ page, request }, info) => {
+  const email = uniqueEmail("workout-wake-return", info);
+  await makePlanOwner(request, email, MACHINES);
+  await page.addInitScript(() => {
+    type Lock = { released: boolean; release: () => Promise<void>; addEventListener: (t: string, fn: () => void) => void; drop: () => void };
+    const w = window as unknown as {
+      wakeRefuse: boolean;
+      wakeRequests: number;
+      wakeTaps: number;
+      wakeLocks: Lock[];
+      wakeLate: number;
+      leaveApp: () => void;
+      returnToApp: () => void;
+    };
+    w.wakeRefuse = false;
+    w.wakeRequests = 0;
+    w.wakeTaps = 0;
+    w.wakeLocks = [];
+    w.wakeLate = 0;
+    let visibility = "visible";
+    let leaving = false;
+    let late: (() => void)[] = [];
+    Object.defineProperty(document, "visibilityState", { configurable: true, get: () => visibility });
+    document.addEventListener("pointerdown", () => w.wakeTaps++, true);
+    const fake = {
+      request: async () => {
+        w.wakeRequests++;
+        if (leaving) {
+          return new Promise<Lock>((_ok, fail) => {
+            late.push(() => fail(new DOMException("refused", "NotAllowedError")));
+          });
+        }
+        if (w.wakeRefuse) throw new DOMException("refused", "NotAllowedError");
+        const fns: (() => void)[] = [];
+        const lock: Lock = {
+          released: false,
+          release: async () => lock.drop(),
+          addEventListener: (_t, fn) => fns.push(fn),
+          drop: () => {
+            if (lock.released) return;
+            lock.released = true;
+            fns.forEach((fn) => fn());
+          },
+        };
+        w.wakeLocks.push(lock);
+        return lock;
+      },
+    };
+    Object.defineProperty(navigator, "wakeLock", { configurable: true, get: () => fake });
+    // The steps of the phone when the owner leaves the app: the release
+    // comes while the page still shows, then the page hides.
+    w.leaveApp = () => {
+      leaving = true;
+      w.wakeLocks.forEach((l) => l.drop());
+      visibility = "hidden";
+      document.dispatchEvent(new Event("visibilitychange"));
+    };
+    // The return: the page shows, and after it the late answers come.
+    w.returnToApp = () => {
+      leaving = false;
+      visibility = "visible";
+      document.dispatchEvent(new Event("visibilitychange"));
+      setTimeout(() => {
+        const answers = late;
+        late = [];
+        answers.forEach((fail) => fail());
+        w.wakeLate += answers.length;
+      }, 100);
+    };
+  });
+  type Probe = {
+    wakeRefuse: boolean;
+    wakeRequests: number;
+    wakeTaps: number;
+    wakeLocks: { released: boolean }[];
+    wakeLate: number;
+    leaveApp: () => void;
+    returnToApp: () => void;
+  };
+  const read = () =>
+    page.evaluate(() => {
+      const w = window as unknown as Probe;
+      return { held: w.wakeLocks.filter((l) => !l.released).length, requests: w.wakeRequests, taps: w.wakeTaps, late: w.wakeLate };
+    });
+  const held = async () => (await read()).held;
+
+  await openWithPlan(page, email);
+  await button(page, "Workout").click();
+  await button(page, "Start Session 1").click();
+  await expect.poll(held).toBe(1);
+  const start = await read();
+
+  // A return with no tap gets the lock again, and the late refusal of a
+  // request of the leave shows no notice.
+  await page.evaluate(() => (window as unknown as Probe).leaveApp());
+  await expect.poll(held).toBe(0);
+  await page.evaluate(() => (window as unknown as Probe).returnToApp());
+  await expect.poll(held).toBe(1);
+  await page.waitForTimeout(300);
+  const back = await read();
+  expect(back.requests).toBeGreaterThan(start.requests);
+  await expect(page.getByTestId("wake-off")).toHaveCount(0);
+  expect(back.held).toBe(1);
+
+  // A refusal at a return shows the notice with the error name.
+  await page.evaluate(() => {
+    const w = window as unknown as Probe;
+    w.wakeRefuse = true;
+    w.leaveApp();
+    w.returnToApp();
+  });
+  await expect(page.getByTestId("wake-off")).toContainText("The screen can turn off.");
+  await expect(page.getByTestId("wake-error")).toHaveText("(NotAllowedError)");
+
+  // The next return gets the lock and removes the notice, with no tap.
+  await page.evaluate(() => {
+    const w = window as unknown as Probe;
+    w.wakeRefuse = false;
+    w.leaveApp();
+    w.returnToApp();
+  });
+  await expect(page.getByTestId("wake-off")).toHaveCount(0);
+  await expect.poll(held).toBe(1);
+  expect((await read()).taps).toBe(start.taps);
 });
 
 // The state of the workout screen: the preview of the next machine, the

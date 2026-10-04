@@ -12,7 +12,7 @@ type FakeSentinel = {
 // A fake lock: each request gives a sentinel. hide() releases it as the
 // phone does when the app goes to the back, and drop() releases it while
 // the app shows, as a power-save mode does. tap(), focus(), and
-// pageshow() send the other events of D-271. With refuse, each request
+// pageshow() send the other events of D-283. With refuse, each request
 // fails until refuse is false.
 function fakes(refuse = false) {
   const listeners = new Map<string, Set<() => void>>();
@@ -75,8 +75,8 @@ function track() {
   return { states, errors, onState: (st: WakeState, e: string) => (states.push(st), errors.push(e)) };
 }
 
-describe("holdWakeLock (D-265, D-271)", () => {
-  it("holds the lock, requests it again after a return to the front, and releases it at the stop", async () => {
+describe("holdWakeLock (D-265, D-283)", () => {
+  it("holds the lock, gets it again at a return to the front with no tap, and releases it at the stop", async () => {
     const { doc, win, nav, request, sentinels, count } = fakes();
     const t = track();
     const stop = holdWakeLock(nav, doc, win, t.onState);
@@ -90,39 +90,97 @@ describe("holdWakeLock (D-265, D-271)", () => {
     doc.show();
     await settle();
     expect(request).toHaveBeenCalledTimes(2);
+    expect(t.states).toEqual(["on", "pending", "on"]);
 
     stop();
     expect(sentinels[1].release).toHaveBeenCalled();
     expect(count()).toBe(0);
   });
 
-  it("requests the lock again after a release while the app shows, gives off after a second release, and a tap gets it back", async () => {
+  it("makes no request at a release while the app shows, and the next event gets the lock with no notice", async () => {
     const { doc, win, nav, request, sentinels } = fakes();
     const t = track();
     holdWakeLock(nav, doc, win, t.onState);
     await settle();
 
+    // A release gives no notice, and makes no request of its own (D-283).
     sentinels[0].drop();
     await settle();
-    expect(request).toHaveBeenCalledTimes(2);
-    expect(t.states).toEqual(["on", "on"]);
+    expect(request).toHaveBeenCalledTimes(1);
+    expect(t.states).toEqual(["on", "pending"]);
 
-    sentinels[1].drop();
+    // A focus requests the lock again, with no tap.
+    win.focus();
     await settle();
     expect(request).toHaveBeenCalledTimes(2);
-    expect(t.states).toEqual(["on", "on", "off"]);
-    expect(t.errors.at(-1)).toBe("released");
+    expect(t.states.at(-1)).toBe("on");
 
-    // A tap requests the lock again, with no return to the front (D-271).
+    // A release of an earlier lock does not change the state.
+    sentinels[0].drop();
+    await settle();
+    expect(t.states.at(-1)).toBe("on");
+
+    // A tap requests the lock after a release too, and a tap while the
+    // lock holds makes no request.
+    sentinels[1].drop();
     doc.tap();
     await settle();
     expect(request).toHaveBeenCalledTimes(3);
     expect(t.states.at(-1)).toBe("on");
-
-    // A tap while the lock holds makes no request.
     doc.tap();
     await settle();
     expect(request).toHaveBeenCalledTimes(3);
+  });
+
+  it("keeps the state of the newest request when an earlier request answers late", async () => {
+    // The first request of this phone answers only when the test says so.
+    let answer: { ok: () => void; fail: () => void } | null = null;
+    const late = { released: false, release: vi.fn(async () => {}), addEventListener: () => {} };
+    const fresh = { released: false, release: vi.fn(async () => {}), addEventListener: () => {} };
+    const request = vi
+      .fn()
+      .mockImplementationOnce(
+        () =>
+          new Promise((ok, fail) => {
+            answer = { ok: () => ok(late), fail: () => fail(new DOMException("refused", "NotAllowedError")) };
+          }),
+      )
+      .mockImplementation(async () => fresh);
+    const { doc, win } = fakes();
+    const t = track();
+    holdWakeLock({ wakeLock: { request } }, doc, win, t.onState);
+
+    // A return to the front sends a second request, which answers first.
+    doc.show();
+    await settle();
+    expect(request).toHaveBeenCalledTimes(2);
+    expect(t.states).toEqual(["on"]);
+
+    // The late refusal of the first request gives no notice.
+    answer!.fail();
+    await settle();
+    expect(t.states).toEqual(["on"]);
+    expect(fresh.release).not.toHaveBeenCalled();
+  });
+
+  it("gives a lock of an earlier request that answers late back to the phone", async () => {
+    let ok: (() => void) | null = null;
+    const late = { released: false, release: vi.fn(async () => {}), addEventListener: () => {} };
+    const fresh = { released: false, release: vi.fn(async () => {}), addEventListener: () => {} };
+    const request = vi
+      .fn()
+      .mockImplementationOnce(() => new Promise((resolve) => (ok = () => resolve(late))))
+      .mockImplementation(async () => fresh);
+    const { doc, win } = fakes();
+    const t = track();
+    holdWakeLock({ wakeLock: { request } }, doc, win, t.onState);
+    win.pageshow();
+    await settle();
+    ok!();
+    await settle();
+    expect(late.release).toHaveBeenCalled();
+    expect(fresh.release).not.toHaveBeenCalled();
+    expect(t.states).toEqual(["on"]);
   });
 
   it("gets the lock at a focus and a pageshow event after a refusal at the return", async () => {
