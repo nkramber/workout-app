@@ -281,7 +281,7 @@ Workout App stores data about one person, the owner (Decision, D-67). The owner 
 - The app takes no photo now (Decision, D-110). In a later photo phase, the app removes photo metadata before upload, and the server deletes each photo after the confirmation (Decision, D-52).
 - Secrets live in Secret Manager, never in the repository.
 
-One user data control exists (Decision, D-78, D-314). "Delete all data" in the diagnostics of the home screen deletes the workouts and the plan, on the phone and on the server. The profile, the inventory, the allowlist entry, and the monthly AI spend stay (Decision, D-315). The backups keep a copy for up to 10 days (Decision, D-316).
+One user data control exists (Decision, D-78, D-314). "Delete all data" in the diagnostics of the home screen deletes the workouts and the plan, on the phone and on the server. The profile, the inventory, the allowlist entry, and the monthly AI spend stay (Decision, D-315). The backups keep a copy for up to 10 days (Decision, D-316). After a deletion, the server refuses each entry that a phone made before it. So a sync of another tab or device does not bring the deleted history back.
 
 A change of audience reopens D-78, D-79, D-81, D-34, D-39, and D-40. The high-level roadmap names this reopening gate.
 

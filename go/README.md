@@ -64,7 +64,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 
 ## The workout log
 
-`go/internal/workout` keeps each logged session at `users/{uid}/workouts/{workoutId}`, and each applied op id at `users/{uid}/ops/{opId}` (D-256). An op id document has no end date (D-257). `DeleteAll` deletes both collections of a uid, the op ids too, for the deletion of all data (D-315).
+`go/internal/workout` keeps each logged session at `users/{uid}/workouts/{workoutId}`, and each applied op id at `users/{uid}/ops/{opId}` (D-256). An op id document has no end date (D-257). `DeleteAll` deletes both collections of a uid, the op ids too, for the deletion of all data (D-315). It first writes the time of the deletion at `users/{uid}/history/deleted`. Then `Apply` refuses an entry that the phone made at that time or before. So a sync of another tab or device does not bring the history back.
 
 - `SyncOutbox` takes 100 entries or fewer, and applies them in the order of the request (D-259). A larger batch gets `INVALID_ARGUMENT` with no change.
 - Each entry applies in its own transaction. The transaction reads the op id first, so a replay gives the stored version and changes nothing.

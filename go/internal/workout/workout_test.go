@@ -470,10 +470,13 @@ func TestTargetDocs(t *testing.T) {
 }
 
 // TestMemoryDeleteAll: the memory store deletes the workouts and the op
-// ids of one user alone (D-315).
+// ids of one user alone (D-315). After it, an entry that the phone made
+// before the deletion gets ErrBeforeDeletion, as a sync of another tab
+// or device would send it, and a later entry applies.
 func TestMemoryDeleteAll(t *testing.T) {
 	ctx := context.Background()
 	s := NewMemory()
+	s.Now = func() time.Time { return t0.Add(10 * time.Second) }
 	for _, uid := range []string{"uid-a", "uid-b"} {
 		if _, err := s.Apply(ctx, uid, header(1, workoutA)); err != nil {
 			t.Fatal(err)
@@ -488,8 +491,17 @@ func TestMemoryDeleteAll(t *testing.T) {
 	if list, _, _ := s.List(ctx, "uid-b", 10, ""); len(list) != 1 {
 		t.Fatal("DeleteAll changed another user")
 	}
-	if r, err := s.Apply(ctx, "uid-a", header(1, workoutA)); err != nil || r.Replayed {
-		t.Fatalf("an old op id after DeleteAll = %+v, %v, want a new apply", r, err)
+	if _, err := s.Apply(ctx, "uid-a", header(1, workoutA)); !errors.Is(err, ErrBeforeDeletion) {
+		t.Fatalf("an entry before the deletion: %v, want ErrBeforeDeletion", err)
+	}
+	if _, err := s.Apply(ctx, "uid-a", set(2, workoutA, entityID(1), "chest_press", 10)); !errors.Is(err, ErrBeforeDeletion) {
+		t.Fatalf("a set before the deletion: %v, want ErrBeforeDeletion", err)
+	}
+	if r, err := s.Apply(ctx, "uid-a", header(20, workoutB)); err != nil || r.Replayed {
+		t.Fatalf("an entry after the deletion = %+v, %v, want a new apply", r, err)
+	}
+	if _, err := s.Apply(ctx, "uid-b", header(3, workoutB)); err != nil {
+		t.Fatalf("another user: %v, want no fence", err)
 	}
 	if _, err := s.DeleteAll(ctx, "a/b"); err == nil {
 		t.Fatal("DeleteAll took a uid with a slash")

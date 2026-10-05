@@ -25,7 +25,7 @@ Codex round 1 gave `Changes required` for effective head `dcd23494a8212291ddc478
 
 After round 2, the owner added "Delete all data" to PR-38, and answered Q-320 to Q-322 (D-314 to D-316). The pull request now holds the call `DeleteHistory` of `UserService`, the deletes of the stores, and the dialog of the diagnostics. A browser test proves the switch, the typed text, and the deletion on the phone and on the server.
 
-`make verify`, `make go-test`, `make emulator-test`, and `make web` passed again, with 87 browser tests. Next action: CI, Codex round 3 for the new code (D-90), and the owner confirmation of the merge.
+`make verify`, `make go-test`, `make emulator-test`, and `make web` passed again, with 87 browser tests. Codex round 3 found P2-2: a sync of another tab or device wrote the deleted history again. The answer of full merit adds a fence of the deletion time (`docs/reviews/pr-39-response.md`). Next action: CI, Codex round 4, and the owner confirmation of the merge.
 
 ## Facts that expire
 
@@ -110,7 +110,7 @@ Completed:
 
 Open work:
 
-- CI, Codex round 3, the owner confirmation, and the merge of PR-38.
+- CI, Codex round 4, the owner confirmation, and the merge of PR-38.
 
 ### Session 38 - 2026-10-04
 

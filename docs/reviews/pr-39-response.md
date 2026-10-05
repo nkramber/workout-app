@@ -19,3 +19,24 @@ Correction:
 - `docs/roadmaps/high-level-roadmap.md` adds the same gate to the exit note of Phase 7.
 
 Regression check: `make ste-check`, `make ref-check`, and `make verify` passed. The stage line, section 1.1, section 3, and the PR-39 gate of the roadmap now agree. Each one keeps the work of work area 8.1 after the three checks.
+
+## Round 3
+
+This part answers the findings of round 3, at `6beaab0f643529e75d2de435d97f53c91f824c36`.
+
+## P2-2: Another tab can restore history after deletion
+
+Result: full merit.
+
+Evidence: the trigger holds. The tabs of one origin share the local database, so the deletion removes their rows. But a `SyncOutbox` call that a second tab sent before the deletion still writes on the server. A second device keeps its own outbox, and sends its entries later. `DeleteAll` had no fence, so each such entry wrote a workout again.
+
+Correction:
+
+- `DeleteAll` of `go/internal/workout/store.go` first writes the time of the deletion at `users/{uid}/history/deleted`, on the clock of the server. Then it deletes the workouts and the op ids.
+- The transaction of `Apply` reads that document. An entry that the phone made at that time or before gets `ErrBeforeDeletion`. A deletion that writes the time before the commit makes Firestore run the transaction again, so a call in flight sees the fence.
+- The memory store does the same, and `SyncOutbox` refuses such an entry with `failed_precondition`. The phone moves it to the refused entries, and never sends it again (D-274).
+
+Accepted risk: the fence compares the time of the phone with the time of the server. A phone clock that is behind the server can refuse an entry that the owner made in the seconds after a deletion. The refused entry then shows on the phone.
+
+Regression check: `TestMemoryDeleteAll`, `TestFirestoreDeleteAll` on the emulator, and `TestSyncAfterDeletion` send an entry of a time before the deletion after `DeleteAll`. Each one gets the refusal, and no workout comes back. An entry after the deletion applies. Without the fence, the three tests fail.
+

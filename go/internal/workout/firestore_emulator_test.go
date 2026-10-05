@@ -182,7 +182,9 @@ func TestFirestoreList(t *testing.T) {
 
 // TestFirestoreDeleteAll: DeleteAll removes each workout and each op id
 // of one user alone, and gives the count of the workouts (D-315). After
-// it, an old op id applies again, because its record is gone.
+// it, an entry that the phone made before the deletion gets
+// ErrBeforeDeletion, as a sync of another tab or device would send it.
+// An entry after the deletion applies.
 func TestFirestoreDeleteAll(t *testing.T) {
 	client := emulatorClient(t)
 	s := FromFirestore(client)
@@ -213,7 +215,18 @@ func TestFirestoreDeleteAll(t *testing.T) {
 	if list, _, err := s.List(ctx, other, 10, ""); err != nil || len(list) != 1 {
 		t.Fatalf("the workouts of another user: %d, %v, want 1", len(list), err)
 	}
-	if r, err := s.Apply(ctx, uid, header(1, workoutA)); err != nil || r.Replayed {
-		t.Fatalf("an old op id after DeleteAll = %+v, %v, want a new apply", r, err)
+	if _, err := s.Apply(ctx, uid, header(1, workoutA)); !errors.Is(err, ErrBeforeDeletion) {
+		t.Fatalf("an entry before the deletion: %v, want ErrBeforeDeletion", err)
+	}
+	if list, _, _ := s.List(ctx, uid, 10, ""); len(list) != 0 {
+		t.Fatal("an entry before the deletion wrote a workout")
+	}
+	later := header(9, workoutB)
+	later.At = time.Now().Add(time.Minute)
+	if r, err := s.Apply(ctx, uid, later); err != nil || r.Replayed {
+		t.Fatalf("an entry after the deletion = %+v, %v, want a new apply", r, err)
+	}
+	if _, err := s.Apply(ctx, other, header(2, workoutB)); err != nil {
+		t.Fatalf("another user: %v, want no fence", err)
 	}
 }

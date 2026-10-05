@@ -291,3 +291,23 @@ func TestSyncOutboxRevises(t *testing.T) {
 		t.Fatalf("copies %v", got)
 	}
 }
+
+// TestSyncAfterDeletion: after a deletion of the history, an entry that
+// the phone made before it is refused with failed_precondition, so a
+// sync of another tab or device does not bring the history back (D-315).
+// The refusal names no uid.
+func TestSyncAfterDeletion(t *testing.T) {
+	store := workout.NewMemory()
+	s := New(store, inventory.NewMemory())
+	sync(t, s, headerEntry(1))
+	if _, err := store.DeleteAll(context.Background(), "uid-a"); err != nil {
+		t.Fatal(err)
+	}
+	res := sync(t, s, headerEntry(2))
+	if len(res) != 1 || res[0].GetStatus() != workoutappv1.EntryResult_STATUS_REFUSED || res[0].GetCode() != CodeFailedPrecondition || strings.Contains(res[0].GetMessage(), "uid-a") {
+		t.Fatalf("an entry before the deletion: %v, want REFUSED with failed_precondition", res)
+	}
+	if got := list(t, s); len(got) != 0 {
+		t.Fatalf("%d workouts after the deletion, want none", len(got))
+	}
+}

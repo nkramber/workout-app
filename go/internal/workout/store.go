@@ -23,6 +23,10 @@ const (
 	UsersCollection    = "users"
 	WorkoutsCollection = "workouts"
 	OpsCollection      = "ops"
+	// HistoryCollection holds the document DeletedDoc, with the time of
+	// the last deletion of the history (D-315).
+	HistoryCollection = "history"
+	DeletedDoc        = "deleted"
 )
 
 // Result is the result of one applied entry: the server version of its
@@ -43,7 +47,9 @@ type Result struct {
 // the id of the last workout, or empty when no workout remains.
 // DeleteAll deletes each workout and each op id of the user, and gives
 // the count of the deleted workouts (D-314, D-315). A second call
-// deletes what a failed call left.
+// deletes what a failed call left. It keeps the time of the deletion
+// first. After it, Apply refuses an entry that the phone made at that
+// time or before, with ErrBeforeDeletion.
 type Store interface {
 	Apply(ctx context.Context, uid string, e Entry) (Result, error)
 	List(ctx context.Context, uid string, limit int, after string) ([]Workout, string, error)
@@ -67,14 +73,16 @@ func checkUID(uid string) error {
 // checks.
 type Memory struct {
 	Catalog  domain.Catalog
+	Now      func() time.Time
 	mu       sync.Mutex
 	workouts map[string]map[string]Workout
 	ops      map[string]map[string]Result
+	deleted  map[string]time.Time
 }
 
 // NewMemory gives an empty Memory store with the product catalog.
 func NewMemory() *Memory {
-	return &Memory{Catalog: domain.DefaultCatalog(), workouts: map[string]map[string]Workout{}, ops: map[string]map[string]Result{}}
+	return &Memory{Catalog: domain.DefaultCatalog(), Now: time.Now, workouts: map[string]map[string]Workout{}, ops: map[string]map[string]Result{}, deleted: map[string]time.Time{}}
 }
 
 // Apply applies the entry under the lock of the store.
@@ -90,6 +98,9 @@ func (s *Memory) Apply(_ context.Context, uid string, e Entry) (Result, error) {
 	if r, ok := s.ops[uid][e.OpID]; ok {
 		r.Replayed = true
 		return r, nil
+	}
+	if t, ok := s.deleted[uid]; ok && !e.At.After(t) {
+		return Result{}, ErrBeforeDeletion
 	}
 	var stored *Workout
 	if w, ok := s.workouts[uid][e.Workout()]; ok {
@@ -142,6 +153,7 @@ func (s *Memory) DeleteAll(_ context.Context, uid string) (int, error) {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	s.deleted[uid] = s.Now().UTC()
 	n := len(s.workouts[uid])
 	delete(s.workouts, uid)
 	delete(s.ops, uid)
@@ -172,6 +184,16 @@ func (s *Firestore) user(uid string) *firestore.DocumentRef {
 	return s.client.Collection(UsersCollection).Doc(uid)
 }
 
+func (s *Firestore) deletedRef(uid string) *firestore.DocumentRef {
+	return s.user(uid).Collection(HistoryCollection).Doc(DeletedDoc)
+}
+
+// deletedDoc holds the time of the last deletion of the history, on the
+// clock of the server.
+type deletedDoc struct {
+	At time.Time `firestore:"deleted_at"`
+}
+
 // Apply runs one transaction: it reads the op id and the workout, then
 // writes the workout and the op id. Firestore runs the function again
 // when another transaction changes a document that it read, so two
@@ -187,6 +209,23 @@ func (s *Firestore) Apply(ctx context.Context, uid string, e Entry) (Result, err
 	var res Result
 	err := s.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
 		res = Result{}
+		// The transaction reads the time of the last deletion. A deletion
+		// that writes it before the commit makes Firestore run the
+		// function again, so a sync in flight never writes old history
+		// after a deletion (D-315).
+		fence, err := tx.Get(s.deletedRef(uid))
+		switch {
+		case err == nil:
+			var d deletedDoc
+			if err := fence.DataTo(&d); err != nil {
+				return err
+			}
+			if !e.At.After(d.At) {
+				return ErrBeforeDeletion
+			}
+		case status.Code(err) != codes.NotFound:
+			return err
+		}
 		snap, err := tx.Get(opRef)
 		switch {
 		case err == nil:
@@ -514,6 +553,12 @@ func fromPtr[T ~int](p *int64) *T {
 // the uid, with a bulk writer. The count holds the workouts alone.
 func (s *Firestore) DeleteAll(ctx context.Context, uid string) (int, error) {
 	if err := checkUID(uid); err != nil {
+		return 0, err
+	}
+	// The time comes first, so each Apply that commits after it refuses
+	// an older entry, and each Apply that committed before it has a
+	// document that the deletes below remove.
+	if _, err := s.deletedRef(uid).Set(ctx, deletedDoc{At: s.now().UTC()}); err != nil {
 		return 0, err
 	}
 	n, err := deleteCollection(ctx, s.client, s.user(uid).Collection(WorkoutsCollection))

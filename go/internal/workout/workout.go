@@ -62,6 +62,12 @@ var ErrInvalid = domain.ErrInvalid
 // the outbox, so a later sync can apply it.
 var ErrUnknownWorkout = errors.New("workout: unknown workout")
 
+// ErrBeforeDeletion is the error of an entry that the phone made before
+// the last deletion of the history (D-315). A sync of another tab or of
+// another device can hold such an entry, and it must not bring the
+// deleted history back.
+var ErrBeforeDeletion = errors.New("workout: the entry is older than the deletion of the history")
+
 type checkError string
 
 func (e checkError) Error() string { return string(e) }

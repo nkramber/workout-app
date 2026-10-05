@@ -110,7 +110,7 @@ func (s *Server) SyncOutbox(ctx context.Context, req *connect.Request[workoutapp
 			}
 		case errors.Is(err, workout.ErrInvalid):
 			r.Status, r.Code, r.Message = workoutappv1.EntryResult_STATUS_REFUSED, CodeInvalidArgument, err.Error()
-		case errors.Is(err, workout.ErrUnknownWorkout), errors.Is(err, inventory.ErrNotFound), errors.Is(err, inventory.ErrWeightsChanged):
+		case errors.Is(err, workout.ErrUnknownWorkout), errors.Is(err, workout.ErrBeforeDeletion), errors.Is(err, inventory.ErrNotFound), errors.Is(err, inventory.ErrWeightsChanged):
 			r.Status, r.Code, r.Message = workoutappv1.EntryResult_STATUS_REFUSED, CodeFailedPrecondition, err.Error()
 		default:
 			return nil, errStore
