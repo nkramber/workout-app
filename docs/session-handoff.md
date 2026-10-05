@@ -19,13 +19,13 @@ The pull request holds:
 
 `make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. GitHub PR 39 holds the work.
 
-Codex round 3 reviewed effective head `6beaab0f643529e75d2de435d97f53c91f824c36`. The verdict is `Changes required`, with open finding P2-2 in `docs/reviews/pr-39.md`: another tab can restore history after deletion.
+Codex round 4 reviewed effective head `e0a01c9b560980b6c6a6cf8dea18432302406fb7`. The verdict is `Changes required`, with open finding P2-3 in `docs/reviews/pr-39.md`: a phone clock ahead can let a stale entry restore deleted history. P2-2 is fixed by the server deletion fence.
 
 Codex round 1 gave `Changes required` for effective head `dcd23494a8212291ddc4788ceca8d85cb0f1de29`, with P2-1, the stage line before the Phase 7 check (`docs/reviews/pr-39.md`). The author fixed P2-1. Codex round 2 records `Ready for owner merge` for effective head `a8aff45a61ae4b674c908094b98cb7ffca0e55be`, with no open findings. The response and both verdicts are in `docs/reviews/pr-39.md`.
 
 After round 2, the owner added "Delete all data" to PR-38, and answered Q-320 to Q-322 (D-314 to D-316). The pull request now holds the call `DeleteHistory` of `UserService`, the deletes of the stores, and the dialog of the diagnostics. A browser test proves the switch, the typed text, and the deletion on the phone and on the server.
 
-`make verify`, `make go-test`, `make emulator-test`, and `make web` passed again, with 87 browser tests. Codex round 3 found P2-2: a sync of another tab or device wrote the deleted history again. The answer of full merit adds a fence of the deletion time (`docs/reviews/pr-39-response.md`). Next action: CI, Codex round 4, and the owner confirmation of the merge.
+`make verify`, `make go-test`, and `make emulator-test` passed on the deletion fence. Codex round 4 found P2-3: the fence compares the server clock with the phone timestamp. Next action: the author corrects the fence, runs CI, and starts Codex round 5.
 
 ## Facts that expire
 
