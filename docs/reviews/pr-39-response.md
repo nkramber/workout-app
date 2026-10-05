@@ -80,3 +80,12 @@ Correction:
 
 Regression check: `TestDeleteHistoryDuringPlanRequest` in `go/cmd/api` holds a plan request in its call of Luna, runs `DeleteHistory`, then releases the call. The request gets `ABORTED`, `GetPlan` gives no plan, and a later request saves its plan. `TestFirestoreSaveFence` proves the refusal of the store on the emulator.
 
+## Round 6
+
+Codex round 6 gave `Ready for owner merge` for effective head `0e094c5ab28b614f20f24234a9ea860b0f8f6190`.
+
+## P3-1: Remove trailing blank lines from two changed files
+
+Result: partial merit, an optional improvement with no broken contract.
+
+Correction: this file ends with no blank line now. `web/src/lib/sync.test.ts` keeps its blank line, because a change of code after the approval needs a new review (D-90). No check reads it.

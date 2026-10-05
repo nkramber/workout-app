@@ -27,9 +27,9 @@ Codex round 3 found P2-2, a sync of another tab or device that wrote the deleted
 
 Codex round 6 reviewed effective head `0e094c5ab28b614f20f24234a9ea860b0f8f6190`. It found the plan-generation fence and its regression test fixed P2-4. The verdict is Ready for owner merge. P3-1 records trailing blank lines in two changed files.
 
-The local `make verify`, `make go-test`, `make contract`, and `make emulator-test` passed. Local `make web` needs Node 22. GitHub `verify:web` passed. All product checks passed, and `review-gate` awaits this record.
+`make verify`, `make go-test`, `make contract`, and `make emulator-test` passed on the effective head. `make web` passed on `4cd1bd5`, and the GitHub check `verify:web` passed on `0e094c5`. Each check of GitHub passed, `review-gate` too. The answer to P3-1 is in `docs/reviews/pr-39-response.md`.
 
-Next action: commit and push this review record and hand-off, verify the published head and review-gate, then ask the owner to confirm the merge.
+PR-38 is ready, pending the owner merge. Next action: the owner confirmation of the merge.
 
 ## Facts that expire
 
@@ -114,7 +114,7 @@ Completed:
 
 Open work:
 
-- CI, Codex round 6, the owner confirmation, and the merge of PR-38.
+- The owner confirmation and the merge of PR-38.
 
 ### Session 38 - 2026-10-04
 
