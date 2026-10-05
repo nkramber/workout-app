@@ -208,6 +208,9 @@ func newHandler(v auth.Verifier, a auth.Allowlist, store inventory.Store, profil
 	// The deletion of the history keeps the profile, the inventory, the
 	// allowlist, and the monthly AI spend (D-314, D-315).
 	history := &usersvc.History{Workouts: workouts, Plans: maker.Plans, Log: maker.Log}
+	// A plan request reads the generation of the history, so a deletion
+	// during it refuses its save (D-315).
+	maker.Generation = workouts.Generation
 	if maker.Errors != nil {
 		history.Errors = maker.Errors
 	}

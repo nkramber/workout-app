@@ -44,6 +44,7 @@ type planDoc struct {
 	LastRevision      *revisionDoc  `firestore:"last_revision"`
 	RevisedWorkouts   []string      `firestore:"revised_workouts"`
 	Claims            []claimDoc    `firestore:"revision_claims,omitempty"`
+	HistoryGeneration int64         `firestore:"history_generation,omitempty"`
 }
 
 // claimDoc is a revision that runs now (D-304). A plan of an older
@@ -196,6 +197,7 @@ func encodePlan(p Plan) planDoc {
 	for _, c := range p.Claims {
 		d.Claims = append(d.Claims, claimDoc{c.WorkoutID, c.Until.UTC()})
 	}
+	d.HistoryGeneration = p.HistoryGeneration
 	for _, f := range p.Filtered {
 		d.Filtered = append(d.Filtered, filteredDoc{f.Where, string(f.Rule)})
 	}
@@ -230,6 +232,7 @@ func (d planDoc) plan() Plan {
 	for _, c := range d.Claims {
 		p.Claims = append(p.Claims, Claim{c.WorkoutID, c.Until.UTC()})
 	}
+	p.HistoryGeneration = d.HistoryGeneration
 	for _, f := range d.Filtered {
 		p.Filtered = append(p.Filtered, ai.Filtered{Where: f.Where, Rule: ai.FilterRule(f.Rule)})
 	}

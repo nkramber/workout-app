@@ -61,3 +61,22 @@ Accepted risk: a device that starts a workout after a deletion, before it reads 
 
 Regression check: `TestMemoryDeleteAll` and `TestFirestoreDeleteAll` give a header of the old generation a phone time far after the deletion, and each one gets the refusal. A header of the new generation applies. `TestFenced` proves each case of the fence. `TestSyncAfterDeletion` proves the refusal and the apply through `SyncOutbox`. The browser test of the deletion starts a new workout after the deletion, and the server applies it.
 
+## Round 5
+
+This part answers the findings of round 5, at `4cd1bd51bb36d59b07a2f03e31782abcc5e379dc`.
+
+## P2-4: A plan request can save after history deletion
+
+Result: full merit.
+
+Evidence: the trigger holds. A plan request waits up to about 47 s in its call of Luna, and the owner can leave the plan screen during it. `Save` read the exclusions alone, so a deletion during the request did not stop its save, and a plan came back.
+
+Correction:
+
+- The new package `go/internal/history` holds the fence document of the generation. The workout store and the plan store read it.
+- `Maker.Make` reads the generation at the start of the request, and the plan keeps it.
+- The transaction of `Save` reads the fence, and refuses a plan of an older generation with `ErrHistoryDeleted`. A deletion that changes the fence before the commit makes Firestore run the transaction again.
+- `plansvc` gives `ABORTED` for it, and the phone tells the owner that the exclusions or the history changed during the request.
+
+Regression check: `TestDeleteHistoryDuringPlanRequest` in `go/cmd/api` holds a plan request in its call of Luna, runs `DeleteHistory`, then releases the call. The request gets `ABORTED`, `GetPlan` gives no plan, and a later request saves its plan. `TestFirestoreSaveFence` proves the refusal of the store on the emulator.
+

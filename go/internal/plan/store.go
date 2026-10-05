@@ -11,6 +11,8 @@ import (
 	"cloud.google.com/go/firestore"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/nkramber/workout-app/go/internal/history"
 )
 
 // The Firestore paths of the plan and the exclusions of a user are
@@ -206,6 +208,16 @@ func (s *Firestore) Save(ctx context.Context, uid string, p Plan, ex Exclusions,
 	}
 	planRef, exRef := s.planRef(uid), s.exclusionsRef(uid)
 	return s.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		// A deletion of the history that came after the start of the
+		// request refuses the plan. A deletion that changes the fence
+		// before the commit makes Firestore run the function again (D-315).
+		fence, err := history.Read(tx.Get(history.Ref(s.client, uid)))
+		if err != nil {
+			return err
+		}
+		if fence.Generation > p.HistoryGeneration {
+			return ErrHistoryDeleted
+		}
 		cur, err := decodeExclusions(tx.Get(exRef))
 		if err != nil {
 			return err

@@ -23,9 +23,9 @@ Codex round 1 gave `Changes required` for effective head `dcd23494a8212291ddc478
 
 After round 2, the owner added "Delete all data" to PR-38, and answered Q-320 to Q-322 (D-314 to D-316). The pull request now holds the call `DeleteHistory` of `UserService`, the deletes of the stores, and the dialog of the diagnostics. A browser test proves the switch, the typed text, and the deletion on the phone and on the server.
 
-Codex round 3 found P2-2, a sync of another tab or device that wrote the deleted history again. Codex round 4 found P2-3: the first fence read the clock of the phone. Round 5 verified the server generation fence and closed P2-3. It found P2-4: an in-flight plan request can save after deletion (`docs/reviews/pr-39.md`).
+Codex round 3 found P2-2, a sync of another tab or device that wrote the deleted history again. Codex round 4 found P2-3: the first fence read the clock of the phone. Codex round 5 found P2-4: a plan request in flight saved a plan after the deletion. The answers of full merit use a generation of the history on the server for the workouts and the plan (`docs/reviews/pr-39-response.md`).
 
-Next action: fix P2-4, run its regression check and CI, then run Codex round 6.
+Next action: CI, Codex round 6, and the owner confirmation of the merge.
 
 ## Facts that expire
 
@@ -110,7 +110,7 @@ Completed:
 
 Open work:
 
-- CI, Codex round 5, the owner confirmation, and the merge of PR-38.
+- CI, Codex round 6, the owner confirmation, and the merge of PR-38.
 
 ### Session 38 - 2026-10-04
 

@@ -66,7 +66,7 @@ func fail(err error) error {
 		return connect.NewError(connect.CodeResourceExhausted, err)
 	case errors.Is(err, plan.ErrNoValidPlan):
 		return connect.NewError(connect.CodeUnavailable, err)
-	case errors.Is(err, plan.ErrConflict), errors.Is(err, plan.ErrPlanReplaced):
+	case errors.Is(err, plan.ErrConflict), errors.Is(err, plan.ErrPlanReplaced), errors.Is(err, plan.ErrHistoryDeleted):
 		return connect.NewError(connect.CodeAborted, err)
 	case errors.Is(err, context.Canceled):
 		return connect.NewError(connect.CodeCanceled, errors.New("the request ended"))

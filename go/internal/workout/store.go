@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/nkramber/workout-app/go/internal/domain"
+	"github.com/nkramber/workout-app/go/internal/history"
 )
 
 // The Firestore paths of a user are users/{uid}/workouts/{workoutId},
@@ -23,10 +24,6 @@ const (
 	UsersCollection    = "users"
 	WorkoutsCollection = "workouts"
 	OpsCollection      = "ops"
-	// HistoryCollection holds the document DeletedDoc, with the
-	// generation of the history and the time of its last deletion (D-315).
-	HistoryCollection = "history"
-	DeletedDoc        = "deleted"
 )
 
 // Result is the result of one applied entry: the server version of its
@@ -211,30 +208,7 @@ func (s *Firestore) user(uid string) *firestore.DocumentRef {
 }
 
 func (s *Firestore) deletedRef(uid string) *firestore.DocumentRef {
-	return s.user(uid).Collection(HistoryCollection).Doc(DeletedDoc)
-}
-
-// deletedDoc holds the generation of the history and the time of its
-// last deletion, on the clock of the server.
-type deletedDoc struct {
-	Generation int64     `firestore:"generation"`
-	At         time.Time `firestore:"deleted_at"`
-}
-
-// readGeneration gives the stored generation, 0 for no document.
-func readGeneration(snap *firestore.DocumentSnapshot, err error) (deletedDoc, error) {
-	switch {
-	case err == nil:
-		var d deletedDoc
-		if err := snap.DataTo(&d); err != nil {
-			return deletedDoc{}, err
-		}
-		return d, nil
-	case status.Code(err) == codes.NotFound:
-		return deletedDoc{}, nil
-	default:
-		return deletedDoc{}, err
-	}
+	return history.Ref(s.client, uid)
 }
 
 // Generation reads the generation of the history of the uid.
@@ -242,7 +216,7 @@ func (s *Firestore) Generation(ctx context.Context, uid string) (int64, error) {
 	if err := checkUID(uid); err != nil {
 		return 0, err
 	}
-	d, err := readGeneration(s.deletedRef(uid).Get(ctx))
+	d, err := history.Read(s.deletedRef(uid).Get(ctx))
 	return d.Generation, err
 }
 
@@ -265,7 +239,7 @@ func (s *Firestore) Apply(ctx context.Context, uid string, e Entry) (Result, err
 		// that changes it before the commit makes Firestore run the
 		// function again, so a sync in flight never writes old history
 		// after a deletion (D-315).
-		fence, err := readGeneration(tx.Get(s.deletedRef(uid)))
+		fence, err := history.Read(tx.Get(s.deletedRef(uid)))
 		if err != nil {
 			return err
 		}
@@ -609,13 +583,13 @@ func (s *Firestore) DeleteAll(ctx context.Context, uid string) (int, int64, erro
 	if err := checkUID(uid); err != nil {
 		return 0, 0, err
 	}
-	var next deletedDoc
+	var next history.Fence
 	err := s.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
-		d, err := readGeneration(tx.Get(s.deletedRef(uid)))
+		d, err := history.Read(tx.Get(s.deletedRef(uid)))
 		if err != nil {
 			return err
 		}
-		next = deletedDoc{Generation: d.Generation + 1, At: s.now().UTC()}
+		next = history.Fence{Generation: d.Generation + 1, At: s.now().UTC()}
 		return tx.Set(s.deletedRef(uid), next)
 	}, firestore.MaxAttempts(5))
 	if err != nil {

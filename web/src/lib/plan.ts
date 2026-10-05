@@ -82,7 +82,7 @@ function baseText(err: unknown, sawProgress: boolean, isOnline: boolean | undefi
     case Code.FailedPrecondition:
       return NO_EXERCISE;
     case Code.Aborted:
-      return "The exclusions changed during the request. Your plan did not change. Try again.";
+      return "The exclusions or the history changed during the request. Your plan did not change. Try again.";
     case Code.DeadlineExceeded:
       return "The request took too long. Your plan did not change. Try again.";
     case Code.InvalidArgument:

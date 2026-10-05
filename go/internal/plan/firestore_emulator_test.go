@@ -16,6 +16,7 @@ import (
 	"cloud.google.com/go/firestore"
 
 	"github.com/nkramber/workout-app/go/internal/ai"
+	"github.com/nkramber/workout-app/go/internal/history"
 )
 
 func emulatorClient(t *testing.T) *firestore.Client {
@@ -186,5 +187,33 @@ func TestFirestoreDelete(t *testing.T) {
 	docs, err := client.Collection(ErrorsCollection).Where("uid", "==", other).Documents(ctx).GetAll()
 	if err != nil || len(docs) != 1 {
 		t.Fatalf("the records of another user: %d, %v, want 1", len(docs), err)
+	}
+}
+
+// TestFirestoreSaveFence: a save of a plan of an older generation of the
+// history gets ErrHistoryDeleted, and writes nothing (D-315). A plan of
+// the generation saves.
+func TestFirestoreSaveFence(t *testing.T) {
+	client := emulatorClient(t)
+	s := FromFirestore(client)
+	ctx := context.Background()
+	id := fmt.Sprintf("plan-fence-%d", time.Now().UnixNano())
+	if _, err := history.Ref(client, id).Set(ctx, history.Fence{Generation: 1, At: now}); err != nil {
+		t.Fatal(err)
+	}
+	p := fullPlan()
+	if err := s.Save(ctx, id, p, Exclusions{}, false); !errors.Is(err, ErrHistoryDeleted) {
+		t.Fatalf("Save of generation 0 = %v, want ErrHistoryDeleted", err)
+	}
+	if _, ok, _ := s.Get(ctx, id); ok {
+		t.Fatal("a refused save wrote a plan")
+	}
+	p.HistoryGeneration = 1
+	if err := s.Save(ctx, id, p, Exclusions{}, false); err != nil {
+		t.Fatalf("Save of generation 1 = %v", err)
+	}
+	got, ok, err := s.Get(ctx, id)
+	if err != nil || !ok || got.HistoryGeneration != 1 {
+		t.Fatalf("Get = %v, %v, generation %d, want 1", ok, err, got.HistoryGeneration)
 	}
 }

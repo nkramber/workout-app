@@ -68,6 +68,11 @@ type Plan struct {
 	// of its lease. A second sync of the same workout then makes no
 	// reviser call (D-304).
 	Claims []Claim
+	// HistoryGeneration is the generation of the history at the start of
+	// the request that made the plan (D-315). The save refuses a plan of
+	// an older generation, so a request that started before a deletion
+	// of the history saves no plan after it.
+	HistoryGeneration int64
 }
 
 // Claim is a revision that runs now: the finished workout, and the end
@@ -298,4 +303,8 @@ var (
 	// ErrConflict is a save after another request changed the
 	// exclusions. Nothing changed, and the owner can try again.
 	ErrConflict = errors.New("plan: the exclusions changed during the request")
+	// ErrHistoryDeleted is a save after a deletion of the history that
+	// came during the request (D-315). Nothing changed, and the owner can
+	// request a plan again.
+	ErrHistoryDeleted = errors.New("plan: the history was deleted during the request")
 )

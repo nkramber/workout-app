@@ -51,7 +51,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 
 ## The plan
 
-`go/internal/plan` keeps the plan at `users/{uid}/plan/active` and the exclusions at `users/{uid}/exclusions/active` (D-226). A save writes both in one transaction, and it refuses a save when another request changed the exclusions (D-234). `Delete` deletes the plan and keeps the exclusions, and `DeleteUser` deletes the AI error records of a uid (D-315).
+`go/internal/plan` keeps the plan at `users/{uid}/plan/active` and the exclusions at `users/{uid}/exclusions/active` (D-226). A save writes both in one transaction, and it refuses a save when another request changed the exclusions (D-234). `Delete` deletes the plan and keeps the exclusions, and `DeleteUser` deletes the AI error records of a uid (D-315). A plan request reads the generation of the history at its start, and `Save` refuses its plan with `ErrHistoryDeleted` after a later deletion. `go/internal/history` holds the fence document of both stores.
 
 - A request plans the confirmed machines alone, with no exercise of an injured area and no excluded exercise (D-49, D-208, D-229).
 - An invalid output gets a retry with its cause and its output, 4 calls at most (D-230, D-231, D-235). A call over the cap ends the request at once.

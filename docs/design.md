@@ -283,7 +283,7 @@ Workout App stores data about one person, the owner (Decision, D-67). The owner 
 
 One user data control exists (Decision, D-78, D-314). "Delete all data" in the diagnostics of the home screen deletes the workouts and the plan, on the phone and on the server. The profile, the inventory, the allowlist entry, and the monthly AI spend stay (Decision, D-315). The backups keep a copy for up to 10 days (Decision, D-316).
 
-Each deletion adds 1 to the generation of the history on the server. Each workout carries the generation that its phone knew at its start. The server refuses a workout of an older generation, so a sync of another tab or device does not bring the deleted history back.
+Each deletion adds 1 to the generation of the history on the server. Each workout carries the generation that its phone knew at its start. The server refuses a workout of an older generation, so a sync of another tab or device does not bring the deleted history back. A plan request that started before a deletion saves no plan after it.
 
 A change of audience reopens D-78, D-79, D-81, D-34, D-39, and D-40. The high-level roadmap names this reopening gate.
 
