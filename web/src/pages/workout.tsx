@@ -654,6 +654,13 @@ function SetLogger({
             {exercise.firstSetCalibration ? "The first set gave this load." : "The calibration set gave this load."}
           </p>
         )}
+        {next.follows && (
+          <p className="text-sm text-sky-200" data-testid="follow-note">
+            {next.capped
+              ? "The first set was heavier than the target. This set goes up one weight of the machine, the limit of the policy."
+              : "The first set gave this load."}
+          </p>
+        )}
       </div>
 
       <Stepper

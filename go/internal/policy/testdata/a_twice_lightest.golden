@@ -1,7 +1,8 @@
-policy version: 7
+policy version: 8
 rules: progress.shortfall-twice
 target: biceps_curl, rest 60 s
   working[0]: 8 reps at 10 lb, 2 RIR
   working[1]: 8 reps at 10 lb, 2 RIR
   working[2]: 8 reps at 10 lb, 2 RIR
+  the other sets follow working[0], up to 15 lb
 reason: Two sessions in a row ended more than 2 reps short. The load is the lightest weight, so the target is 3 x 8.

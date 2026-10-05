@@ -45,13 +45,16 @@ func (s CalibrationSet) Check() error {
 // calibration sets, and its working sets. FirstSetCalibration tells
 // that the first working set is the calibration: the owner changes the
 // weight during its first reps, and the other working sets use the
-// weight that the owner logged for it (D-297, D-299).
+// weight that the owner logged for it (D-297, D-299). FollowMax is the
+// heaviest load that the other working sets can use after a heavier
+// first set, and 0 when they keep their loads (D-306, D-307).
 type PlannedExercise struct {
 	Exercise            ExerciseID
 	RestSeconds         int
 	Calibration         []CalibrationSet
 	Working             []WorkingSet
 	FirstSetCalibration bool
+	FollowMax           Load
 }
 
 // Check refuses an exercise that is not in the catalog, a cardio
@@ -79,6 +82,11 @@ func (p PlannedExercise) Check(c Catalog) error {
 		if err := s.Check(); err != nil {
 			return invalid("exercise %q working[%d]: %v", p.Exercise, i, err)
 		}
+	}
+	// The limit is 0, or the load of the first working set or more
+	// (D-306, D-307).
+	if p.FollowMax != 0 && p.FollowMax < p.Working[0].Load {
+		return invalid("exercise %q follow max %s: want 0, or %s or more", p.Exercise, p.FollowMax, p.Working[0].Load)
 	}
 	return nil
 }

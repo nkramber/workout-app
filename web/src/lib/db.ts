@@ -61,7 +61,10 @@ export type CalibrationLoads = { weight: number; down: number; keep: number; upO
 // sets, and calibrationLoads has one row for each weight of the machine.
 // From version 7, firstSetCalibration tells that the first working set
 // is the calibration: the other working sets get the weight that the
-// owner logged for it (D-297, D-299). After an override of the owner,
+// owner logged for it (D-297, D-299). From version 8, followMaxTenthLb
+// is the heaviest load that the other working sets can use after a
+// heavier first set, and a lighter first set has no limit (D-306 to
+// D-308). After an override of the owner,
 // the sets are the sets of the override, and `override` keeps the
 // recommendation and the reason as separate records (D-69, D-293).
 export type WorkoutExercise = {
@@ -71,6 +74,7 @@ export type WorkoutExercise = {
   calibrationSets: TargetSet[];
   calibrationLoads?: CalibrationLoads[];
   firstSetCalibration?: boolean;
+  followMaxTenthLb?: number;
   workingSets: TargetSet[];
   weights: number[];
   override?: { reason: string; recommendedWorkingSets: TargetSet[] };

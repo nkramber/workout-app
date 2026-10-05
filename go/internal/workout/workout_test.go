@@ -343,6 +343,7 @@ func TestTargets(t *testing.T) {
 		{"two copies", with(1, []domain.PlannedExercise{press, press})},
 		{"skip with no copy", with(1, []domain.PlannedExercise{press}, "seated_row")},
 		{"too many", with(1, slices.Repeat([]domain.PlannedExercise{press}, MaxTargets+1))},
+		{"follow limit below the load", with(1, []domain.PlannedExercise{{Exercise: "chest_press", Working: press.Working, FollowMax: domain.Pounds(35)}})},
 	} {
 		if err := tc.e.Check(c); !errors.Is(err, ErrInvalid) {
 			t.Errorf("%s: %v, want ErrInvalid", tc.name, err)
@@ -453,5 +454,17 @@ func TestOverrides(t *testing.T) {
 	list[0].Overrides[0].Recommended[0].Reps = 99
 	if again, _, _ := s.List(context.Background(), "uid-a", 10, ""); again[0].Overrides[0].Recommended[0].Reps != 10 {
 		t.Fatal("the store shares the record with a reader")
+	}
+}
+
+// TestTargetDocs: the stored form keeps each field of a target copy,
+// the limit of D-307 too.
+func TestTargetDocs(t *testing.T) {
+	in := []domain.PlannedExercise{{Exercise: "chest_press", RestSeconds: 60,
+		Working:   []domain.WorkingSet{{Reps: 8, Load: domain.Pounds(40), RIR: 3}, {Reps: 8, Load: domain.Pounds(40), RIR: 3}},
+		FollowMax: domain.Pounds(45)}}
+	got, overrides := decodeTargets(encodeTargets(in, nil))
+	if !reflect.DeepEqual(got, in) || len(overrides) != 0 {
+		t.Fatalf("round trip %+v, %+v, want %+v", got, overrides, in)
 	}
 }

@@ -512,6 +512,7 @@ func (b *builder) decision() Decision {
 	for i, s := range b.target.Working {
 		loads = append(loads, LoadChange{fmt.Sprintf("working[%d]", i), b.before[i], s.Load})
 	}
+	b.target.FollowMax = Follow(b.target, b.available)
 	return Decision{
 		Version: Version,
 		Target:  b.target,

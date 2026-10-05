@@ -143,5 +143,5 @@ func stale(in policy.Input, o plan.Override, now policy.Record) bool {
 func sameTarget(a, b domain.PlannedExercise) bool {
 	return a.Exercise == b.Exercise && a.RestSeconds == b.RestSeconds &&
 		slices.Equal(a.Calibration, b.Calibration) && slices.Equal(a.Working, b.Working) &&
-		a.FirstSetCalibration == b.FirstSetCalibration
+		a.FirstSetCalibration == b.FirstSetCalibration && a.FollowMax == b.FollowMax
 }

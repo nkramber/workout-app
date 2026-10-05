@@ -1,7 +1,8 @@
-policy version: 7
+policy version: 8
 rules: progress.no-heavier
 target: chest_press, rest 60 s
   working[0]: 12 reps at 30 lb, 2 RIR
   working[1]: 12 reps at 30 lb, 2 RIR
   working[2]: 12 reps at 30 lb, 2 RIR
+  the other sets follow working[0], up to 40 lb
 reason: The machine has no heavier weight within one 5 lb step. The target stays the same.

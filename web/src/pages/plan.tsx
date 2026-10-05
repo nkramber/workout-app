@@ -329,6 +329,11 @@ function ExerciseCard({
           the weight of the first set.
         </p>
       )}
+      {(o && !o.expired ? o.followMaxTenthLb : exercise.followMaxTenthLb) > 0 && (
+        <p className="text-sm text-slate-400" data-testid="follow-limit">
+          {`When you change the weight of set 1, the other sets use it, up to ${formatPounds(o && !o.expired ? o.followMaxTenthLb : exercise.followMaxTenthLb)} lb.`}
+        </p>
+      )}
       <p className="text-sm text-slate-400" data-testid="rest">
         {`Rest ${restText(exercise.restSeconds)} between sets.`}
       </p>

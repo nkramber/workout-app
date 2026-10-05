@@ -351,6 +351,49 @@ test("the first set gives the working load with no network, go now advances, and
   await context.setOffline(false);
 });
 
+// The acceptance story of PR-38 (D-306 to D-309), from the live check of
+// 4bbf6c8. The first workout calibrates the chest press, so the revision
+// gives it a target with the limit of the policy. In the next session,
+// the owner logs the first set two weights above the target. The next
+// set then gets one weight above the target, the limit, with no network.
+test("the later sets follow a heavier first set up to the limit of the policy", async ({ page, context, request }, info) => {
+  const email = uniqueEmail("workout-follow", info);
+  await makePlanOwner(request, email, MACHINES);
+  await openWithPlan(page, email);
+  await expect(syncLine(page)).toHaveText("Synced");
+  await button(page, "Workout").click();
+  await button(page, "Start Session 1").click();
+  expect(await logSets(page, 3)).toBe(3);
+  await button(page, "Finish now").click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Finish now", exact: true }).click();
+  await expect(page.locator('[data-testid="next-target"][data-exercise-id="chest_press"]')).toBeVisible({ timeout: 20_000 });
+  await button(page, "Done").click();
+
+  // The plan screen tells the limit.
+  await button(page, "Plan").click();
+  await expect(page.getByTestId("follow-limit").first()).toContainText("When you change the weight of set 1, the other sets use it, up to ");
+  await button(page, "Back").click();
+
+  await button(page, "Workout").click();
+  await button(page, "Start Session 2").click();
+  await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Chest press");
+  await expect(logger(page).getByTestId("set-label")).toHaveText("Set 1 of 3");
+  const target = Number((await logger(page).getByTestId("set-target").textContent())?.match(/ at (\d+) lb/)?.[1]);
+  expect(target).toBeGreaterThan(0);
+  await context.setOffline(true);
+  await button(page, "Heavier").click();
+  await button(page, "Heavier").click();
+  await expect(logger(page).getByTestId("weight")).toHaveText(`${target + 20} lb`);
+  await button(page, "3 in reserve").click();
+  await expect(logger(page).getByTestId("set-label")).toHaveText("Set 2 of 3");
+  await expect(logger(page).getByTestId("set-target")).toContainText(` at ${target + 10} lb`);
+  await expect(logger(page).getByTestId("weight")).toHaveText(`${target + 10} lb`);
+  await expect(logger(page).getByTestId("follow-note")).toHaveText(
+    "The first set was heavier than the target. This set goes up one weight of the machine, the limit of the policy.",
+  );
+  await context.setOffline(false);
+});
+
 // The acceptance story of PR-37 (D-298): when each exercise is done, the
 // exercise list collapses, so the cardio and the end of the workout show
 // near the top. A tap shows the list again.

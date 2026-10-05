@@ -739,8 +739,12 @@ type SeenTarget struct {
 	// reads the weight that the owner logged for it as the load of the
 	// session.
 	FirstSetCalibration bool `protobuf:"varint,7,opt,name=first_set_calibration,json=firstSetCalibration,proto3" json:"first_set_calibration,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// The limit of the load of the other working sets after the first set
+	// (D-306, D-307), as the plan gave it. The policy reads the load that
+	// the other working sets used as the load of the session (D-309).
+	FollowMaxTenthLb int32 `protobuf:"varint,8,opt,name=follow_max_tenth_lb,json=followMaxTenthLb,proto3" json:"follow_max_tenth_lb,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *SeenTarget) Reset() {
@@ -820,6 +824,13 @@ func (x *SeenTarget) GetFirstSetCalibration() bool {
 		return x.FirstSetCalibration
 	}
 	return false
+}
+
+func (x *SeenTarget) GetFollowMaxTenthLb() int32 {
+	if x != nil {
+		return x.FollowMaxTenthLb
+	}
+	return 0
 }
 
 // SetEntry is the state of one logged set (D-57, D-164, D-249). The entity
@@ -1728,7 +1739,7 @@ const file_workoutapp_v1_workout_service_proto_rawDesc = "" +
 	"\vended_early\x18\x04 \x01(\bR\n" +
 	"endedEarly\x12\x1a\n" +
 	"\bfinished\x18\x05 \x01(\bR\bfinished\x123\n" +
-	"\atargets\x18\x06 \x03(\v2\x19.workoutapp.v1.SeenTargetR\atargets\"\x86\x03\n" +
+	"\atargets\x18\x06 \x03(\v2\x19.workoutapp.v1.SeenTargetR\atargets\"\xb5\x03\n" +
 	"\n" +
 	"SeenTarget\x12\x1f\n" +
 	"\vexercise_id\x18\x01 \x01(\tR\n" +
@@ -1738,7 +1749,8 @@ const file_workoutapp_v1_workout_service_proto_rawDesc = "" +
 	"\fworking_sets\x18\x04 \x03(\v2\x19.workoutapp.v1.PlannedSetR\vworkingSets\x12S\n" +
 	"\x18recommended_working_sets\x18\x05 \x03(\v2\x19.workoutapp.v1.PlannedSetR\x16recommendedWorkingSets\x12'\n" +
 	"\x0foverride_reason\x18\x06 \x01(\tR\x0eoverrideReason\x122\n" +
-	"\x15first_set_calibration\x18\a \x01(\bR\x13firstSetCalibration\"\xe4\x01\n" +
+	"\x15first_set_calibration\x18\a \x01(\bR\x13firstSetCalibration\x12-\n" +
+	"\x13follow_max_tenth_lb\x18\b \x01(\x05R\x10followMaxTenthLb\"\xe4\x01\n" +
 	"\bSetEntry\x12\x1d\n" +
 	"\n" +
 	"workout_id\x18\x01 \x01(\tR\tworkoutId\x12\x1f\n" +

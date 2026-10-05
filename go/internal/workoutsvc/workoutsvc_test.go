@@ -256,6 +256,7 @@ func TestSyncOutboxRevises(t *testing.T) {
 		CalibrationSets:     []*workoutappv1.PlannedSet{{Reps: 8, LoadTenthLb: 400}},
 		WorkingSets:         []*workoutappv1.PlannedSet{{Reps: 8, LoadTenthLb: 500, RirTarget: 2}},
 		FirstSetCalibration: true,
+		FollowMaxTenthLb:    550,
 	}}
 	finish := proto.Clone(start).(*workoutappv1.OutboxEntry)
 	finish.OpId, finish.At = opID(3), at(3)

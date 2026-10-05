@@ -57,6 +57,10 @@ func TestPlannedExerciseCheck(t *testing.T) {
 		{"no working set", PlannedExercise{Exercise: "chest_press", Calibration: []CalibrationSet{{10, Pounds(20)}}}, false},
 		{"bad calibration set", PlannedExercise{Exercise: "chest_press", Calibration: []CalibrationSet{{0, Pounds(20)}}, Working: work}, false},
 		{"bad working set", PlannedExercise{Exercise: "chest_press", Working: []WorkingSet{{10, 0, 2}}}, false},
+		{"follow limit", PlannedExercise{Exercise: "chest_press", Working: work, FollowMax: Pounds(55)}, true},
+		{"follow limit at the load", PlannedExercise{Exercise: "chest_press", Working: work, FollowMax: Pounds(50)}, true},
+		{"follow limit below the load", PlannedExercise{Exercise: "chest_press", Working: work, FollowMax: Pounds(45)}, false},
+		{"negative follow limit", PlannedExercise{Exercise: "chest_press", Working: work, FollowMax: -1}, false},
 	} {
 		err := tc.ex.Check(c)
 		if (err == nil) != tc.ok || (err != nil && !errors.Is(err, ErrInvalid)) {

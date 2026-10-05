@@ -138,6 +138,9 @@ type targetDoc struct {
 	// The first working set is the calibration (D-297). A target of
 	// policy version 6 or earlier has no such field.
 	FirstSet bool `firestore:"first_set_calibration,omitempty"`
+	// The limit of the other working sets after the first set (D-306,
+	// D-307). A target of policy version 7 or earlier has no such field.
+	FollowMax int64 `firestore:"follow_max_tenth_lb,omitempty"`
 }
 
 // setDoc is a set. A calibration set stores an RIR of 0, which no
@@ -248,7 +251,7 @@ func (d planDoc) plan() Plan {
 }
 
 func encodeTarget(t domain.PlannedExercise) targetDoc {
-	d := targetDoc{Exercise: string(t.Exercise), Rest: int64(t.RestSeconds), Calibration: []setDoc{}, Working: []setDoc{}, FirstSet: t.FirstSetCalibration}
+	d := targetDoc{Exercise: string(t.Exercise), Rest: int64(t.RestSeconds), Calibration: []setDoc{}, Working: []setDoc{}, FirstSet: t.FirstSetCalibration, FollowMax: int64(t.FollowMax)}
 	for _, s := range t.Calibration {
 		d.Calibration = append(d.Calibration, setDoc{Reps: int64(s.Reps), Load: int64(s.Load)})
 	}
@@ -259,7 +262,7 @@ func encodeTarget(t domain.PlannedExercise) targetDoc {
 }
 
 func (d targetDoc) target() domain.PlannedExercise {
-	t := domain.PlannedExercise{Exercise: idOf(d.Exercise), RestSeconds: int(d.Rest), FirstSetCalibration: d.FirstSet}
+	t := domain.PlannedExercise{Exercise: idOf(d.Exercise), RestSeconds: int(d.Rest), FirstSetCalibration: d.FirstSet, FollowMax: domain.Load(d.FollowMax)}
 	for _, s := range d.Calibration {
 		t.Calibration = append(t.Calibration, domain.CalibrationSet{Reps: int(s.Reps), Load: domain.Load(s.Load)})
 	}

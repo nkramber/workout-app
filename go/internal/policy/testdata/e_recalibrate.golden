@@ -1,4 +1,4 @@
-policy version: 7
+policy version: 8
 rules: break.recalibrate, calibration.first-set
 target: chest_press, rest 60 s
   working[0]: 12 reps at 70 lb, 3 RIR

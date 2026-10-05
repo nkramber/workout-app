@@ -149,8 +149,8 @@ func TestRequestPlan(t *testing.T) {
 	}
 	// The first set is the calibration, so the plan has no table of
 	// D-267 (D-297).
-	if !e.GetFirstSetCalibration() || len(e.GetCalibrationLoads()) != 0 {
-		t.Fatalf("first-set calibration %v, calibration loads %v", e.GetFirstSetCalibration(), e.GetCalibrationLoads())
+	if !e.GetFirstSetCalibration() || len(e.GetCalibrationLoads()) != 0 || e.GetFollowMaxTenthLb() != 0 {
+		t.Fatalf("first-set calibration %v, calibration loads %v, follow max %d", e.GetFirstSetCalibration(), e.GetCalibrationLoads(), e.GetFollowMaxTenthLb())
 	}
 
 	if e.GetReasonSource() != "luna" || p.GetLastRevision() != nil {

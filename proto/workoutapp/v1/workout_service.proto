@@ -166,6 +166,10 @@ message SeenTarget {
   // reads the weight that the owner logged for it as the load of the
   // session.
   bool first_set_calibration = 7;
+  // The limit of the load of the other working sets after the first set
+  // (D-306, D-307), as the plan gave it. The policy reads the load that
+  // the other working sets used as the load of the session (D-309).
+  int32 follow_max_tenth_lb = 8;
 }
 
 // SetEntry is the state of one logged set (D-57, D-164, D-249). The entity

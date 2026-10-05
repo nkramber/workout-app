@@ -385,8 +385,15 @@ type PlannedExercise struct {
 	// during its first reps, and the other working sets use the weight that
 	// the owner logged for it (D-297, D-299). An override keeps it.
 	FirstSetCalibration bool `protobuf:"varint,11,opt,name=first_set_calibration,json=firstSetCalibration,proto3" json:"first_set_calibration,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// The heaviest load that the other working sets can use after the owner
+	// logs the first set at a heavier weight: the next heavier weight of the
+	// machine above the load of the first working set (D-306, D-307). A
+	// lighter first set has no limit (D-308). It is 0 for a target with a
+	// calibration, and for each target of policy version 7 or earlier. Then
+	// the other working sets keep their loads.
+	FollowMaxTenthLb int32 `protobuf:"varint,12,opt,name=follow_max_tenth_lb,json=followMaxTenthLb,proto3" json:"follow_max_tenth_lb,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *PlannedExercise) Reset() {
@@ -496,6 +503,13 @@ func (x *PlannedExercise) GetFirstSetCalibration() bool {
 	return false
 }
 
+func (x *PlannedExercise) GetFollowMaxTenthLb() int32 {
+	if x != nil {
+		return x.FollowMaxTenthLb
+	}
+	return 0
+}
+
 // TargetOverride is an override of the owner for one exercise (D-69, D-293).
 // The policy checked its sets (D-23).
 type TargetOverride struct {
@@ -511,9 +525,12 @@ type TargetOverride struct {
 	// True when a missed session, a break, or a deload changed the rules of
 	// the date after the save (D-294, D-295). The recommendation then applies,
 	// and the phone uses no expired override in a workout.
-	Expired       bool `protobuf:"varint,6,opt,name=expired,proto3" json:"expired,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Expired bool `protobuf:"varint,6,opt,name=expired,proto3" json:"expired,omitempty"`
+	// The limit of the working sets of the override, as follow_max_tenth_lb
+	// of PlannedExercise gives it (D-306, D-307).
+	FollowMaxTenthLb int32 `protobuf:"varint,7,opt,name=follow_max_tenth_lb,json=followMaxTenthLb,proto3" json:"follow_max_tenth_lb,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *TargetOverride) Reset() {
@@ -586,6 +603,13 @@ func (x *TargetOverride) GetExpired() bool {
 		return x.Expired
 	}
 	return false
+}
+
+func (x *TargetOverride) GetFollowMaxTenthLb() int32 {
+	if x != nil {
+		return x.FollowMaxTenthLb
+	}
+	return 0
 }
 
 // CalibrationLoads holds the load of the working sets for each result of one
@@ -1558,7 +1582,7 @@ const file_workoutapp_v1_plan_service_proto_rawDesc = "" +
 	"\fGuidanceItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04kind\x18\x02 \x01(\tR\x04kind\x12\x12\n" +
-	"\x04text\x18\x03 \x01(\tR\x04text\"\xff\x03\n" +
+	"\x04text\x18\x03 \x01(\tR\x04text\"\xae\x04\n" +
 	"\x0fPlannedExercise\x12\x1f\n" +
 	"\vexercise_id\x18\x01 \x01(\tR\n" +
 	"exerciseId\x12\x12\n" +
@@ -1572,7 +1596,8 @@ const file_workoutapp_v1_plan_service_proto_rawDesc = "" +
 	"\rreason_source\x18\t \x01(\tR\freasonSource\x129\n" +
 	"\boverride\x18\n" +
 	" \x01(\v2\x1d.workoutapp.v1.TargetOverrideR\boverride\x122\n" +
-	"\x15first_set_calibration\x18\v \x01(\bR\x13firstSetCalibration\"\xba\x02\n" +
+	"\x15first_set_calibration\x18\v \x01(\bR\x13firstSetCalibration\x12-\n" +
+	"\x13follow_max_tenth_lb\x18\f \x01(\x05R\x10followMaxTenthLb\"\xe9\x02\n" +
 	"\x0eTargetOverride\x12D\n" +
 	"\x10calibration_sets\x18\x01 \x03(\v2\x19.workoutapp.v1.PlannedSetR\x0fcalibrationSets\x12<\n" +
 	"\fworking_sets\x18\x02 \x03(\v2\x19.workoutapp.v1.PlannedSetR\vworkingSets\x12\x16\n" +
@@ -1580,7 +1605,8 @@ const file_workoutapp_v1_plan_service_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x04 \x01(\tR\tcreatedAt\x12S\n" +
 	"\x18recommended_working_sets\x18\x05 \x03(\v2\x19.workoutapp.v1.PlannedSetR\x16recommendedWorkingSets\x12\x18\n" +
-	"\aexpired\x18\x06 \x01(\bR\aexpired\"\xd0\x01\n" +
+	"\aexpired\x18\x06 \x01(\bR\aexpired\x12-\n" +
+	"\x13follow_max_tenth_lb\x18\a \x01(\x05R\x10followMaxTenthLb\"\xd0\x01\n" +
 	"\x10CalibrationLoads\x12&\n" +
 	"\x0fweight_tenth_lb\x18\x01 \x01(\x05R\rweightTenthLb\x12\"\n" +
 	"\rdown_tenth_lb\x18\x02 \x01(\x05R\vdownTenthLb\x12\"\n" +

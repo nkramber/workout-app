@@ -171,6 +171,9 @@ func (s *Server) OverrideTarget(ctx context.Context, req *connect.Request[workou
 			}
 			return nil, fmt.Errorf("%w: override: %s", domain.ErrInvalid, strings.Join(parts, "; "))
 		}
+		// The policy gives the limit of the other working sets of the
+		// override too (D-306, D-307).
+		o.FollowMax = policy.Follow(o, in.Entry.Available())
 		return &plan.Override{Target: o, Recommendation: rec, Reason: reason, At: s.now().UTC(), Today: m.GetToday()}, nil
 	})
 	if err != nil {
@@ -337,7 +340,7 @@ func (s *Server) toProto(p plan.Plan) *workoutappv1.Plan {
 			pe := &workoutappv1.PlannedExercise{
 				ExerciseId: string(t.Exercise), Name: s.name(t.Exercise), RestSeconds: int32(t.RestSeconds),
 				Reason: e.Reason, Source: string(e.Record.Source), ReasonSource: string(e.ReasonSourceOf()),
-				FirstSetCalibration: t.FirstSetCalibration,
+				FirstSetCalibration: t.FirstSetCalibration, FollowMaxTenthLb: int32(t.FollowMax),
 			}
 			for _, c := range t.Calibration {
 				pe.CalibrationSets = append(pe.CalibrationSets, &workoutappv1.PlannedSet{Reps: int32(c.Reps), LoadTenthLb: int32(c.Load)})
@@ -346,7 +349,7 @@ func (s *Server) toProto(p plan.Plan) *workoutappv1.Plan {
 				pe.WorkingSets = append(pe.WorkingSets, &workoutappv1.PlannedSet{Reps: int32(w.Reps), LoadTenthLb: int32(w.Load), RirTarget: int32(w.RIR)})
 			}
 			if o := e.Override; o != nil {
-				pe.Override = &workoutappv1.TargetOverride{Reason: o.Reason, CreatedAt: o.At.UTC().Format(time.RFC3339), Expired: o.Expired}
+				pe.Override = &workoutappv1.TargetOverride{Reason: o.Reason, CreatedAt: o.At.UTC().Format(time.RFC3339), Expired: o.Expired, FollowMaxTenthLb: int32(o.Target.FollowMax)}
 				for _, c := range o.Target.Calibration {
 					pe.Override.CalibrationSets = append(pe.Override.CalibrationSets, &workoutappv1.PlannedSet{Reps: int32(c.Reps), LoadTenthLb: int32(c.Load)})
 				}

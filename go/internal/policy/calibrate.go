@@ -61,6 +61,43 @@ func (b *builder) firstSet() {
 	b.rule(RuleCalibrationFirstSet, "The first set is the calibration. Change the weight during its first reps when it is too light or too heavy. The other sets use the weight of the first set.")
 }
 
+// Follow gives the heaviest load that the other working sets of a
+// target can use after the owner logs its first set at a heavier weight
+// (D-306, D-307). It is the next heavier weight of the machine above the
+// load of the first working set, or that load at the top of the list.
+// A lighter first set has no limit (D-308). A target with the first-set
+// calibration or a calibration set gives 0, because its calibration
+// gives the load of the other working sets (D-299). A target with more
+// than one load gives 0 too, because the first set then gives no load
+// for the other sets.
+func Follow(t domain.PlannedExercise, available []domain.Load) domain.Load {
+	if t.FirstSetCalibration || len(t.Calibration) > 0 || len(t.Working) == 0 || len(available) == 0 {
+		return 0
+	}
+	base := t.Working[0].Load
+	if slices.ContainsFunc(t.Working, func(s domain.WorkingSet) bool { return s.Load != base }) {
+		return 0
+	}
+	if i := slices.IndexFunc(available, func(l domain.Load) bool { return l > base }); i >= 0 {
+		return available[i]
+	}
+	return base
+}
+
+// Followed gives the load of the other working sets of a target after
+// the owner logged its first set at weight (D-306 to D-308). A target
+// with no limit, or a first set at the load of the target, gives the
+// load of the target.
+func Followed(t domain.PlannedExercise, weight domain.Load) domain.Load {
+	if len(t.Working) == 0 {
+		return 0
+	}
+	if base := t.Working[0].Load; t.FollowMax <= 0 || weight == base {
+		return base
+	}
+	return min(weight, t.FollowMax)
+}
+
 // effective gives a copy of the history in which each calibration
 // session has the working load that its calibration gave. In a session
 // of the first-set calibration, the load is the weight that the owner
@@ -70,6 +107,10 @@ func (b *builder) firstSet() {
 // the owner logged, because the owner can change the weight before the
 // log (D-249). The owner logs the working sets at that load, so the
 // rules read the logs against it.
+//
+// From version 8, a session with a limit of Follow and a first set at
+// another weight has the load that the other working sets followed
+// (D-309).
 func (in Input) effective() []Outcome {
 	out := slices.Clone(in.History)
 	available := in.Entry.Available()
@@ -80,6 +121,8 @@ func (in Input) effective() []Outcome {
 			load = calibrationLoads(firstLoad(cal[0].Weight, available), available).For(cal[0])
 		case o.Target.FirstSetCalibration && len(logs) > 0:
 			load = firstLoad(logs[0].Weight, available)
+		case o.Target.FollowMax > 0 && len(logs) > 0 && logs[0].Weight != o.Target.Working[0].Load:
+			load = firstLoad(Followed(o.Target, logs[0].Weight), available)
 		default:
 			continue
 		}

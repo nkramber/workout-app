@@ -1,6 +1,7 @@
-policy version: 7
+policy version: 8
 rules: progress.add-reps, deload.reactive
 target: seated_row, rest 60 s
   working[0]: 12 reps at 60 lb, 3 RIR
   working[1]: 12 reps at 60 lb, 3 RIR
+  the other sets follow working[0], up to 65 lb
 reason: Your reps went down in 2 sessions in a row on 2 or more exercises, so this week is a deload. Until 2026-09-12, the target is 2 x 12 at 60 lb, at 3 reps in reserve. Then it goes back to 4 x 12 at 60 lb.
