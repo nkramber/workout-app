@@ -31,6 +31,8 @@ The check found a defect. On the first exercise, the owner logged 30 lb at 3 rep
 
 Phase 7 ends with the iPhone check at the start of PR-39, after the deploy of the merge of PR-38 (D-310). No work of Phase 8 starts before that check passes. This roadmap and the fix of PR-38 come before the check, because the owner put them there (D-310).
 
+The check passed on 2026-10-05, on the deploy of `e09b7ff`. The three checks of PR-39 passed, so Phase 7 ended. Section 2 of `docs/research/restore-drill.md` gives the logs, the cost, and the cause of each reason of the rules.
+
 ### 1.2 The start state of the operations
 
 This session read these facts on 2026-10-04:
@@ -139,6 +141,8 @@ Concerns:
 Acceptance story: the report shows that a daily backup restores into a new database, and it gives the count of each collection. The rollback drill moves the traffic of `api` to the last revision and back. `make verify` passes.
 
 Checks: `make verify` and `make pr-check`, free. The restore costs money, so the session states the cost first. Without code, PR-39 can use the `review-override` label (D-125).
+
+Result: `docs/research/restore-drill.md` gives the drill of 2026-10-05. The restore took 8 min 48 s, and each difference of a count has a cause. The rollback of `api` and of Hosting passed.
 
 ### PR-40 - The alerts
 

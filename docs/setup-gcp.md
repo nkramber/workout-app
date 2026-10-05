@@ -19,7 +19,7 @@ CAUTION: do not write an account email, a uid, or a secret value into this file.
 | Firestore rules | `firestore.rules`: each client read and write is refused | D-77 |
 | Firestore TTL | The field `expire_at` of the collection group `aiErrors`, so each error record goes after 90 days | D-236 |
 | Point-in-time recovery | On, with a window of 7 days | D-124 |
-| Backups | A daily schedule, and each backup stays 10 days | D-124 |
+| Backups | A daily schedule, and each backup stays 10 days. The drill of 2026-10-05 restored one into a new database (`docs/research/restore-drill.md`). | D-124 |
 | Allowlist | One document in `allowlist`, with the uid of the owner as its id | D-75, D-131 |
 | Cloud Run | Service `api` in `us-central1`, request billing, min instances 0, max instances 2, CPU boost, request timeout 420 s | D-141, D-231 |
 | Service configuration | `OPENAI_API_KEY` from `openai-api-key:latest`, `LUNA_CAP_USER_USD=1`, and `LUNA_CAP_PROJECT_USD=2`. A deploy names the image alone, so these values carry over. | D-24, D-188 |
@@ -141,6 +141,8 @@ curl -s -o /dev/null -w '%{http_code}\n' -X PATCH "${H[@]}" -H 'Content-Type: ap
 ## 5. Cost
 
 The owner expects about 1 USD each month in Phase 2. The main parts are Firestore storage, the point-in-time recovery storage, the backups, and the images. Cloud Run at min instances 0 costs nothing while it waits. Cloud Build gives 2,500 build-minutes each month at no cost, and three builds of one merge use about 10 minutes (assumption, not measured).
+
+A restore of a backup costs money on the size of the backup, and the backup record gives no size. The drill of 2026-10-05 did not read the billed cost.
 
 From Phase 5, the planner calls cost money too. The caps of D-188 hold them to 2 USD each month for the project.
 
