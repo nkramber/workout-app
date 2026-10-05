@@ -183,7 +183,7 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 
 **Decisions and questions.** D-37, D-43, D-64 to D-69, D-175, D-286 to D-310, Q-92, Q-102, Q-194, Q-202, Q-300 to Q-316.
 
-**Exit.** The live check of the merge of work area 7.3 found a defect of the later sets after the first set. The focused roadmap of Phase 8 holds the fix and the policy version 8. The iPhone check of Phase 7 follows its deploy (D-306 to D-310).
+**Exit.** The live check of the merge of work area 7.3 found a defect of the later sets after the first set. The focused roadmap of Phase 8 holds the fix and the policy version 8. The iPhone check of Phase 7 follows its deploy, and no Phase 8 work starts before it passes (D-306 to D-310).
 
 **Gate.** Work area 7.3 holds the paid evaluation of the reviser on the section 5 scenarios. It runs only with owner approval (D-25, D-286).
 

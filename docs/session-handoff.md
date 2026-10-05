@@ -19,9 +19,9 @@ The pull request holds:
 
 `make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. GitHub PR 39 holds the work.
 
-The review record `docs/reviews/pr-39.md` gives `Changes required` for effective head `dcd23494a8212291ddc4788ceca8d85cb0f1de29`. Finding P2-1 stays open.
+Codex round 1 gave `Changes required` for effective head `dcd23494a8212291ddc4788ceca8d85cb0f1de29`, with P2-1, the stage line before the Phase 7 check (`docs/reviews/pr-39.md`). The answer of partial merit and its correction are in `docs/reviews/pr-39-response.md`.
 
-Next action: correct P2-1, then request a new review of the corrected effective head.
+Next action: CI, Codex round 2, and the owner confirmation of the merge.
 
 ## Facts that expire
 

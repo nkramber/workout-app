@@ -29,7 +29,7 @@ No log entry had the severity WARNING or more. The two calls cost 0.0059 USD, in
 
 The check found a defect. On the first exercise, the owner logged 30 lb at 3 reps in reserve for the first set, and the next set showed 20 lb. The exercise had history, so its plan had no first-set calibration (D-301). So the code did what D-301 tells, but not what the owner wants. The owner chose the rule of D-306 to D-309, and PR-38 holds the fix (D-310).
 
-Phase 7 ends with the iPhone check at the start of PR-39, after the deploy of the merge of PR-38 (D-310).
+Phase 7 ends with the iPhone check at the start of PR-39, after the deploy of the merge of PR-38 (D-310). No work of Phase 8 starts before that check passes. This roadmap and the fix of PR-38 come before the check, because the owner put them there (D-310).
 
 ### 1.2 The start state of the operations
 
@@ -71,6 +71,7 @@ No question of this phase stays open. Q-103 stays open for the deferred photo wo
 
 ## 3. Rules for each pull request of this phase
 
+- No work of a work area of Phase 8 starts before the iPhone check of Phase 7 passes (AGENTS.md hard rule 1, D-310).
 - No file, log, or report holds an email address, a workout log, or a value of the owner. A report holds ids and counts alone (D-80, D-313).
 - A paid AI run needs the approval of the owner (D-25). The session states the expected cost first (D-212).
 - Recommendation: the session also states the expected cost of each paid step of Google Cloud, such as a restore, and asks the owner first.
@@ -119,7 +120,7 @@ Before the work, the session reads both deploys of the merge of PR-38. It states
 2. On an exercise with history, a first set two weights above the target gives one weight above the target (D-306, D-307).
 3. When each exercise is done, the exercise list collapses (D-298).
 
-Phase 7 ends after the three checks. The session also reads the cause of each reason of the rules of that revision, with ids alone. In PR-38, the permission check of the session refused a read of the plan document, so the session asks the owner first.
+Gate: Phase 7 ends after the three checks pass. No work of work area 8.1 starts before that. When a check fails, the session stops, and asks the owner for the fix. The work of PR-39 starts only after a fix passes the three checks. The session also reads the cause of each reason of the rules of that revision, with ids alone. In PR-38, the permission check of the session refused a read of the plan document, so the session asks the owner first.
 
 Concerns:
 
