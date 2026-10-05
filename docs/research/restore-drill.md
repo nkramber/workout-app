@@ -77,7 +77,7 @@ The session did the steps of `docs/deploy-and-rollback.md` section 6:
 2. The restore into the new database `restore-20261005` started at 19:20:09Z.
 3. The operation gave `SUCCESSFUL` at 19:28:57Z, after 8 min 48 s.
 4. The session counted each collection of both databases with the REST API of Firestore.
-5. The delete of step 7 failed, because the new database had delete protection.
+5. The delete step of section 6 failed, because the new database had delete protection.
 6. The session turned off the delete protection of `restore-20261005` alone, and deleted it at 19:30:40Z.
 
 The count walks the tree with `listCollectionIds`. For each collection, it runs a `count` aggregation. The paths below put `{uid}` in place of the id of the user. The count of `(default)` ran from 19:20:41Z to 19:20:55Z, and the count of the restore ran from 19:29:22Z to 19:29:53Z.
@@ -101,7 +101,7 @@ The restore holds each workout that "Delete all data" deleted. So a restore can 
 
 ### 3.3 Findings
 
-- A restored database gets the delete protection of its source. So step 7 of section 6 fails with `FAILED_PRECONDITION`, until a step turns off that protection.
+- A restored database gets the delete protection of its source. So the delete step of section 6 failed with `FAILED_PRECONDITION`, until a step turned off that protection.
 - The restore of the database of one user took 8 min 48 s. A plan for a repair must allow for that time.
 - A read with a `readTime` of point-in-time recovery gives the old plan document. The drill used it to read the overwritten revisions of section 2.4.
 - The backup record of `gcloud firestore backups describe` holds no size. So the session can not state the billed size of a restore before the restore.
