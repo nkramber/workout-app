@@ -99,6 +99,17 @@ CAUTION: the pin of step 3 holds until `--to-latest`. A deploy during the pin ma
 
 The Hosting console keeps each release. Open the Firebase console, then Hosting, then the release history. Select the menu of a good release, then Rollback. Each release names its commit in its message.
 
+The REST API of Hosting does the same rollback with no console:
+
+1. Set `S` to `https://firebasehosting.googleapis.com/v1beta1/sites/nk-workout-app-prod`.
+2. Set `H` to the header `Authorization: Bearer $(gcloud auth print-access-token)`.
+3. Set `Q` to the header `x-goog-user-project: nk-workout-app-prod`.
+4. Run `curl -H "$H" -H "$Q" "$S/channels/live/releases?pageSize=3"`, and read each version and message.
+5. Set `V` to the last part of the version name of the good release.
+6. Run `curl -X POST -H "$H" -H "$Q" "$S/channels/live/releases?versionName=sites/nk-workout-app-prod/versions/$V"`.
+
+The new release has the type `ROLLBACK`. In the drill of 2026-10-05, each release took less than 1 s (`docs/research/restore-drill.md`).
+
 Then read `https://nk-workout-app-prod.web.app/version.json`. The service worker of the app shows "Update ready", and the owner applies it (D-133).
 
 ### 4.3 The Firestore rules
@@ -126,10 +137,19 @@ A restore of a backup writes a new database. It never writes over `(default)`. D
 1. Run `gcloud firestore backups list --project=nk-workout-app-prod --format="value(name,snapshotTime,state)"`.
 2. Select the newest READY backup before the damage.
 3. Set `BACKUP` to its full name, and `DEST` to a new id, for example `restore-20261001`.
-4. Run `gcloud firestore databases restore --project=nk-workout-app-prod --source-backup="$BACKUP" --destination-database="$DEST"`.
-5. Compare each damaged document in `$DEST` with `(default)`.
-6. Copy each damaged document back into `(default)` with a script that the owner reads first.
-7. Run `gcloud firestore databases delete --project=nk-workout-app-prod --database="$DEST"` after the repair.
+4. Run `gcloud firestore databases restore --project=nk-workout-app-prod --source-backup="$BACKUP" --destination-database="$DEST" --format="value(name)"`.
+5. Set `OP` to the full operation name that step 4 gives.
+6. Run `gcloud firestore operations describe "$OP" --format="value(done,metadata.operationState)"` until it gives `True SUCCESSFUL`.
+7. Compare each damaged document in `$DEST` with `(default)`.
+8. Copy each damaged document back into `(default)` with a script that the owner reads first.
+9. Run `gcloud firestore databases update --project=nk-workout-app-prod --database="$DEST" --no-delete-protection`.
+10. Run `gcloud firestore databases delete --project=nk-workout-app-prod --database="$DEST"` after the repair.
+
+CAUTION: give `--database="$DEST"` to step 9. The same step on `(default)` removes its delete protection.
+
+The restored database gets the delete protection of `(default)`. So without step 9, the delete of step 10 fails with `FAILED_PRECONDITION`. In the drill of 2026-10-05, the restore of the database of one user took 8 min 48 s.
+
+For the count of step 7, walk the tree with the REST call `listCollectionIds`, and run a `count` aggregation for each collection. `docs/research/restore-drill.md` gives the counts of the drill.
 
 Note: `gcloud` 533.0.0 has no `firestore databases clone` command in its GA group. The clone of a database at a past time needs another track or the console (unverified).
 
@@ -145,3 +165,5 @@ Each build file and the Dockerfile name each image with its digest. The test `do
 | A budget does not stop spend. | 2026-09-28 | PC-82 of `docs/research/platform-cloud-and-ai.md` |
 | The spend cap is Preview, the console alone sets it, and it pauses Cloud Run at 100%. | 2026-09-29 | Google Cloud, "Spend cap budgets", updated 2026-09-24 |
 | The service `api` answers on `https://api-665413986587.us-central1.run.app`. | 2026-09-29 | `gcloud run deploy` |
+| A restored database has delete protection, and its delete fails with `FAILED_PRECONDITION` until step 9 of section 6. | 2026-10-05 | `docs/research/restore-drill.md` |
+| A release of an earlier version through the Hosting REST API has the type `ROLLBACK`. | 2026-10-05 | `docs/research/restore-drill.md` |

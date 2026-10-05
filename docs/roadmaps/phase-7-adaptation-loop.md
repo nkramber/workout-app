@@ -187,3 +187,4 @@ Phase 7 ends when PR-37 merges and the device checks pass. The device checks fou
 - The scenario tests of PR-36 prove a missed week, a break of the Q-102 length, and a deload (work area 7.2).
 - The report of PR-37 gives the measured numbers of the paid evaluation (work area 7.3). On 2026-10-04, 50 reviser calls of the 10 scenarios gave the status `ok`. The check accepted 110 reasons and refused 5, and each case was safe (`docs/research/reviser-evaluation.md`).
 - The live check of `4bbf6c8` found that a first set at another weight did not change the later sets of an exercise with history. PR-38 holds the fix with policy version 8 (D-306 to D-310). Section 1.1 of `docs/roadmaps/phase-8-personal-use-operations.md` gives the check.
+- The device checks passed on 2026-10-05 on the deploy of `e09b7ff`, so Phase 7 ended. `docs/research/restore-drill.md` section 2 gives the logs.
