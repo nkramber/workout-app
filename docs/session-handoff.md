@@ -19,7 +19,9 @@ The pull request holds:
 
 `make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. GitHub PR 39 holds the work.
 
-Next action: CI, the Codex review, and the owner confirmation of the merge.
+The review record `docs/reviews/pr-39.md` gives `Changes required` for effective head `dcd23494a8212291ddc4788ceca8d85cb0f1de29`. Finding P2-1 stays open.
+
+Next action: correct P2-1, then request a new review of the corrected effective head.
 
 ## Facts that expire
 
