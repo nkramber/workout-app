@@ -181,10 +181,10 @@ func TestFirestoreList(t *testing.T) {
 }
 
 // TestFirestoreDeleteAll: DeleteAll removes each workout and each op id
-// of one user alone, and gives the count of the workouts (D-315). After
-// it, an entry that the phone made before the deletion gets
-// ErrBeforeDeletion, as a sync of another tab or device would send it.
-// An entry after the deletion applies.
+// of one user alone, gives the count of the workouts, and adds 1 to the
+// generation (D-315). After it, a header of the old generation gets
+// ErrBeforeDeletion with any time of the phone, as a sync of another tab
+// or device would send it. A header of the new generation applies.
 func TestFirestoreDeleteAll(t *testing.T) {
 	client := emulatorClient(t)
 	s := FromFirestore(client)
@@ -199,11 +199,14 @@ func TestFirestoreDeleteAll(t *testing.T) {
 	if _, err := s.Apply(ctx, other, header(1, workoutA)); err != nil {
 		t.Fatal(err)
 	}
-	if n, err := s.DeleteAll(ctx, uid); n != 2 || err != nil {
-		t.Fatalf("DeleteAll = %d, %v, want 2", n, err)
+	if n, gen, err := s.DeleteAll(ctx, uid); n != 2 || gen != 1 || err != nil {
+		t.Fatalf("DeleteAll = %d, %d, %v, want 2 workouts and generation 1", n, gen, err)
 	}
-	if n, err := s.DeleteAll(ctx, uid); n != 0 || err != nil {
-		t.Fatalf("second DeleteAll = %d, %v, want 0", n, err)
+	if n, gen, err := s.DeleteAll(ctx, uid); n != 0 || gen != 2 || err != nil {
+		t.Fatalf("second DeleteAll = %d, %d, %v, want 0 workouts and generation 2", n, gen, err)
+	}
+	if gen, err := s.Generation(ctx, uid); gen != 2 || err != nil {
+		t.Fatalf("Generation = %d, %v, want 2", gen, err)
 	}
 	if list, _, err := s.List(ctx, uid, 10, ""); err != nil || len(list) != 0 {
 		t.Fatalf("List after DeleteAll = %d, %v, want none", len(list), err)
@@ -221,10 +224,19 @@ func TestFirestoreDeleteAll(t *testing.T) {
 	if list, _, _ := s.List(ctx, uid, 10, ""); len(list) != 0 {
 		t.Fatal("an entry before the deletion wrote a workout")
 	}
-	later := header(9, workoutB)
-	later.At = time.Now().Add(time.Minute)
-	if r, err := s.Apply(ctx, uid, later); err != nil || r.Replayed {
-		t.Fatalf("an entry after the deletion = %+v, %v, want a new apply", r, err)
+	late := header(8, workoutB)
+	late.At = time.Now().Add(24 * time.Hour)
+	if _, err := s.Apply(ctx, uid, late); !errors.Is(err, ErrBeforeDeletion) {
+		t.Fatalf("a header of the old generation with a late time: %v, want ErrBeforeDeletion", err)
+	}
+	next := header(9, workoutB)
+	next.Header.Generation = 2
+	if r, err := s.Apply(ctx, uid, next); err != nil || r.Replayed {
+		t.Fatalf("a header of the new generation = %+v, %v, want a new apply", r, err)
+	}
+	// A third deletion keeps no workout of an older generation.
+	if n, _, err := s.DeleteAll(ctx, uid); n != 1 || err != nil {
+		t.Fatalf("third DeleteAll = %d, %v, want 1", n, err)
 	}
 	if _, err := s.Apply(ctx, other, header(2, workoutB)); err != nil {
 		t.Fatalf("another user: %v, want no fence", err)

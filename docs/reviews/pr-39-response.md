@@ -40,3 +40,24 @@ Accepted risk: the fence compares the time of the phone with the time of the ser
 
 Regression check: `TestMemoryDeleteAll`, `TestFirestoreDeleteAll` on the emulator, and `TestSyncAfterDeletion` send an entry of a time before the deletion after `DeleteAll`. Each one gets the refusal, and no workout comes back. An entry after the deletion applies. Without the fence, the three tests fail.
 
+## Round 4
+
+This part answers the findings of round 4, at `e0a01c9b560980b6c6a6cf8dea18432302406fb7`.
+
+## P2-3: A phone clock ahead can bypass the deletion fence
+
+Result: full merit.
+
+Evidence: the fence of round 3 compared the time of the server with `Entry.At`, a time of the phone. A phone clock ahead of the server gives an old entry a later time, and that entry passed.
+
+Correction: the fence uses no clock of a phone.
+
+- The document `users/{uid}/history/deleted` holds a generation of the history. `DeleteAll` adds 1 to it in a transaction, first.
+- `DeleteAll` then deletes each workout of an older generation, and each op id that the server applied before the change. A time of the server alone decides which op ids go.
+- Each workout header carries the generation that the phone knew at the start of the workout. The phone reads it with `GetMe` at each read of the copies, and from the answer of `DeleteHistory`.
+- The transaction of `Apply` refuses a header of an older generation, and each entry of a stored workout of an older generation, with `ErrBeforeDeletion`.
+
+Accepted risk: a device that starts a workout after a deletion, before it reads the new generation, sends a workout of the old generation. The server refuses it, and the phone shows the refused entries. A device reads the generation at each sync of its copies, so this needs a workout with no connection.
+
+Regression check: `TestMemoryDeleteAll` and `TestFirestoreDeleteAll` give a header of the old generation a phone time far after the deletion, and each one gets the refusal. A header of the new generation applies. `TestFenced` proves each case of the fence. `TestSyncAfterDeletion` proves the refusal and the apply through `SyncOutbox`. The browser test of the deletion starts a new workout after the deletion, and the server applies it.
+

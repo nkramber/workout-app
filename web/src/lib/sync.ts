@@ -4,6 +4,7 @@ import { liveQuery } from "dexie";
 import { create, fromJson, toJson, type JsonValue } from "@bufbuild/protobuf";
 import { InventoryService, GetCatalogResponseSchema, GetInventoryResponseSchema } from "../gen/workoutapp/v1/inventory_service_pb";
 import { GetPlanResponseSchema, PlanService } from "../gen/workoutapp/v1/plan_service_pb";
+import { UserService } from "../gen/workoutapp/v1/user_service_pb";
 import {
   EntryResult_Status,
   OutboxEntrySchema,
@@ -11,7 +12,7 @@ import {
   type OutboxEntry as OutboxEntryMessage,
   type SyncOutboxResponse,
 } from "../gen/workoutapp/v1/workout_service_pb";
-import { INVENTORY_ENTITIES, withReopen, type CopyKey, type OutboxEntry, type WorkoutAppDB } from "./db";
+import { HISTORY_GENERATION_KEY, INVENTORY_ENTITIES, withReopen, type CopyKey, type OutboxEntry, type WorkoutAppDB } from "./db";
 import { isNoConnection } from "./errors";
 import { localInventory } from "./inventory-api";
 import { planRequest } from "./today";
@@ -47,6 +48,9 @@ export type SyncClient = {
   // copies reads the answers of the server that the sync keeps a copy of
   // (D-250, D-278), as JSON. The profile screen keeps the profile copy.
   copies: () => Promise<Partial<Record<CopyKey, JsonValue>>>;
+  // generation reads the generation of the history with GetMe (D-315).
+  // A fake of a test can leave it out.
+  generation?: () => Promise<number>;
 };
 
 // connectClient gives the calls of the API over the transport.
@@ -54,8 +58,10 @@ export function connectClient(transport: Transport): SyncClient {
   const workouts = createClient(WorkoutService, transport);
   const inventories = createClient(InventoryService, transport);
   const plans = createClient(PlanService, transport);
+  const users = createClient(UserService, transport);
   return {
     syncOutbox: (entries) => workouts.syncOutbox({ entries }),
+    generation: async () => (await users.getMe({})).historyGeneration,
     copies: async () => {
       const [catalog, inventory, plan] = await Promise.all([inventories.getCatalog({}), inventories.getInventory({}), plans.getPlan(planRequest())]);
       return {
@@ -197,12 +203,22 @@ async function keepVersion(store: WorkoutAppDB, e: OutboxEntry, version: number)
 // each copy (D-250, D-278). The server wins: the new inventory copy
 // replaces the old one, and the screens put the inventory entries of the
 // outbox on it again (D-258).
+//
+// It also keeps the generation of the history (D-315). So a phone learns
+// of a deletion on another device before its next workout starts.
 export async function refreshCopies(store: WorkoutAppDB, client: SyncClient, now: () => Date = () => new Date()): Promise<void> {
-  const copies = await client.copies();
+  const [copies, generation] = await Promise.all([client.copies(), client.generation?.()]);
   const savedAt = now().toISOString();
   await withReopen(store, () =>
     store.copies.bulkPut((Object.keys(copies) as CopyKey[]).map((key) => ({ key, json: copies[key] ?? null, savedAt }))),
   );
+  if (generation !== undefined) await setHistoryGeneration(store, generation);
+}
+
+// setHistoryGeneration keeps the generation of the history that the
+// server gave (D-315).
+export function setHistoryGeneration(store: WorkoutAppDB, generation: number): Promise<unknown> {
+  return withReopen(store, () => store.meta.put({ key: HISTORY_GENERATION_KEY, value: generation }));
 }
 
 // keepCopy keeps one copy, for example the plan that a plan request gave.

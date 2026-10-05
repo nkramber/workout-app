@@ -642,9 +642,15 @@ type WorkoutHeader struct {
 	// start, one for each exercise (D-291). The server refuses a skip or a set
 	// of an exercise with no target here, when the list is not empty. An
 	// older phone gives no target.
-	Targets       []*SeenTarget `protobuf:"bytes,6,rep,name=targets,proto3" json:"targets,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Targets []*SeenTarget `protobuf:"bytes,6,rep,name=targets,proto3" json:"targets,omitempty"`
+	// The generation of the history that the phone knew at the start of the
+	// workout, from GetMe or DeleteHistory (D-315). Each deletion of the
+	// history adds 1. The server refuses each entry of a workout of an older
+	// generation, so a sync of another tab or device does not bring deleted
+	// history back. An older phone gives 0.
+	HistoryGeneration int32 `protobuf:"varint,7,opt,name=history_generation,json=historyGeneration,proto3" json:"history_generation,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *WorkoutHeader) Reset() {
@@ -717,6 +723,13 @@ func (x *WorkoutHeader) GetTargets() []*SeenTarget {
 		return x.Targets
 	}
 	return nil
+}
+
+func (x *WorkoutHeader) GetHistoryGeneration() int32 {
+	if x != nil {
+		return x.HistoryGeneration
+	}
+	return 0
 }
 
 // SeenTarget is the target of one exercise that the owner saw at the start
@@ -1731,7 +1744,7 @@ const file_workoutapp_v1_workout_service_proto_rawDesc = "" +
 	"NoteRemove\"W\n" +
 	"\bPlanLink\x12&\n" +
 	"\x0fplan_created_at\x18\x01 \x01(\tR\rplanCreatedAt\x12#\n" +
-	"\rsession_index\x18\x02 \x01(\x05R\fsessionIndex\"\xf4\x01\n" +
+	"\rsession_index\x18\x02 \x01(\x05R\fsessionIndex\"\xa3\x02\n" +
 	"\rWorkoutHeader\x12\x12\n" +
 	"\x04date\x18\x01 \x01(\tR\x04date\x12+\n" +
 	"\x04plan\x18\x02 \x01(\v2\x17.workoutapp.v1.PlanLinkR\x04plan\x120\n" +
@@ -1739,7 +1752,8 @@ const file_workoutapp_v1_workout_service_proto_rawDesc = "" +
 	"\vended_early\x18\x04 \x01(\bR\n" +
 	"endedEarly\x12\x1a\n" +
 	"\bfinished\x18\x05 \x01(\bR\bfinished\x123\n" +
-	"\atargets\x18\x06 \x03(\v2\x19.workoutapp.v1.SeenTargetR\atargets\"\xb5\x03\n" +
+	"\atargets\x18\x06 \x03(\v2\x19.workoutapp.v1.SeenTargetR\atargets\x12-\n" +
+	"\x12history_generation\x18\a \x01(\x05R\x11historyGeneration\"\xb5\x03\n" +
 	"\n" +
 	"SeenTarget\x12\x1f\n" +
 	"\vexercise_id\x18\x01 \x01(\tR\n" +

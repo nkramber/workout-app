@@ -145,6 +145,12 @@ message WorkoutHeader {
   // of an exercise with no target here, when the list is not empty. An
   // older phone gives no target.
   repeated SeenTarget targets = 6;
+  // The generation of the history that the phone knew at the start of the
+  // workout, from GetMe or DeleteHistory (D-315). Each deletion of the
+  // history adds 1. The server refuses each entry of a workout of an older
+  // generation, so a sync of another tab or device does not bring deleted
+  // history back. An older phone gives 0.
+  int32 history_generation = 7;
 }
 
 // SeenTarget is the target of one exercise that the owner saw at the start

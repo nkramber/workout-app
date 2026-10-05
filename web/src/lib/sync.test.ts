@@ -12,7 +12,7 @@ import {
   SyncOutboxResponseSchema,
   type OutboxEntry as OutboxEntryMessage,
 } from "../gen/workoutapp/v1/workout_service_pb";
-import { OUTBOX_SCHEMA_VERSION, pendingOutbox, WorkoutAppDB, type CopyKey, type OutboxEntry } from "./db";
+import { historyGeneration, OUTBOX_SCHEMA_VERSION, pendingOutbox, WorkoutAppDB, type CopyKey, type OutboxEntry } from "./db";
 import { confirmMachine, readOfflineInventory, removeNote, saveMachine, saveNote } from "./inventory-api";
 import {
   drainOutbox,
@@ -491,3 +491,21 @@ describe("syncBeforePlan", () => {
     await expect(syncBeforePlan(store, async () => {})).resolves.toBeUndefined();
   });
 });
+
+// The generation of the history (D-315): a read of the copies keeps the
+// generation of GetMe, and each new workout carries it in its header. So
+// the server can refuse a workout of an older generation.
+describe("the generation of the history", () => {
+  it("keeps the generation of the server, and a new workout carries it", async () => {
+    const client = new FakeServer();
+    await refreshCopies(store, client, () => now);
+    expect(await historyGeneration(store)).toBe(0);
+    await refreshCopies(store, { ...client, copies: () => client.copies(), syncOutbox: (m) => client.syncOutbox(m), generation: async () => 2 }, () => now);
+    expect(await historyGeneration(store)).toBe(2);
+    const w = await startWorkout(store, plan, 0, weights, now);
+    expect(w.historyGeneration).toBe(2);
+    const [entry] = await pendingOutbox(store);
+    expect((entry.payload as { historyGeneration?: number }).historyGeneration).toBe(2);
+  });
+});
+

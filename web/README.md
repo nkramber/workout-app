@@ -36,7 +36,7 @@ The app has no form that makes an account. The owner makes the one account in th
 
 ## The inventory screens
 
-The diagnostics of the home screen hold "Delete all data" in a closed section. Its dialog needs the switch at "Yes" and the typed text "Delete all data" (D-314). The phone deletes its history and the outbox entries of that history first, so no later sync sends them. Then it calls `DeleteHistory` (D-315).
+The diagnostics of the home screen hold "Delete all data" in a closed section. Its dialog needs the switch at "Yes" and the typed text "Delete all data" (D-314). The phone deletes its history and the outbox entries of that history first, so no later sync sends them. Then it calls `DeleteHistory`, and keeps the new generation of the history that the answer gives (D-315). Each new workout carries the generation, and each read of the copies reads it again with `GetMe`.
 
 The home screen opens the equipment inventory (work area 4.1). The screens read the catalog and the inventory through `InventoryService` of the API, and never through Firestore (D-77).
 

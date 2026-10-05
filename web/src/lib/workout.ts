@@ -7,6 +7,7 @@ import {
 } from "../gen/workoutapp/v1/workout_service_pb";
 import type { Plan } from "../gen/workoutapp/v1/plan_service_pb";
 import {
+  historyGeneration,
   OUTBOX_SCHEMA_VERSION,
   REST_KEY,
   withReopen,
@@ -120,6 +121,7 @@ function headerPayload(w: WorkoutRecord): unknown {
       skippedExerciseIds: w.skippedExerciseIds,
       endedEarly: w.endedEarly,
       finished: w.finished,
+      historyGeneration: w.historyGeneration ?? 0,
       targets: w.exercises.map((e) => ({
         exerciseId: e.exerciseId,
         restSeconds: e.restSeconds,
@@ -249,9 +251,12 @@ export async function startWorkout(
   const exercises = workoutExercises(plan, sessionIndex, weights);
   const session = plan.sessions[sessionIndex];
   return withReopen(store, () =>
-    store.transaction("rw", store.workouts, store.outbox, async () => {
+    store.transaction("rw", [store.workouts, store.outbox, store.meta], async () => {
       if (await store.workouts.filter((w) => !w.finished).first()) throw new WorkoutInProgressError();
       const at = now.toISOString();
+      // The workout keeps the generation of the history that the phone
+      // knows now, and each header carries it (D-315).
+      const generation = await historyGeneration(store);
       const w: WorkoutRecord = {
         id: nextId(now.getTime()),
         date: localDate(now),
@@ -267,6 +272,7 @@ export async function startWorkout(
         finished: false,
         startedAt: at,
         version: 0,
+        historyGeneration: generation,
       };
       await store.workouts.add(w);
       await store.outbox.add(entry("workout", w.id, 0, headerPayload(w), at, now));

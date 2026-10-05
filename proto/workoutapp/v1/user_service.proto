@@ -24,6 +24,9 @@ message GetMeRequest {}
 message GetMeResponse {
   // The Firebase uid of the caller.
   string uid = 1;
+  // The generation of the history: the count of the deletions of the
+  // history of the caller (D-315). A new workout carries it.
+  int32 history_generation = 2;
 }
 
 message DeleteHistoryRequest {
@@ -34,4 +37,6 @@ message DeleteHistoryRequest {
 message DeleteHistoryResponse {
   // The count of the workouts that the call deleted.
   int32 deleted_workouts = 1;
+  // The new generation of the history (D-315).
+  int32 history_generation = 2;
 }

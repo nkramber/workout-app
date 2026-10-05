@@ -60,9 +60,12 @@ func (*GetMeRequest) Descriptor() ([]byte, []int) {
 type GetMeResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The Firebase uid of the caller.
-	Uid           string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Uid string `protobuf:"bytes,1,opt,name=uid,proto3" json:"uid,omitempty"`
+	// The generation of the history: the count of the deletions of the
+	// history of the caller (D-315). A new workout carries it.
+	HistoryGeneration int32 `protobuf:"varint,2,opt,name=history_generation,json=historyGeneration,proto3" json:"history_generation,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *GetMeResponse) Reset() {
@@ -100,6 +103,13 @@ func (x *GetMeResponse) GetUid() string {
 		return x.Uid
 	}
 	return ""
+}
+
+func (x *GetMeResponse) GetHistoryGeneration() int32 {
+	if x != nil {
+		return x.HistoryGeneration
+	}
+	return 0
 }
 
 type DeleteHistoryRequest struct {
@@ -151,8 +161,10 @@ type DeleteHistoryResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The count of the workouts that the call deleted.
 	DeletedWorkouts int32 `protobuf:"varint,1,opt,name=deleted_workouts,json=deletedWorkouts,proto3" json:"deleted_workouts,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// The new generation of the history (D-315).
+	HistoryGeneration int32 `protobuf:"varint,2,opt,name=history_generation,json=historyGeneration,proto3" json:"history_generation,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *DeleteHistoryResponse) Reset() {
@@ -192,18 +204,27 @@ func (x *DeleteHistoryResponse) GetDeletedWorkouts() int32 {
 	return 0
 }
 
+func (x *DeleteHistoryResponse) GetHistoryGeneration() int32 {
+	if x != nil {
+		return x.HistoryGeneration
+	}
+	return 0
+}
+
 var File_workoutapp_v1_user_service_proto protoreflect.FileDescriptor
 
 const file_workoutapp_v1_user_service_proto_rawDesc = "" +
 	"\n" +
 	" workoutapp/v1/user_service.proto\x12\rworkoutapp.v1\"\x0e\n" +
-	"\fGetMeRequest\"!\n" +
+	"\fGetMeRequest\"P\n" +
 	"\rGetMeResponse\x12\x10\n" +
-	"\x03uid\x18\x01 \x01(\tR\x03uid\":\n" +
+	"\x03uid\x18\x01 \x01(\tR\x03uid\x12-\n" +
+	"\x12history_generation\x18\x02 \x01(\x05R\x11historyGeneration\":\n" +
 	"\x14DeleteHistoryRequest\x12\"\n" +
-	"\fconfirmation\x18\x01 \x01(\tR\fconfirmation\"B\n" +
+	"\fconfirmation\x18\x01 \x01(\tR\fconfirmation\"q\n" +
 	"\x15DeleteHistoryResponse\x12)\n" +
-	"\x10deleted_workouts\x18\x01 \x01(\x05R\x0fdeletedWorkouts2\xb1\x01\n" +
+	"\x10deleted_workouts\x18\x01 \x01(\x05R\x0fdeletedWorkouts\x12-\n" +
+	"\x12history_generation\x18\x02 \x01(\x05R\x11historyGeneration2\xb1\x01\n" +
 	"\vUserService\x12D\n" +
 	"\x05GetMe\x12\x1b.workoutapp.v1.GetMeRequest\x1a\x1c.workoutapp.v1.GetMeResponse\"\x00\x12\\\n" +
 	"\rDeleteHistory\x12#.workoutapp.v1.DeleteHistoryRequest\x1a$.workoutapp.v1.DeleteHistoryResponse\"\x00BCZAgithub.com/nkramber/workout-app/go/gen/workoutapp/v1;workoutappv1b\x06proto3"

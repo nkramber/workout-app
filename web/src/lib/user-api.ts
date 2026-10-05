@@ -22,7 +22,10 @@ export function useUserApi() {
       deleteAllData: async (): Promise<number> => {
         const deleted = await deleteAllData(db, {
           sync: () => engine.syncNow(),
-          deleteOnServer: async () => (await client.deleteHistory({ confirmation: DELETE_CONFIRMATION })).deletedWorkouts,
+          deleteOnServer: async () => {
+            const res = await client.deleteHistory({ confirmation: DELETE_CONFIRMATION });
+            return { deleted: res.deletedWorkouts, generation: res.historyGeneration };
+          },
         });
         await queryClient.invalidateQueries();
         return deleted;

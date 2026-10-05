@@ -457,9 +457,19 @@ test("delete all data needs the switch and the typed text, and deletes the worko
   expect(await page.evaluate(async () => (await window.workoutAppE2E!.workouts()).length)).toBe(0);
   await expect(page.getByTestId("outbox-count")).toHaveText("0");
 
-  // The plan screen offers a new plan.
+  // The plan screen offers a new plan. A workout after the deletion
+  // carries the new generation of the history, so the server applies it
+  // (D-315).
   await button(page, "Plan").click();
-  await expect(button(page, "Make a plan")).toBeVisible();
+  await button(page, "Make a plan").click();
+  await expect(page.getByTestId("plan-summary")).toHaveText("A plan at the targets of the rules.");
+  await button(page, "Back").click();
+  await button(page, "Workout").click();
+  await button(page, "Start Session 1").click();
+  expect(await logSets(page, 1)).toBe(1);
+  await expect(syncLine(page)).toHaveText("Synced", { timeout: 20_000 });
+  const again = await callApi<{ workouts?: unknown[] }>(request, email, "WorkoutService/ListWorkouts", {});
+  expect(again.workouts).toHaveLength(1);
 });
 
 // The acceptance story of PR-37 (D-298): when each exercise is done, the

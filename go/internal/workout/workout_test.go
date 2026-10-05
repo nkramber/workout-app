@@ -470,20 +470,23 @@ func TestTargetDocs(t *testing.T) {
 }
 
 // TestMemoryDeleteAll: the memory store deletes the workouts and the op
-// ids of one user alone (D-315). After it, an entry that the phone made
-// before the deletion gets ErrBeforeDeletion, as a sync of another tab
-// or device would send it, and a later entry applies.
+// ids of one user alone, and adds 1 to the generation (D-315). After it,
+// a header of the old generation gets ErrBeforeDeletion, as a sync of
+// another tab or device would send it. A header of the new generation
+// applies, with any time of the phone.
 func TestMemoryDeleteAll(t *testing.T) {
 	ctx := context.Background()
 	s := NewMemory()
-	s.Now = func() time.Time { return t0.Add(10 * time.Second) }
 	for _, uid := range []string{"uid-a", "uid-b"} {
 		if _, err := s.Apply(ctx, uid, header(1, workoutA)); err != nil {
 			t.Fatal(err)
 		}
 	}
-	if n, err := s.DeleteAll(ctx, "uid-a"); n != 1 || err != nil {
-		t.Fatalf("DeleteAll = %d, %v, want 1", n, err)
+	if n, gen, err := s.DeleteAll(ctx, "uid-a"); n != 1 || gen != 1 || err != nil {
+		t.Fatalf("DeleteAll = %d, %d, %v, want 1 workout and generation 1", n, gen, err)
+	}
+	if gen, err := s.Generation(ctx, "uid-a"); gen != 1 || err != nil {
+		t.Fatalf("Generation = %d, %v, want 1", gen, err)
 	}
 	if list, _, _ := s.List(ctx, "uid-a", 10, ""); len(list) != 0 {
 		t.Fatalf("%d workouts after DeleteAll, want none", len(list))
@@ -494,16 +497,58 @@ func TestMemoryDeleteAll(t *testing.T) {
 	if _, err := s.Apply(ctx, "uid-a", header(1, workoutA)); !errors.Is(err, ErrBeforeDeletion) {
 		t.Fatalf("an entry before the deletion: %v, want ErrBeforeDeletion", err)
 	}
-	if _, err := s.Apply(ctx, "uid-a", set(2, workoutA, entityID(1), "chest_press", 10)); !errors.Is(err, ErrBeforeDeletion) {
-		t.Fatalf("a set before the deletion: %v, want ErrBeforeDeletion", err)
+	if _, err := s.Apply(ctx, "uid-a", set(2, workoutA, entityID(1), "chest_press", 10)); !errors.Is(err, ErrUnknownWorkout) {
+		t.Fatalf("a set of a deleted workout: %v, want ErrUnknownWorkout", err)
 	}
-	if r, err := s.Apply(ctx, "uid-a", header(20, workoutB)); err != nil || r.Replayed {
-		t.Fatalf("an entry after the deletion = %+v, %v, want a new apply", r, err)
+	// A time of the phone long after the deletion does not pass the
+	// fence, because the generation decides.
+	late := header(20, workoutB)
+	late.At = t0.AddDate(1, 0, 0)
+	if _, err := s.Apply(ctx, "uid-a", late); !errors.Is(err, ErrBeforeDeletion) {
+		t.Fatalf("a late header of the old generation: %v, want ErrBeforeDeletion", err)
+	}
+	next := header(21, workoutB)
+	next.Header.Generation = 1
+	if r, err := s.Apply(ctx, "uid-a", next); err != nil || r.Replayed {
+		t.Fatalf("a header of the new generation = %+v, %v, want a new apply", r, err)
+	}
+	if _, err := s.Apply(ctx, "uid-a", set(22, workoutB, entityID(5), "chest_press", 10)); err != nil {
+		t.Fatalf("a set of a workout of the new generation: %v", err)
 	}
 	if _, err := s.Apply(ctx, "uid-b", header(3, workoutB)); err != nil {
 		t.Fatalf("another user: %v, want no fence", err)
 	}
-	if _, err := s.DeleteAll(ctx, "a/b"); err == nil {
+	if _, _, err := s.DeleteAll(ctx, "a/b"); err == nil {
 		t.Fatal("DeleteAll took a uid with a slash")
+	}
+}
+
+// TestFenced: the fence refuses a header of an older generation, and each
+// entry of a stored workout of an older generation (D-315). With no
+// deletion, it refuses nothing.
+func TestFenced(t *testing.T) {
+	old := &Workout{ID: workoutA}
+	now := &Workout{ID: workoutA, Header: Header{Generation: 2}}
+	h := header(1, workoutA)
+	h2 := header(2, workoutA)
+	h2.Header.Generation = 2
+	s := set(3, workoutA, entityID(1), "chest_press", 10)
+	for _, tc := range []struct {
+		name   string
+		gen    int64
+		stored *Workout
+		e      Entry
+		want   bool
+	}{
+		{"no deletion", 0, old, h, false},
+		{"a header of an older generation", 2, nil, h, true},
+		{"a header of the generation", 2, nil, h2, false},
+		{"a set of a stored workout of an older generation", 2, old, s, true},
+		{"a set of a stored workout of the generation", 2, now, s, false},
+		{"a header of the generation for a stored workout of an older one", 2, old, h2, true},
+	} {
+		if got := fenced(tc.gen, tc.stored, tc.e); got != tc.want {
+			t.Errorf("%s: fenced = %v, want %v", tc.name, got, tc.want)
+		}
 	}
 }

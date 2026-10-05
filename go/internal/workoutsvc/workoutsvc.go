@@ -231,6 +231,7 @@ func fromProto(in *workoutappv1.OutboxEntry) (workout.Entry, error) {
 			Skipped:    ids(h.GetSkippedExerciseIds()),
 			EndedEarly: h.GetEndedEarly(),
 			Finished:   h.GetFinished(),
+			Generation: int(h.GetHistoryGeneration()),
 		}
 		e.Header.Targets, e.Header.Overrides = targetsFrom(h.GetTargets())
 	case *workoutappv1.OutboxEntry_Set:

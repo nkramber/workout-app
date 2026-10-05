@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file workoutapp/v1/user_service.proto.
  */
 export const file_workoutapp_v1_user_service: GenFile = /*@__PURE__*/
-  fileDesc("CiB3b3Jrb3V0YXBwL3YxL3VzZXJfc2VydmljZS5wcm90bxINd29ya291dGFwcC52MSIOCgxHZXRNZVJlcXVlc3QiHAoNR2V0TWVSZXNwb25zZRILCgN1aWQYASABKAkiLAoURGVsZXRlSGlzdG9yeVJlcXVlc3QSFAoMY29uZmlybWF0aW9uGAEgASgJIjEKFURlbGV0ZUhpc3RvcnlSZXNwb25zZRIYChBkZWxldGVkX3dvcmtvdXRzGAEgASgFMrEBCgtVc2VyU2VydmljZRJECgVHZXRNZRIbLndvcmtvdXRhcHAudjEuR2V0TWVSZXF1ZXN0Ghwud29ya291dGFwcC52MS5HZXRNZVJlc3BvbnNlIgASXAoNRGVsZXRlSGlzdG9yeRIjLndvcmtvdXRhcHAudjEuRGVsZXRlSGlzdG9yeVJlcXVlc3QaJC53b3Jrb3V0YXBwLnYxLkRlbGV0ZUhpc3RvcnlSZXNwb25zZSIAQkNaQWdpdGh1Yi5jb20vbmtyYW1iZXIvd29ya291dC1hcHAvZ28vZ2VuL3dvcmtvdXRhcHAvdjE7d29ya291dGFwcHYxYgZwcm90bzM");
+  fileDesc("CiB3b3Jrb3V0YXBwL3YxL3VzZXJfc2VydmljZS5wcm90bxINd29ya291dGFwcC52MSIOCgxHZXRNZVJlcXVlc3QiOAoNR2V0TWVSZXNwb25zZRILCgN1aWQYASABKAkSGgoSaGlzdG9yeV9nZW5lcmF0aW9uGAIgASgFIiwKFERlbGV0ZUhpc3RvcnlSZXF1ZXN0EhQKDGNvbmZpcm1hdGlvbhgBIAEoCSJNChVEZWxldGVIaXN0b3J5UmVzcG9uc2USGAoQZGVsZXRlZF93b3Jrb3V0cxgBIAEoBRIaChJoaXN0b3J5X2dlbmVyYXRpb24YAiABKAUysQEKC1VzZXJTZXJ2aWNlEkQKBUdldE1lEhsud29ya291dGFwcC52MS5HZXRNZVJlcXVlc3QaHC53b3Jrb3V0YXBwLnYxLkdldE1lUmVzcG9uc2UiABJcCg1EZWxldGVIaXN0b3J5EiMud29ya291dGFwcC52MS5EZWxldGVIaXN0b3J5UmVxdWVzdBokLndvcmtvdXRhcHAudjEuRGVsZXRlSGlzdG9yeVJlc3BvbnNlIgBCQ1pBZ2l0aHViLmNvbS9ua3JhbWJlci93b3Jrb3V0LWFwcC9nby9nZW4vd29ya291dGFwcC92MTt3b3Jrb3V0YXBwdjFiBnByb3RvMw");
 
 /**
  * @generated from message workoutapp.v1.GetMeRequest
@@ -35,6 +35,14 @@ export type GetMeResponse = Message<"workoutapp.v1.GetMeResponse"> & {
    * @generated from field: string uid = 1;
    */
   uid: string;
+
+  /**
+   * The generation of the history: the count of the deletions of the
+   * history of the caller (D-315). A new workout carries it.
+   *
+   * @generated from field: int32 history_generation = 2;
+   */
+  historyGeneration: number;
 };
 
 /**
@@ -73,6 +81,13 @@ export type DeleteHistoryResponse = Message<"workoutapp.v1.DeleteHistoryResponse
    * @generated from field: int32 deleted_workouts = 1;
    */
   deletedWorkouts: number;
+
+  /**
+   * The new generation of the history (D-315).
+   *
+   * @generated from field: int32 history_generation = 2;
+   */
+  historyGeneration: number;
 };
 
 /**

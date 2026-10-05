@@ -23,7 +23,8 @@ const Confirmation = "Delete all data"
 // for an API with no record of failed attempts.
 type History struct {
 	Workouts interface {
-		DeleteAll(ctx context.Context, uid string) (int, error)
+		DeleteAll(ctx context.Context, uid string) (int, int64, error)
+		Generation(ctx context.Context, uid string) (int64, error)
 	}
 	Plans interface {
 		Delete(ctx context.Context, uid string) error
@@ -44,15 +45,27 @@ var _ workoutappv1connect.UserServiceHandler = Server{}
 
 var errNoToken = connect.NewError(connect.CodeUnauthenticated, errors.New("a bearer token is required"))
 
-// GetMe returns the uid that the auth interceptor stored. A call with no
-// uid never reaches this point, but the check keeps the service safe
-// without the interceptor too.
-func (Server) GetMe(ctx context.Context, _ *connect.Request[workoutappv1.GetMeRequest]) (*connect.Response[workoutappv1.GetMeResponse], error) {
+// GetMe returns the uid that the auth interceptor stored, and the
+// generation of its history (D-315). A new workout of the phone carries
+// the generation. A call with no uid never reaches this point, but the
+// check keeps the service safe without the interceptor too.
+func (s Server) GetMe(ctx context.Context, _ *connect.Request[workoutappv1.GetMeRequest]) (*connect.Response[workoutappv1.GetMeResponse], error) {
 	uid := auth.UserID(ctx)
 	if uid == "" {
 		return nil, errNoToken
 	}
-	return connect.NewResponse(&workoutappv1.GetMeResponse{Uid: uid}), nil
+	res := &workoutappv1.GetMeResponse{Uid: uid}
+	if h := s.History; h != nil && h.Workouts != nil {
+		gen, err := h.Workouts.Generation(ctx, uid)
+		if err != nil {
+			if h.Log != nil {
+				h.Log.Warn("get me: the generation", "uid", uid, "err", err.Error())
+			}
+			return nil, connect.NewError(connect.CodeUnavailable, errors.New("get me: the store did not answer"))
+		}
+		res.HistoryGeneration = int32(min(gen, 1<<31-1))
+	}
+	return connect.NewResponse(res), nil
 }
 
 // DeleteHistory deletes the workouts, the plan, and the AI error records
@@ -77,7 +90,7 @@ func (s Server) DeleteHistory(ctx context.Context, req *connect.Request[workouta
 		}
 		return connect.NewError(connect.CodeUnavailable, errors.New("delete history: the "+step+" stayed, try again"))
 	}
-	workouts, err := h.Workouts.DeleteAll(ctx, uid)
+	workouts, gen, err := h.Workouts.DeleteAll(ctx, uid)
 	if err != nil {
 		return nil, fail("workouts", err)
 	}
@@ -93,5 +106,7 @@ func (s Server) DeleteHistory(ctx context.Context, req *connect.Request[workouta
 	if h.Log != nil {
 		h.Log.Info("history deleted", "uid", uid, "workouts", workouts, "error_records", records)
 	}
-	return connect.NewResponse(&workoutappv1.DeleteHistoryResponse{DeletedWorkouts: int32(min(workouts, 1<<31-1))}), nil
+	return connect.NewResponse(&workoutappv1.DeleteHistoryResponse{
+		DeletedWorkouts: int32(min(workouts, 1<<31-1)), HistoryGeneration: int32(min(gen, 1<<31-1)),
+	}), nil
 }

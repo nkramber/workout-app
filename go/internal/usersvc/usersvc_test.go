@@ -28,19 +28,23 @@ func TestGetMe(t *testing.T) {
 // fakeWorkouts and fakePlans record the deletes, and give err.
 type fakeWorkouts struct {
 	n     int
+	gen   int64
 	calls []string
 	err   error
 }
 
-func (f *fakeWorkouts) DeleteAll(_ context.Context, uid string) (int, error) {
+func (f *fakeWorkouts) DeleteAll(_ context.Context, uid string) (int, int64, error) {
 	f.calls = append(f.calls, uid)
 	if f.err != nil {
-		return 0, f.err
+		return 0, 0, f.err
 	}
 	n := f.n
 	f.n = 0
-	return n, nil
+	f.gen++
+	return n, f.gen, nil
 }
+
+func (f *fakeWorkouts) Generation(context.Context, string) (int64, error) { return f.gen, f.err }
 
 type fakePlans struct {
 	calls []string
@@ -83,8 +87,12 @@ func TestDeleteHistory(t *testing.T) {
 	}
 
 	res, err := call(ctx, Confirmation)
-	if err != nil || res.Msg.GetDeletedWorkouts() != 3 {
-		t.Fatalf("DeleteHistory = %v, %v, want 3 workouts", res, err)
+	if err != nil || res.Msg.GetDeletedWorkouts() != 3 || res.Msg.GetHistoryGeneration() != 1 {
+		t.Fatalf("DeleteHistory = %v, %v, want 3 workouts and generation 1", res, err)
+	}
+	// GetMe gives the new generation, so a new workout carries it.
+	if me, err := s.GetMe(ctx, connect.NewRequest(&workoutappv1.GetMeRequest{})); err != nil || me.Msg.GetHistoryGeneration() != 1 {
+		t.Fatalf("GetMe = %v, %v, want generation 1", me, err)
 	}
 	if !slices.Equal(w.calls, []string{"uid-a"}) || !slices.Equal(p.calls, []string{"uid-a"}) {
 		t.Fatalf("deletes %v and %v, want uid-a", w.calls, p.calls)

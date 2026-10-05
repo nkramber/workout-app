@@ -2,7 +2,7 @@ import "fake-indexeddb/auto";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { OUTBOX_SCHEMA_VERSION, REST_KEY, WorkoutAppDB, type OutboxEntry } from "./db";
+import { historyGeneration, OUTBOX_SCHEMA_VERSION, REST_KEY, WorkoutAppDB, type OutboxEntry } from "./db";
 import { canDelete, DELETE_CONFIRMATION, deleteAllData, deleteLocalHistory } from "./history";
 
 let store: WorkoutAppDB;
@@ -96,10 +96,12 @@ describe("the deletion of all data (D-314, D-315)", () => {
       },
       deleteOnServer: async () => {
         steps.push("server");
-        return 4;
+        return { deleted: 4, generation: 3 };
       },
     });
     expect(deleted).toBe(4);
+    // The phone keeps the new generation, so its next workout carries it.
+    expect(await historyGeneration(store)).toBe(3);
     // At the first sync, the outbox holds the inventory entry alone, and
     // the phone holds no workout.
     expect(steps).toEqual(["sync 1 0", "server", "sync 1 0"]);
@@ -109,13 +111,13 @@ describe("the deletion of all data (D-314, D-315)", () => {
     await seed();
     const deps = {
       sync: async () => {},
-      deleteOnServer: async (): Promise<number> => {
+      deleteOnServer: async (): Promise<{ deleted: number; generation: number }> => {
         throw new Error("unavailable");
       },
     };
     await expect(deleteAllData(store, deps)).rejects.toThrow("unavailable");
     expect(await store.workouts.count()).toBe(0);
     expect(await store.outbox.count()).toBe(1);
-    await expect(deleteAllData(store, { ...deps, deleteOnServer: async () => 1 })).resolves.toBe(1);
+    await expect(deleteAllData(store, { ...deps, deleteOnServer: async () => ({ deleted: 1, generation: 1 }) })).resolves.toBe(1);
   });
 });

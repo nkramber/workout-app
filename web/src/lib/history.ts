@@ -1,4 +1,5 @@
 import { REST_KEY, withReopen, type OutboxEntry, type WorkoutAppDB } from "./db";
+import { setHistoryGeneration } from "./sync";
 
 // DELETE_CONFIRMATION is the text that the owner types before the
 // deletion of all data (D-314). The server checks the same text.
@@ -37,16 +38,19 @@ export function deleteLocalHistory(store: WorkoutAppDB): Promise<void> {
 // (D-314, D-315). The phone deletes its copy first, so no later sync
 // sends a deleted entry again. The first sync waits for a sync that runs,
 // because that sync can hold an entry that it read before the delete.
-// The second sync reads the plan of a user with no plan. A failed call
-// of the server throws, and a second call deletes the rest. It gives the
-// count of the workouts that the server deleted.
+// The phone then keeps the new generation of the history, so its next
+// workout passes the fence of the server (D-315). The second sync reads
+// the plan of a user with no plan. A failed call of the server throws,
+// and a second call deletes the rest. It gives the count of the workouts
+// that the server deleted.
 export async function deleteAllData(
   store: WorkoutAppDB,
-  deps: { sync: () => Promise<void>; deleteOnServer: () => Promise<number> },
+  deps: { sync: () => Promise<void>; deleteOnServer: () => Promise<{ deleted: number; generation: number }> },
 ): Promise<number> {
   await deleteLocalHistory(store);
   await deps.sync();
-  const deleted = await deps.deleteOnServer();
+  const { deleted, generation } = await deps.deleteOnServer();
+  await setHistoryGeneration(store, generation);
   await deps.sync();
   return deleted;
 }
