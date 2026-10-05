@@ -14,7 +14,7 @@ Date of the drill: 2026-10-05, from 18:52:55Z to 19:30:40Z. The project is `nk-w
 | Paid calls of the check | 1 planner call and 3 reviser calls, each `ok` |
 | Known cost of the calls | 0.004379230 USD, under the estimate of about 0.006 USD |
 | Restore of the backup | 8 min 48 s, state `SUCCESSFUL` |
-| Collections in the restored database | 9 collection paths, each with a count |
+| Collection paths | 10 in `(default)` and 9 in the restore, each with a count. `users/{uid}/history` is in `(default)` alone. |
 | Differences from `(default)` | 3 collection paths, each with a known cause |
 | Rollback of `api` | 6 s to the last revision, 5 s back |
 | Rollback of Hosting | under 1 s to the last release, under 1 s back |
