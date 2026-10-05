@@ -205,7 +205,13 @@ func run(ctx context.Context, logger *slog.Logger, environ []string, getenv func
 func newHandler(v auth.Verifier, a auth.Allowlist, store inventory.Store, profiles profile.Store, maker *plan.Maker, workouts workout.Store, origin, buildCommit string) http.Handler {
 	mux := http.NewServeMux()
 	signedIn := connect.WithInterceptors(auth.Interceptor(v, a))
-	mux.Handle(workoutappv1connect.NewUserServiceHandler(usersvc.Server{}, signedIn))
+	// The deletion of the history keeps the profile, the inventory, the
+	// allowlist, and the monthly AI spend (D-314, D-315).
+	history := &usersvc.History{Workouts: workouts, Plans: maker.Plans, Log: maker.Log}
+	if maker.Errors != nil {
+		history.Errors = maker.Errors
+	}
+	mux.Handle(workoutappv1connect.NewUserServiceHandler(usersvc.Server{History: history}, signedIn))
 	mux.Handle(workoutappv1connect.NewInventoryServiceHandler(inventorysvc.New(store), signedIn))
 	mux.Handle(workoutappv1connect.NewProfileServiceHandler(profilesvc.New(profiles), signedIn))
 	reviser := &revise.Reviser{AI: maker.AI, Plans: maker.Plans, Workouts: workouts, Inventory: store, Now: maker.Now, Log: maker.Log}

@@ -20,6 +20,7 @@ This folder holds the web client of the owner. It holds the installable shell (w
 | `web/src/lib/db.ts` | The offline store and the outbox (D-62, D-77, D-132) |
 | `web/src/lib/pwa.ts`, `web/src/lib/update-check.ts` | The service worker and its update strategy (D-133) |
 | `web/src/lib/storage.ts` | The persistent storage request (D-134) |
+| `web/src/lib/history.ts`, `web/src/lib/user-api.ts` | The deletion of all data: the check of the dialog, the deletion on the phone, then the call `DeleteHistory` (D-314, D-315) |
 | `web/src/gen` | The generated code of the contract. `make proto` writes it, and Git keeps it. |
 | `web/e2e` | The browser tests of the acceptance stories of work areas 2.2, 4.1, 5.1, 5.2, 6.1, 6.2, and 6.3 |
 
@@ -34,6 +35,8 @@ Since iOS 26, the Home Screen app blurs a band below the status bar, and the pag
 The app has no form that makes an account. The owner makes the one account in the Firebase console, and self sign-up is off (D-117).
 
 ## The inventory screens
+
+The diagnostics of the home screen hold "Delete all data" in a closed section. Its dialog needs the switch at "Yes" and the typed text "Delete all data" (D-314). The phone deletes its history and the outbox entries of that history first, so no later sync sends them. Then it calls `DeleteHistory` (D-315).
 
 The home screen opens the equipment inventory (work area 4.1). The screens read the catalog and the inventory through `InventoryService` of the API, and never through Firestore (D-77).
 

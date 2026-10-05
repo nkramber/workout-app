@@ -21,7 +21,9 @@ The pull request holds:
 
 Codex round 1 gave `Changes required` for effective head `dcd23494a8212291ddc4788ceca8d85cb0f1de29`, with P2-1, the stage line before the Phase 7 check (`docs/reviews/pr-39.md`). The author fixed P2-1. Codex round 2 records `Ready for owner merge` for effective head `a8aff45a61ae4b674c908094b98cb7ffca0e55be`, with no open findings. The response and both verdicts are in `docs/reviews/pr-39.md`.
 
-Next action: the owner confirmation of the merge.
+After round 2, the owner added "Delete all data" to PR-38, and answered Q-320 to Q-322 (D-314 to D-316). The pull request now holds the call `DeleteHistory` of `UserService`, the deletes of the stores, and the dialog of the diagnostics. A browser test proves the switch, the typed text, and the deletion on the phone and on the server.
+
+`make verify`, `make go-test`, `make emulator-test`, and `make web` passed again, with 87 browser tests. Next action: CI, Codex round 3 for the new code (D-90), and the owner confirmation of the merge.
 
 ## Facts that expire
 
@@ -102,10 +104,11 @@ Completed:
 - Added the policy version 8, the limit in the contract, the stores, and the phone, and the read of the followed load.
 - Added the unit tests, the golden files, and a browser test of the live case.
 - Wrote the focused roadmap of Phase 8, and changed the registers, both roadmaps, the design, both READMEs, and `AGENTS.md`.
+- Answered P2-1 of Codex round 1. The owner then added "Delete all data" (D-314 to D-316), with its tests.
 
 Open work:
 
-- CI, the Codex review, the owner confirmation, and the merge of PR-38.
+- CI, Codex round 3, the owner confirmation, and the merge of PR-38.
 
 ### Session 38 - 2026-10-04
 

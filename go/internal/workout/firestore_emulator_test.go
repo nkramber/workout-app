@@ -179,3 +179,41 @@ func TestFirestoreList(t *testing.T) {
 		t.Fatalf("an unknown page token = %v, want ErrInvalid", err)
 	}
 }
+
+// TestFirestoreDeleteAll: DeleteAll removes each workout and each op id
+// of one user alone, and gives the count of the workouts (D-315). After
+// it, an old op id applies again, because its record is gone.
+func TestFirestoreDeleteAll(t *testing.T) {
+	client := emulatorClient(t)
+	s := FromFirestore(client)
+	ctx := context.Background()
+	uid := fmt.Sprintf("workout-delete-%d", time.Now().UnixNano())
+	other := uid + "-other"
+	for _, e := range []Entry{header(1, workoutA), set(2, workoutA, entityID(1), "chest_press", 10), header(3, workoutB)} {
+		if _, err := s.Apply(ctx, uid, e); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err := s.Apply(ctx, other, header(1, workoutA)); err != nil {
+		t.Fatal(err)
+	}
+	if n, err := s.DeleteAll(ctx, uid); n != 2 || err != nil {
+		t.Fatalf("DeleteAll = %d, %v, want 2", n, err)
+	}
+	if n, err := s.DeleteAll(ctx, uid); n != 0 || err != nil {
+		t.Fatalf("second DeleteAll = %d, %v, want 0", n, err)
+	}
+	if list, _, err := s.List(ctx, uid, 10, ""); err != nil || len(list) != 0 {
+		t.Fatalf("List after DeleteAll = %d, %v, want none", len(list), err)
+	}
+	ops, err := s.user(uid).Collection(OpsCollection).Documents(ctx).GetAll()
+	if err != nil || len(ops) != 0 {
+		t.Fatalf("%d op ids, %v, want none", len(ops), err)
+	}
+	if list, _, err := s.List(ctx, other, 10, ""); err != nil || len(list) != 1 {
+		t.Fatalf("the workouts of another user: %d, %v, want 1", len(list), err)
+	}
+	if r, err := s.Apply(ctx, uid, header(1, workoutA)); err != nil || r.Replayed {
+		t.Fatalf("an old op id after DeleteAll = %+v, %v, want a new apply", r, err)
+	}
+}

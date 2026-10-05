@@ -48,9 +48,11 @@ const (
 	KindExclude Kind = "exclude"
 )
 
-// ErrorLog adds error records.
+// ErrorLog adds error records. DeleteUser deletes each record of a user,
+// and gives the count (D-315).
 type ErrorLog interface {
 	Add(ctx context.Context, r ErrorRecord) error
+	DeleteUser(ctx context.Context, uid string) (int, error)
 }
 
 // MemoryErrors is an ErrorLog in memory, for tests.
@@ -65,6 +67,21 @@ func (m *MemoryErrors) Add(_ context.Context, r ErrorRecord) error {
 	defer m.mu.Unlock()
 	m.records = append(m.records, r)
 	return nil
+}
+
+// DeleteUser deletes the records of the uid.
+func (m *MemoryErrors) DeleteUser(_ context.Context, uid string) (int, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	kept := m.records[:0]
+	for _, r := range m.records {
+		if r.User != uid {
+			kept = append(kept, r)
+		}
+	}
+	n := len(m.records) - len(kept)
+	m.records = kept
+	return n, nil
 }
 
 // Records gives a copy of each record, in the order of Add.
@@ -89,6 +106,39 @@ func ErrorsFromFirestore(client *firestore.Client) *FirestoreErrors {
 func (f *FirestoreErrors) Add(ctx context.Context, r ErrorRecord) error {
 	_, _, err := f.client.Collection(ErrorsCollection).Add(ctx, encodeError(r))
 	return err
+}
+
+// DeleteUser deletes each record with the uid of the user, with a bulk
+// writer. A query of one field needs no composite index. A failed delete
+// gives an error, so a second call deletes the rest.
+func (f *FirestoreErrors) DeleteUser(ctx context.Context, uid string) (int, error) {
+	if err := checkUID(uid); err != nil {
+		return 0, err
+	}
+	docs, err := f.client.Collection(ErrorsCollection).Where("uid", "==", uid).Select().Documents(ctx).GetAll()
+	if err != nil {
+		return 0, err
+	}
+	if len(docs) == 0 {
+		return 0, nil
+	}
+	bw := f.client.BulkWriter(ctx)
+	jobs := make([]*firestore.BulkWriterJob, 0, len(docs))
+	for _, d := range docs {
+		j, err := bw.Delete(d.Ref)
+		if err != nil {
+			bw.End()
+			return 0, err
+		}
+		jobs = append(jobs, j)
+	}
+	bw.End()
+	for _, j := range jobs {
+		if _, err := j.Results(); err != nil {
+			return 0, err
+		}
+	}
+	return len(docs), nil
 }
 
 type errorDoc struct {

@@ -22,7 +22,7 @@ These decisions remove whole areas of work from the roadmap.
 |---|---|
 | D-17 | No native apps, no app store, no store review, no app signing, no TestFlight, and no Play tracks. |
 | D-67 | One user. No invite beta and no public release. Section 7 gives the gate that reopens this scope. |
-| D-78, D-79, D-81 | No user data controls, minimum compliance, and no public policy pages. |
+| D-78, D-79, D-81 | One user data control alone, the deletion of the history (D-314). Minimum compliance, and no public policy pages. |
 | D-39 | No qualified human review gate. |
 | D-61 | No notifications and no Web Push work. |
 | D-72 | Accessibility work is deferred. Semantic markup stays a code-review item, not a phase. |
@@ -201,7 +201,7 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 | 8.2 Alerts and cost caps | Alerts for errors, failed deploys, failed backups, and refusals of the AI caps, to an email channel (D-312, D-313). No new spend cap: D-139, D-141, and D-188 stay. Work area 5.2 holds the lasting cap store (D-189). | A test alert reaches the owner. |
 | 8.3 Version migration | Policy and evidence version changes. A model change when `gpt-6-luna` retires. An incident runbook. | A replay of stored sessions under a new policy version gives a diff report. |
 
-**Decisions and questions.** D-25, D-76, D-80, D-124, D-188, D-189, D-311 to D-313, Q-98, Q-99, Q-317 to Q-319.
+**Decisions and questions.** D-25, D-76, D-80, D-124, D-188, D-189, D-311 to D-316, Q-98, Q-99, Q-317 to Q-322.
 
 **Exit for the roadmap.** Four weeks of owner use with no lost set, no refused valid sync, and no policy breach in the decision log.
 
@@ -287,7 +287,7 @@ The launch prompt asked for the evidence to move from personal use to an invite 
 | Readiness screen | D-34 | A readiness screen with stop and refer rules |
 | Warning symptoms | D-40 | A stop rule for cardiac warning signs |
 | Expert review | D-39 | A review of the policy by a qualified person |
-| Data controls | D-78 | Export, photo deletion, history deletion, and account deletion |
+| Data controls | D-78, D-314 | Export, photo deletion, and account deletion. The deletion of the history exists. |
 | Compliance | D-79 | A current check of US health-data laws for the new users |
 | Public pages | D-81 | A privacy notice on the default URL |
 | Accessibility | D-72 | An accessibility baseline and tests |

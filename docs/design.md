@@ -271,7 +271,7 @@ The prompt follows the dated copy of the OpenAI usage policies of D-93 (Decision
 
 ## 6. Privacy posture
 
-Workout App stores data about one person, the owner (Decision, D-67). The owner chose the minimum compliance posture (Decision, D-79) and no user data controls (Decision, D-78). The project hosts no public policy pages (Decision, D-81). These rules still hold:
+Workout App stores data about one person, the owner (Decision, D-67). The owner chose the minimum compliance posture and no public policy pages (Decision, D-79, D-81). These rules still hold:
 
 - The repository is public. No personal data, email address, photo, or workout log goes into it. The author credit that the license of a test image requires is the one exception (Decision, D-106).
 - Telemetry holds ids only (Decision, D-80).
@@ -280,6 +280,8 @@ Workout App stores data about one person, the owner (Decision, D-67). The owner 
 - The API sends OpenAI requests with the response store turned off (Recommendation, from `docs/research/platform-cloud-and-ai.md`). The OpenAI provider of `go/internal/ai` does this. A call sends no note of the owner and no user id.
 - The app takes no photo now (Decision, D-110). In a later photo phase, the app removes photo metadata before upload, and the server deletes each photo after the confirmation (Decision, D-52).
 - Secrets live in Secret Manager, never in the repository.
+
+One user data control exists (Decision, D-78, D-314). "Delete all data" in the diagnostics of the home screen deletes the workouts and the plan, on the phone and on the server. The profile, the inventory, the allowlist entry, and the monthly AI spend stay (Decision, D-315). The backups keep a copy for up to 10 days (Decision, D-316).
 
 A change of audience reopens D-78, D-79, D-81, D-34, D-39, and D-40. The high-level roadmap names this reopening gate.
 

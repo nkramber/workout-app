@@ -402,6 +402,66 @@ test("the later sets follow a heavier first set up to the limit of the policy", 
   await expect(press).toContainText(new RegExp(` at (${target + 10}|${target + 20}) lb`), { timeout: 20_000 });
 });
 
+// The deletion of all data (D-314, D-315). The control is in a closed
+// section of the diagnostics. Its button stays off until the switch is
+// at "Yes" and the owner types "Delete all data". The deletion removes
+// the workouts and the plan on the phone and on the server, and keeps the
+// profile and the inventory.
+test("delete all data needs the switch and the typed text, and deletes the workouts and the plan alone", async ({ page, request }, info) => {
+  const email = uniqueEmail("workout-delete", info);
+  await makePlanOwner(request, email, MACHINES);
+  await openWithPlan(page, email);
+  await expect(syncLine(page)).toHaveText("Synced");
+  await button(page, "Workout").click();
+  await button(page, "Start Session 1").click();
+  expect(await logSets(page, 1)).toBe(1);
+  await button(page, "Finish now").click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Finish now", exact: true }).click();
+  await expect(page.getByTestId("next-target").first()).toBeVisible({ timeout: 20_000 });
+  await button(page, "Done").click();
+  const before = await callApi<{ workouts?: unknown[] }>(request, email, "WorkoutService/ListWorkouts", {});
+  expect(before.workouts).toHaveLength(1);
+
+  await expect(button(page, "Delete all data…")).toBeHidden();
+  await page.getByTestId("delete-data").locator("summary").click();
+  await button(page, "Delete all data…").click();
+  const dialog = page.getByRole("alertdialog");
+  const remove = dialog.getByRole("button", { name: "Delete", exact: true });
+  const text = dialog.getByTestId("delete-confirmation");
+  await expect(remove).toBeDisabled();
+  await text.fill("Delete all data");
+  await expect(remove).toBeDisabled();
+  await dialog.getByRole("switch").click();
+  await expect(dialog.getByRole("switch")).toHaveAttribute("aria-checked", "true");
+  await text.fill("delete all data");
+  await expect(remove).toBeDisabled();
+  // Cancel closes the dialog, and a new dialog starts at "No".
+  await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(page.getByRole("alertdialog")).toHaveCount(0);
+  await button(page, "Delete all data…").click();
+  await expect(dialog.getByRole("switch")).toHaveAttribute("aria-checked", "false");
+  await dialog.getByRole("switch").click();
+  await text.fill("Delete all data");
+  await expect(remove).toBeEnabled();
+  await remove.click();
+  await expect(page.getByTestId("delete-done")).toHaveText("The phone and the server deleted your history: 1 workout.");
+
+  const after = await callApi<{ workouts?: unknown[] }>(request, email, "WorkoutService/ListWorkouts", {});
+  expect(after.workouts ?? []).toHaveLength(0);
+  const plan = await callApi<{ plan?: unknown }>(request, email, "PlanService/GetPlan", {});
+  expect(plan.plan).toBeUndefined();
+  const inventory = await callApi<{ inventory?: { machines?: unknown[] } }>(request, email, "InventoryService/GetInventory", {});
+  expect(inventory.inventory?.machines).toHaveLength(MACHINES.length);
+  const profile = await callApi<{ profile?: unknown }>(request, email, "ProfileService/GetProfile", {});
+  expect(profile.profile).toBeDefined();
+  expect(await page.evaluate(async () => (await window.workoutAppE2E!.workouts()).length)).toBe(0);
+  await expect(page.getByTestId("outbox-count")).toHaveText("0");
+
+  // The plan screen offers a new plan.
+  await button(page, "Plan").click();
+  await expect(button(page, "Make a plan")).toBeVisible();
+});
+
 // The acceptance story of PR-37 (D-298): when each exercise is done, the
 // exercise list collapses, so the cardio and the end of the workout show
 // near the top. A tap shows the list again.

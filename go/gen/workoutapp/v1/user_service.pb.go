@@ -102,6 +102,96 @@ func (x *GetMeResponse) GetUid() string {
 	return ""
 }
 
+type DeleteHistoryRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The text that the owner typed. It must be "Delete all data".
+	Confirmation  string `protobuf:"bytes,1,opt,name=confirmation,proto3" json:"confirmation,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteHistoryRequest) Reset() {
+	*x = DeleteHistoryRequest{}
+	mi := &file_workoutapp_v1_user_service_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteHistoryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteHistoryRequest) ProtoMessage() {}
+
+func (x *DeleteHistoryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_workoutapp_v1_user_service_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteHistoryRequest.ProtoReflect.Descriptor instead.
+func (*DeleteHistoryRequest) Descriptor() ([]byte, []int) {
+	return file_workoutapp_v1_user_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *DeleteHistoryRequest) GetConfirmation() string {
+	if x != nil {
+		return x.Confirmation
+	}
+	return ""
+}
+
+type DeleteHistoryResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The count of the workouts that the call deleted.
+	DeletedWorkouts int32 `protobuf:"varint,1,opt,name=deleted_workouts,json=deletedWorkouts,proto3" json:"deleted_workouts,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *DeleteHistoryResponse) Reset() {
+	*x = DeleteHistoryResponse{}
+	mi := &file_workoutapp_v1_user_service_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteHistoryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteHistoryResponse) ProtoMessage() {}
+
+func (x *DeleteHistoryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_workoutapp_v1_user_service_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteHistoryResponse.ProtoReflect.Descriptor instead.
+func (*DeleteHistoryResponse) Descriptor() ([]byte, []int) {
+	return file_workoutapp_v1_user_service_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *DeleteHistoryResponse) GetDeletedWorkouts() int32 {
+	if x != nil {
+		return x.DeletedWorkouts
+	}
+	return 0
+}
+
 var File_workoutapp_v1_user_service_proto protoreflect.FileDescriptor
 
 const file_workoutapp_v1_user_service_proto_rawDesc = "" +
@@ -109,9 +199,14 @@ const file_workoutapp_v1_user_service_proto_rawDesc = "" +
 	" workoutapp/v1/user_service.proto\x12\rworkoutapp.v1\"\x0e\n" +
 	"\fGetMeRequest\"!\n" +
 	"\rGetMeResponse\x12\x10\n" +
-	"\x03uid\x18\x01 \x01(\tR\x03uid2S\n" +
+	"\x03uid\x18\x01 \x01(\tR\x03uid\":\n" +
+	"\x14DeleteHistoryRequest\x12\"\n" +
+	"\fconfirmation\x18\x01 \x01(\tR\fconfirmation\"B\n" +
+	"\x15DeleteHistoryResponse\x12)\n" +
+	"\x10deleted_workouts\x18\x01 \x01(\x05R\x0fdeletedWorkouts2\xb1\x01\n" +
 	"\vUserService\x12D\n" +
-	"\x05GetMe\x12\x1b.workoutapp.v1.GetMeRequest\x1a\x1c.workoutapp.v1.GetMeResponse\"\x00BCZAgithub.com/nkramber/workout-app/go/gen/workoutapp/v1;workoutappv1b\x06proto3"
+	"\x05GetMe\x12\x1b.workoutapp.v1.GetMeRequest\x1a\x1c.workoutapp.v1.GetMeResponse\"\x00\x12\\\n" +
+	"\rDeleteHistory\x12#.workoutapp.v1.DeleteHistoryRequest\x1a$.workoutapp.v1.DeleteHistoryResponse\"\x00BCZAgithub.com/nkramber/workout-app/go/gen/workoutapp/v1;workoutappv1b\x06proto3"
 
 var (
 	file_workoutapp_v1_user_service_proto_rawDescOnce sync.Once
@@ -125,16 +220,20 @@ func file_workoutapp_v1_user_service_proto_rawDescGZIP() []byte {
 	return file_workoutapp_v1_user_service_proto_rawDescData
 }
 
-var file_workoutapp_v1_user_service_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_workoutapp_v1_user_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_workoutapp_v1_user_service_proto_goTypes = []any{
-	(*GetMeRequest)(nil),  // 0: workoutapp.v1.GetMeRequest
-	(*GetMeResponse)(nil), // 1: workoutapp.v1.GetMeResponse
+	(*GetMeRequest)(nil),          // 0: workoutapp.v1.GetMeRequest
+	(*GetMeResponse)(nil),         // 1: workoutapp.v1.GetMeResponse
+	(*DeleteHistoryRequest)(nil),  // 2: workoutapp.v1.DeleteHistoryRequest
+	(*DeleteHistoryResponse)(nil), // 3: workoutapp.v1.DeleteHistoryResponse
 }
 var file_workoutapp_v1_user_service_proto_depIdxs = []int32{
 	0, // 0: workoutapp.v1.UserService.GetMe:input_type -> workoutapp.v1.GetMeRequest
-	1, // 1: workoutapp.v1.UserService.GetMe:output_type -> workoutapp.v1.GetMeResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	2, // 1: workoutapp.v1.UserService.DeleteHistory:input_type -> workoutapp.v1.DeleteHistoryRequest
+	1, // 2: workoutapp.v1.UserService.GetMe:output_type -> workoutapp.v1.GetMeResponse
+	3, // 3: workoutapp.v1.UserService.DeleteHistory:output_type -> workoutapp.v1.DeleteHistoryResponse
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -151,7 +250,7 @@ func file_workoutapp_v1_user_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_workoutapp_v1_user_service_proto_rawDesc), len(file_workoutapp_v1_user_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

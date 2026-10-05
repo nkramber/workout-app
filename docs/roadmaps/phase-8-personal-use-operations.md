@@ -66,6 +66,9 @@ The session read the code of `4bbf6c8` for this list:
 | Q-317, the split | Four pull requests: PR-39 to PR-42, as section 4 gives them. | D-311 |
 | Q-318, the spend guard | No new cap. Alerts for errors, failed deploys, failed backups, and refusals of the AI caps. | D-312 |
 | Q-319, the alert channel | A Cloud Monitoring email channel with the address of the Google account of the owner. | D-313 |
+| Q-320, a control that deletes the history | Yes, one control, "Delete all data" in the diagnostics. This amends D-78. | D-314 |
+| Q-321, the data that it deletes | The workouts and the plan, on the phone and on the server. The profile and the inventory stay. | D-315 |
+| Q-322, the backups | They keep a copy for up to 10 days. | D-316 |
 
 No question of this phase stays open. Q-103 stays open for the deferred photo work.
 
@@ -92,9 +95,9 @@ The PR-<n> order is the order of work. Each pull request needs the one before it
 | PR-41 | 8.3 | `feat: the policy replay and the incident runbook (PR-41)` | none, because the replay calls no model |
 | PR-42 | exit | `docs: the four-week check of Phase 8 (PR-42)` | none |
 
-### PR-38 - The Phase 8 focused roadmap and the first-set limit
+### PR-38 - The Phase 8 focused roadmap, the first-set limit, and the deletion of all data
 
-Branch: `docs/pr-38-phase-8-roadmap`. The owner added the fix of the live check to this pull request on 2026-10-05 (D-310).
+Branch: `docs/pr-38-phase-8-roadmap`. On 2026-10-05, the owner added the fix of the live check to this pull request (D-310). After Codex round 2, the owner added the deletion of all data (D-314).
 
 Concerns:
 
@@ -102,9 +105,12 @@ Concerns:
 - the phone: the later sets follow the first set inside the limit, with a note, and the plan screen tells the limit,
 - this file, with the exit evidence of Phase 7 in section 1.1 and the start state in section 1.2,
 - the split of the work areas into pull requests, each with its concerns, acceptance story, checks, and paid step (D-311),
-- the owner answers of section 2, with their change of `docs/roadmaps/high-level-roadmap.md` and `docs/design.md` (D-312, D-313).
+- the owner answers of section 2, with their change of `docs/roadmaps/high-level-roadmap.md` and `docs/design.md` (D-312, D-313),
+- "Delete all data" in the diagnostics, with the call `DeleteHistory` of `UserService` (D-314 to D-316).
 
-Acceptance story: a target of 20 lb with a first set of 30 lb gives 25 lb to the later sets, the limit. The rules then read 25 lb. A browser test logs that case with no network, and the next target starts from the followed load. This roadmap names each pull request of Phase 8, and `make verify` passes.
+Acceptance story: a target of 20 lb with a first set of 30 lb gives 25 lb to the later sets, the limit. The rules then read 25 lb. A browser test logs that case with no network, and the next target starts from the followed load.
+
+A second browser test opens "Delete all data". Its button stays off until the switch is at "Yes" and the text is "Delete all data". After it, the server and the phone hold no workout and no plan, and the profile and the inventory stay. This roadmap names each pull request of Phase 8, and `make verify` passes.
 
 Checks: `make contract`, `make go-test`, `make emulator-test`, `make web`, `make verify`, and `make pr-check`, free. Codex reviews PR-38, because it changes code (D-15, D-310).
 

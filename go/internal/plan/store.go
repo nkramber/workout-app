@@ -38,6 +38,10 @@ type Store interface {
 	Exclusions(ctx context.Context, uid string) (Exclusions, error)
 	Save(ctx context.Context, uid string, p Plan, ex Exclusions, replace bool) error
 	Update(ctx context.Context, uid string, createdAt time.Time, change func(*Plan) error) error
+	// Delete deletes the plan of the uid, with its decision records and
+	// overrides (D-315). The exclusions stay. A user with no plan gives
+	// no error.
+	Delete(ctx context.Context, uid string) error
 }
 
 // ErrPlanReplaced is an update of a plan that a new plan replaced, or
@@ -63,6 +67,17 @@ type Memory struct {
 // NewMemory gives an empty Memory store.
 func NewMemory() *Memory {
 	return &Memory{plans: map[string]Plan{}, exclusions: map[string]Exclusions{}}
+}
+
+// Delete deletes the plan of the uid, and keeps its exclusions.
+func (s *Memory) Delete(_ context.Context, uid string) error {
+	if err := checkUID(uid); err != nil {
+		return err
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	delete(s.plans, uid)
+	return nil
 }
 
 // Get gives the plan of the uid.
@@ -166,6 +181,16 @@ func (s *Firestore) Get(ctx context.Context, uid string) (Plan, bool, error) {
 
 // Exclusions reads the exclusions document of the uid. A uid with no
 // document has no exclusion and revision 0.
+// Delete deletes the document of the plan. A missing document gives no
+// error.
+func (s *Firestore) Delete(ctx context.Context, uid string) error {
+	if err := checkUID(uid); err != nil {
+		return err
+	}
+	_, err := s.planRef(uid).Delete(ctx)
+	return err
+}
+
 func (s *Firestore) Exclusions(ctx context.Context, uid string) (Exclusions, error) {
 	if err := checkUID(uid); err != nil {
 		return Exclusions{}, err

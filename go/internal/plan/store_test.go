@@ -194,3 +194,26 @@ func TestClaims(t *testing.T) {
 		t.Fatalf("claims %+v: want none", p.Claims)
 	}
 }
+
+// TestMemoryDelete: the memory store deletes the plan and keeps the
+// exclusions (D-315).
+func TestMemoryDelete(t *testing.T) {
+	ctx := context.Background()
+	s := NewMemory()
+	ex := Exclusions{Items: []Exclusion{{"seated_row", ""}}}
+	if err := s.Save(ctx, "uid-a", fullPlan(), ex, true); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Delete(ctx, "uid-a"); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok, _ := s.Get(ctx, "uid-a"); ok {
+		t.Fatal("the plan stayed")
+	}
+	if got, _ := s.Exclusions(ctx, "uid-a"); len(got.Items) != 1 {
+		t.Fatalf("exclusions %+v, want them kept", got)
+	}
+	if err := s.Delete(ctx, "uid-b"); err != nil {
+		t.Fatalf("Delete of a user with no plan: %v", err)
+	}
+}

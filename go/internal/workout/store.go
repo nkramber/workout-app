@@ -41,9 +41,13 @@ type Result struct {
 // gives the workouts, the newest date first, after the workout of the
 // id after, or from the first when after is empty. The next token is
 // the id of the last workout, or empty when no workout remains.
+// DeleteAll deletes each workout and each op id of the user, and gives
+// the count of the deleted workouts (D-314, D-315). A second call
+// deletes what a failed call left.
 type Store interface {
 	Apply(ctx context.Context, uid string, e Entry) (Result, error)
 	List(ctx context.Context, uid string, limit int, after string) ([]Workout, string, error)
+	DeleteAll(ctx context.Context, uid string) (int, error)
 }
 
 var errUID = errors.New("workout: a uid of 1 or more characters with no slash is required")
@@ -129,6 +133,19 @@ func (s *Memory) List(_ context.Context, uid string, limit int, after string) ([
 		all = all[i+1:]
 	}
 	return page(all, limit)
+}
+
+// DeleteAll deletes the workouts and the op ids of the uid.
+func (s *Memory) DeleteAll(_ context.Context, uid string) (int, error) {
+	if err := checkUID(uid); err != nil {
+		return 0, err
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	n := len(s.workouts[uid])
+	delete(s.workouts, uid)
+	delete(s.ops, uid)
+	return n, nil
 }
 
 func page(all []Workout, limit int) ([]Workout, string, error) {
@@ -491,4 +508,50 @@ func fromPtr[T ~int](p *int64) *T {
 	}
 	v := T(*p)
 	return &v
+}
+
+// DeleteAll deletes each document of the collections workouts and ops of
+// the uid, with a bulk writer. The count holds the workouts alone.
+func (s *Firestore) DeleteAll(ctx context.Context, uid string) (int, error) {
+	if err := checkUID(uid); err != nil {
+		return 0, err
+	}
+	n, err := deleteCollection(ctx, s.client, s.user(uid).Collection(WorkoutsCollection))
+	if err != nil {
+		return 0, err
+	}
+	if _, err := deleteCollection(ctx, s.client, s.user(uid).Collection(OpsCollection)); err != nil {
+		return 0, err
+	}
+	return n, nil
+}
+
+// deleteCollection deletes each document of a collection, and gives the
+// count. A failed delete gives an error after the writer ends, so a
+// second call deletes the rest.
+func deleteCollection(ctx context.Context, client *firestore.Client, col *firestore.CollectionRef) (int, error) {
+	refs, err := col.DocumentRefs(ctx).GetAll()
+	if err != nil {
+		return 0, err
+	}
+	if len(refs) == 0 {
+		return 0, nil
+	}
+	bw := client.BulkWriter(ctx)
+	jobs := make([]*firestore.BulkWriterJob, 0, len(refs))
+	for _, ref := range refs {
+		j, err := bw.Delete(ref)
+		if err != nil {
+			bw.End()
+			return 0, err
+		}
+		jobs = append(jobs, j)
+	}
+	bw.End()
+	for _, j := range jobs {
+		if _, err := j.Results(); err != nil {
+			return 0, err
+		}
+	}
+	return len(refs), nil
 }

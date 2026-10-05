@@ -468,3 +468,30 @@ func TestTargetDocs(t *testing.T) {
 		t.Fatalf("round trip %+v, %+v, want %+v", got, overrides, in)
 	}
 }
+
+// TestMemoryDeleteAll: the memory store deletes the workouts and the op
+// ids of one user alone (D-315).
+func TestMemoryDeleteAll(t *testing.T) {
+	ctx := context.Background()
+	s := NewMemory()
+	for _, uid := range []string{"uid-a", "uid-b"} {
+		if _, err := s.Apply(ctx, uid, header(1, workoutA)); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if n, err := s.DeleteAll(ctx, "uid-a"); n != 1 || err != nil {
+		t.Fatalf("DeleteAll = %d, %v, want 1", n, err)
+	}
+	if list, _, _ := s.List(ctx, "uid-a", 10, ""); len(list) != 0 {
+		t.Fatalf("%d workouts after DeleteAll, want none", len(list))
+	}
+	if list, _, _ := s.List(ctx, "uid-b", 10, ""); len(list) != 1 {
+		t.Fatal("DeleteAll changed another user")
+	}
+	if r, err := s.Apply(ctx, "uid-a", header(1, workoutA)); err != nil || r.Replayed {
+		t.Fatalf("an old op id after DeleteAll = %+v, %v, want a new apply", r, err)
+	}
+	if _, err := s.DeleteAll(ctx, "a/b"); err == nil {
+		t.Fatal("DeleteAll took a uid with a slash")
+	}
+}
