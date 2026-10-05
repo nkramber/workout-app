@@ -392,6 +392,14 @@ test("the later sets follow a heavier first set up to the limit of the policy", 
     "The first set was heavier than the target. This set goes up one weight of the machine, the limit of the policy.",
   );
   await context.setOffline(false);
+
+  // The rules read the load that the later sets followed (D-309), so the
+  // next target starts from it.
+  for (let i = 2; i <= 3; i++) await button(page, "3 in reserve").click();
+  await button(page, "Finish now").click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Finish now", exact: true }).click();
+  const press = page.locator('[data-testid="next-target"][data-exercise-id="chest_press"]');
+  await expect(press).toContainText(new RegExp(` at (${target + 10}|${target + 20}) lb`), { timeout: 20_000 });
 });
 
 // The acceptance story of PR-37 (D-298): when each exercise is done, the

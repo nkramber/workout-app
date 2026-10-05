@@ -59,6 +59,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 - The policy decides each exercise of a valid plan, and the plan stores each decision record (D-23, D-176).
 - A target of policy version 7 has no calibration set. The flag `first_set_calibration` tells that its first working set is the calibration (D-297). A plan of policy version 4 to 6 can still hold `calibration_loads` from `policy.CalibrationTable` (D-267).
 - A new plan reads each logged workout through `Maker.History`. An exercise with history gets its target from that history (D-301).
+- From policy version 8, `policy.Follow` gives each target with no calibration the limit `follow_max_tenth_lb`: the next heavier weight of the machine (D-306, D-307). The phone gives the other sets the weight of the first set inside it. `policy.Followed` gives the load that the rules read for that session (D-308, D-309).
 - Policy version 5 gives 60 seconds of rest to each exercise, the leg press too, in each plan (D-279). An exercise with history does not keep an older rest.
 
 ## The workout log

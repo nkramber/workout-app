@@ -2,7 +2,7 @@
 
 This roadmap gives the path from a blank repository to a safe, useful Workout App for its one user, the owner (D-67). It names the phases, their order, the risk work, the outcomes, the work areas of pull request size, and the exit evidence of each phase. It is not a plan of tasks. A focused roadmap turns one phase into tasks later. `docs/roadmaps/README.md` gives the rules for focused roadmaps.
 
-The date of this version is 2026-10-04. `docs/design.md` holds the product design. `docs/decisions.md` and `docs/questions.md` hold every decision and question that this roadmap cites.
+The date of this version is 2026-10-05. `docs/design.md` holds the product design. `docs/decisions.md` and `docs/questions.md` hold every decision and question that this roadmap cites.
 
 ## 1. Rules of this roadmap
 
@@ -181,7 +181,9 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 | 7.2 Overrides and disruptions | Separate override records. Missed-session and long-break rules (Q-102). The reactive deload of REC-7 (D-289). | Scenario tests for a missed week, for a break of the Q-102 length, and for a deload. |
 | 7.3 Reviser evaluation | The paid evaluation of the reviser on the section 5 scenarios (D-286). The check of each reason against the logged sets (D-288). The first set as the calibration, and the collapse of a finished workout (D-297, D-298). | A report with measured numbers for each scenario, under a cap that the owner approves (D-25). |
 
-**Decisions and questions.** D-37, D-43, D-64 to D-69, D-175, D-286 to D-305, Q-92, Q-102, Q-194, Q-202, Q-300 to Q-312.
+**Decisions and questions.** D-37, D-43, D-64 to D-69, D-175, D-286 to D-310, Q-92, Q-102, Q-194, Q-202, Q-300 to Q-316.
+
+**Exit.** The live check of the merge of work area 7.3 found a defect of the later sets after the first set. The focused roadmap of Phase 8 holds the fix and the policy version 8. The iPhone check of Phase 7 follows its deploy (D-306 to D-310).
 
 **Gate.** Work area 7.3 holds the paid evaluation of the reviser on the section 5 scenarios. It runs only with owner approval (D-25, D-286).
 
@@ -196,10 +198,10 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 | Work area | Concerns | Exit evidence |
 |---|---|---|
 | 8.1 Backups and recovery | The backups of D-124 from work area 2.3. A restore drill into a new database. A rollback procedure for the API and the web app. | A restore drill report. |
-| 8.2 Alerts and cost caps | Error and job-failure alerts. Spend caps on the development project. Work area 5.2 holds the lasting cap store (D-189). | A test alert reaches the owner. |
+| 8.2 Alerts and cost caps | Alerts for errors, failed deploys, failed backups, and refusals of the AI caps, to an email channel (D-312, D-313). No new spend cap: D-139, D-141, and D-188 stay. Work area 5.2 holds the lasting cap store (D-189). | A test alert reaches the owner. |
 | 8.3 Version migration | Policy and evidence version changes. A model change when `gpt-6-luna` retires. An incident runbook. | A replay of stored sessions under a new policy version gives a diff report. |
 
-**Decisions and questions.** D-25, D-76, D-80, D-124, D-188, D-189, Q-98, Q-99.
+**Decisions and questions.** D-25, D-76, D-80, D-124, D-188, D-189, D-311 to D-313, Q-98, Q-99, Q-317 to Q-319.
 
 **Exit for the roadmap.** Four weeks of owner use with no lost set, no refused valid sync, and no policy breach in the decision log.
 

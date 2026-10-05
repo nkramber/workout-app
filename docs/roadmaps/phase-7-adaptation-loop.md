@@ -2,7 +2,7 @@
 
 This roadmap splits Phase 7 of `docs/roadmaps/high-level-roadmap.md` into pull requests. `docs/roadmaps/README.md` gives the rules. The high-level roadmap keeps the objective, the order, and the exit evidence of the phase.
 
-The date of this version is 2026-10-04.
+The date of this version is 2026-10-05.
 
 ## 1. Scope and start state
 
@@ -180,9 +180,10 @@ In the live check of D-212, the owner finished 2 workouts on `e18781f`, and made
 
 ## 5. Exit of the phase
 
-Phase 7 ends when PR-37 merges and the device checks pass. These items give the exit evidence of `docs/roadmaps/high-level-roadmap.md`:
+Phase 7 ends when PR-37 merges and the device checks pass. The device checks found a defect, so they move to the start of PR-39 (D-310). These items give the exit evidence of `docs/roadmaps/high-level-roadmap.md`:
 
 - The emulator tests of PR-35 pass the scenarios A to F end to end with the fake provider (work area 7.1).
 - After the deploy of PR-35, the owner saw the next targets with their reasons on the iPhone. On 2026-10-04, the revision `api-00019-s78` made 1 reviser call with the status `ok` and a cost of 0.0017 USD. The sync call that held it took 19.8 s. The plan got 8 new targets, each with a reason of Luna (PR-36).
 - The scenario tests of PR-36 prove a missed week, a break of the Q-102 length, and a deload (work area 7.2).
 - The report of PR-37 gives the measured numbers of the paid evaluation (work area 7.3). On 2026-10-04, 50 reviser calls of the 10 scenarios gave the status `ok`. The check accepted 110 reasons and refused 5, and each case was safe (`docs/research/reviser-evaluation.md`).
+- The live check of `4bbf6c8` found that a first set at another weight did not change the later sets of an exercise with history. PR-38 holds the fix with policy version 8 (D-306 to D-310). Section 1.1 of `docs/roadmaps/phase-8-personal-use-operations.md` gives the check.

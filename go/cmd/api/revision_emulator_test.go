@@ -275,7 +275,7 @@ func (e *revEnv) entry(entity, id string) *workoutappv1.OutboxEntry {
 }
 
 func seenTarget(p domain.PlannedExercise) *workoutappv1.SeenTarget {
-	out := &workoutappv1.SeenTarget{ExerciseId: string(p.Exercise), RestSeconds: int32(p.RestSeconds), FirstSetCalibration: p.FirstSetCalibration}
+	out := &workoutappv1.SeenTarget{ExerciseId: string(p.Exercise), RestSeconds: int32(p.RestSeconds), FirstSetCalibration: p.FirstSetCalibration, FollowMaxTenthLb: int32(p.FollowMax)}
 	for _, s := range p.Working {
 		out.WorkingSets = append(out.WorkingSets, &workoutappv1.PlannedSet{Reps: int32(s.Reps), LoadTenthLb: int32(s.Load), RirTarget: int32(s.RIR)})
 	}
@@ -367,7 +367,7 @@ func (e *revEnv) planned() *workoutappv1.Plan {
 }
 
 func targetOf(p *workoutappv1.PlannedExercise) domain.PlannedExercise {
-	out := domain.PlannedExercise{Exercise: domain.ExerciseID(p.GetExerciseId()), RestSeconds: int(p.GetRestSeconds()), FirstSetCalibration: p.GetFirstSetCalibration()}
+	out := domain.PlannedExercise{Exercise: domain.ExerciseID(p.GetExerciseId()), RestSeconds: int(p.GetRestSeconds()), FirstSetCalibration: p.GetFirstSetCalibration(), FollowMax: domain.Load(p.GetFollowMaxTenthLb())}
 	for _, s := range p.GetCalibrationSets() {
 		out.Calibration = append(out.Calibration, domain.CalibrationSet{Reps: int(s.GetReps()), Load: domain.Load(s.GetLoadTenthLb())})
 	}
