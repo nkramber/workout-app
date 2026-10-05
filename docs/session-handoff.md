@@ -25,7 +25,11 @@ After round 2, the owner added "Delete all data" to PR-38, and answered Q-320 to
 
 Codex round 3 found P2-2, a sync of another tab or device that wrote the deleted history again. Codex round 4 found P2-3: the first fence read the clock of the phone. Codex round 5 found P2-4: a plan request in flight saved a plan after the deletion. The answers of full merit use a generation of the history on the server for the workouts and the plan (`docs/reviews/pr-39-response.md`).
 
-Next action: CI, Codex round 6, and the owner confirmation of the merge.
+Codex round 6 reviewed effective head `0e094c5ab28b614f20f24234a9ea860b0f8f6190`. It found the plan-generation fence and its regression test fixed P2-4. The verdict is Ready for owner merge. P3-1 records trailing blank lines in two changed files.
+
+The local `make verify`, `make go-test`, `make contract`, and `make emulator-test` passed. Local `make web` needs Node 22. GitHub `verify:web` passed. All product checks passed, and `review-gate` awaits this record.
+
+Next action: commit and push this review record and hand-off, verify the published head and review-gate, then ask the owner to confirm the merge.
 
 ## Facts that expire
 
