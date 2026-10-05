@@ -62,6 +62,12 @@ var ErrInvalid = domain.ErrInvalid
 // the outbox, so a later sync can apply it.
 var ErrUnknownWorkout = errors.New("workout: unknown workout")
 
+// ErrBeforeDeletion is the error of an entry of a workout of an older
+// generation of the history (D-315). A sync of another tab or of another
+// device can hold such an entry, and it must not bring the deleted
+// history back.
+var ErrBeforeDeletion = errors.New("workout: the entry is older than the deletion of the history")
+
 type checkError string
 
 func (e checkError) Error() string { return string(e) }
@@ -107,7 +113,8 @@ type PlanLink struct {
 // "finish now", which ends the workout. Targets holds the target of each
 // exercise that the owner saw at the start (D-291). A header of an older
 // phone has none. Overrides holds the record of each override of the
-// owner among the targets (D-69, D-293).
+// owner among the targets (D-69, D-293). Generation is the generation of
+// the history that the phone knew at the start of the workout (D-315).
 type Header struct {
 	Date       string
 	Plan       PlanLink
@@ -116,6 +123,7 @@ type Header struct {
 	Finished   bool
 	Targets    []domain.PlannedExercise
 	Overrides  []SeenOverride
+	Generation int
 }
 
 // MaxOverrideReasonRunes is the length limit of the reason of an
@@ -288,6 +296,9 @@ func (h Header) check(c domain.Catalog) error {
 	}
 	if h.Plan.PlanCreatedAt.IsZero() {
 		return invalid("plan link: want the RFC 3339 time of the plan")
+	}
+	if h.Generation < 0 {
+		return invalid("history generation %d: want 0 or more", h.Generation)
 	}
 	if i := h.Plan.SessionIndex; i < 0 || i >= profile.MaxTrainingDays {
 		return invalid("plan link session index %d: want 0 to %d", i, profile.MaxTrainingDays-1)

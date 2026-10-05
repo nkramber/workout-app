@@ -1,7 +1,8 @@
-policy version: 7
+policy version: 8
 rules: progress.pain-hold, missed.rir-restored
 target: chest_press, rest 60 s
   working[0]: 10 reps at 100 lb, 2 RIR
   working[1]: 10 reps at 100 lb, 2 RIR
   working[2]: 10 reps at 100 lb, 2 RIR
+  the other sets follow working[0], up to 105 lb
 reason: You reported pain on this exercise. The target stays the same for one session. The session after a missed week ended, so the reps in reserve go back to the target before it.

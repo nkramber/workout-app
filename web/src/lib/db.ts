@@ -61,7 +61,10 @@ export type CalibrationLoads = { weight: number; down: number; keep: number; upO
 // sets, and calibrationLoads has one row for each weight of the machine.
 // From version 7, firstSetCalibration tells that the first working set
 // is the calibration: the other working sets get the weight that the
-// owner logged for it (D-297, D-299). After an override of the owner,
+// owner logged for it (D-297, D-299). From version 8, followMaxTenthLb
+// is the heaviest load that the other working sets can use after a
+// heavier first set, and a lighter first set has no limit (D-306 to
+// D-308). After an override of the owner,
 // the sets are the sets of the override, and `override` keeps the
 // recommendation and the reason as separate records (D-69, D-293).
 export type WorkoutExercise = {
@@ -71,6 +74,7 @@ export type WorkoutExercise = {
   calibrationSets: TargetSet[];
   calibrationLoads?: CalibrationLoads[];
   firstSetCalibration?: boolean;
+  followMaxTenthLb?: number;
   workingSets: TargetSet[];
   weights: number[];
   override?: { reason: string; recommendedWorkingSets: TargetSet[] };
@@ -82,6 +86,19 @@ export type WorkoutExercise = {
 // after a stop of the app.
 export type RestTimer = { workoutId: string; endsAt: number };
 export const REST_KEY = "rest";
+
+// The generation of the history that the server gave last, from GetMe or
+// DeleteHistory (D-315). The meta table holds it under this key. Each new
+// workout carries it, and the server refuses a workout of an older
+// generation.
+export const HISTORY_GENERATION_KEY = "history-generation";
+
+// historyGeneration gives the stored generation, or 0 when the phone has
+// none.
+export async function historyGeneration(store: WorkoutAppDB): Promise<number> {
+  const m = await store.meta.get(HISTORY_GENERATION_KEY);
+  return typeof m?.value === "number" ? m.value : 0;
+}
 
 // A workout on the phone (work area 6.1). It holds the session of the
 // plan that it started from (D-248), and the state of the header of
@@ -100,6 +117,9 @@ export type WorkoutRecord = {
   finished: boolean;
   startedAt: string;
   version: number;
+  // The generation of the history at the start (D-315). A workout of an
+  // older app has none, and it counts as 0.
+  historyGeneration?: number;
 };
 
 // A logged set (D-57, D-164, D-249). No value of `pain` means no report

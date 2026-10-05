@@ -9,7 +9,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | `go/internal/auth` | The Firebase ID token check, the allowlist check, and CORS |
 | `go/internal/allowlist` | The invite allowlist of uids in Firestore (D-131) |
 | `go/internal/envguard` | The start guard against an emulator variable, the fake provider, or its delay on Cloud Run (D-129, D-241) |
-| `go/internal/usersvc` | The `GetMe` call |
+| `go/internal/usersvc` | The `GetMe` call, and `DeleteHistory`, which deletes the workouts, the plan, and the AI error records of the caller (D-314, D-315) |
 | `go/internal/inventory` | The inventory of the owner: the machines and the notes, the checks, the draft and confirmed states, the Firestore store, and `ForPlan` (D-46, D-193, D-197) |
 | `go/internal/inventorysvc` | The calls of `InventoryService` |
 | `go/internal/profile` | The profile of the owner: the fields, the checks, the Firestore store, and `ForPlan` (D-41, D-208 to D-221) |
@@ -51,7 +51,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 
 ## The plan
 
-`go/internal/plan` keeps the plan at `users/{uid}/plan/active` and the exclusions at `users/{uid}/exclusions/active` (D-226). A save writes both in one transaction, and it refuses a save when another request changed the exclusions (D-234).
+`go/internal/plan` keeps the plan at `users/{uid}/plan/active` and the exclusions at `users/{uid}/exclusions/active` (D-226). A save writes both in one transaction, and it refuses a save when another request changed the exclusions (D-234). `Delete` deletes the plan and keeps the exclusions, and `DeleteUser` deletes the AI error records of a uid (D-315). A plan request reads the generation of the history at its start, and `Save` refuses its plan with `ErrHistoryDeleted` after a later deletion. `go/internal/history` holds the fence document of both stores.
 
 - A request plans the confirmed machines alone, with no exercise of an injured area and no excluded exercise (D-49, D-208, D-229).
 - An invalid output gets a retry with its cause and its output, 4 calls at most (D-230, D-231, D-235). A call over the cap ends the request at once.
@@ -59,11 +59,12 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 - The policy decides each exercise of a valid plan, and the plan stores each decision record (D-23, D-176).
 - A target of policy version 7 has no calibration set. The flag `first_set_calibration` tells that its first working set is the calibration (D-297). A plan of policy version 4 to 6 can still hold `calibration_loads` from `policy.CalibrationTable` (D-267).
 - A new plan reads each logged workout through `Maker.History`. An exercise with history gets its target from that history (D-301).
+- From policy version 8, `policy.Follow` gives each target with no calibration the limit `follow_max_tenth_lb`: the next heavier weight of the machine (D-306, D-307). The phone gives the other sets the weight of the first set inside it. `policy.Followed` gives the load that the rules read for that session (D-308, D-309).
 - Policy version 5 gives 60 seconds of rest to each exercise, the leg press too, in each plan (D-279). An exercise with history does not keep an older rest.
 
 ## The workout log
 
-`go/internal/workout` keeps each logged session at `users/{uid}/workouts/{workoutId}`, and each applied op id at `users/{uid}/ops/{opId}` (D-256). An op id document has no end date (D-257).
+`go/internal/workout` keeps each logged session at `users/{uid}/workouts/{workoutId}`, and each applied op id at `users/{uid}/ops/{opId}` (D-256). An op id document has no end date (D-257). `DeleteAll` deletes both collections of a uid, the op ids too, for the deletion of all data (D-315). It first adds 1 to the generation of the history at `users/{uid}/history/deleted`. Each workout keeps the generation that its phone knew at its start, and `Apply` refuses each entry of a workout of an older generation. So a sync of another tab or device does not bring the history back, and no clock of a phone decides.
 
 - `SyncOutbox` takes 100 entries or fewer, and applies them in the order of the request (D-259). A larger batch gets `INVALID_ARGUMENT` with no change.
 - Each entry applies in its own transaction. The transaction reads the op id first, so a replay gives the stored version and changes nothing.

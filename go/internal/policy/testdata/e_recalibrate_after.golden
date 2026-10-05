@@ -1,7 +1,8 @@
-policy version: 7
+policy version: 8
 rules: break.first-sessions
 target: chest_press, rest 60 s
   working[0]: 12 reps at 75 lb, 3 RIR
   working[1]: 12 reps at 75 lb, 3 RIR
   working[2]: 12 reps at 75 lb, 3 RIR
+  the other sets follow working[0], up to 80 lb
 reason: These are your first sessions after a break, so the load stays the same.

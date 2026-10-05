@@ -7,6 +7,7 @@ import {
 } from "../gen/workoutapp/v1/workout_service_pb";
 import type { Plan } from "../gen/workoutapp/v1/plan_service_pb";
 import {
+  historyGeneration,
   OUTBOX_SCHEMA_VERSION,
   REST_KEY,
   withReopen,
@@ -120,6 +121,7 @@ function headerPayload(w: WorkoutRecord): unknown {
       skippedExerciseIds: w.skippedExerciseIds,
       endedEarly: w.endedEarly,
       finished: w.finished,
+      historyGeneration: w.historyGeneration ?? 0,
       targets: w.exercises.map((e) => ({
         exerciseId: e.exerciseId,
         restSeconds: e.restSeconds,
@@ -128,6 +130,7 @@ function headerPayload(w: WorkoutRecord): unknown {
         recommendedWorkingSets: e.override ? sets(e.override.recommendedWorkingSets) : [],
         overrideReason: e.override?.reason ?? "",
         firstSetCalibration: e.firstSetCalibration ?? false,
+        followMaxTenthLb: e.followMaxTenthLb ?? 0,
       })),
     }),
   );
@@ -219,6 +222,9 @@ export function workoutExercises(plan: Plan, sessionIndex: number, weights: (exe
     const out: WorkoutExercise = { exerciseId: e.exerciseId, name: e.name, restSeconds: e.restSeconds, calibrationSets, workingSets, weights: list };
     if (o) out.override = { reason: o.reason, recommendedWorkingSets: sets(e.workingSets) };
     if (e.firstSetCalibration) out.firstSetCalibration = true;
+    // The policy gives the limit of the override too (D-306, D-307).
+    const followMax = o ? o.followMaxTenthLb : e.followMaxTenthLb;
+    if (followMax > 0) out.followMaxTenthLb = followMax;
     if (calibrationSets.length > 0 && e.calibrationLoads.length > 0) {
       out.calibrationLoads = e.calibrationLoads.map((c) => ({
         weight: c.weightTenthLb,
@@ -245,9 +251,12 @@ export async function startWorkout(
   const exercises = workoutExercises(plan, sessionIndex, weights);
   const session = plan.sessions[sessionIndex];
   return withReopen(store, () =>
-    store.transaction("rw", store.workouts, store.outbox, async () => {
+    store.transaction("rw", [store.workouts, store.outbox, store.meta], async () => {
       if (await store.workouts.filter((w) => !w.finished).first()) throw new WorkoutInProgressError();
       const at = now.toISOString();
+      // The workout keeps the generation of the history that the phone
+      // knows now, and each header carries it (D-315).
+      const generation = await historyGeneration(store);
       const w: WorkoutRecord = {
         id: nextId(now.getTime()),
         date: localDate(now),
@@ -263,6 +272,7 @@ export async function startWorkout(
         finished: false,
         startedAt: at,
         version: 0,
+        historyGeneration: generation,
       };
       await store.workouts.add(w);
       await store.outbox.add(entry("workout", w.id, 0, headerPayload(w), at, now));
@@ -488,7 +498,10 @@ export function workoutCardio(store: WorkoutAppDB, workoutId: string): Promise<C
 // working sets (D-150). `number` counts from 1 inside its kind.
 // fromCalibration is true when the calibration gave the load of the
 // working set (D-267, D-299). calibrates is true for the first working
-// set of the first-set calibration (D-297).
+// set of the first-set calibration (D-297). follows is true when the
+// weight of the first set gave the load of the working set, and capped
+// is true when the limit of the policy made it lighter than that weight
+// (D-306, D-307).
 export type NextSet = {
   kind: "working" | "calibration";
   number: number;
@@ -496,7 +509,21 @@ export type NextSet = {
   target: TargetSet;
   fromCalibration: boolean;
   calibrates: boolean;
+  follows?: boolean;
+  capped?: boolean;
 };
+
+// followedLoad gives the load of the other working sets after the owner
+// logged the first set at weight (D-306 to D-308): a heavier weight up to
+// the limit of the policy, and a lighter weight with no limit. An
+// exercise with no limit keeps the load of its target. The policy code
+// `Followed` of `go/internal/policy/calibrate.go` gives the same load.
+export function followedLoad(e: Pick<WorkoutExercise, "workingSets" | "followMaxTenthLb">, weight: number): number {
+  const base = e.workingSets[0]?.loadTenthLb ?? 0;
+  const max = e.followMaxTenthLb ?? 0;
+  if (max <= 0 || weight === base) return base;
+  return Math.min(weight, max);
+}
 
 // calibrationLoad gives the load of the working sets after a logged
 // calibration set, from the loads of the policy (D-150, D-267): 2 or
@@ -521,7 +548,9 @@ export function calibrationLoad(e: WorkoutExercise, s: Pick<SetRecord, "weightTe
 // version 6 or earlier, each working set gets the load of the
 // calibration table (D-267). With the first-set calibration, each later
 // working set gets the weight that the owner logged for the first set
-// (D-299).
+// (D-299). From version 8, a target with a limit gives each later
+// working set the weight of the first set, inside the limit (D-306 to
+// D-308).
 export function nextSet(e: WorkoutExercise, logged: readonly SetRecord[]): NextSet | null {
   const mine = logged.filter((s) => s.exerciseId === e.exerciseId);
   const cals = mine.filter((s) => s.kind === "calibration");
@@ -536,6 +565,12 @@ export function nextSet(e: WorkoutExercise, logged: readonly SetRecord[]): NextS
     if (e.firstSetCalibration) {
       if (n === 0) return { ...set, fromCalibration: false, calibrates: true };
       return { ...set, target: { ...set.target, loadTenthLb: work[0].weightTenthsLb }, fromCalibration: true, calibrates: false };
+    }
+    if (n > 0 && cals.length === 0 && (e.followMaxTenthLb ?? 0) > 0) {
+      const first = work[0].weightTenthsLb;
+      const load = followedLoad(e, first);
+      if (load === set.target.loadTenthLb) return { ...set, fromCalibration: false, calibrates: false };
+      return { ...set, target: { ...set.target, loadTenthLb: load }, fromCalibration: false, calibrates: false, follows: true, capped: load < first };
     }
     const load = cals.length > 0 ? calibrationLoad(e, cals[0]) : null;
     if (load === null) return { ...set, fromCalibration: false, calibrates: false };

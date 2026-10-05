@@ -35,6 +35,9 @@ const (
 const (
 	// UserServiceGetMeProcedure is the fully-qualified name of the UserService's GetMe RPC.
 	UserServiceGetMeProcedure = "/workoutapp.v1.UserService/GetMe"
+	// UserServiceDeleteHistoryProcedure is the fully-qualified name of the UserService's DeleteHistory
+	// RPC.
+	UserServiceDeleteHistoryProcedure = "/workoutapp.v1.UserService/DeleteHistory"
 )
 
 // UserServiceClient is a client for the workoutapp.v1.UserService service.
@@ -42,6 +45,13 @@ type UserServiceClient interface {
 	// GetMe returns the uid of the caller, so the web shell can prove the
 	// whole path from sign-in to the API.
 	GetMe(context.Context, *connect.Request[v1.GetMeRequest]) (*connect.Response[v1.GetMeResponse], error)
+	// DeleteHistory deletes the history of the caller (D-314, D-315): each
+	// workout and its sync records, the plan with its decision records and
+	// overrides, and the AI error records. The profile, the inventory, the
+	// exclusions, the allowlist entry, and the monthly AI spend stay. A
+	// confirmation that is not "Delete all data" gives INVALID_ARGUMENT. A
+	// second call deletes what a failed call left.
+	DeleteHistory(context.Context, *connect.Request[v1.DeleteHistoryRequest]) (*connect.Response[v1.DeleteHistoryResponse], error)
 }
 
 // NewUserServiceClient constructs a client for the workoutapp.v1.UserService service. By default,
@@ -61,12 +71,19 @@ func NewUserServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(userServiceMethods.ByName("GetMe")),
 			connect.WithClientOptions(opts...),
 		),
+		deleteHistory: connect.NewClient[v1.DeleteHistoryRequest, v1.DeleteHistoryResponse](
+			httpClient,
+			baseURL+UserServiceDeleteHistoryProcedure,
+			connect.WithSchema(userServiceMethods.ByName("DeleteHistory")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // userServiceClient implements UserServiceClient.
 type userServiceClient struct {
-	getMe *connect.Client[v1.GetMeRequest, v1.GetMeResponse]
+	getMe         *connect.Client[v1.GetMeRequest, v1.GetMeResponse]
+	deleteHistory *connect.Client[v1.DeleteHistoryRequest, v1.DeleteHistoryResponse]
 }
 
 // GetMe calls workoutapp.v1.UserService.GetMe.
@@ -74,11 +91,23 @@ func (c *userServiceClient) GetMe(ctx context.Context, req *connect.Request[v1.G
 	return c.getMe.CallUnary(ctx, req)
 }
 
+// DeleteHistory calls workoutapp.v1.UserService.DeleteHistory.
+func (c *userServiceClient) DeleteHistory(ctx context.Context, req *connect.Request[v1.DeleteHistoryRequest]) (*connect.Response[v1.DeleteHistoryResponse], error) {
+	return c.deleteHistory.CallUnary(ctx, req)
+}
+
 // UserServiceHandler is an implementation of the workoutapp.v1.UserService service.
 type UserServiceHandler interface {
 	// GetMe returns the uid of the caller, so the web shell can prove the
 	// whole path from sign-in to the API.
 	GetMe(context.Context, *connect.Request[v1.GetMeRequest]) (*connect.Response[v1.GetMeResponse], error)
+	// DeleteHistory deletes the history of the caller (D-314, D-315): each
+	// workout and its sync records, the plan with its decision records and
+	// overrides, and the AI error records. The profile, the inventory, the
+	// exclusions, the allowlist entry, and the monthly AI spend stay. A
+	// confirmation that is not "Delete all data" gives INVALID_ARGUMENT. A
+	// second call deletes what a failed call left.
+	DeleteHistory(context.Context, *connect.Request[v1.DeleteHistoryRequest]) (*connect.Response[v1.DeleteHistoryResponse], error)
 }
 
 // NewUserServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -94,10 +123,18 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(userServiceMethods.ByName("GetMe")),
 		connect.WithHandlerOptions(opts...),
 	)
+	userServiceDeleteHistoryHandler := connect.NewUnaryHandler(
+		UserServiceDeleteHistoryProcedure,
+		svc.DeleteHistory,
+		connect.WithSchema(userServiceMethods.ByName("DeleteHistory")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/workoutapp.v1.UserService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case UserServiceGetMeProcedure:
 			userServiceGetMeHandler.ServeHTTP(w, r)
+		case UserServiceDeleteHistoryProcedure:
+			userServiceDeleteHistoryHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -109,4 +146,8 @@ type UnimplementedUserServiceHandler struct{}
 
 func (UnimplementedUserServiceHandler) GetMe(context.Context, *connect.Request[v1.GetMeRequest]) (*connect.Response[v1.GetMeResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("workoutapp.v1.UserService.GetMe is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) DeleteHistory(context.Context, *connect.Request[v1.DeleteHistoryRequest]) (*connect.Response[v1.DeleteHistoryResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("workoutapp.v1.UserService.DeleteHistory is not implemented"))
 }

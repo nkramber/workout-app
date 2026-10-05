@@ -351,6 +351,127 @@ test("the first set gives the working load with no network, go now advances, and
   await context.setOffline(false);
 });
 
+// The acceptance story of PR-38 (D-306 to D-309), from the live check of
+// 4bbf6c8. The first workout calibrates the chest press, so the revision
+// gives it a target with the limit of the policy. In the next session,
+// the owner logs the first set two weights above the target. The next
+// set then gets one weight above the target, the limit, with no network.
+test("the later sets follow a heavier first set up to the limit of the policy", async ({ page, context, request }, info) => {
+  const email = uniqueEmail("workout-follow", info);
+  await makePlanOwner(request, email, MACHINES);
+  await openWithPlan(page, email);
+  await expect(syncLine(page)).toHaveText("Synced");
+  await button(page, "Workout").click();
+  await button(page, "Start Session 1").click();
+  expect(await logSets(page, 3)).toBe(3);
+  await button(page, "Finish now").click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Finish now", exact: true }).click();
+  await expect(page.locator('[data-testid="next-target"][data-exercise-id="chest_press"]')).toBeVisible({ timeout: 20_000 });
+  await button(page, "Done").click();
+
+  // The plan screen tells the limit.
+  await button(page, "Plan").click();
+  await expect(page.getByTestId("follow-limit").first()).toContainText("When you change the weight of set 1, the other sets use it, up to ");
+  await button(page, "Back").click();
+
+  await button(page, "Workout").click();
+  await button(page, "Start Session 2").click();
+  await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Chest press");
+  await expect(logger(page).getByTestId("set-label")).toHaveText("Set 1 of 3");
+  const target = Number((await logger(page).getByTestId("set-target").textContent())?.match(/ at (\d+) lb/)?.[1]);
+  expect(target).toBeGreaterThan(0);
+  await context.setOffline(true);
+  await button(page, "Heavier").click();
+  await button(page, "Heavier").click();
+  await expect(logger(page).getByTestId("weight")).toHaveText(`${target + 20} lb`);
+  await button(page, "3 in reserve").click();
+  await expect(logger(page).getByTestId("set-label")).toHaveText("Set 2 of 3");
+  await expect(logger(page).getByTestId("set-target")).toContainText(` at ${target + 10} lb`);
+  await expect(logger(page).getByTestId("weight")).toHaveText(`${target + 10} lb`);
+  await expect(logger(page).getByTestId("follow-note")).toHaveText(
+    "The first set was heavier than the target. This set goes up one weight of the machine, the limit of the policy.",
+  );
+  await context.setOffline(false);
+
+  // The rules read the load that the later sets followed (D-309), so the
+  // next target starts from it.
+  for (let i = 2; i <= 3; i++) await button(page, "3 in reserve").click();
+  await button(page, "Finish now").click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Finish now", exact: true }).click();
+  const press = page.locator('[data-testid="next-target"][data-exercise-id="chest_press"]');
+  await expect(press).toContainText(new RegExp(` at (${target + 10}|${target + 20}) lb`), { timeout: 20_000 });
+});
+
+// The deletion of all data (D-314, D-315). The control is in a closed
+// section of the diagnostics. Its button stays off until the switch is
+// at "Yes" and the owner types "Delete all data". The deletion removes
+// the workouts and the plan on the phone and on the server, and keeps the
+// profile and the inventory.
+test("delete all data needs the switch and the typed text, and deletes the workouts and the plan alone", async ({ page, request }, info) => {
+  const email = uniqueEmail("workout-delete", info);
+  await makePlanOwner(request, email, MACHINES);
+  await openWithPlan(page, email);
+  await expect(syncLine(page)).toHaveText("Synced");
+  await button(page, "Workout").click();
+  await button(page, "Start Session 1").click();
+  expect(await logSets(page, 1)).toBe(1);
+  await button(page, "Finish now").click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Finish now", exact: true }).click();
+  await expect(page.getByTestId("next-target").first()).toBeVisible({ timeout: 20_000 });
+  await button(page, "Done").click();
+  const before = await callApi<{ workouts?: unknown[] }>(request, email, "WorkoutService/ListWorkouts", {});
+  expect(before.workouts).toHaveLength(1);
+
+  await expect(button(page, "Delete all data…")).toBeHidden();
+  await page.getByTestId("delete-data").locator("summary").click();
+  await button(page, "Delete all data…").click();
+  const dialog = page.getByRole("alertdialog");
+  const remove = dialog.getByRole("button", { name: "Delete", exact: true });
+  const text = dialog.getByTestId("delete-confirmation");
+  await expect(remove).toBeDisabled();
+  await text.fill("Delete all data");
+  await expect(remove).toBeDisabled();
+  await dialog.getByRole("switch").click();
+  await expect(dialog.getByRole("switch")).toHaveAttribute("aria-checked", "true");
+  await text.fill("delete all data");
+  await expect(remove).toBeDisabled();
+  // Cancel closes the dialog, and a new dialog starts at "No".
+  await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(page.getByRole("alertdialog")).toHaveCount(0);
+  await button(page, "Delete all data…").click();
+  await expect(dialog.getByRole("switch")).toHaveAttribute("aria-checked", "false");
+  await dialog.getByRole("switch").click();
+  await text.fill("Delete all data");
+  await expect(remove).toBeEnabled();
+  await remove.click();
+  await expect(page.getByTestId("delete-done")).toHaveText("The phone and the server deleted your history: 1 workout.");
+
+  const after = await callApi<{ workouts?: unknown[] }>(request, email, "WorkoutService/ListWorkouts", {});
+  expect(after.workouts ?? []).toHaveLength(0);
+  const plan = await callApi<{ plan?: unknown }>(request, email, "PlanService/GetPlan", {});
+  expect(plan.plan).toBeUndefined();
+  const inventory = await callApi<{ inventory?: { machines?: unknown[] } }>(request, email, "InventoryService/GetInventory", {});
+  expect(inventory.inventory?.machines).toHaveLength(MACHINES.length);
+  const profile = await callApi<{ profile?: unknown }>(request, email, "ProfileService/GetProfile", {});
+  expect(profile.profile).toBeDefined();
+  expect(await page.evaluate(async () => (await window.workoutAppE2E!.workouts()).length)).toBe(0);
+  await expect(page.getByTestId("outbox-count")).toHaveText("0");
+
+  // The plan screen offers a new plan. A workout after the deletion
+  // carries the new generation of the history, so the server applies it
+  // (D-315).
+  await button(page, "Plan").click();
+  await button(page, "Make a plan").click();
+  await expect(page.getByTestId("plan-summary")).toHaveText("A plan at the targets of the rules.");
+  await button(page, "Back").click();
+  await button(page, "Workout").click();
+  await button(page, "Start Session 1").click();
+  expect(await logSets(page, 1)).toBe(1);
+  await expect(syncLine(page)).toHaveText("Synced", { timeout: 20_000 });
+  const again = await callApi<{ workouts?: unknown[] }>(request, email, "WorkoutService/ListWorkouts", {});
+  expect(again.workouts).toHaveLength(1);
+});
+
 // The acceptance story of PR-37 (D-298): when each exercise is done, the
 // exercise list collapses, so the cardio and the end of the workout show
 // near the top. A tap shows the list again.

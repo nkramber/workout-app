@@ -57,6 +57,9 @@ type Maker struct {
 	Now       func() time.Time
 	Log       *slog.Logger
 	History   func(ctx context.Context, uid string) (History, error)
+	// Generation reads the generation of the history at the start of a
+	// request (D-315). Nil gives 0, for a store with no fence.
+	Generation func(ctx context.Context, uid string) (int64, error)
 }
 
 // History is the logged history of a user for a new plan: the outcomes
@@ -82,6 +85,16 @@ func (m *Maker) Make(ctx context.Context, uid, today string, exclude *Exclusion,
 	catalog, tables := domain.DefaultCatalog(), domain.DefaultBodyTables()
 	if err := m.CheckToday(today); err != nil {
 		return Plan{}, err
+	}
+	// The generation comes first, so a deletion of the history during
+	// the request makes the save refuse the plan (D-315).
+	var gen int64
+	if m.Generation != nil {
+		g, err := m.Generation(ctx, uid)
+		if err != nil {
+			return Plan{}, fmt.Errorf("plan: the history generation: %w", err)
+		}
+		gen = g
 	}
 	prof, ok, err := m.Profiles.Get(ctx, uid)
 	if err != nil {
@@ -150,6 +163,7 @@ func (m *Maker) Make(ctx context.Context, uid, today string, exclude *Exclusion,
 	if err != nil {
 		return Plan{}, err
 	}
+	p.HistoryGeneration = gen
 	if err := ctx.Err(); err != nil {
 		return Plan{}, err
 	}
@@ -157,6 +171,9 @@ func (m *Maker) Make(ctx context.Context, uid, today string, exclude *Exclusion,
 	if err := m.Plans.Save(ctx, uid, p, ex, exclude != nil); err != nil {
 		if errors.Is(err, ErrConflict) {
 			return Plan{}, ErrConflict
+		}
+		if errors.Is(err, ErrHistoryDeleted) {
+			return Plan{}, ErrHistoryDeleted
 		}
 		return Plan{}, fmt.Errorf("plan: the save: %w", err)
 	}

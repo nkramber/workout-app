@@ -10,6 +10,13 @@ service UserService {
   // GetMe returns the uid of the caller, so the web shell can prove the
   // whole path from sign-in to the API.
   rpc GetMe(GetMeRequest) returns (GetMeResponse) {}
+  // DeleteHistory deletes the history of the caller (D-314, D-315): each
+  // workout and its sync records, the plan with its decision records and
+  // overrides, and the AI error records. The profile, the inventory, the
+  // exclusions, the allowlist entry, and the monthly AI spend stay. A
+  // confirmation that is not "Delete all data" gives INVALID_ARGUMENT. A
+  // second call deletes what a failed call left.
+  rpc DeleteHistory(DeleteHistoryRequest) returns (DeleteHistoryResponse) {}
 }
 
 message GetMeRequest {}
@@ -17,4 +24,19 @@ message GetMeRequest {}
 message GetMeResponse {
   // The Firebase uid of the caller.
   string uid = 1;
+  // The generation of the history: the count of the deletions of the
+  // history of the caller (D-315). A new workout carries it.
+  int32 history_generation = 2;
+}
+
+message DeleteHistoryRequest {
+  // The text that the owner typed. It must be "Delete all data".
+  string confirmation = 1;
+}
+
+message DeleteHistoryResponse {
+  // The count of the workouts that the call deleted.
+  int32 deleted_workouts = 1;
+  // The new generation of the history (D-315).
+  int32 history_generation = 2;
 }

@@ -68,7 +68,7 @@ describe("planErrorText", () => {
   });
 
   it("gives a fixed text for each other code", () => {
-    expect(planErrorText(err(Code.Aborted), { isOnline: true })).toMatch(/^The exclusions changed during the request\./);
+    expect(planErrorText(err(Code.Aborted), { isOnline: true })).toMatch(/^The exclusions or the history changed during the request\./);
     expect(planErrorText(err(Code.DeadlineExceeded), { isOnline: true })).toMatch(/^The request took too long\./);
     expect(planErrorText(err(Code.Internal), { isOnline: true })).toBe("The server failed. Your plan did not change.");
     expect(planErrorText(err(Code.PermissionDenied), { isOnline: true })).toBe("This account is not on the allowlist.");

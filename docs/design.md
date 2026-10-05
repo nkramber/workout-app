@@ -88,6 +88,7 @@ The workout screen shows one machine at a time. The design targets one-handed us
 6. "Finish now" skips the remaining exercises and records the session as ended early (Decision, D-63).
 7. The first set of a new exercise is the calibration. The owner changes the weight during its first reps. The other sets get the logged weight of the first set, with no network (Decision, D-297, D-299).
 8. When each exercise is done, the list of the exercises collapses to one line. So the cardio and the end of the workout show near the top (Decision, D-298).
+9. On an exercise with history, the other sets also get the logged weight of the first set. A heavier weight goes up to the limit of the policy, one weight of the machine above the target (Decision, D-306 to D-308).
 
 A workout starts from the next session of the plan that the owner did not do yet, or from another session (Decision, D-248). The reps and the weight of a set come from the target, and a tap on the reps in reserve logs the set (Decision, D-249). The plus and minus buttons of the weight move to the next weight of the machine (Decision, D-264). Each workout screen has the button "Report a symptom". It shows seven symptoms, and a pick shows the warning (Decision, D-251, D-263). While a workout is open, the plan screen refuses a new plan and an exclusion (Decision, D-252).
 
@@ -146,6 +147,8 @@ After a gap of 14 days or more, the load goes down by the long-break table (Deci
 The plan has no calibration set (Decision, D-297). The first session of each exercise uses its first set as the calibration (Decision, D-301). A break of 91 days or more gives one more such session. The owner changes the weight during the first reps. The other sets use the logged weight of the first set, and the rules read it as the load of the session (Decision, D-299).
 
 From the second session, the normal rules apply. A new plan reads the logged history, so an exercise with history gets no calibration in it (Decision, D-301).
+
+From policy version 8, each target with no calibration has a limit: the next heavier weight of the machine above its load (Decision, D-306, D-307). When the owner logs the first set at another weight, the other sets use that weight. A heavier weight stops at the limit, and a lighter weight has no limit (Decision, D-308). The rules read the load that the other sets used as the load of the session (Decision, D-309). A target with more than one load has no limit.
 
 Targets use one to three reps in reserve. Failure is rare, and it never occurs in the first sessions after a break (Decision, D-37). Loads round to the nearest 5 lb, up or down (Decision, D-65). A rounded jump can exceed a validated target, so the policy adds at most one 5 lb step for each exercise in each session (Decision, D-147).
 
@@ -220,13 +223,14 @@ The policy is in `go/internal/policy` (Decision, D-157). It has one version, and
 - The fixed warning text of a pain report (Decision, D-153, D-169).
 - The check of a proposal. The policy refuses a proposal outside a bound (Decision, D-23). Outside the first session of an exercise, it also refuses a proposal that is harder than its target at the same load (Decision, D-186).
 - The start of a new exercise with 3 working sets, and the first set as the calibration (Decision, D-178, D-180, D-297, D-299 to D-301).
+- The limit of the other sets after the first set, with policy version 8 (Decision, D-306 to D-309).
 - The return after a break of 14 days or more, and the first sessions after it (Decision, D-37, D-151, D-179).
 - The hold after a missed session of 7 to 13 days, and the reactive deload, with policy version 6 (Decision, D-294, D-295, D-303).
 - The check of an override of the owner (Decision, D-23, D-293).
 - The rules fallback of one exercise. When the policy refuses a proposal, or Luna gives none for the exercise, the target comes from the rules alone (Decision, D-23). A plan request with no valid output of Luna gets no fallback plan (Decision, D-230).
 - The decision record of each plan decision, with the fields of D-176. The record is workout data, so it never goes into a log (Decision, D-80, D-176).
 
-Policy version 6 adds the reactive deload of REC-7 (Decision, D-289, D-295). Policy version 7 removes the calibration sets, and a deload week keeps the load of the last target (Decision, D-297, D-303). The draft in `tools/spikes/luna_plan/policy.py` is the spike record alone.
+Policy version 6 adds the reactive deload of REC-7 (Decision, D-289, D-295). Policy version 7 removes the calibration sets, and a deload week keeps the load of the last target (Decision, D-297, D-303). Policy version 8 adds the limit of the other sets after the first set (Decision, D-306 to D-309). The draft in `tools/spikes/luna_plan/policy.py` is the spike record alone.
 
 The role layer is in `go/internal/ai` (Decision, D-157). It holds these parts:
 
@@ -267,7 +271,7 @@ The prompt follows the dated copy of the OpenAI usage policies of D-93 (Decision
 
 ## 6. Privacy posture
 
-Workout App stores data about one person, the owner (Decision, D-67). The owner chose the minimum compliance posture (Decision, D-79) and no user data controls (Decision, D-78). The project hosts no public policy pages (Decision, D-81). These rules still hold:
+Workout App stores data about one person, the owner (Decision, D-67). The owner chose the minimum compliance posture and no public policy pages (Decision, D-79, D-81). These rules still hold:
 
 - The repository is public. No personal data, email address, photo, or workout log goes into it. The author credit that the license of a test image requires is the one exception (Decision, D-106).
 - Telemetry holds ids only (Decision, D-80).
@@ -276,6 +280,10 @@ Workout App stores data about one person, the owner (Decision, D-67). The owner 
 - The API sends OpenAI requests with the response store turned off (Recommendation, from `docs/research/platform-cloud-and-ai.md`). The OpenAI provider of `go/internal/ai` does this. A call sends no note of the owner and no user id.
 - The app takes no photo now (Decision, D-110). In a later photo phase, the app removes photo metadata before upload, and the server deletes each photo after the confirmation (Decision, D-52).
 - Secrets live in Secret Manager, never in the repository.
+
+One user data control exists (Decision, D-78, D-314). "Delete all data" in the diagnostics of the home screen deletes the workouts and the plan, on the phone and on the server. The profile, the inventory, the allowlist entry, and the monthly AI spend stay (Decision, D-315). The backups keep a copy for up to 10 days (Decision, D-316).
+
+Each deletion adds 1 to the generation of the history on the server. Each workout carries the generation that its phone knew at its start. The server refuses a workout of an older generation, so a sync of another tab or device does not bring the deleted history back. A plan request that started before a deletion saves no plan after it.
 
 A change of audience reopens D-78, D-79, D-81, D-34, D-39, and D-40. The high-level roadmap names this reopening gate.
 

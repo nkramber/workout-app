@@ -16,6 +16,7 @@ import {
   doneSessions,
   editSet,
   finishWorkout,
+  followedLoad,
   openExercises,
   restLeft,
   restTimer,
@@ -197,6 +198,16 @@ describe("an override in the next workout (D-293)", () => {
       [10, 1000, 2],
     ]);
     expect(t.overrideReason).toBe("The last session felt easy.");
+  });
+
+  it("gives the limit of the override, not the limit of the recommendation (D-306, D-307)", () => {
+    const limited = clone(PlanSchema, overridden);
+    const e = limited.sessions[0].exercises[0];
+    e.followMaxTenthLb = 1050;
+    e.override!.followMaxTenthLb = 1150;
+    expect(workoutExercises(limited, 0, () => [])[0].followMaxTenthLb).toBe(1150);
+    e.override!.expired = true;
+    expect(workoutExercises(limited, 0, () => [])[0].followMaxTenthLb).toBe(1050);
   });
 
   it("uses the recommendation for an expired override (D-294, D-295)", () => {
@@ -517,6 +528,57 @@ describe("nextSet and currentExercise", () => {
     const entries = await pendingOutbox(store);
     const t = fromJson(WorkoutHeaderSchema, entries[entries.length - 1].payload as never).targets;
     expect(t.map((x) => x.firstSetCalibration)).toEqual([false, true]);
+  });
+
+  // The later sets follow the first set of policy version 8 (D-306 to
+  // D-308). The live check of 4bbf6c8: a target of 20 lb, and a first
+  // set of 30 lb, gave 20 lb for the next set.
+  it("gives the later sets the weight of the first set, inside the limit of the policy", async () => {
+    const limited = clone(PlanSchema, plan);
+    const e = limited.sessions[0].exercises[1];
+    e.workingSets = [e.workingSets[0], e.workingSets[0], e.workingSets[0]].map((x) => clone(PlannedSetSchema, x));
+    const planned = e.workingSets[0].loadTenthLb;
+    e.followMaxTenthLb = planned + 50;
+    const w = await startWorkout(store, limited, 0, weights, now);
+    const chest = w.exercises[1];
+    expect(chest.followMaxTenthLb).toBe(planned + 50);
+    expect(w.exercises[0].followMaxTenthLb).toBeUndefined();
+    const first = (weightTenthsLb: number) => ({ ...set("chest_press", "working"), weightTenthsLb, rir: 3 });
+
+    expect(nextSet(chest, [])).toMatchObject({ number: 1, calibrates: false, target: { loadTenthLb: planned } });
+    expect(nextSet(chest, [])?.follows).toBeUndefined();
+    // A heavier first set: the later sets go up to the limit alone.
+    expect(nextSet(chest, [first(planned + 100)])).toMatchObject({ number: 2, follows: true, capped: true, fromCalibration: false, target: { loadTenthLb: planned + 50 } });
+    expect(nextSet(chest, [first(planned + 50)])).toMatchObject({ number: 2, follows: true, capped: false, target: { loadTenthLb: planned + 50 } });
+    // A lighter first set has no limit (D-308).
+    expect(nextSet(chest, [first(planned - 100)])).toMatchObject({ number: 2, follows: true, capped: false, target: { loadTenthLb: planned - 100 } });
+    // A first set at the load of the target changes nothing.
+    expect(nextSet(chest, [first(planned)])?.follows).toBeUndefined();
+    expect(nextSet(chest, [first(planned)])).toMatchObject({ target: { loadTenthLb: planned } });
+    // A later set at another weight does not change the load of the
+    // next set.
+    expect(nextSet(chest, [first(planned + 100), first(planned)])).toMatchObject({ number: 3, follows: true, target: { loadTenthLb: planned + 50 } });
+
+    // A target of policy version 7 has no limit, so the later sets keep
+    // the load of the target.
+    const old = { ...chest, followMaxTenthLb: undefined };
+    expect(nextSet(old, [first(planned + 100)])).toMatchObject({ number: 2, target: { loadTenthLb: planned } });
+    expect(nextSet(old, [first(planned + 100)])?.follows).toBeUndefined();
+
+    // The header sends the limit to the server, so the policy reads the
+    // load that the later sets used (D-309).
+    const entries = await pendingOutbox(store);
+    const t = fromJson(WorkoutHeaderSchema, entries[entries.length - 1].payload as never).targets;
+    expect(t.map((x) => x.followMaxTenthLb)).toEqual([0, planned + 50]);
+  });
+
+  it("gives the load of the later sets as the policy does (D-306 to D-308)", () => {
+    const e = { workingSets: [{ reps: 12, loadTenthLb: 200, rirTarget: 3 }], followMaxTenthLb: 250 };
+    expect(followedLoad(e, 300)).toBe(250);
+    expect(followedLoad(e, 250)).toBe(250);
+    expect(followedLoad(e, 200)).toBe(200);
+    expect(followedLoad(e, 100)).toBe(100);
+    expect(followedLoad({ ...e, followMaxTenthLb: undefined }, 300)).toBe(200);
   });
 
   it("does not give a skipped exercise as the current exercise", async () => {

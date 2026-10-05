@@ -1,9 +1,10 @@
-policy version: 7
+policy version: 8
 rules: progress.load-step, load.available
 target: chest_press, rest 60 s
   working[0]: 8 reps at 14 lb, 2 RIR
   working[1]: 8 reps at 14 lb, 2 RIR
   working[2]: 8 reps at 14 lb, 2 RIR
+  the other sets follow working[0], up to 20 lb
   load working[0]: 15 lb before the rounding, 14 lb after
   load working[1]: 15 lb before the rounding, 14 lb after
   load working[2]: 15 lb before the rounding, 14 lb after

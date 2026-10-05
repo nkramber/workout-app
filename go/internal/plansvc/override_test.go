@@ -36,6 +36,24 @@ func TestOverrideTarget(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// The exercise has history in a later session, so its first set is
+	// no calibration, and its override gets the limit of D-307.
+	first := stored.Sessions[0].Exercises[0].Target.Exercise
+	if err := f.maker.Plans.Update(ctx, "uid-a", stored.CreatedAt, func(q *plan.Plan) error {
+		for i := range q.Sessions {
+			for j := range q.Sessions[i].Exercises {
+				if x := &q.Sessions[i].Exercises[j]; x.Target.Exercise == first {
+					x.Target.FirstSetCalibration = false
+				}
+			}
+		}
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if stored, _, err = f.maker.Plans.Get(ctx, "uid-a"); err != nil {
+		t.Fatal(err)
+	}
 	ex := stored.Sessions[0].Exercises[0]
 	rec := ex.Target
 	id := string(rec.Exercise)
@@ -103,11 +121,16 @@ func TestOverrideTarget(t *testing.T) {
 			if e.GetWorkingSets()[0].GetLoadTenthLb() != int32(rec.Working[0].Load) {
 				t.Fatal("the recommendation changed")
 			}
+			// The policy gives the limit of the override (D-306, D-307).
+			if m := o.GetFollowMaxTenthLb(); m < o.GetWorkingSets()[0].GetLoadTenthLb() {
+				t.Fatalf("override follow max %d, want the load of the first set %d or more", m, o.GetWorkingSets()[0].GetLoadTenthLb())
+			}
 		}
 	}
 	after, _, _ := f.maker.Plans.Get(ctx, "uid-a")
 	o := after.Sessions[0].Exercises[0].Override
-	if o == nil || o.Reason != "Felt easy." || !slices.Equal(o.Recommendation.Working, rec.Working) || !slices.Equal(after.Sessions[0].Exercises[0].Target.Working, rec.Working) || o.At.IsZero() {
+	if o == nil || o.Reason != "Felt easy." || !slices.Equal(o.Recommendation.Working, rec.Working) || !slices.Equal(after.Sessions[0].Exercises[0].Target.Working, rec.Working) || o.At.IsZero() ||
+		o.Target.FollowMax == 0 || o.Target.FollowMax < o.Target.Working[0].Load {
 		t.Fatalf("stored override %+v", o)
 	}
 

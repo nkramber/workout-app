@@ -110,7 +110,7 @@ func (s *Server) SyncOutbox(ctx context.Context, req *connect.Request[workoutapp
 			}
 		case errors.Is(err, workout.ErrInvalid):
 			r.Status, r.Code, r.Message = workoutappv1.EntryResult_STATUS_REFUSED, CodeInvalidArgument, err.Error()
-		case errors.Is(err, workout.ErrUnknownWorkout), errors.Is(err, inventory.ErrNotFound), errors.Is(err, inventory.ErrWeightsChanged):
+		case errors.Is(err, workout.ErrUnknownWorkout), errors.Is(err, workout.ErrBeforeDeletion), errors.Is(err, inventory.ErrNotFound), errors.Is(err, inventory.ErrWeightsChanged):
 			r.Status, r.Code, r.Message = workoutappv1.EntryResult_STATUS_REFUSED, CodeFailedPrecondition, err.Error()
 		default:
 			return nil, errStore
@@ -231,6 +231,7 @@ func fromProto(in *workoutappv1.OutboxEntry) (workout.Entry, error) {
 			Skipped:    ids(h.GetSkippedExerciseIds()),
 			EndedEarly: h.GetEndedEarly(),
 			Finished:   h.GetFinished(),
+			Generation: int(h.GetHistoryGeneration()),
 		}
 		e.Header.Targets, e.Header.Overrides = targetsFrom(h.GetTargets())
 	case *workoutappv1.OutboxEntry_Set:
@@ -293,7 +294,7 @@ func targetsFrom(in []*workoutappv1.SeenTarget) ([]domain.PlannedExercise, []wor
 	var out []domain.PlannedExercise
 	var overrides []workout.SeenOverride
 	for _, t := range in {
-		p := domain.PlannedExercise{Exercise: domain.ExerciseID(t.GetExerciseId()), RestSeconds: int(t.GetRestSeconds()), FirstSetCalibration: t.GetFirstSetCalibration()}
+		p := domain.PlannedExercise{Exercise: domain.ExerciseID(t.GetExerciseId()), RestSeconds: int(t.GetRestSeconds()), FirstSetCalibration: t.GetFirstSetCalibration(), FollowMax: domain.Load(t.GetFollowMaxTenthLb())}
 		if t.GetOverrideReason() != "" || len(t.GetRecommendedWorkingSets()) > 0 {
 			o := workout.SeenOverride{Exercise: p.Exercise, Reason: t.GetOverrideReason()}
 			for _, w := range t.GetRecommendedWorkingSets() {
@@ -317,7 +318,7 @@ func targetsFrom(in []*workoutappv1.SeenTarget) ([]domain.PlannedExercise, []wor
 func targetsTo(in []domain.PlannedExercise, overrides []workout.SeenOverride) []*workoutappv1.SeenTarget {
 	var out []*workoutappv1.SeenTarget
 	for _, t := range in {
-		p := &workoutappv1.SeenTarget{ExerciseId: string(t.Exercise), RestSeconds: int32(t.RestSeconds), FirstSetCalibration: t.FirstSetCalibration}
+		p := &workoutappv1.SeenTarget{ExerciseId: string(t.Exercise), RestSeconds: int32(t.RestSeconds), FirstSetCalibration: t.FirstSetCalibration, FollowMaxTenthLb: int32(t.FollowMax)}
 		for _, o := range overrides {
 			if o.Exercise != t.Exercise {
 				continue

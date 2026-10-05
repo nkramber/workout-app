@@ -141,6 +141,13 @@ message PlannedExercise {
   // during its first reps, and the other working sets use the weight that
   // the owner logged for it (D-297, D-299). An override keeps it.
   bool first_set_calibration = 11;
+  // The heaviest load that the other working sets can use after the owner
+  // logs the first set at a heavier weight: the next heavier weight of the
+  // machine above the load of the first working set (D-306, D-307). A
+  // lighter first set has no limit (D-308). It is 0 for a target with a
+  // calibration, and for each target of policy version 7 or earlier. Then
+  // the other working sets keep their loads.
+  int32 follow_max_tenth_lb = 12;
 }
 
 // TargetOverride is an override of the owner for one exercise (D-69, D-293).
@@ -158,6 +165,9 @@ message TargetOverride {
   // the date after the save (D-294, D-295). The recommendation then applies,
   // and the phone uses no expired override in a workout.
   bool expired = 6;
+  // The limit of the working sets of the override, as follow_max_tenth_lb
+  // of PlannedExercise gives it (D-306, D-307).
+  int32 follow_max_tenth_lb = 7;
 }
 
 // CalibrationLoads holds the load of the working sets for each result of one

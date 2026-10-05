@@ -1,4 +1,4 @@
-policy version: 7
+policy version: 8
 exercise: chest_press
 model: "fake-model", effort: "medium", prompt hash: "prompt-hash"
 source: rules, cause: "no-proposal"
@@ -7,4 +7,5 @@ target: chest_press, rest 60 s
   working[0]: 8 reps at 105 lb, 2 RIR
   working[1]: 8 reps at 105 lb, 2 RIR
   working[2]: 8 reps at 105 lb, 2 RIR
+  the other sets follow working[0], up to 110 lb
 reason: You reached the top of the range with reps to spare. The load goes up to 105 lb, and the target is 3 x 8.

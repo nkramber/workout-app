@@ -13,13 +13,14 @@ This folder holds the web client of the owner. It holds the installable shell (w
 | `web/src/lib/sync.ts`, `web/src/lib/sync-engine.ts` | The sync of the outbox, the offline copies, and the state of the sync (D-274 to D-278) |
 | `web/src/lib/profile.ts`, `web/src/lib/profile-api.ts` | The form state and the checks of the profile, the text of the injury warning, and the save of the profile |
 | `web/src/lib/plan.ts`, `web/src/lib/plan-api.ts` | The texts of the progress and of the errors of a plan request, the formats of a set and of the rest, and the streams of a plan request and of an exclusion |
-| `web/src/lib/workout.ts` | The start of a workout, the set log, the cardio log, the skip of an exercise, the edit of a set, the end of a workout, each with its outbox entry. Also the first-set calibration, the rest timer, and the steps of the plus and minus buttons |
+| `web/src/lib/workout.ts` | The start of a workout, the set log, the cardio log, the skip of an exercise, the edit of a set, the end of a workout, each with its outbox entry. Also the first-set calibration, the limit of the other sets after the first set, the rest timer, and the steps of the plus and minus buttons |
 | `web/src/lib/symptoms.ts`, `web/src/lib/wake-lock.ts` | The list of symptoms and the text of each warning (D-263), and the screen wake lock (D-265, D-283) |
 | `web/src/lib/firebase.ts` | Firebase Authentication with email and password (D-75) |
 | `web/src/lib/api.ts` | The Connect transport, with the ID token of the owner on each call |
 | `web/src/lib/db.ts` | The offline store and the outbox (D-62, D-77, D-132) |
 | `web/src/lib/pwa.ts`, `web/src/lib/update-check.ts` | The service worker and its update strategy (D-133) |
 | `web/src/lib/storage.ts` | The persistent storage request (D-134) |
+| `web/src/lib/history.ts`, `web/src/lib/user-api.ts` | The deletion of all data: the check of the dialog, the deletion on the phone, then the call `DeleteHistory` (D-314, D-315) |
 | `web/src/gen` | The generated code of the contract. `make proto` writes it, and Git keeps it. |
 | `web/e2e` | The browser tests of the acceptance stories of work areas 2.2, 4.1, 5.1, 5.2, 6.1, 6.2, and 6.3 |
 
@@ -34,6 +35,8 @@ Since iOS 26, the Home Screen app blurs a band below the status bar, and the pag
 The app has no form that makes an account. The owner makes the one account in the Firebase console, and self sign-up is off (D-117).
 
 ## The inventory screens
+
+The diagnostics of the home screen hold "Delete all data" in a closed section. Its dialog needs the switch at "Yes" and the typed text "Delete all data" (D-314). The phone deletes its history and the outbox entries of that history first, so no later sync sends them. Then it calls `DeleteHistory`, and keeps the new generation of the history that the answer gives (D-315). Each new workout carries the generation, and each read of the copies reads it again with `GetMe`.
 
 The home screen opens the equipment inventory (work area 4.1). The screens read the catalog and the inventory through `InventoryService` of the API, and never through Firestore (D-77).
 
@@ -64,7 +67,7 @@ The home screen has a "Plan" button. The plan screen reads `GetPlan` with the lo
 
 - The summary of the plan.
 - For each session: the warm-up, each exercise, the optional cardio, and the cool-down.
-- For each exercise: the working sets, the rest, and the reason. The first set of a new exercise shows as the calibration (D-297).
+- For each exercise: the working sets, the rest, and the reason. The first set of a new exercise shows as the calibration (D-297). An exercise with a limit tells it: "When you change the weight of set 1, the other sets use it" (D-306, D-307).
 - The mobility and recovery items, and the excluded exercises with their reasons.
 
 Each exercise has a "Change target" button. Its form changes the reps and the load of each working set for the next session (D-69, D-293). It needs a reason of 1 to 200 characters, and it calls `OverrideTarget`.
@@ -87,6 +90,7 @@ The start copies the targets of the session and the weights of each machine to t
 - The plus and minus buttons change the reps by 1. They move the weight to the next weight of the list of the machine (D-264).
 - A tap on the reps in reserve logs the set. So the owner logs a set in one tap. A working set offers 0, 1, 2, 3, or 4+, and a calibration set offers 0 to 6+ (D-268).
 - The first set of a new exercise is the calibration (D-297). The owner changes the weight during its first reps, and logs the weight that the owner used. Each later set of the exercise gets that weight, with the note "The first set gave this load" (D-299).
+- From policy version 8, an exercise with history has a limit (D-306, D-307). When the owner logs the first set at another weight, each later set gets that weight. A heavier weight stops at the limit, and a lighter weight has no limit (D-308). The function `followedLoad` gives the load, as `policy.Followed` does on the server.
 - A plan of policy version 4 to 6 can still hold a calibration set. After it, each working set gets the load of the calibration table (D-267).
 - When each exercise is done, the list of the exercises collapses to one line (D-298). So the cardio and the end of the workout show near the top. "Show the exercises" opens the list again.
 - The log of a set starts the rest timer with the rest of the target, 60 seconds since policy version 5 (D-59, D-172, D-279). The timer reads a stored end time in the `meta` table. So it is correct after a screen lock and after a stop of the app. "-15 s", "+15 s", and "Dismiss" change it, and it never goes below 0 (D-270). At 0 it shows "Rest done" in another color, with no sound and no notification (D-58, D-61).

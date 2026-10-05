@@ -256,6 +256,7 @@ func TestSyncOutboxRevises(t *testing.T) {
 		CalibrationSets:     []*workoutappv1.PlannedSet{{Reps: 8, LoadTenthLb: 400}},
 		WorkingSets:         []*workoutappv1.PlannedSet{{Reps: 8, LoadTenthLb: 500, RirTarget: 2}},
 		FirstSetCalibration: true,
+		FollowMaxTenthLb:    550,
 	}}
 	finish := proto.Clone(start).(*workoutappv1.OutboxEntry)
 	finish.OpId, finish.At = opID(3), at(3)
@@ -288,5 +289,30 @@ func TestSyncOutboxRevises(t *testing.T) {
 	w := list(t, s)[0]
 	if got := w.GetTargets(); len(got) != 1 || !proto.Equal(got[0], start.GetWorkout().GetTargets()[0]) {
 		t.Fatalf("copies %v", got)
+	}
+}
+
+// TestSyncAfterDeletion: after a deletion of the history, a workout of
+// the old generation is refused with failed_precondition, so a sync of
+// another tab or device does not bring the history back (D-315). The
+// refusal names no uid. A workout of the new generation applies.
+func TestSyncAfterDeletion(t *testing.T) {
+	store := workout.NewMemory()
+	s := New(store, inventory.NewMemory())
+	sync(t, s, headerEntry(1))
+	if _, _, err := store.DeleteAll(context.Background(), "uid-a"); err != nil {
+		t.Fatal(err)
+	}
+	res := sync(t, s, headerEntry(2))
+	if len(res) != 1 || res[0].GetStatus() != workoutappv1.EntryResult_STATUS_REFUSED || res[0].GetCode() != CodeFailedPrecondition || strings.Contains(res[0].GetMessage(), "uid-a") {
+		t.Fatalf("an entry before the deletion: %v, want REFUSED with failed_precondition", res)
+	}
+	if got := list(t, s); len(got) != 0 {
+		t.Fatalf("%d workouts after the deletion, want none", len(got))
+	}
+	next := headerEntry(3)
+	next.GetWorkout().HistoryGeneration = 1
+	if res := sync(t, s, next); res[0].GetStatus() != workoutappv1.EntryResult_STATUS_APPLIED {
+		t.Fatalf("a workout of the new generation: %v, want APPLIED", res)
 	}
 }

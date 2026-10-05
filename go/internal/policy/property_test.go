@@ -586,6 +586,8 @@ func TestPropertyFallback(t *testing.T) {
 			// The rules decide the calibration (D-301).
 			want := *p.Target
 			want.FirstSetCalibration = next.Target.FirstSetCalibration
+			// The policy gives the limit of the other sets (D-306).
+			want.FollowMax = Follow(want, in.Entry.Available())
 			if r.Source != SourceLuna || r.Cause != CauseNone || len(r.Violations) > 0 || !reflect.DeepEqual(r.Target, want) || !reflect.DeepEqual(*r.Proposal, *p.Target) {
 				t.Fatalf("run %d: a proposal inside the bounds gave %+v", i, r)
 			}

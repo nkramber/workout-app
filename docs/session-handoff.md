@@ -4,32 +4,42 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-04. Author of pull request PR-37, work area 7.3 of `docs/roadmaps/phase-7-adaptation-loop.md`, on `feat/pr-37-calibration-evaluation` from base `e18781f`.
+Date: 2026-10-05. Author of pull request PR-38 of `docs/roadmaps/phase-8-personal-use-operations.md`, on the branch `docs/pr-38-phase-8-roadmap` from base `4bbf6c8`.
 
-The deploys of `e18781f` passed: `deploy-api` `87489cf0` and `deploy-web` `83635766`. The live `/version` and `/version.json` name `e18781f`, and the revision `api-00020-cfh` has all traffic.
+The deploys of `4bbf6c8` passed: `deploy-api` `2dadce0f` and `deploy-web` `21decb0b`. The live `/version` and `/version.json` name `4bbf6c8`, and the revision `api-00021-xxp` has all traffic.
 
-The owner approved one live revision with policy version 6 (D-212), and approved the milestone (D-12). The owner answered Q-310, Q-308, Q-311, and Q-312 (D-299 to D-304). The live check found two reviser calls for each synced workout, and the owner accepted its spend (D-305).
+The live check of the owner found a defect. On an exercise with history, a first set at 30 lb gave 20 lb to the next set (D-301). The owner approved the milestone (D-12), added the fix to PR-38 (D-310), and answered Q-313 to Q-319 (D-306 to D-313).
 
 The pull request holds:
 
-- the policy version 7: the first set of a new exercise is the calibration, and a new exercise starts at the estimate,
-- the history of a new plan through `Maker.History`, and a deload week with no load step (D-303),
-- the flag `first_set_calibration` in the contract, the stores, and the phone,
-- the collapse of a finished exercise list (D-298),
-- the scenarios G to J in `go/cmd/lunaeval`, the numbers of each scenario, and the paid run of D-302,
-- the report `docs/research/reviser-evaluation.md`,
-- the claim of a revision before its reviser call (D-304).
+- the policy version 8, with the limit `follow_max_tenth_lb` in the contract, the stores, and the phone (D-306 to D-308),
+- the read of the load that the later sets followed (D-309),
+- the focused roadmap of Phase 8, with the exit evidence of Phase 7 and the split into PR-39 to PR-42 (D-311),
+- the changes of the registers, both roadmaps, the design, both READMEs, and `AGENTS.md`.
 
-`make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. GitHub PR 38 holds the work.
+`make verify`, `make go-test`, `make contract`, `make emulator-test`, and `make web` passed. GitHub PR 39 holds the work.
 
-Codex round 1 found P2-1, and round 2 found P2-2 and P2-3 (`docs/reviews/pr-38.md`). Round 3 gave Blocked for the live check alone. The live check and the claim of D-304 came after round 3. Codex round 4 approved head `6384afaf28cd5aa445aebb51d792b8dae7e02fea`. Next action: the owner confirms the merge.
+Codex round 1 gave `Changes required` for effective head `dcd23494a8212291ddc4788ceca8d85cb0f1de29`, with P2-1, the stage line before the Phase 7 check (`docs/reviews/pr-39.md`). The author fixed P2-1. Codex round 2 records `Ready for owner merge` for effective head `a8aff45a61ae4b674c908094b98cb7ffca0e55be`, with no open findings. The response and both verdicts are in `docs/reviews/pr-39.md`.
+
+After round 2, the owner added "Delete all data" to PR-38, and answered Q-320 to Q-322 (D-314 to D-316). The pull request now holds the call `DeleteHistory` of `UserService`, the deletes of the stores, and the dialog of the diagnostics. A browser test proves the switch, the typed text, and the deletion on the phone and on the server.
+
+Codex round 3 found P2-2, a sync of another tab or device that wrote the deleted history again. Codex round 4 found P2-3: the first fence read the clock of the phone. Codex round 5 found P2-4: a plan request in flight saved a plan after the deletion. The answers of full merit use a generation of the history on the server for the workouts and the plan (`docs/reviews/pr-39-response.md`).
+
+Codex round 6 reviewed effective head `0e094c5ab28b614f20f24234a9ea860b0f8f6190`. It found the plan-generation fence and its regression test fixed P2-4. The verdict is Ready for owner merge. P3-1 records trailing blank lines in two changed files.
+
+`make verify`, `make go-test`, `make contract`, and `make emulator-test` passed on the effective head. `make web` passed on `4cd1bd5`, and the GitHub check `verify:web` passed on `0e094c5`. Each check of GitHub passed, `review-gate` too. The answer to P3-1 is in `docs/reviews/pr-39-response.md`.
+
+PR-38 is ready, pending the owner merge. Next action: the owner confirmation of the merge.
 
 ## Facts that expire
 
 | Fact | Date read | Source |
 |---|---|---|
 | The paid evaluation of D-302: 50 reviser calls of the 10 scenarios with policy version 7 and xhigh, all `ok`. The check accepted 110 reasons and refused 5. Cost 0.0179 USD, the longest call 10.8 s. | 2026-10-04 | `docs/research/reviser-evaluation.md` |
-| The live `/version.json` and `/version` name `e18781f6cf201cf0a7028eee44c95b906c4813d2`, from the builds `deploy-web` `83635766` and `deploy-api` `87489cf0`. The revision `api-00020-cfh` has all traffic. | 2026-10-04 | `curl`, `gcloud builds list`, `gcloud run services describe` |
+| The live `/version.json` and `/version` name `4bbf6c8dc1d742a289cee32bc351f58060419a07`, from the builds `deploy-web` `21decb0b` and `deploy-api` `2dadce0f`. The revision `api-00021-xxp` has all traffic. | 2026-10-04 | `curl`, `gcloud builds list`, `gcloud run services describe` |
+| The live check of `4bbf6c8`: 1 planner call of 0.0045 USD and 1 reviser call of 0.0014 USD, each `ok`. The revision of 8 exercises gave 1 reason of Luna and 7 reasons of the rules. No log entry had the severity WARNING or more. | 2026-10-04 | `gcloud logging read` |
+| `nk-workout-app-prod` has 0 alert policies and 0 notification channels of Cloud Monitoring. 5 daily backups have the state READY, and the earliest version time of point-in-time recovery is 2026-09-30T00:09:00Z. | 2026-10-04 | Monitoring API, `gcloud firestore backups list` |
+| The permission check of the session refused a read of the plan document in Firestore. The cause of each reason of the rules stays unread. | 2026-10-04 | The session |
 | The live check of `e18781f`: the owner finished 2 workouts and made a new plan. 4 reviser calls and 1 planner call, 0.0065 USD known and 0.0257 USD against the cap. Each revision gave `ok`, and an 8-exercise sync took 27.0 s. A duplicate call of a second sync reached the limit of 45 s (D-304, D-305). | 2026-10-04 | `gcloud logging read`, `users/{uid}/plan/active` |
 | The live revision of `d8f766e`: 1 reviser call of 0.0017 USD with the status `ok`, in a `SyncOutbox` call of 19.8 s. The plan got 8 new targets, each with a reason of Luna. Each of the 16 exercises of the plan has a calibration set. | 2026-10-04 | `gcloud logging read`, `users/{uid}/plan/active` |
 | The repository is public. | 2026-09-27 | GitHub repository settings |
@@ -81,11 +91,30 @@ Codex round 1 found P2-1, and round 2 found P2-2 and P2-3 (`docs/reviews/pr-38.m
 
 ## Next steps, in order
 
-1. Close PR-37: CI, the Codex review, the owner confirmation, and the merge.
-2. After the merge, read the deploys of the merge.
-3. Ask the owner to check the first-set calibration and the collapse on the iPhone. Phase 7 then ends.
+1. Close PR-38: CI, the Codex review, the owner confirmation, and the merge.
+2. After the merge, read both deploys of the merge.
+3. Ask the owner for one live revision with policy version 8 (D-212), and the three iPhone checks of PR-39. Phase 7 then ends (D-310).
 
 ## Session records
+
+### Session 39 - 2026-10-05
+
+Author provider: Claude Code
+
+Branch: `docs/pr-38-phase-8-roadmap`. Role: author.
+
+Completed:
+
+- Read the deploys of `4bbf6c8` and the logs of the live check of the owner.
+- The owner approved the milestone (D-12), added the fix (D-310), and answered Q-313 to Q-319 (D-306 to D-313).
+- Added the policy version 8, the limit in the contract, the stores, and the phone, and the read of the followed load.
+- Added the unit tests, the golden files, and a browser test of the live case.
+- Wrote the focused roadmap of Phase 8, and changed the registers, both roadmaps, the design, both READMEs, and `AGENTS.md`.
+- Answered P2-1 of Codex round 1. The owner then added "Delete all data" (D-314 to D-316), with its tests.
+
+Open work:
+
+- The owner confirmation and the merge of PR-38.
 
 ### Session 38 - 2026-10-04
 
@@ -105,7 +134,7 @@ Completed:
 
 Open work:
 
-- CI, the Codex review, the owner confirmation, and the merge of PR-37.
+- None. GitHub PR 38 merged as `4bbf6c8`.
 
 ### Session 37 - 2026-10-04
 
@@ -126,22 +155,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 37 merged as `e18781f`.
-
-### Session 36 - 2026-10-04
-
-Author provider: Claude Code
-
-Branch: `feat/pr-35-revision`. Role: author.
-
-Completed:
-
-- The owner approved the milestone (D-12), and answered Q-302 to Q-304 (D-290 to D-292).
-- Added the target copy to the workout header, and the revision of the plan in the sync of a finished workout.
-- Added the reviser of the reason alone, with its check (D-288).
-- Added the screen "Workout done" with the next targets and their reasons, and the target copy in the header of the phone.
-- Added the emulator tests of scenarios A to F, unit tests, and a browser test.
-- Changed the registers, both roadmaps, the design, both READMEs, and `AGENTS.md`.
-
-Open work:
-
-- None. GitHub PR 36 merged as `d8f766e`.

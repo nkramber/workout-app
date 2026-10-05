@@ -1,4 +1,4 @@
-policy version: 7
+policy version: 8
 exercise: chest_press
 model: "fake-model", effort: "medium", prompt hash: "prompt-hash"
 proposal:
@@ -12,4 +12,5 @@ target: chest_press, rest 120 s
   working[0]: 8 reps at 105 lb, 3 RIR
   working[1]: 8 reps at 105 lb, 3 RIR
   working[2]: 8 reps at 105 lb, 3 RIR
+  the other sets follow working[0], up to 110 lb
 reason: 

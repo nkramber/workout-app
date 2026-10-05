@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/nkramber/workout-app/go/internal/domain"
+	"github.com/nkramber/workout-app/go/internal/history"
 )
 
 // The Firestore paths of a user are users/{uid}/workouts/{workoutId},
@@ -41,9 +42,31 @@ type Result struct {
 // gives the workouts, the newest date first, after the workout of the
 // id after, or from the first when after is empty. The next token is
 // the id of the last workout, or empty when no workout remains.
+// DeleteAll deletes each workout and each op id of the user, and gives
+// the count of the deleted workouts (D-314, D-315). A second call
+// deletes what a failed call left. It adds 1 to the generation of the
+// history first, and gives the new generation. After it, Apply refuses
+// each entry of a workout of an older generation with ErrBeforeDeletion.
+// The generation comes from the server alone, so no clock of a phone
+// decides. Generation gives the generation, 0 before the first deletion.
 type Store interface {
 	Apply(ctx context.Context, uid string, e Entry) (Result, error)
 	List(ctx context.Context, uid string, limit int, after string) ([]Workout, string, error)
+	DeleteAll(ctx context.Context, uid string) (int, int64, error)
+	Generation(ctx context.Context, uid string) (int64, error)
+}
+
+// fenced tells whether an entry belongs to a workout of an older
+// generation of the history than gen (D-315): a header of an older
+// generation, or any entry of a stored workout of an older generation.
+func fenced(gen int64, stored *Workout, e Entry) bool {
+	if gen == 0 {
+		return false
+	}
+	if e.Entity == EntityWorkout && e.Header != nil && int64(e.Header.Generation) < gen {
+		return true
+	}
+	return stored != nil && int64(stored.Generation) < gen
 }
 
 var errUID = errors.New("workout: a uid of 1 or more characters with no slash is required")
@@ -66,11 +89,12 @@ type Memory struct {
 	mu       sync.Mutex
 	workouts map[string]map[string]Workout
 	ops      map[string]map[string]Result
+	gens     map[string]int64
 }
 
 // NewMemory gives an empty Memory store with the product catalog.
 func NewMemory() *Memory {
-	return &Memory{Catalog: domain.DefaultCatalog(), workouts: map[string]map[string]Workout{}, ops: map[string]map[string]Result{}}
+	return &Memory{Catalog: domain.DefaultCatalog(), workouts: map[string]map[string]Workout{}, ops: map[string]map[string]Result{}, gens: map[string]int64{}}
 }
 
 // Apply applies the entry under the lock of the store.
@@ -90,6 +114,9 @@ func (s *Memory) Apply(_ context.Context, uid string, e Entry) (Result, error) {
 	var stored *Workout
 	if w, ok := s.workouts[uid][e.Workout()]; ok {
 		stored = &w
+	}
+	if fenced(s.gens[uid], stored, e) {
+		return Result{}, ErrBeforeDeletion
 	}
 	w, version, err := Apply(stored, e, s.Catalog)
 	if err != nil {
@@ -131,6 +158,31 @@ func (s *Memory) List(_ context.Context, uid string, limit int, after string) ([
 	return page(all, limit)
 }
 
+// DeleteAll adds 1 to the generation, and deletes the workouts and the
+// op ids of the uid.
+func (s *Memory) DeleteAll(_ context.Context, uid string) (int, int64, error) {
+	if err := checkUID(uid); err != nil {
+		return 0, 0, err
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.gens[uid]++
+	n := len(s.workouts[uid])
+	delete(s.workouts, uid)
+	delete(s.ops, uid)
+	return n, s.gens[uid], nil
+}
+
+// Generation gives the generation of the history of the uid.
+func (s *Memory) Generation(_ context.Context, uid string) (int64, error) {
+	if err := checkUID(uid); err != nil {
+		return 0, err
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.gens[uid], nil
+}
+
 func page(all []Workout, limit int) ([]Workout, string, error) {
 	if len(all) <= limit {
 		return all, "", nil
@@ -155,6 +207,19 @@ func (s *Firestore) user(uid string) *firestore.DocumentRef {
 	return s.client.Collection(UsersCollection).Doc(uid)
 }
 
+func (s *Firestore) deletedRef(uid string) *firestore.DocumentRef {
+	return history.Ref(s.client, uid)
+}
+
+// Generation reads the generation of the history of the uid.
+func (s *Firestore) Generation(ctx context.Context, uid string) (int64, error) {
+	if err := checkUID(uid); err != nil {
+		return 0, err
+	}
+	d, err := history.Read(s.deletedRef(uid).Get(ctx))
+	return d.Generation, err
+}
+
 // Apply runs one transaction: it reads the op id and the workout, then
 // writes the workout and the op id. Firestore runs the function again
 // when another transaction changes a document that it read, so two
@@ -170,6 +235,14 @@ func (s *Firestore) Apply(ctx context.Context, uid string, e Entry) (Result, err
 	var res Result
 	err := s.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
 		res = Result{}
+		// The transaction reads the generation of the history. A deletion
+		// that changes it before the commit makes Firestore run the
+		// function again, so a sync in flight never writes old history
+		// after a deletion (D-315).
+		fence, err := history.Read(tx.Get(s.deletedRef(uid)))
+		if err != nil {
+			return err
+		}
 		snap, err := tx.Get(opRef)
 		switch {
 		case err == nil:
@@ -200,6 +273,9 @@ func (s *Firestore) Apply(ctx context.Context, uid string, e Entry) (Result, err
 			stored = &w
 		case status.Code(err) != codes.NotFound:
 			return err
+		}
+		if fenced(fence.Generation, stored, e) {
+			return ErrBeforeDeletion
 		}
 		w, version, err := Apply(stored, e, s.catalog)
 		if err != nil {
@@ -283,6 +359,9 @@ type workoutDoc struct {
 	Targets    []targetDoc      `firestore:"targets"`
 	Versions   map[string]int64 `firestore:"versions"`
 	UpdatedAt  time.Time        `firestore:"updated_at"`
+	// The generation of the history at the start of the workout (D-315).
+	// A workout of an older phone has no such field.
+	Generation int64 `firestore:"history_generation,omitempty"`
 }
 
 type planDoc struct {
@@ -301,6 +380,9 @@ type targetDoc struct {
 	// The first working set is the calibration (D-297). A workout of an
 	// older phone has no such field.
 	FirstSet bool `firestore:"first_set_calibration,omitempty"`
+	// The limit of the other working sets after the first set (D-306,
+	// D-307). A workout of an older phone has no such field.
+	FollowMax int64 `firestore:"follow_max_tenth_lb,omitempty"`
 	// After an override of the owner: the recommendation that it
 	// replaced, and the reason of the owner (D-69, D-293).
 	Recommended    []targetSet `firestore:"recommended_working_sets,omitempty"`
@@ -316,7 +398,7 @@ type targetSet struct {
 func encodeTargets(in []domain.PlannedExercise, overrides []SeenOverride) []targetDoc {
 	out := make([]targetDoc, 0, len(in))
 	for _, t := range in {
-		d := targetDoc{Exercise: string(t.Exercise), Rest: int64(t.RestSeconds), Calibration: []targetSet{}, Working: []targetSet{}, FirstSet: t.FirstSetCalibration}
+		d := targetDoc{Exercise: string(t.Exercise), Rest: int64(t.RestSeconds), Calibration: []targetSet{}, Working: []targetSet{}, FirstSet: t.FirstSetCalibration, FollowMax: int64(t.FollowMax)}
 		for _, o := range overrides {
 			if o.Exercise != t.Exercise {
 				continue
@@ -341,7 +423,7 @@ func decodeTargets(in []targetDoc) ([]domain.PlannedExercise, []SeenOverride) {
 	var out []domain.PlannedExercise
 	var overrides []SeenOverride
 	for _, d := range in {
-		t := domain.PlannedExercise{Exercise: domain.ExerciseID(d.Exercise), RestSeconds: int(d.Rest), FirstSetCalibration: d.FirstSet}
+		t := domain.PlannedExercise{Exercise: domain.ExerciseID(d.Exercise), RestSeconds: int(d.Rest), FirstSetCalibration: d.FirstSet, FollowMax: domain.Load(d.FollowMax)}
 		if d.OverrideReason != "" || len(d.Recommended) > 0 {
 			o := SeenOverride{Exercise: t.Exercise, Reason: d.OverrideReason}
 			for _, w := range d.Recommended {
@@ -399,6 +481,7 @@ func encodeWorkout(w Workout, now time.Time) workoutDoc {
 		Exercises:  []exerciseDoc{},
 		Cardio:     []cardioDoc{},
 		Targets:    encodeTargets(w.Targets, w.Overrides),
+		Generation: int64(w.Generation),
 		Versions:   w.Versions,
 		UpdatedAt:  now,
 	}
@@ -433,6 +516,7 @@ func (d workoutDoc) workout(id string) Workout {
 			Plan:       PlanLink{PlanCreatedAt: d.Plan.CreatedAt.UTC(), SessionIndex: int(d.Plan.SessionIndex)},
 			EndedEarly: d.EndedEarly,
 			Finished:   d.Finished,
+			Generation: int(d.Generation),
 		},
 		Versions: map[string]int64{},
 	}
@@ -488,4 +572,84 @@ func fromPtr[T ~int](p *int64) *T {
 	}
 	v := T(*p)
 	return &v
+}
+
+// DeleteAll adds 1 to the generation of the history in a transaction,
+// first. Then it deletes each workout of an older generation, and each
+// op id that the server applied before that time. A workout of the new
+// generation, from another device after the change, stays. The count
+// holds the workouts alone.
+func (s *Firestore) DeleteAll(ctx context.Context, uid string) (int, int64, error) {
+	if err := checkUID(uid); err != nil {
+		return 0, 0, err
+	}
+	var next history.Fence
+	err := s.client.RunTransaction(ctx, func(ctx context.Context, tx *firestore.Transaction) error {
+		d, err := history.Read(tx.Get(s.deletedRef(uid)))
+		if err != nil {
+			return err
+		}
+		next = history.Fence{Generation: d.Generation + 1, At: s.now().UTC()}
+		return tx.Set(s.deletedRef(uid), next)
+	}, firestore.MaxAttempts(5))
+	if err != nil {
+		return 0, 0, err
+	}
+	docs, err := s.user(uid).Collection(WorkoutsCollection).Select("history_generation").Documents(ctx).GetAll()
+	if err != nil {
+		return 0, 0, err
+	}
+	var old []*firestore.DocumentRef
+	for _, d := range docs {
+		var g struct {
+			Generation int64 `firestore:"history_generation"`
+		}
+		if err := d.DataTo(&g); err != nil {
+			return 0, 0, err
+		}
+		if g.Generation < next.Generation {
+			old = append(old, d.Ref)
+		}
+	}
+	if err := deleteRefs(ctx, s.client, old); err != nil {
+		return 0, 0, err
+	}
+	ops, err := s.user(uid).Collection(OpsCollection).Where("applied_at", "<=", next.At).Select().Documents(ctx).GetAll()
+	if err != nil {
+		return 0, 0, err
+	}
+	refs := make([]*firestore.DocumentRef, len(ops))
+	for i, d := range ops {
+		refs[i] = d.Ref
+	}
+	if err := deleteRefs(ctx, s.client, refs); err != nil {
+		return 0, 0, err
+	}
+	return len(old), next.Generation, nil
+}
+
+// deleteRefs deletes each document with a bulk writer. A failed delete
+// gives an error after the writer ends, so a second call deletes the
+// rest.
+func deleteRefs(ctx context.Context, client *firestore.Client, refs []*firestore.DocumentRef) error {
+	if len(refs) == 0 {
+		return nil
+	}
+	bw := client.BulkWriter(ctx)
+	jobs := make([]*firestore.BulkWriterJob, 0, len(refs))
+	for _, ref := range refs {
+		j, err := bw.Delete(ref)
+		if err != nil {
+			bw.End()
+			return err
+		}
+		jobs = append(jobs, j)
+	}
+	bw.End()
+	for _, j := range jobs {
+		if _, err := j.Results(); err != nil {
+			return err
+		}
+	}
+	return nil
 }

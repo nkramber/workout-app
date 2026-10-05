@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file workoutapp/v1/user_service.proto.
  */
 export const file_workoutapp_v1_user_service: GenFile = /*@__PURE__*/
-  fileDesc("CiB3b3Jrb3V0YXBwL3YxL3VzZXJfc2VydmljZS5wcm90bxINd29ya291dGFwcC52MSIOCgxHZXRNZVJlcXVlc3QiHAoNR2V0TWVSZXNwb25zZRILCgN1aWQYASABKAkyUwoLVXNlclNlcnZpY2USRAoFR2V0TWUSGy53b3Jrb3V0YXBwLnYxLkdldE1lUmVxdWVzdBocLndvcmtvdXRhcHAudjEuR2V0TWVSZXNwb25zZSIAQkNaQWdpdGh1Yi5jb20vbmtyYW1iZXIvd29ya291dC1hcHAvZ28vZ2VuL3dvcmtvdXRhcHAvdjE7d29ya291dGFwcHYxYgZwcm90bzM");
+  fileDesc("CiB3b3Jrb3V0YXBwL3YxL3VzZXJfc2VydmljZS5wcm90bxINd29ya291dGFwcC52MSIOCgxHZXRNZVJlcXVlc3QiOAoNR2V0TWVSZXNwb25zZRILCgN1aWQYASABKAkSGgoSaGlzdG9yeV9nZW5lcmF0aW9uGAIgASgFIiwKFERlbGV0ZUhpc3RvcnlSZXF1ZXN0EhQKDGNvbmZpcm1hdGlvbhgBIAEoCSJNChVEZWxldGVIaXN0b3J5UmVzcG9uc2USGAoQZGVsZXRlZF93b3Jrb3V0cxgBIAEoBRIaChJoaXN0b3J5X2dlbmVyYXRpb24YAiABKAUysQEKC1VzZXJTZXJ2aWNlEkQKBUdldE1lEhsud29ya291dGFwcC52MS5HZXRNZVJlcXVlc3QaHC53b3Jrb3V0YXBwLnYxLkdldE1lUmVzcG9uc2UiABJcCg1EZWxldGVIaXN0b3J5EiMud29ya291dGFwcC52MS5EZWxldGVIaXN0b3J5UmVxdWVzdBokLndvcmtvdXRhcHAudjEuRGVsZXRlSGlzdG9yeVJlc3BvbnNlIgBCQ1pBZ2l0aHViLmNvbS9ua3JhbWJlci93b3Jrb3V0LWFwcC9nby9nZW4vd29ya291dGFwcC92MTt3b3Jrb3V0YXBwdjFiBnByb3RvMw");
 
 /**
  * @generated from message workoutapp.v1.GetMeRequest
@@ -35,6 +35,14 @@ export type GetMeResponse = Message<"workoutapp.v1.GetMeResponse"> & {
    * @generated from field: string uid = 1;
    */
   uid: string;
+
+  /**
+   * The generation of the history: the count of the deletions of the
+   * history of the caller (D-315). A new workout carries it.
+   *
+   * @generated from field: int32 history_generation = 2;
+   */
+  historyGeneration: number;
 };
 
 /**
@@ -43,6 +51,51 @@ export type GetMeResponse = Message<"workoutapp.v1.GetMeResponse"> & {
  */
 export const GetMeResponseSchema: GenMessage<GetMeResponse> = /*@__PURE__*/
   messageDesc(file_workoutapp_v1_user_service, 1);
+
+/**
+ * @generated from message workoutapp.v1.DeleteHistoryRequest
+ */
+export type DeleteHistoryRequest = Message<"workoutapp.v1.DeleteHistoryRequest"> & {
+  /**
+   * The text that the owner typed. It must be "Delete all data".
+   *
+   * @generated from field: string confirmation = 1;
+   */
+  confirmation: string;
+};
+
+/**
+ * Describes the message workoutapp.v1.DeleteHistoryRequest.
+ * Use `create(DeleteHistoryRequestSchema)` to create a new message.
+ */
+export const DeleteHistoryRequestSchema: GenMessage<DeleteHistoryRequest> = /*@__PURE__*/
+  messageDesc(file_workoutapp_v1_user_service, 2);
+
+/**
+ * @generated from message workoutapp.v1.DeleteHistoryResponse
+ */
+export type DeleteHistoryResponse = Message<"workoutapp.v1.DeleteHistoryResponse"> & {
+  /**
+   * The count of the workouts that the call deleted.
+   *
+   * @generated from field: int32 deleted_workouts = 1;
+   */
+  deletedWorkouts: number;
+
+  /**
+   * The new generation of the history (D-315).
+   *
+   * @generated from field: int32 history_generation = 2;
+   */
+  historyGeneration: number;
+};
+
+/**
+ * Describes the message workoutapp.v1.DeleteHistoryResponse.
+ * Use `create(DeleteHistoryResponseSchema)` to create a new message.
+ */
+export const DeleteHistoryResponseSchema: GenMessage<DeleteHistoryResponse> = /*@__PURE__*/
+  messageDesc(file_workoutapp_v1_user_service, 3);
 
 /**
  * UserService names the signed-in user (work area 2.1). Every call needs a
@@ -61,6 +114,21 @@ export const UserService: GenService<{
     methodKind: "unary";
     input: typeof GetMeRequestSchema;
     output: typeof GetMeResponseSchema;
+  },
+  /**
+   * DeleteHistory deletes the history of the caller (D-314, D-315): each
+   * workout and its sync records, the plan with its decision records and
+   * overrides, and the AI error records. The profile, the inventory, the
+   * exclusions, the allowlist entry, and the monthly AI spend stay. A
+   * confirmation that is not "Delete all data" gives INVALID_ARGUMENT. A
+   * second call deletes what a failed call left.
+   *
+   * @generated from rpc workoutapp.v1.UserService.DeleteHistory
+   */
+  deleteHistory: {
+    methodKind: "unary";
+    input: typeof DeleteHistoryRequestSchema;
+    output: typeof DeleteHistoryResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_workoutapp_v1_user_service, 0);

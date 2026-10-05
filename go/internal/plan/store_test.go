@@ -21,7 +21,7 @@ func fullPlan() Plan {
 	target := domain.PlannedExercise{Exercise: "chest_press", RestSeconds: 120,
 		Calibration:         []domain.CalibrationSet{{Reps: 8, Load: 700}},
 		Working:             []domain.WorkingSet{{Reps: 8, Load: 700, RIR: 3}, {Reps: 8, Load: 700, RIR: 3}},
-		FirstSetCalibration: true}
+		FirstSetCalibration: true, FollowMax: 750}
 	rec := policy.Record{
 		PolicyVersion: 3, Exercise: "chest_press", InputHash: "abc", Model: "m", Effort: "medium", PromptHash: "h",
 		Proposal: &prop, Violations: []policy.Violation{{Rule: policy.RuleLoadCeiling, Where: "working[0]", Detail: "d"}},
@@ -192,5 +192,28 @@ func TestClaims(t *testing.T) {
 	p.Unclaim("w3", now)
 	if p.Claims != nil {
 		t.Fatalf("claims %+v: want none", p.Claims)
+	}
+}
+
+// TestMemoryDelete: the memory store deletes the plan and keeps the
+// exclusions (D-315).
+func TestMemoryDelete(t *testing.T) {
+	ctx := context.Background()
+	s := NewMemory()
+	ex := Exclusions{Items: []Exclusion{{"seated_row", ""}}}
+	if err := s.Save(ctx, "uid-a", fullPlan(), ex, true); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Delete(ctx, "uid-a"); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok, _ := s.Get(ctx, "uid-a"); ok {
+		t.Fatal("the plan stayed")
+	}
+	if got, _ := s.Exclusions(ctx, "uid-a"); len(got.Items) != 1 {
+		t.Fatalf("exclusions %+v, want them kept", got)
+	}
+	if err := s.Delete(ctx, "uid-b"); err != nil {
+		t.Fatalf("Delete of a user with no plan: %v", err)
 	}
 }
