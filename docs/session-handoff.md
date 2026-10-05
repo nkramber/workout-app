@@ -20,7 +20,9 @@ The pull request holds:
 
 The restore took 8 min 48 s. Each difference of a count comes from the "Delete all data" of the owner at 18:52Z. The restored database had delete protection, so section 6 of the runbook now turns it off first. The Hosting rollback now has REST steps.
 
-`make verify` passed. Codex reviewed GitHub PR 40 at effective head `97a8d40a65d5d77dc6be2db7af8cd8b32e9f7d3f`. The verdict is Changes required, with P2-1 for the collection-path total in `docs/research/restore-drill.md`. All checks passed except `review-gate`, which needs this record. The author answered P2-1 with partial merit in `docs/reviews/pr-40-response.md`, and corrected the summary row. Next action: CI, then Codex round 2 with `make codex-review PR=40`.
+`make verify` passed. Codex reviewed GitHub PR 40 at effective head `a019d5caa7b7711fe327be94afaa6e62235a458b`. P2-1 is fixed in `docs/research/restore-drill.md`. P2-2 names the missing operation id in step 5 of `docs/deploy-and-rollback.md`. All checks passed except `review-gate`, which rejects this verdict.
+
+Next action: correct step 5, then run Codex round 3.
 
 ## Facts that expire
 
