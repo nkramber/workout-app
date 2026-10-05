@@ -20,7 +20,7 @@ The pull request holds:
 
 The restore took 8 min 48 s. Each difference of a count comes from the "Delete all data" of the owner at 18:52Z. The restored database had delete protection, so section 6 of the runbook now turns it off first. The Hosting rollback now has REST steps.
 
-`make verify` passed. The Codex review, the CI result, and the owner merge are open. Next action: CI, then `make codex-review` for the pull request of this branch.
+`make verify` passed. Codex reviewed GitHub PR 40 at effective head `97a8d40a65d5d77dc6be2db7af8cd8b32e9f7d3f`. The verdict is Changes required, with P2-1 for the collection-path total in `docs/research/restore-drill.md`. All checks passed except `review-gate`, which needs this record. Next action: correct P2-1 and request a new review.
 
 ## Facts that expire
 
