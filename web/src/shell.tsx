@@ -1,4 +1,5 @@
-import type { ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 import { UpdateBanner } from "./update-banner";
 
@@ -18,8 +19,12 @@ import { UpdateBanner } from "./update-banner";
 // browser tab, it adds nothing.
 //
 // The status slot below the header holds the line of the sync for a
-// signed-in owner (D-276).
+// signed-in owner (D-276). The band below the main region holds a notice
+// of a screen that must not move its content, such as the workout
+// (D-321, D-322). The band is the last part of the column, so it reaches
+// the bottom edge, and the main region gets shorter but does not move.
 export function Shell({ children, status }: { children: ReactNode; status?: ReactNode }) {
+  const [band, setBand] = useState<HTMLElement | null>(null);
   return (
     <div
       data-testid="shell"
@@ -30,7 +35,22 @@ export function Shell({ children, status }: { children: ReactNode; status?: Reac
       </header>
       {status}
       <UpdateBanner />
-      <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">{children}</main>
+      <BandSlot.Provider value={band}>
+        <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">{children}</main>
+      </BandSlot.Provider>
+      <div
+        ref={setBand}
+        data-testid="bottom-band"
+        className="space-y-1 border-t border-slate-800 px-4 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] empty:hidden"
+      />
     </div>
   );
+}
+
+const BandSlot = createContext<HTMLElement | null>(null);
+
+// BottomBand shows its children in the band at the bottom of the shell.
+export function BottomBand({ children }: { children: ReactNode }) {
+  const slot = useContext(BandSlot);
+  return slot ? createPortal(children, slot) : null;
 }

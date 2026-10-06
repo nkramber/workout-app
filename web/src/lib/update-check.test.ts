@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { checkForUpdate, updateAllowed } from "./update-check";
+import { bannerShown, checkForUpdate, updateAllowed } from "./update-check";
 
 function registration(installing: object | null = null) {
   return { installing: installing as ServiceWorker | null, update: vi.fn(async () => undefined) };
@@ -52,5 +52,13 @@ describe("updateAllowed", () => {
   it("applies no update during a workout", () => {
     expect(updateAllowed(true)).toBe(false);
     expect(updateAllowed(false)).toBe(true);
+  });
+});
+
+describe("bannerShown", () => {
+  it("shows the banner after the workout alone (D-323)", () => {
+    expect(bannerShown(true, true)).toBe(false);
+    expect(bannerShown(true, false)).toBe(true);
+    expect(bannerShown(false, false)).toBe(false);
   });
 });

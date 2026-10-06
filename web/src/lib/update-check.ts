@@ -15,6 +15,12 @@ export function updateAllowed(workoutActive: boolean): boolean {
   return !workoutActive;
 }
 
+// bannerShown says if the shell shows "Update ready". While a workout is
+// open, the banner waits, so the workout screen does not move (D-323).
+export function bannerShown(waiting: boolean, workoutActive: boolean): boolean {
+  return waiting && updateAllowed(workoutActive);
+}
+
 type Deps = {
   online: () => boolean;
   fetch: typeof fetch;
