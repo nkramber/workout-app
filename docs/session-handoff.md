@@ -4,30 +4,28 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-05. Author of pull request PR-40 of `docs/roadmaps/phase-8-personal-use-operations.md`, on the branch `fix/pr-40-steady-workout-screen` from base `5d5df59`.
+Date: 2026-10-06. Author of pull request PR-41 of `docs/roadmaps/phase-8-personal-use-operations.md`, on the branch `feat/pr-41-version-migration` from base `c712f56`.
 
-The owner does the first real workout with the app on 2026-10-06, and put the quality of the workout screen first. The owner dropped the alerts of work area 8.2 (D-317), and approved the milestone (D-12). The owner picked the change of each part of the screen that comes and goes (D-318 to D-323).
+The owner approved the milestone (D-12), two live runs of the replay, and a read of one copy on the terminal (D-324 to D-326). The owner put `docs/operations.md` in a new file (D-325). The owner does the first real workout with the app on 2026-10-06, and a defect of the workout screen of PR-40 comes before PR-41.
 
 The pull request holds:
 
-- the rest card always keeps its space. With no rest, it shows the planned rest, and its buttons are off (D-318),
-- the preview of the next machine covers the next set logger, so it has the height of that logger (D-319),
-- the notes of a set show below the buttons of the reps in reserve (D-320),
-- a band at the bottom of the shell holds the wake notice and the error line (D-321, D-322),
-- the "Update ready" banner waits for the end of the workout (D-323),
-- a browser test of the acceptance story, and a unit test of the banner,
-- the drop of the alerts in the registers, both roadmaps, and the design.
+- `Reviser.Replay` in `go/internal/revise/replay.go`, which replays each decision record of the active plan and each target copy under the current policy version,
+- the command `go/cmd/replay`, with a diff report of counts and rule ids alone, and its unit tests,
+- the emulator test of the acceptance story: 4 records of policy version 7, and 3 changed targets under `follow.first-set`,
+- the copy check with a stale history, after run 1 found a fault of the replay,
+- `docs/operations.md` with five incidents, the replay, and the model change, and `docs/research/policy-replay.md`.
 
-The rest card keeps the stored end, "Rest done", and no sound and no vibration (D-58, D-59, D-270). The merge changes `web/`, so it deploys the web app (D-137). The next session reads that deploy first.
+Live run 2 gave 9 of 9 records with the same target and the same input hash, and 0 of 15 copies outside the bounds. `make go-test`, `make emulator-test`, and `make verify` pass. The merge changes `go/`, so it deploys the API (D-137).
 
-The review record `docs/reviews/pr-41.md` approves effective head `f27d132c6d4cd288b3a67330e81814c14c358f64`. No finding stays open. `make verify` and `make web` pass on this head. The local `pr-check` script passes when it receives the branch name.
-
-Next action: the owner confirms the merge of PR-40. Then the author turns on auto-merge, and reads the web deploy before the workout of 2026-10-06.
+Next action: push the branch, open the pull request, wait for CI, and run `make codex-review PR=<n>`.
 
 ## Facts that expire
 
 | Fact | Date read | Source |
 |---|---|---|
+| The live replay of the code of PR-41: 1 user, 9 records of policy version 8 with no change, 15 target copies, 1 stale history, and 0 copies outside the bounds. | 2026-10-06 | `docs/research/policy-replay.md` |
+| The deprecation page of OpenAI lists no retirement of `gpt-6-luna`, and names it as the replacement of `gpt-5.4-nano`. | 2026-10-06 | `docs/operations.md` section 4 |
 | The paid evaluation of D-302: 50 reviser calls of the 10 scenarios with policy version 7 and xhigh, all `ok`. The check accepted 110 reasons and refused 5. Cost 0.0179 USD, the longest call 10.8 s. | 2026-10-04 | `docs/research/reviser-evaluation.md` |
 | The live `/version.json` and `/version` name `e09b7ff0a4b788ce83d9c64e8d21607d861b8714`, from the builds `deploy-web` `ddf4e3c4` and `deploy-api` `12c94777`. The revision `api-00022-tjh` has all traffic. | 2026-10-05 | `curl`, `gcloud builds list`, `gcloud run services describe` |
 | The Phase 7 check of `e09b7ff`: 1 `DeleteHistory` of 11 workouts, 1 planner call, and 3 reviser calls, each `ok`, for 0.004379230 USD. No log entry had the severity WARNING or more. | 2026-10-05 | `docs/research/restore-drill.md` |
@@ -87,11 +85,30 @@ Next action: the owner confirms the merge of PR-40. Then the author turns on aut
 
 ## Next steps, in order
 
-1. Close PR-40: CI, the Codex review, the owner confirmation, and the merge.
-2. Read the deploy of the merge of PR-40 before the workout of 2026-10-06.
-3. Start PR-41 of `docs/roadmaps/phase-8-personal-use-operations.md`, the policy replay and the incident runbook of work area 8.3, in a clean session.
+1. Read the result of the first real workout of 2026-10-06 from the owner. A defect of the workout screen comes first, in its own pull request.
+2. Close PR-41: CI, the Codex review, the owner confirmation, and the merge.
+3. Read the API deploy of the merge of PR-41.
+4. Start PR-42 of `docs/roadmaps/phase-8-personal-use-operations.md`, the four-week check, after four weeks of use.
 
 ## Session records
+
+### Session 42 - 2026-10-06
+
+Author provider: Claude Code
+
+Branch: `feat/pr-41-version-migration`. Role: author.
+
+Completed:
+
+- The owner approved the milestone (D-12), and answered Q-330 to Q-332 (D-324 to D-326).
+- Wrote the replay, the command, its tests, and the emulator test of the acceptance story.
+- Ran the replay on the live store two times with reads alone. Found and fixed a fault of the replay.
+- Read the deprecation page of OpenAI.
+- Wrote `docs/operations.md` and `docs/research/policy-replay.md`, and changed the registers, both roadmaps, `go/README.md`, and `AGENTS.md`.
+
+Open work:
+
+- The Codex review, the owner confirmation, and the merge of PR-41.
 
 ### Session 41 - 2026-10-05
 
@@ -109,7 +126,7 @@ Completed:
 
 Open work:
 
-- The Codex review, the owner confirmation, and the merge of PR-40.
+- None. GitHub PR 41 merged as `c712f56`.
 
 ### Session 40 - 2026-10-05
 
@@ -128,22 +145,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 40 merged as `5d5df59`.
-
-### Session 39 - 2026-10-05
-
-Author provider: Claude Code
-
-Branch: `docs/pr-38-phase-8-roadmap`. Role: author.
-
-Completed:
-
-- Read the deploys of `4bbf6c8` and the logs of the live check of the owner.
-- The owner approved the milestone (D-12), added the fix (D-310), and answered Q-313 to Q-319 (D-306 to D-313).
-- Added the policy version 8, the limit in the contract, the stores, and the phone, and the read of the followed load.
-- Added the unit tests, the golden files, and a browser test of the live case.
-- Wrote the focused roadmap of Phase 8, and changed the registers, both roadmaps, the design, both READMEs, and `AGENTS.md`.
-- Answered P2-1 of Codex round 1. The owner then added "Delete all data" (D-314 to D-316), with its tests.
-
-Open work:
-
-- None. GitHub PR 39 merged as `e09b7ff`.

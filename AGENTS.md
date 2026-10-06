@@ -8,7 +8,7 @@ Workout App is a personal workout app for one user, the owner (D-67). It is an i
 
 Stage: Phase 8 of `docs/roadmaps/high-level-roadmap.md`. The iPhone check of Phase 7 passed on 2026-10-05 (D-310). `docs/roadmaps/phase-8-personal-use-operations.md` gives the pull requests of Phase 8. Luna runs at xhigh effort (D-253), and with policy version 8 the other sets follow the first set, up to a limit (D-297, D-306). The contract is in `proto/`, and the shell, the screens, and the outbox sync of the web client are in `web/`. The Go API with its calls and the revision, the domain model, the policy, the Luna role layer, and the stores are in `go/`.
 
-The project `nk-workout-app-prod` holds Firestore, the Cloud Run service `api`, Hosting, and Auth, and Cloud Build deploys each merge to `main` (D-137). `docs/setup-gcp.md` and `docs/deploy-and-rollback.md` describe it. `docs/research/phase-2-check.md` holds the exit evidence of Phase 2, `docs/research/phase-3-check.md` holds the Luna evaluation of Phase 3, and `docs/research/luna-effort-check.md` compares two efforts. `docs/research/restore-drill.md` holds the restore drill. `docs/design.md` holds the design.
+The project `nk-workout-app-prod` holds Firestore, the Cloud Run service `api`, Hosting, and Auth, and Cloud Build deploys each merge to `main` (D-137). `docs/setup-gcp.md` and `docs/deploy-and-rollback.md` describe it. `docs/research/phase-2-check.md` holds the exit evidence of Phase 2, `docs/research/phase-3-check.md` holds the Luna evaluation of Phase 3, and `docs/research/luna-effort-check.md` compares two efforts. `docs/research/restore-drill.md` holds the restore drill, and `docs/research/policy-replay.md` holds the replay report. `docs/operations.md` holds the incident runbook, the policy replay, and the model change. `docs/design.md` holds the design.
 
 **The repository is public.** Write no email address, no personal data, no photo, no workout log, and no secret into a file, an issue, or a pull request. The one exception is the author credit that the license of a test image requires (D-106).
 
@@ -85,6 +85,7 @@ Paid targets: `make codex-review` and `make claude-review`. They spend the owner
 
 - `docs/session-handoff.md` - the resume point.
 - `docs/design.md` - thesis, experience, system context, safety, privacy.
+- `docs/operations.md` - the incidents, the policy replay, and the model change.
 - `docs/decisions.md` - every owner decision, with a date.
 - `docs/questions.md` - every question and its answer, and the open questions.
 - `docs/roadmaps/high-level-roadmap.md` - the phases and their exit evidence.
@@ -94,6 +95,6 @@ Paid targets: `make codex-review` and `make claude-review`. They spend the owner
 - `docs/tools/` - the checks and their tests.
 - `tools/spikes/` - the Phase 1 spike harnesses, outside the product code, with their tests.
 - `proto/` - the Connect-RPC contract. `buf.yaml` and `buf.gen.yaml` configure it.
-- `go/` - the Go API: `go/cmd/api` and `go/internal`, with the generated code in `go/gen`. `go/cmd/lunaeval` is the Luna evaluation.
+- `go/` - the Go API: `go/cmd/api` and `go/internal`, with the generated code in `go/gen`. `go/cmd/lunaeval` is the Luna evaluation, and `go/cmd/replay` is the policy replay.
 - `web/` - the web client, with the generated code in `web/src/gen`. `web/README.md` describes it.
 - `firebase.json` and `emulators/` - the local emulators and their pinned `firebase-tools`.
