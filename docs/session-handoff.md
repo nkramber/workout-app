@@ -18,7 +18,7 @@ The pull request holds:
 
 The paid check gave 100 plans with the rotation, and the policy refused 1. It cost 0.163 USD. The replay gave 0 changed records. The active plan of version 8 breaks the rotation, so the owner deletes the history and makes a new plan after the deploy (D-333). `make go-test`, `make emulator-test`, `make web`, and `make ste-check` pass.
 
-Next action: run `make verify` and `make pr-check`, open the pull request, and run the Codex review after CI.
+Review state: Codex review at effective head `5b6726f114df908c05e68ef0dba45cba03b2a3c3` found no defect. The PR record is pending publication. Next action: wait for the review record and hand-off commit on the branch, then ask the owner to confirm the merge.
 
 ## Facts that expire
 
