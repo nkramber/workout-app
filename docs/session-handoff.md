@@ -18,7 +18,9 @@ The pull request holds:
 
 Live run 2 gave 9 of 9 records with the same target and the same input hash, and 0 of 15 copies outside the bounds. `make go-test`, `make emulator-test`, and `make verify` pass. The merge changes `go/`, so it deploys the API (D-137).
 
-Next action: push the branch, open the pull request, wait for CI, and run `make codex-review PR=<n>`.
+Review of effective head `b43060c7aac39f4bc235b1aec4efc3b64b0f95e9`: Changes required. Findings P1-1 and P2-1 stay open.
+
+Next action: correct the PR-42 milestone and replay override validation, then request a new review.
 
 ## Facts that expire
 
