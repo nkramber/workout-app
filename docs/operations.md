@@ -116,7 +116,7 @@ The command `go/cmd/replay` replays the stored data under the current policy ver
 It reads two items for each user:
 
 - Each decision record of the active plan. A record of a new plan replays through `policy.Decide` with its stored proposal. A record of a revision replays through `policy.Revise`.
-- Each target copy of a finished workout (D-291). The copy replays through `policy.Next` and `policy.Check`.
+- Each target copy of a finished workout (D-291). The copy replays through `policy.Next` and `policy.Check`. An override copy replays through `policy.CheckOverride`, against the recommendation that its workout keeps (D-293).
 
 ### 3.1 Run the replay
 

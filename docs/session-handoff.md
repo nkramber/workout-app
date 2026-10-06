@@ -18,9 +18,9 @@ The pull request holds:
 
 Live run 2 gave 9 of 9 records with the same target and the same input hash, and 0 of 15 copies outside the bounds. `make go-test`, `make emulator-test`, and `make verify` pass. The merge changes `go/`, so it deploys the API (D-137).
 
-Review of effective head `b43060c7aac39f4bc235b1aec4efc3b64b0f95e9`: Changes required. Findings P1-1 and P2-1 stay open.
+GitHub pull request 42 holds PR-41. Codex round 1 on effective head `b43060c` gave "Changes required" with P1-1 and P2-1. `docs/reviews/pr-42-response.md` refutes P1-1, because the review read the GitHub number as the roadmap id. It corrects P2-1 with a check of each override copy.
 
-Next action: correct the PR-42 milestone and replay override validation, then request a new review.
+Next action: wait for CI, and run `make codex-review PR=42` for round 2.
 
 ## Facts that expire
 
