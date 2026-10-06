@@ -20,7 +20,9 @@ The pull request holds:
 
 The rest card keeps the stored end, "Rest done", and no sound and no vibration (D-58, D-59, D-270). The merge changes `web/`, so it deploys the web app (D-137). The next session reads that deploy first.
 
-Next action: CI, the Codex review, the owner confirmation, and the merge of PR-40, before the workout of 2026-10-06.
+The review record `docs/reviews/pr-41.md` approves effective head `f27d132c6d4cd288b3a67330e81814c14c358f64`. No finding stays open. `make verify` and `make web` pass on this head. The local `pr-check` script passes when it receives the branch name.
+
+Next action: the owner confirms the merge of PR-40. Then the author turns on auto-merge, and reads the web deploy before the workout of 2026-10-06.
 
 ## Facts that expire
 
