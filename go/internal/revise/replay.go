@@ -50,8 +50,12 @@ type Replayed struct {
 // count of the newest workouts of its plan that the first history that
 // passes leaves out. Violations holds each bound of the current version
 // that the copy breaks with the full history, when no history passes.
-// Both are zero for an override, because the policy checks an override
-// with its own rule.
+//
+// The policy checks an override against its recommendation with
+// policy.CheckOverride (D-69, D-293). The workout keeps the working sets
+// of the recommendation, and the copy gives its other fields. So
+// Violations of an override holds each violation of that check, and its
+// Lag is 0.
 type CopyReplayed struct {
 	Copy       domain.PlannedExercise
 	Override   bool
@@ -178,7 +182,8 @@ func (r *Reviser) replayRecord(uid string, p plan.Plan, session int, rec policy.
 }
 
 func (r *Reviser) replayCopy(uid string, before []workout.Workout, w workout.Workout, t domain.PlannedExercise, pi inventory.PlanInput) CopyReplayed {
-	out := CopyReplayed{Copy: t, Override: slices.ContainsFunc(w.Overrides, func(o workout.SeenOverride) bool { return o.Exercise == t.Exercise })}
+	oi := slices.IndexFunc(w.Overrides, func(o workout.SeenOverride) bool { return o.Exercise == t.Exercise })
+	out := CopyReplayed{Copy: t, Override: oi >= 0}
 	e, ok := domain.DefaultCatalog().Exercise(t.Exercise)
 	if !ok {
 		return out
@@ -197,6 +202,11 @@ func (r *Reviser) replayCopy(uid string, before []workout.Workout, w workout.Wor
 	}
 	out.Rules, out.Rebuilt = d, true
 	if out.Override {
+		rec := t
+		rec.Working = slices.Clone(w.Overrides[oi].Recommended)
+		if out.Violations, err = policy.CheckOverride(t, rec, in); err != nil {
+			out.Rebuilt = false
+		}
 		return out
 	}
 	full, err := policy.Check(t, in)

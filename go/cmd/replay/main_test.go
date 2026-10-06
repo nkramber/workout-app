@@ -236,3 +236,36 @@ func TestReplayStaleHistory(t *testing.T) {
 		t.Fatalf("copies = %s, want %s", got, w)
 	}
 }
+
+// TestReplayOverrides: the replay checks an override copy against the
+// recommendation that its workout keeps, with policy.CheckOverride
+// (D-293). A valid override passes, and an override with 25 reps
+// counts under override.bounds.
+func TestReplayOverrides(t *testing.T) {
+	s := stores{plans: plan.NewMemory(), workouts: workout.NewMemory(), inventory: inventory.NewMemory()}
+	seedInventory(t, s, nil, "chest_press", "seated_row")
+	p := newPlan(t, s, nil, []domain.ExerciseID{"chest_press", "seated_row"})
+	override := func(tg domain.PlannedExercise, reps int) (domain.PlannedExercise, workout.SeenOverride) {
+		o := tg
+		o.Working = slices.Clone(tg.Working)
+		for i := range o.Working {
+			o.Working[i].Reps = reps
+		}
+		return o, workout.SeenOverride{Exercise: tg.Exercise, Recommended: slices.Clone(tg.Working), Reason: "A short session."}
+	}
+	good, goodRec := override(p.Sessions[0].Exercises[0].Target, 6)
+	bad, badRec := override(p.Sessions[0].Exercises[1].Target, 25)
+	logOverrides(t, s, 1, 0, []workout.SeenOverride{goodRec, badRec}, good, bad)
+
+	r := &revise.Reviser{Plans: s.plans, Workouts: s.workouts, Inventory: s.inventory}
+	rp, err := r.Replay(context.Background(), uid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rep := newReport()
+	rep.add(rp)
+	want := CopyReport{Total: 2, Overrides: 2, DifferentFromRules: 2, OutsideBounds: 1, ViolationsByRule: map[string]int{"override.bounds": 1}}
+	if got, w := mustJSON(t, rep.Copies), mustJSON(t, want); got != w {
+		t.Fatalf("copies = %s, want %s", got, w)
+	}
+}

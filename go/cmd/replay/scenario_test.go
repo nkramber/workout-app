@@ -82,9 +82,16 @@ func newPlan(t *testing.T, s stores, estimates map[domain.ExerciseID]domain.Load
 // at 3 reps in reserve.
 func logWorkout(t *testing.T, s stores, n int, load domain.Load, targets ...domain.PlannedExercise) string {
 	t.Helper()
+	return logOverrides(t, s, n, load, nil, targets...)
+}
+
+// logOverrides is logWorkout with the record of each override of the
+// owner among the targets (D-293).
+func logOverrides(t *testing.T, s stores, n int, load domain.Load, overrides []workout.SeenOverride, targets ...domain.PlannedExercise) string {
+	t.Helper()
 	ctx := context.Background()
 	wid := fmt.Sprintf("01920000-0000-7000-a000-%012x", n)
-	h := workout.Header{Date: "2026-10-01", Plan: workout.PlanLink{PlanCreatedAt: created}, Targets: targets}
+	h := workout.Header{Date: "2026-10-01", Plan: workout.PlanLink{PlanCreatedAt: created}, Targets: targets, Overrides: overrides}
 	op := n * 1000
 	apply := func(e workout.Entry) {
 		t.Helper()
