@@ -18,9 +18,9 @@ The pull request holds:
 
 Live run 2 gave 9 of 9 records with the same target and the same input hash, and 0 of 15 copies outside the bounds. `make go-test`, `make emulator-test`, and `make verify` pass. The merge changes `go/`, so it deploys the API (D-137).
 
-GitHub pull request 42 holds PR-41. Codex round 1 on effective head `b43060c` gave "Changes required" with P1-1 and P2-1. `docs/reviews/pr-42-response.md` refutes P1-1, because the review read the GitHub number as the roadmap id. It corrects P2-1 with a check of each override copy.
+GitHub pull request 42 holds PR-41. Codex round 2 reviewed effective head `59b0049` and gave "Ready for owner merge". Codex withdrew P1-1 because the GitHub number differs from the roadmap id. P2-1 is fixed at `e22458a`, with a check of each override copy. Product CI checks pass. Run the review-gate check after Codex pushes the record.
 
-Next action: wait for CI, and run `make codex-review PR=42` for round 2.
+Next action: the owner reviews the round 2 record and confirms the merge.
 
 ## Facts that expire
 
