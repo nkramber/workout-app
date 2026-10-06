@@ -73,6 +73,7 @@ The session read the code of `4bbf6c8` for this list:
 | Q-322, the backups | They keep a copy for up to 10 days. | D-316 |
 | Q-323, the alerts | Dropped. Work area 8.2 holds the steady workout screen. | D-317 |
 | Q-324 to Q-329, the parts of the workout screen that come and go | The rest card keeps its space, and the preview has the height of the set logger. The notes show below the buttons, a band at the bottom holds the notices, and the update banner waits for the end of the workout. | D-318 to D-323 |
+| Q-330 to Q-332, the live replay and the runbook | Two live runs with reads alone, and a read of one copy on the terminal. The runbook is `docs/operations.md`. | D-324 to D-326 |
 
 No question of this phase stays open. Q-103 stays open for the deferred photo work.
 
@@ -183,6 +184,8 @@ Concerns:
 Acceptance story: an emulator test replays stored sessions of policy version 7 under policy version 8. The diff report gives the count of each changed target and its rule id. A read of the live store needs the approval of the owner. `make verify` passes.
 
 Checks: `make go-test`, `make emulator-test`, `make verify`, and `make pr-check`, free. The replay calls no model. Codex reviews PR-41.
+
+Result: `go/cmd/replay` and `docs/operations.md` hold the replay and the runbook, and `docs/research/policy-replay.md` gives the report. The emulator test counts 3 changed targets under `follow.first-set`. The owner approved two live runs (D-324, D-326). Run 1 found one copy outside the bounds, and its cause was a fault of the replay, not a breach of D-23. Run 2 used the fixed code, and it gave 0 changed records and 0 copies outside the bounds.
 
 ### PR-42 - The four-week check of Phase 8
 

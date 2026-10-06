@@ -201,7 +201,7 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 | 8.2 Steady workout screen and cost caps | The parts of the workout screen that come and go do not move the set logger (D-318 to D-323). The owner dropped the alerts (D-317). No new spend cap: D-139, D-141, and D-188 stay. Work area 5.2 holds the lasting cap store (D-189). | A browser test shows that the set logger keeps its place through a rest. |
 | 8.3 Version migration | Policy and evidence version changes. A model change when `gpt-6-luna` retires. An incident runbook. | A replay of stored sessions under a new policy version gives a diff report. |
 
-**Decisions and questions.** D-25, D-76, D-80, D-124, D-188, D-189, D-311 to D-323, Q-98, Q-99, Q-317 to Q-329.
+**Decisions and questions.** D-25, D-76, D-80, D-124, D-188, D-189, D-311 to D-326, Q-98, Q-99, Q-317 to Q-332.
 
 **Exit for the roadmap.** Four weeks of owner use with no lost set, no refused valid sync, and no policy breach in the decision log.
 

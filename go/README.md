@@ -5,6 +5,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 | Path | Content |
 |---|---|
 | `go/cmd/api` | The entry point, the routes, and the tests of the acceptance story |
+| `go/cmd/replay` | The policy replay of work area 8.3: each decision record and each target copy under the current policy version, with a diff report of counts and rule ids alone (D-176, D-80) |
 | `go/cmd/lunaeval` | The Luna evaluation of Phase 3: synthetic profiles and the scenarios A to F through the layer and the policy (D-184 to D-186). A scenario grades the target of the rules and the check of each reason of the reviser (D-288). |
 | `go/internal/auth` | The Firebase ID token check, the allowlist check, and CORS |
 | `go/internal/allowlist` | The invite allowlist of uids in Firestore (D-131) |
@@ -91,6 +92,16 @@ After each `SyncOutbox` batch, `go/internal/revise` revises the plan for each fi
 `Reviser.ForDate` gives the targets on a date for `GetPlan` with a date. It applies the long-break table, a missed session, and a deload on that date (D-151, D-179, D-294, D-295). It changes each exercise that the owner logged under the plan, and it saves nothing. A plan with no revision reads no store.
 
 `OverrideTarget` checks an override with `policy.CheckOverride` against the target on the date, and saves it with the recommendation and the reason (D-69, D-293). `ForDate` marks an override as expired when the rules of the date changed after its save, and the recommendation then applies. A refusal gives `INVALID_ARGUMENT` with the rule and the place of each violation, and no reason of the owner. A revision of the exercise removes the override.
+
+## The policy replay
+
+`go/cmd/replay` reads the workouts, the inventory, and the active plan of each user, and replays them under the current policy version. It calls no model, and it writes nothing to the store. With no `-live` flag, it needs the emulator:
+
+```bash
+cd go && go run ./cmd/replay -project demo-workout-app
+```
+
+CAUTION: a run with `-live` reads the workouts of the owner. Get the approval of the owner for each live run (D-324). `docs/operations.md` section 3 gives the steps and the fields of the report.
 
 ## The Luna evaluation
 
