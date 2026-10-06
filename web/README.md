@@ -5,7 +5,7 @@ This folder holds the web client of the owner. It holds the installable shell (w
 | Path | Content |
 |---|---|
 | `web/src/app.tsx` | The sign-in page for a signed-out owner. For a signed-in owner, the onboarding screen while no profile exists, then the home screen, the workout screen, the plan screen, the inventory screens, and the profile screen |
-| `web/src/shell.tsx`, `web/src/sync-line.tsx` | The shell that fills the whole screen (D-120), and the line of the sync below its header (D-276) |
+| `web/src/shell.tsx`, `web/src/sync-line.tsx` | The shell that fills the whole screen (D-120), the line of the sync below its header (D-276), and the band at its bottom (D-321) |
 | `web/src/pages` | The sign-in page, the home screen, the onboarding screen of `web/src/pages/profile.tsx`, the plan screen of `web/src/pages/plan.tsx`, and the workout screen of `web/src/pages/workout.tsx` |
 | `web/src/pages/inventory` | The inventory screens: the list, the catalog list and the text entry, the weights, and the review screen |
 | `web/src/lib/inventory.ts` | The catalog order, the A to Z order of the inventory list, the search of the catalog names, and the checks of the weights, the estimates, and the notes |
@@ -93,8 +93,9 @@ The start copies the targets of the session and the weights of each machine to t
 - From policy version 8, an exercise with history has a limit (D-306, D-307). When the owner logs the first set at another weight, each later set gets that weight. A heavier weight stops at the limit, and a lighter weight has no limit (D-308). The function `followedLoad` gives the load, as `policy.Followed` does on the server.
 - A plan of policy version 4 to 6 can still hold a calibration set. After it, each working set gets the load of the calibration table (D-267).
 - When each exercise is done, the list of the exercises collapses to one line (D-298). So the cardio and the end of the workout show near the top. "Show the exercises" opens the list again.
-- The log of a set starts the rest timer with the rest of the target, 60 seconds since policy version 5 (D-59, D-172, D-279). The timer reads a stored end time in the `meta` table. So it is correct after a screen lock and after a stop of the app. "-15 s", "+15 s", and "Dismiss" change it, and it never goes below 0 (D-270). At 0 it shows "Rest done" in another color, with no sound and no notification (D-58, D-61).
-- After the last set of an exercise, the screen shows the next machine for 10 seconds, then advances. "Go now" advances at once (D-60, D-269).
+- The log of a set starts the rest timer with the rest of the target, 60 seconds since policy version 5 (D-59, D-172, D-279). The timer reads a stored end time in the `meta` table. So it is correct after a screen lock and after a stop of the app. "-15 s", "+15 s", and "Dismiss" change it, and it never goes below 0 (D-270). At 0 it shows "Rest done" in another color, with no sound and no notification (D-58, D-61). The card always keeps its space, so the set logger does not move. With no rest, it shows "Next rest" with the rest of the next set, and its buttons are off (D-318).
+- After the last set of an exercise, the screen shows the next machine for 10 seconds, then advances. "Go now" advances at once (D-60, D-269). The preview covers the next set logger, which stays below it with no visibility. So the preview has the height of that logger, and nothing moves at the advance (D-319).
+- The notes of a set show below the buttons of the reps in reserve. So the buttons keep their place (D-320).
 - "Skip this exercise" asks for a confirmation, and writes the skip in the header (D-63, D-170). The owner can pick a skipped exercise again in the list.
 - Each logged set has "Edit". The edit keeps the id, the kind, and the time of the set, and writes a new outbox entry with the whole new state (D-63).
 - "Add pain or a note" shows the optional pain rating from 0 to 10 and a note of 280 characters or fewer (D-57, D-162, D-261). A pain rating of 1 or more shows the pain warning (D-169).
@@ -103,7 +104,9 @@ The start copies the targets of the session and the weights of each machine to t
 - "Finish now" asks for a confirmation when an exercise that the owner did not skip has a set with no log. The workout then ends early, and each exercise with no logged set counts as skipped (D-63).
 - After the end of a workout, the screen "Workout done" shows the next target of each exercise of the workout, with its reason (D-290, D-292). `web/src/lib/revision.ts` reads them from the plan copy when the copy holds the revision of the workout. While an entry of the workout waits for the sync, the screen tells the owner that the next targets show after the sync. "Done" goes back to the home screen.
 
-While a workout is open, the plan screen refuses a new plan and an exclusion (D-252). The app holds the screen wake lock from the start of a workout to its end, on each screen. It asks for the lock again at each return to the front, focus, `pageshow` event, and tap. So a return needs no tap (D-283). A release makes no request of its own, and only the newest request sets the state. When the phone refuses the lock, the workout screen shows "The screen can turn off. Tap the screen to try again." with the error name (D-265).
+While a workout is open, the plan screen refuses a new plan and an exclusion (D-252). The app holds the screen wake lock from the start of a workout to its end, on each screen. It asks for the lock again at each return to the front, focus, `pageshow` event, and tap. So a return needs no tap (D-283). A release makes no request of its own, and only the newest request sets the state.
+
+When the phone refuses the lock, the band at the bottom of the shell shows "The screen can turn off. Tap the screen to try again." with the error name (D-265, D-321). The error line of the workout shows in the same band (D-322). The band is the last part of the shell, so the main region gets shorter, and its content does not move.
 
 ## The offline store
 
@@ -129,7 +132,7 @@ The first sign-in on a device asks for persistent storage (D-134). The home scre
 
 ## Updates
 
-The service worker waits after an update, and the app shows "Update ready" (D-133). The owner applies the update with the button. The app never applies an update during a workout. While a workout is open on the phone, the banner says "Update ready after the workout", with no button. The app checks for an update each hour and at each return to view.
+The service worker waits after an update, and the app shows "Update ready" (D-133). The owner applies the update with the button. The app never applies an update during a workout. While a workout is open on the phone, the banner does not show, so the workout screen does not move. It shows with its button when the workout ends (D-323). The app checks for an update each hour and at each return to view.
 
 ## Environment
 

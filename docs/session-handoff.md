@@ -4,23 +4,23 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-05. Author of pull request PR-39 of `docs/roadmaps/phase-8-personal-use-operations.md`, on the branch `docs/pr-39-restore-drill` from base `e09b7ff`.
+Date: 2026-10-05. Author of pull request PR-40 of `docs/roadmaps/phase-8-personal-use-operations.md`, on the branch `fix/pr-40-steady-workout-screen` from base `5d5df59`.
 
-The deploys of `e09b7ff` passed: `deploy-web` `ddf4e3c4` and `deploy-api` `12c94777`. The live `/version` and `/version.json` name `e09b7ff`, and the revision `api-00022-tjh` has all traffic.
-
-The owner approved the milestone (D-12), the live check, and the restore (D-212). The three iPhone checks of Phase 7 passed, so Phase 7 ended (D-310). The check made 1 planner call and 3 reviser calls, each `ok`, for 0.0044 USD. The owner approved a read of the plan document, and each reason of the rules came from a skipped exercise.
+The owner does the first real workout with the app on 2026-10-06, and put the quality of the workout screen first. The owner dropped the alerts of work area 8.2 (D-317), and approved the milestone (D-12). The owner picked the change of each part of the screen that comes and goes (D-318 to D-323).
 
 The pull request holds:
 
-- the report `docs/research/restore-drill.md`, with times and counts alone,
-- the restore of the daily backup of 07:28Z into `restore-20261005`, with the count of each collection, and its delete,
-- the rollback drill of `api` and of Hosting,
-- the changes of `docs/deploy-and-rollback.md` and `docs/setup-gcp.md` that the drill found,
-- the result of the check in both roadmaps of Phase 7 and Phase 8, the high-level roadmap, and `AGENTS.md`.
+- the rest card always keeps its space. With no rest, it shows the planned rest, and its buttons are off (D-318),
+- the preview of the next machine covers the next set logger, so it has the height of that logger (D-319),
+- the notes of a set show below the buttons of the reps in reserve (D-320),
+- a band at the bottom of the shell holds the wake notice and the error line (D-321, D-322),
+- the "Update ready" banner waits for the end of the workout (D-323),
+- a browser test of the acceptance story, and a unit test of the banner,
+- the drop of the alerts in the registers, both roadmaps, and the design.
 
-The restore took 8 min 48 s. Each difference of a count comes from the "Delete all data" of the owner at 18:52Z. The restored database had delete protection, so section 6 of the runbook now turns it off first. The Hosting rollback now has REST steps.
+The rest card keeps the stored end, "Rest done", and no sound and no vibration (D-58, D-59, D-270). The merge changes `web/`, so it deploys the web app (D-137). The next session reads that deploy first.
 
-`make verify` passed. Codex reviewed effective head `ee07d40f933017feba7afaf6328e87f295d08d38` and recorded `Ready for owner merge` in `docs/reviews/pr-40.md`. P2-1 and P2-2 are fixed. No finding stays open. Next action: the owner confirms the merge, then the author turns on auto-merge.
+Next action: CI, the Codex review, the owner confirmation, and the merge of PR-40, before the workout of 2026-10-06.
 
 ## Facts that expire
 
@@ -31,6 +31,9 @@ The restore took 8 min 48 s. Each difference of a count comes from the "Delete a
 | The Phase 7 check of `e09b7ff`: 1 `DeleteHistory` of 11 workouts, 1 planner call, and 3 reviser calls, each `ok`, for 0.004379230 USD. No log entry had the severity WARNING or more. | 2026-10-05 | `docs/research/restore-drill.md` |
 | The restore of a daily backup took 8 min 48 s, and the restored database had delete protection. The drill deleted it. `(default)` is the one database. | 2026-10-05 | `docs/research/restore-drill.md` |
 | `nk-workout-app-prod` has 0 alert policies and 0 notification channels of Cloud Monitoring. | 2026-10-04 | Monitoring API |
+| Cloud Monitoring starts to charge for alerts on 2027-09-01 at the earliest. Then each metric reference of an alert policy costs 0.35 USD each month. | 2026-10-05 | "Pricing", Google Cloud Observability |
+| No Firestore document names a metric, a log entry, or an audit entry for a failed scheduled backup. | 2026-10-05 | Firestore backups, metrics, and audit logging pages |
+| The log of the failed build `18b68239` ends with the line `ERROR`. No Cloud Build document states this line. | 2026-10-05 | `gcloud builds log` |
 | 6 daily backups have the state READY, from 2026-09-30 to 2026-10-05. | 2026-10-05 | `gcloud firestore backups list` |
 | The live check of `4bbf6c8`: 1 planner call of 0.0045 USD and 1 reviser call of 0.0014 USD, each `ok`. The revision of 8 exercises gave 1 reason of Luna and 7 reasons of the rules. No log entry had the severity WARNING or more. | 2026-10-04 | `gcloud logging read` |
 | The repository is public. | 2026-09-27 | GitHub repository settings |
@@ -82,10 +85,29 @@ The restore took 8 min 48 s. Each difference of a count comes from the "Delete a
 
 ## Next steps, in order
 
-1. Close PR-39: CI, the Codex review, the owner confirmation, and the merge.
-2. Start PR-40 of `docs/roadmaps/phase-8-personal-use-operations.md`, the alerts of work area 8.2, in a clean session.
+1. Close PR-40: CI, the Codex review, the owner confirmation, and the merge.
+2. Read the deploy of the merge of PR-40 before the workout of 2026-10-06.
+3. Start PR-41 of `docs/roadmaps/phase-8-personal-use-operations.md`, the policy replay and the incident runbook of work area 8.3, in a clean session.
 
 ## Session records
+
+### Session 41 - 2026-10-05
+
+Author provider: Claude Code
+
+Branch: `fix/pr-40-steady-workout-screen`. Role: author.
+
+Completed:
+
+- The owner dropped the alerts (D-317), approved the milestone (D-12), and answered Q-324 to Q-329 (D-318 to D-323).
+- Read the price of the alerts, the signals of a failed backup, and the log of a failed build.
+- Made the rest card keep its space, and moved the notes of a set, the notices, and the update banner.
+- Added a browser test of the acceptance story, in Chromium and WebKit, and a unit test of the banner.
+- Changed the registers, both roadmaps, the design, and `web/README.md`.
+
+Open work:
+
+- The Codex review, the owner confirmation, and the merge of PR-40.
 
 ### Session 40 - 2026-10-05
 
@@ -103,7 +125,7 @@ Completed:
 
 Open work:
 
-- The Codex review, the owner confirmation, and the merge of PR-39.
+- None. GitHub PR 40 merged as `5d5df59`.
 
 ### Session 39 - 2026-10-05
 
@@ -123,23 +145,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 39 merged as `e09b7ff`.
-
-### Session 38 - 2026-10-04
-
-Author provider: Claude Code
-
-Branch: `feat/pr-37-calibration-evaluation`. Role: author.
-
-Completed:
-
-- Read the deploys of `e18781f`. The owner approved one live revision (D-212) and the milestone (D-12).
-- The owner answered Q-310, Q-308, and Q-311 (D-299 to D-303).
-- Added the policy version 7, the history of a new plan, and the flag in the contract and the phone.
-- Added the collapse of a finished workout.
-- Added the scenarios G to J and the numbers of each scenario to `go/cmd/lunaeval`, and made the paid run of D-302.
-- Wrote `docs/research/reviser-evaluation.md`, and changed the registers, both roadmaps, the design, both READMEs, and `AGENTS.md`.
-- Answered P2-1 to P2-3 of Codex, and read the live check of the owner. Added the claim of D-304.
-
-Open work:
-
-- None. GitHub PR 38 merged as `4bbf6c8`.
