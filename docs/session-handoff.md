@@ -18,7 +18,9 @@ The pull request holds:
 
 The paid check gave 100 plans with the rotation, and the policy refused 1. It cost 0.163 USD. The replay gave 0 changed records. The active plan of version 8 breaks the rotation, so the owner deletes the history and makes a new plan after the deploy (D-333). `make go-test`, `make emulator-test`, `make web`, and `make ste-check` pass.
 
-Review state: Codex review at effective head `5b6726f114df908c05e68ef0dba45cba03b2a3c3` found no defect. The PR record is pending publication. Next action: wait for the review record and hand-off commit on the branch, then ask the owner to confirm the merge.
+GitHub pull request 43 holds PR-42. Each product check of `5b6726f` passes. Codex round 1 reviewed effective head `5b6726f` and gave "Ready for owner merge", with no finding. The record `docs/reviews/pr-43.md` names the paid check as evidence that the reviewer did not repeat. The pull request waits for the owner merge.
+
+Next action: the owner reads the record and confirms the merge.
 
 ## Facts that expire
 
@@ -109,7 +111,7 @@ Completed:
 
 Open work:
 
-- CI, the Codex review, the owner confirmation, and the merge of PR-42.
+- The owner confirmation and the merge of PR-42. Codex gave "Ready for owner merge" on `5b6726f`.
 
 ### Session 42 - 2026-10-06
 
