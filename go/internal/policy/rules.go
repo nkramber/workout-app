@@ -71,6 +71,13 @@ const (
 // The rule of the warning of a pain report.
 const RulePainWarning RuleID = "warning.pain"
 
+// The rules of the rotation of the muscle groups in the sessions of a
+// plan (D-328 to D-331).
+const (
+	RuleRotationRepeat RuleID = "rotation.no-repeat"
+	RuleRotationCover  RuleID = "rotation.cover"
+)
+
 // Rule is one rule of the policy: its id, what it requires, and the
 // decisions and evidence ids that support it (D-38).
 type Rule struct {
@@ -120,6 +127,8 @@ var rules = []Rule{
 	{RuleProposalExercise, "A proposal is for the exercise of the decision.", []string{"D-23"}},
 	{RuleFallback, "When Luna gives no proposal, or the policy refuses its proposal, the target is the next target of the rules alone. The decision record names the cause and each violation.", []string{"D-23", "D-176", "D-178"}},
 	{RulePainWarning, "A pain report shows the fixed warning text. It names the symptom and tells the user to stop the exercise, with no diagnosis and no referral.", []string{"D-36", "D-40", "D-153"}},
+	{RuleRotationRepeat, "No primary muscle group of an exercise is in two sessions in a row. The last session and the first session are in a row, because the week repeats. Exercises with a group in common are in the same sessions. The rule applies when the plan has 2 sessions or more and the exercises can make the split: a cardio exercise or an exercise with no group can fill a session.", []string{"D-210", "D-328", "D-329", "D-330", "D-331"}},
+	{RuleRotationCover, "With 2 or 4 sessions, each selected muscle group is in one of each two sessions in a row, so sessions 1 and 3 share their groups and so do sessions 2 and 4. With 3 sessions, each selected group is in one session. A selected group that no exercise of the input trains is not required.", []string{"D-210", "D-328", "D-330", "D-331"}},
 }
 
 // Rules gives each rule of the policy, in a fixed order.

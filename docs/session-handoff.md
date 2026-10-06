@@ -4,32 +4,34 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-06. Author of pull request PR-41 of `docs/roadmaps/phase-8-personal-use-operations.md`, on the branch `feat/pr-41-version-migration` from base `c712f56`.
+Date: 2026-10-06. Author of pull request PR-42 of `docs/roadmaps/phase-8-personal-use-operations.md`, on the branch `feat/pr-42-rotation-and-phase-8-check` from base `efbafe7`.
 
-The owner approved the milestone (D-12), two live runs of the replay, and a read of one copy on the terminal (D-324 to D-326). The owner put `docs/operations.md` in a new file (D-325). The owner does the first real workout with the app on 2026-10-06, and a defect of the workout screen of PR-40 comes before PR-41.
+The owner reported that the changes of the workout screen worked in a test workout, and asked for a rotation of the muscle groups. The owner dropped the four weeks of the exit (D-327), and put the rotation and the check of Phase 8 in one milestone (D-332). The owner approved the milestone (D-12), the live reads (D-334), and a paid check with a cap of 1 USD (D-25).
 
 The pull request holds:
 
-- `Reviser.Replay` in `go/internal/revise/replay.go`, which replays each decision record of the active plan and each target copy under the current policy version,
-- the command `go/cmd/replay`, with a diff report of counts and rule ids alone, and its unit tests,
-- the emulator test of the acceptance story: 4 records of policy version 7, and 3 changed targets under `follow.first-set`,
-- the copy check with a stale history, after run 1 found a fault of the replay,
-- `docs/operations.md` with five incidents, the replay, and the model change, and `docs/research/policy-replay.md`.
+- policy version 9 with the rules `rotation.no-repeat` and `rotation.cover` in `go/internal/policy/rotation.go` (D-328 to D-331),
+- the groups of each exercise in the planner input, the prompt `luna-prompt-v7`, and a retry after a plan that breaks the rotation,
+- a valid split in the fake provider, and the browser tests on that layout,
+- the layout check of the replay, and the flags of `go/cmd/lunaeval` for the check of the planner,
+- the report `docs/research/phase-8-check.md`.
 
-Live run 2 gave 9 of 9 records with the same target and the same input hash, and 0 of 15 copies outside the bounds. `make go-test`, `make emulator-test`, and `make verify` pass. The merge changes `go/`, so it deploys the API (D-137).
+The paid check gave 100 plans with the rotation, and the policy refused 1. It cost 0.163 USD. The replay gave 0 changed records. The active plan of version 8 breaks the rotation, so the owner deletes the history and makes a new plan after the deploy (D-333). `make go-test`, `make emulator-test`, `make web`, and `make ste-check` pass.
 
-GitHub pull request 42 holds PR-41. Codex round 2 reviewed effective head `59b0049` and gave "Ready for owner merge". Codex withdrew P1-1 because the GitHub number differs from the roadmap id. P2-1 is fixed at `e22458a`, with a check of each override copy. Product CI checks pass. Run the review-gate check after Codex pushes the record.
+GitHub pull request 43 holds PR-42. Each product check of `5b6726f` passes. Codex round 1 reviewed effective head `5b6726f` and gave "Ready for owner merge", with no finding. The record `docs/reviews/pr-43.md` names the paid check as evidence that the reviewer did not repeat. The pull request waits for the owner merge.
 
-Next action: the owner reviews the round 2 record and confirms the merge.
+Next action: the owner reads the record and confirms the merge.
 
 ## Facts that expire
 
 | Fact | Date read | Source |
 |---|---|---|
-| The live replay of the code of PR-41: 1 user, 9 records of policy version 8 with no change, 15 target copies, 1 stale history, and 0 copies outside the bounds. | 2026-10-06 | `docs/research/policy-replay.md` |
+| The live `/version` names `efbafe7`, from the build `deploy-api` `7a5d44c3`. The revision `api-00023-7x9` has all traffic. | 2026-10-06 | `curl`, `gcloud builds list`, `gcloud run services describe` |
+| The live store holds 1 user, 1 workout that is not finished, 16 sets, and 17 applied sync entries. The active plan has 16 records of policy version 8, and it breaks the rotation of version 9. | 2026-10-06 | `docs/research/phase-8-check.md` |
+| The paid check of the rotation: 100 planner calls of `luna-prompt-v7` at xhigh, 99 valid plans, 1 refused by `rotation.cover`. Cost 0.163 USD, the longest call 62.6 s. | 2026-10-06 | `docs/research/phase-8-check.md` |
+| From 2026-10-05T00:00Z, the API gave HTTP 200 to each of 295 calls. The one WARNING entry is a `GET /` of a crawler. | 2026-10-06 | `gcloud logging read` |
 | The deprecation page of OpenAI lists no retirement of `gpt-6-luna`, and names it as the replacement of `gpt-5.4-nano`. | 2026-10-06 | `docs/operations.md` section 4 |
 | The paid evaluation of D-302: 50 reviser calls of the 10 scenarios with policy version 7 and xhigh, all `ok`. The check accepted 110 reasons and refused 5. Cost 0.0179 USD, the longest call 10.8 s. | 2026-10-04 | `docs/research/reviser-evaluation.md` |
-| The live `/version.json` and `/version` name `e09b7ff0a4b788ce83d9c64e8d21607d861b8714`, from the builds `deploy-web` `ddf4e3c4` and `deploy-api` `12c94777`. The revision `api-00022-tjh` has all traffic. | 2026-10-05 | `curl`, `gcloud builds list`, `gcloud run services describe` |
 | The Phase 7 check of `e09b7ff`: 1 `DeleteHistory` of 11 workouts, 1 planner call, and 3 reviser calls, each `ok`, for 0.004379230 USD. No log entry had the severity WARNING or more. | 2026-10-05 | `docs/research/restore-drill.md` |
 | The restore of a daily backup took 8 min 48 s, and the restored database had delete protection. The drill deleted it. `(default)` is the one database. | 2026-10-05 | `docs/research/restore-drill.md` |
 | `nk-workout-app-prod` has 0 alert policies and 0 notification channels of Cloud Monitoring. | 2026-10-04 | Monitoring API |
@@ -87,12 +89,29 @@ Next action: the owner reviews the round 2 record and confirms the merge.
 
 ## Next steps, in order
 
-1. Read the result of the first real workout of 2026-10-06 from the owner. A defect of the workout screen comes first, in its own pull request.
-2. Close PR-41: CI, the Codex review, the owner confirmation, and the merge.
-3. Read the API deploy of the merge of PR-41.
-4. Start PR-42 of `docs/roadmaps/phase-8-personal-use-operations.md`, the four-week check, after four weeks of use.
+1. Close PR-42: CI, the Codex review, the owner confirmation, and the merge.
+2. Read the API deploy of the merge of PR-42, and check that `/version` names the merge commit.
+3. The owner deletes the history and makes a new plan of policy version 9 (D-333).
+4. Phase 8 ends with the merge of PR-42. No phase comes after it. A new owner decision gives the next work.
 
 ## Session records
+
+### Session 43 - 2026-10-06
+
+Author provider: Claude Code
+
+Branch: `feat/pr-42-rotation-and-phase-8-check`. Role: author.
+
+Completed:
+
+- Read the deploy of `efbafe7`. The owner answered Q-333 to Q-340 (D-327 to D-334) and approved the milestone (D-12).
+- Wrote policy version 9, the rotation of the role layer, the fake split, the layout replay, and their tests.
+- Ran the paid check of the planner, the live replay, and the counts of the store and the logs.
+- Wrote `docs/research/phase-8-check.md`, and changed the registers, both roadmaps, the design, the runbook, `go/README.md`, and `AGENTS.md`.
+
+Open work:
+
+- The owner confirmation and the merge of PR-42. Codex gave "Ready for owner merge" on `5b6726f`.
 
 ### Session 42 - 2026-10-06
 
@@ -110,7 +129,7 @@ Completed:
 
 Open work:
 
-- The Codex review, the owner confirmation, and the merge of PR-41.
+- None. GitHub PR 42 merged as `efbafe7`.
 
 ### Session 41 - 2026-10-05
 
@@ -129,21 +148,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 41 merged as `c712f56`.
-
-### Session 40 - 2026-10-05
-
-Author provider: Claude Code
-
-Branch: `docs/pr-39-restore-drill`. Role: author.
-
-Completed:
-
-- Read the deploys of `e09b7ff`. The owner approved the milestone (D-12), the live check, and the restore (D-212).
-- The owner passed the three iPhone checks of Phase 7 (D-310). Read the logs and, with the approval of the owner, the plan document.
-- Restored a daily backup into a new database, counted each collection, and deleted it.
-- Moved the traffic of `api` and the release of Hosting to the last version and back.
-- Wrote `docs/research/restore-drill.md`, and changed both runbooks, three roadmaps, and `AGENTS.md`.
-
-Open work:
-
-- None. GitHub PR 40 merged as `5d5df59`.

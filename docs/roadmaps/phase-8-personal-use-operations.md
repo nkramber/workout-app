@@ -2,7 +2,7 @@
 
 This roadmap splits Phase 8 of `docs/roadmaps/high-level-roadmap.md` into pull requests. `docs/roadmaps/README.md` gives the rules. The high-level roadmap keeps the objective, the order, and the exit evidence of the phase.
 
-The date of this version is 2026-10-05.
+The date of this version is 2026-10-05. PR-42 changed its exit on 2026-10-06 (D-327, D-332).
 
 ## 1. Scope and start state
 
@@ -74,6 +74,9 @@ The session read the code of `4bbf6c8` for this list:
 | Q-323, the alerts | Dropped. Work area 8.2 holds the steady workout screen. | D-317 |
 | Q-324 to Q-329, the parts of the workout screen that come and go | The rest card keeps its space, and the preview has the height of the set logger. The notes show below the buttons, a band at the bottom holds the notices, and the update banner waits for the end of the workout. | D-318 to D-323 |
 | Q-330 to Q-332, the live replay and the runbook | Two live runs with reads alone, and a read of one copy on the terminal. The runbook is `docs/operations.md`. | D-324 to D-326 |
+| Q-333, the four weeks | Dropped. PR-42 checks the store, the logs, and a replay one time. | D-327 |
+| Q-334 to Q-337, the rotation of the muscle groups | No group in two sessions in a row. Each selected group in one of each two sessions in a row, or in one session of 3. Policy version 9 and the prompt. | D-328 to D-331 |
+| Q-338 to Q-340, the scope of PR-42 | One milestone with the rotation and the check. The owner makes a new plan after the deploy. Three live reads. | D-332 to D-334 |
 
 No question of this phase stays open. Q-103 stays open for the deferred photo work.
 
@@ -98,7 +101,7 @@ The PR-<n> order is the order of work. Each pull request needs the one before it
 | PR-39 | 8.1 | `docs: the restore drill and the Phase 7 check (PR-39)` | the live revision of the Phase 7 check (D-212), and the restore |
 | PR-40 | 8.2 | `fix: the steady workout screen (PR-40)` | none |
 | PR-41 | 8.3 | `feat: the policy replay and the incident runbook (PR-41)` | none, because the replay calls no model |
-| PR-42 | exit | `docs: the four-week check of Phase 8 (PR-42)` | none |
+| PR-42 | 8.3 and exit | `feat: the muscle-group rotation and the Phase 8 check (PR-42)` | a check of the planner with the live model (D-25) |
 
 ### PR-38 - The Phase 8 focused roadmap, the first-set limit, and the deletion of all data
 
@@ -187,22 +190,26 @@ Checks: `make go-test`, `make emulator-test`, `make verify`, and `make pr-check`
 
 Result: `go/cmd/replay` and `docs/operations.md` hold the replay and the runbook, and `docs/research/policy-replay.md` gives the report. The emulator test counts 3 changed targets under `follow.first-set`. The owner approved two live runs (D-324, D-326). Run 1 found one copy outside the bounds, and its cause was a fault of the replay, not a breach of D-23. Run 2 used the fixed code, and it gave 0 changed records and 0 copies outside the bounds.
 
-### PR-42 - The four-week check of Phase 8
+### PR-42 - The muscle-group rotation and the Phase 8 check
 
-Branch: `docs/pr-42-phase-8-check`. The exit of the roadmap. It needs PR-41 on `main`, and four weeks of the use of the owner.
+Branch: `feat/pr-42-rotation-and-phase-8-check`. The exit of the roadmap. It needs PR-41 on `main`. The first plan of this pull request was a check of documents alone after four weeks of use. On 2026-10-06, the owner dropped the four weeks (D-327), and added the rotation of the muscle groups to the same milestone (D-332).
 
-Recommendation: the four weeks start at the end of the Phase 7 check of PR-39. The session asks the owner when another start applies.
+Milestone: close Phase 8 under policy version 9.
 
 Concerns:
 
-- the count of the workouts and the sets of the four weeks, from the store, with counts alone,
-- the count of the refused syncs and of the errors, from the logs,
-- the replay of PR-41 over the four weeks, and the count of the targets outside a bound,
-- a report in `docs/research/`.
+- policy version 9: the rules `rotation.no-repeat` and `rotation.cover` (D-328 to D-331),
+- the role layer: the groups of each exercise, the prompt `luna-prompt-v7`, and a retry after a broken rotation (D-329),
+- the replay: the sessions of the active plan against the rule `rotation.no-repeat`,
+- a check of the planner with the live model, and the flags of `go/cmd/lunaeval` for it,
+- the counts of the workouts and the sets of the store, and of the errors of the logs, with counts alone (D-334),
+- the report `docs/research/phase-8-check.md`.
 
-Acceptance story: the report shows no lost set, no refused valid sync, and no policy breach in the decision log for four weeks. `make verify` passes.
+Acceptance story: the policy refuses a plan that breaks the rotation. The report shows no lost set, no refused valid sync, and no policy breach in the decision log. `make verify` passes.
 
-Checks: `make verify` and `make pr-check`, free. PR-42 changes documents alone, so it can use the `review-override` label (D-125).
+Checks: `make go-test`, `make emulator-test`, `make web`, `make verify`, and `make pr-check`, free. The check of the planner costs money, and the owner approved it with a cap of 1 USD. Codex reviews PR-42.
+
+Result: `docs/research/phase-8-check.md` gives the report. The live check gave 100 plans of Luna with the rotation, and the policy refused 1 of them. The replay gave 0 changed records, and the active plan of version 8 breaks the rotation. So the owner makes a new plan after the deploy (D-333).
 
 ## 5. Exit of the phase
 
@@ -211,4 +218,4 @@ Phase 8 ends when PR-42 merges. These items give the exit evidence of `docs/road
 - The restore drill report of PR-39 (work area 8.1).
 - The browser test of the steady workout screen of PR-40 (work area 8.2).
 - The replay diff report of PR-41 (work area 8.3).
-- The four weeks of use of PR-42, the exit of the roadmap.
+- The check of the store, the logs, and the replay under policy version 9 of PR-42, the exit of the roadmap (D-327).

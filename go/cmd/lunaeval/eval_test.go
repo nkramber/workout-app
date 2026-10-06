@@ -137,7 +137,7 @@ func evaluate(t *testing.T, p ai.Provider, caps ai.Caps, timeout time.Duration) 
 		t.Fatal(err)
 	}
 	c := &ai.Client{Provider: p, Cap: ai.NewMemoryCap(caps), Timeout: timeout}
-	rep, err := Run(context.Background(), c, profiles, Scenarios(), 2, 3)
+	rep, err := Run(context.Background(), c, profiles, DefaultPlans, Scenarios(), 2, 3)
 	if err != nil {
 		t.Fatalf("Run: %v", err)
 	}
@@ -264,7 +264,7 @@ func TestProfiles(t *testing.T) {
 		t.Fatalf("%d profiles, %v: want 20", len(ps), err)
 	}
 	for _, p := range ps {
-		r := p.Request()
+		r := p.Request(DefaultPlans)
 		if len(r.Exercises) == 0 {
 			t.Errorf("%s: no exercise", p.ID)
 		}
@@ -347,5 +347,24 @@ func TestCommand(t *testing.T) {
 		if err := run(context.Background(), args, env, &bytes.Buffer{}); err == nil {
 			t.Errorf("run %v: want an error", args)
 		}
+	}
+}
+
+// TestRotationPlans: a planner run with 2 sessions and each group of
+// D-210 counts the rotation of each call, and the fake split breaks no
+// rule (D-328). With no scenario, the run calls the planner alone.
+func TestRotationPlans(t *testing.T) {
+	profiles, err := Profiles()
+	if err != nil {
+		t.Fatal(err)
+	}
+	c := &ai.Client{Provider: &ai.Fake{}, Cap: ai.NewMemoryCap(twoUSD)}
+	rep, err := Run(context.Background(), c, profiles, Plans{Sessions: 2, Repeats: 2, Groups: true}, nil, 1, 3)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tt := rep.Totals
+	if tt.Calls != 2*len(profiles) || tt.SchemaPass != tt.Calls || tt.RotationApplies != tt.Calls || tt.RotationRefused != 0 || tt.Revisions != 0 {
+		t.Fatalf("totals %+v: want %d planner calls, each valid with the rotation", tt, 2*len(profiles))
 	}
 }

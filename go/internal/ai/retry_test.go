@@ -200,7 +200,7 @@ func TestResultCause(t *testing.T) {
 func TestInstructionsPlanner(t *testing.T) {
 	text := Instructions(Planner())
 	for _, s := range []string{
-		"Prompt luna-prompt-v6.",
+		"Prompt luna-prompt-v7.",
 		"Give each session 8 exercises with sets or fewer.",
 		"When the input has cardio exercises, end each session with 20 to 30 minutes of one of them.",
 		"When the input has no cardio exercise, set the cardio exercise_id of each session to \"\" and minutes to 0.",
@@ -220,7 +220,7 @@ func TestInstructionsPlanner(t *testing.T) {
 func TestInstructionsReviser(t *testing.T) {
 	text := Instructions(Reviser())
 	for _, s := range []string{
-		"Prompt luna-prompt-v6.",
+		"Prompt luna-prompt-v7.",
 		"each target is final",
 		"never propose another target",
 		"logged_sets: each logged set of the last session that the reason names",

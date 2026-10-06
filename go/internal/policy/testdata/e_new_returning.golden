@@ -1,4 +1,4 @@
-policy version: 8
+policy version: 9
 rules: start.estimate, calibration.first-set
 target: chest_press, rest 60 s
   working[0]: 8 reps at 70 lb, 3 RIR

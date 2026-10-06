@@ -3,6 +3,7 @@ package main
 import (
 	"slices"
 	"strconv"
+	"strings"
 
 	"github.com/nkramber/workout-app/go/internal/domain"
 	"github.com/nkramber/workout-app/go/internal/policy"
@@ -17,6 +18,19 @@ type Report struct {
 	UsersWithPlan int          `json:"users_with_plan"`
 	Records       RecordReport `json:"records"`
 	Copies        CopyReport   `json:"copies"`
+	Layouts       LayoutReport `json:"layouts"`
+}
+
+// LayoutReport reads the sessions of each active plan under the rule
+// rotation.no-repeat of the current version (D-328). Applies counts the
+// plans whose exercises can make a split, and Breaks counts each of them
+// with a group in two sessions in a row. GroupsInARow counts each such
+// group of each plan one time.
+type LayoutReport struct {
+	Plans        int            `json:"plans"`
+	Applies      int            `json:"applies"`
+	Breaks       int            `json:"breaks"`
+	GroupsInARow map[string]int `json:"groups_in_a_row"`
 }
 
 // RecordReport compares each decision record of the active plans with
@@ -75,6 +89,7 @@ func newReport() Report {
 		PolicyVersion: policy.Version,
 		Records:       RecordReport{ByVersion: map[string]int{}, ByOrigin: map[string]int{}, ChangedByRule: map[string]int{}, ChangedFields: map[string]int{}},
 		Copies:        CopyReport{ViolationsByRule: map[string]int{}},
+		Layouts:       LayoutReport{GroupsInARow: map[string]int{}},
 	}
 }
 
@@ -83,12 +98,33 @@ func (r *Report) add(rp revise.Replay) {
 	r.Users++
 	if rp.HasPlan {
 		r.UsersWithPlan++
+		r.Layouts.add(rp)
 	}
 	for _, x := range rp.Records {
 		r.Records.add(x)
 	}
 	for _, c := range rp.Copies {
 		r.Copies.add(c)
+	}
+}
+
+func (l *LayoutReport) add(rp revise.Replay) {
+	l.Plans++
+	if rp.LayoutApplies {
+		l.Applies++
+	}
+	if len(rp.Layout) > 0 {
+		l.Breaks++
+	}
+	var seen []string
+	for _, v := range rp.Layout {
+		// The detail is "group <id> in both sessions": a fixed id of
+		// D-210 and no data of the owner (D-80).
+		g := strings.Fields(v.Detail)[1]
+		if !slices.Contains(seen, g) {
+			seen = append(seen, g)
+			l.GroupsInARow[g]++
+		}
 	}
 }
 

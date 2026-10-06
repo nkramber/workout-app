@@ -117,8 +117,9 @@ type outCardio struct {
 
 // parse reads the output text of a call into a plan. It refuses an
 // output that breaks the schema, a session count that is not the count
-// of the request, and an exercise that is not in the request. It does
-// not check a bound of a target: the policy does that (D-23).
+// of the request, an exercise that is not in the request, and a layout
+// that breaks a rotation rule of the policy (D-329). It does not check a
+// bound of a target: the policy does that (D-23).
 func parse(text string, req Request) (Plan, error) {
 	dec := json.NewDecoder(strings.NewReader(text))
 	dec.DisallowUnknownFields()
@@ -203,6 +204,9 @@ func parse(text string, req Request) (Plan, error) {
 			return Plan{}, malformed("%s: no exercise and no cardio", where)
 		}
 		p.Sessions = append(p.Sessions, sess)
+	}
+	if err := checkRotation(p, req); err != nil {
+		return Plan{}, err
 	}
 	return p, nil
 }

@@ -117,6 +117,7 @@ It reads two items for each user:
 
 - Each decision record of the active plan. A record of a new plan replays through `policy.Decide` with its stored proposal. A record of a revision replays through `policy.Revise`.
 - Each target copy of a finished workout (D-291). The copy replays through `policy.Next` and `policy.Check`. An override copy replays through `policy.CheckOverride`, against the recommendation that its workout keeps (D-293).
+- The sessions of the active plan. The replay reads them against the rule `rotation.no-repeat` of policy version 9 (D-328). The store keeps no request of a plan, so the replay does not read the rule `rotation.cover`.
 
 ### 3.1 Run the replay
 
@@ -147,10 +148,15 @@ The report holds counts and rule ids alone (D-80).
 | `copies.stale_history` | the copies that pass the bounds only without the newest workouts of their plan |
 | `copies.outside_bounds` | the copies that break a bound of the current version |
 | `copies.violations_by_rule` | each broken rule of those copies |
+| `layouts.applies` | the active plans whose exercises can make a split of the muscle groups |
+| `layouts.breaks` | the active plans with a group in two sessions in a row |
+| `layouts.groups_in_a_row` | each group in two sessions in a row, one time for each plan |
 
 A different input hash tells that the replay made another input, or that a new version changed the form of the input. A copy of a Luna proposal can differ from the target of the rules, and it is still inside the bounds.
 
 A copy in `stale_history` is not a breach. The store keeps no time of a revision. A phone can start a workout before the revision of the last workout, and then it shows the target before that revision. The live run of 2026-10-06 found one such copy.
+
+A plan in `layouts.breaks` is a plan of an older policy version, or a breach of D-329. A new plan of version 9 or later never breaks the rotation, because the plan API refuses such an output. So the owner makes a new plan after a deploy of version 9.
 
 A copy in `outside_bounds` can be a breach of D-23. Ask the owner for the approval to read that copy, and find its cause.
 

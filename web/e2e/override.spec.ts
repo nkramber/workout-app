@@ -8,7 +8,7 @@ import { holdSync, makePlanOwner, signIn, stopAndOpen, uniqueEmail } from "./sup
 // weights 10 to 200 lb, in steps of 10 lb. The policy of the server
 // checks each override (D-23).
 
-const MACHINES = ["chest_press", "seated_row", "treadmill"];
+const MACHINES = ["chest_press", "shoulder_press", "treadmill"];
 
 const button = (page: Page, name: string) => page.getByRole("button", { name, exact: true });
 const logger = (page: Page) => page.getByTestId("set-logger");
@@ -90,6 +90,6 @@ test("an override shows in the next workout, with the recommendation and the rea
   expect(chest.workingSets.every((s) => s.loadTenthLb === 200)).toBe(true);
   expect(chest.override?.recommendedWorkingSets.every((s) => s.loadTenthLb === 100)).toBe(true);
   expect(chest.override?.reason).toBe("My shoulder feels fine this week.");
-  expect(exercises.find((e) => e.exerciseId === "seated_row")!.override).toBeUndefined();
+  expect(exercises.find((e) => e.exerciseId === "shoulder_press")!.override).toBeUndefined();
 });
 

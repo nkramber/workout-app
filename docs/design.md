@@ -68,7 +68,7 @@ The catalog of D-155 gives each machine and each exercise a stable id, a kind, a
 
 The plan adapts after each session and has no fixed block (Decision, D-43). It holds warm-up, resistance work, rest periods, cooldown, cardio, and mobility and recovery guidance (Decision, D-44, D-255). The guidance stays inside the fitness boundary (Decision, D-36). Instructions are text only (Decision, D-73). The owner can exclude an exercise with an optional reason, and Luna plans again under the policy (Decision, D-48).
 
-A plan holds one session for each training day of one week (Decision, D-211). Each session holds 8 resistance exercises or fewer (Decision, D-233). When the cardio preference names a cardio exercise, each session ends with 20 to 30 minutes of one. An empty preference gives no cardio (Decision, D-217, D-255). A plan starts each new exercise at its estimate, and its first set is the calibration (Decision, D-297, D-300). An exercise with logged history gets its target from that history (Decision, D-301).
+A plan holds one session for each training day of one week (Decision, D-211). Each session holds 8 resistance exercises or fewer (Decision, D-233), and the sessions rotate the muscle groups (Decision, D-328 to D-331). When the cardio preference names a cardio exercise, each session ends with 20 to 30 minutes of one. An empty preference gives no cardio (Decision, D-217, D-255). A plan starts each new exercise at its estimate, and its first set is the calibration (Decision, D-297, D-300). An exercise with logged history gets its target from that history (Decision, D-301).
 
 The API keeps the plan at `users/{uid}/plan/active` and the exclusions at `users/{uid}/exclusions/active` (Decision, D-226). A new plan replaces the old plan only when its request completes (Decision, D-227). The reason of an exclusion has 200 characters or fewer, and it stays on the server (Decision, D-228, D-229). An exclusion and its new plan save together, or nothing changes (Decision, D-234). A request can take up to 4 calls of Luna, so the API streams each step, and the app shows the progress (Decision, D-231, D-237).
 
@@ -116,7 +116,7 @@ The revision runs on the server when `SyncOutbox` applies a finished workout (De
 
 Each exercise that the workout logged gets the new target of the rules in each session of the plan that holds it (Decision, D-290). A skip counts as a log. The plan keeps its creation time, so each workout keeps its link to the plan. The plan records the last revision, and a replay of the sync does not revise the plan two times. Before its reviser call, a revision claims the workout in the plan, so a second sync of the same workout makes no second call (Decision, D-304).
 
-One reviser call writes the reason of each new target, with the schema `luna_reason_v1` and the prompt `luna-prompt-v6`. The output names the logged sets that each reason uses. The check refuses these reasons (Decision, D-68, D-288):
+One reviser call writes the reason of each new target, with the schema `luna_reason_v1` and the prompt `luna-prompt-v7`. The output names the logged sets that each reason uses. The check refuses these reasons (Decision, D-68, D-288):
 
 - a reason that the filter blocks,
 - a reason that names no logged set, or a set that the last session did not log,
@@ -225,13 +225,14 @@ The policy is in `go/internal/policy` (Decision, D-157). It has one version, and
 - The check of a proposal. The policy refuses a proposal outside a bound (Decision, D-23). Outside the first session of an exercise, it also refuses a proposal that is harder than its target at the same load (Decision, D-186).
 - The start of a new exercise with 3 working sets, and the first set as the calibration (Decision, D-178, D-180, D-297, D-299 to D-301).
 - The limit of the other sets after the first set, with policy version 8 (Decision, D-306 to D-309).
+- The rotation of the muscle groups in the sessions of a plan, with policy version 9. The plan API refuses an output of Luna that breaks it, and calls Luna again. When the allowed exercises can make no split, the rotation does not apply (Decision, D-328 to D-331).
 - The return after a break of 14 days or more, and the first sessions after it (Decision, D-37, D-151, D-179).
 - The hold after a missed session of 7 to 13 days, and the reactive deload, with policy version 6 (Decision, D-294, D-295, D-303).
 - The check of an override of the owner (Decision, D-23, D-293).
 - The rules fallback of one exercise. When the policy refuses a proposal, or Luna gives none for the exercise, the target comes from the rules alone (Decision, D-23). A plan request with no valid output of Luna gets no fallback plan (Decision, D-230).
 - The decision record of each plan decision, with the fields of D-176. The record is workout data, so it never goes into a log (Decision, D-80, D-176).
 
-Policy version 6 adds the reactive deload of REC-7 (Decision, D-289, D-295). Policy version 7 removes the calibration sets, and a deload week keeps the load of the last target (Decision, D-297, D-303). Policy version 8 adds the limit of the other sets after the first set (Decision, D-306 to D-309). The draft in `tools/spikes/luna_plan/policy.py` is the spike record alone.
+Policy version 6 adds the reactive deload of REC-7 (Decision, D-289, D-295). Policy version 7 removes the calibration sets, and a deload week keeps the load of the last target (Decision, D-297, D-303). Policy version 8 adds the limit of the other sets after the first set (Decision, D-306 to D-309). Policy version 9 adds the rotation of the muscle groups (Decision, D-328 to D-331). The draft in `tools/spikes/luna_plan/policy.py` is the spike record alone.
 
 The role layer is in `go/internal/ai` (Decision, D-157). It holds these parts:
 
