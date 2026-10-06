@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 
 import { callApi, controlApi, holdSync, makePlanOwner, reopenOffline, signIn, stopAndOpen, syncLine, uniqueEmail } from "./support";
 
@@ -248,6 +248,15 @@ async function lockFor(page: Page, ms: number) {
 
 const restLeft = (page: Page) => page.getByTestId("rest-timer").getByTestId("rest-left");
 
+// offset gives the top of an element in the content of the main region of
+// the shell. A click scrolls the main region on a short screen, and the
+// offset does not change with the scroll.
+const offset = (l: Locator) =>
+  l.evaluate((el) => {
+    const main = el.closest("main")!;
+    return el.getBoundingClientRect().top - main.getBoundingClientRect().top + main.scrollTop;
+  });
+
 // The acceptance story of PR-31: the timer shows the correct time after a
 // screen lock and a return, and the advance comes after the last set.
 test("the rest timer is correct after a screen lock, and the next machine comes after the last set", async ({ page, request }, info) => {
@@ -257,7 +266,7 @@ test("the rest timer is correct after a screen lock, and the next machine comes 
   await openWithPlan(page, email);
   await button(page, "Workout").click();
   await button(page, "Start Session 1").click();
-  await expect(page.getByTestId("rest-timer")).toHaveCount(0);
+  await expect(page.getByTestId("rest-timer")).toHaveAttribute("data-state", "idle");
 
   // The log of a set starts the timer with the rest of the target (D-59).
   await button(page, "3 in reserve").click();
@@ -280,7 +289,7 @@ test("the rest timer is correct after a screen lock, and the next machine comes 
   await expect(page.getByTestId("rest-state")).toHaveText("Rest done");
   await expect(page.getByTestId("rest-timer")).toHaveAttribute("data-done", "true");
   await button(page, "Dismiss").click();
-  await expect(page.getByTestId("rest-timer")).toHaveCount(0);
+  await expect(page.getByTestId("rest-timer")).toHaveAttribute("data-state", "idle");
 
   // The other 2 working sets. After the last one, the preview shows the
   // next machine, and the rest timer runs (D-60, D-269).
@@ -300,6 +309,67 @@ test("the rest timer is correct after a screen lock, and the next machine comes 
   await expect(preview).toHaveCount(0);
   await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Seated row");
   await expect(restLeft(page)).toHaveText(/^0:[45]\d$/);
+});
+
+// The acceptance story of PR-40: the parts of the workout screen that come
+// and go do not move the set logger. The rest card always keeps its space
+// (D-318), the notes of a set show below the buttons of the reps in
+// reserve (D-320), and the preview covers the next set logger (D-319).
+test("the set logger keeps its place before, during, and after a rest, and at the preview", async ({ page, request }, info) => {
+  const email = uniqueEmail("workout-steady", info);
+  await makePlanOwner(request, email, MACHINES);
+  await page.clock.install();
+  await openWithPlan(page, email);
+  await button(page, "Workout").click();
+  await button(page, "Start Session 1").click();
+
+  const card = page.getByTestId("rest-timer");
+  const top = () => offset(logger(page));
+  const rirTop = () => offset(button(page, "3 in reserve"));
+
+  // Before the rest, the card shows the planned rest, and its buttons are off.
+  await expect(card).toHaveAttribute("data-state", "idle");
+  await expect(card.getByTestId("rest-state")).toHaveText("Next rest");
+  await expect(restLeft(page)).toHaveText("1:00");
+  for (const name of ["15 seconds less rest", "15 seconds more rest", "Dismiss"]) await expect(button(page, name)).toBeDisabled();
+  await expect(logger(page).getByTestId("calibration-note")).toBeVisible();
+  const y = await top();
+  const rir = await rirTop();
+
+  // During the rest. Set 2 has another note than set 1.
+  await button(page, "3 in reserve").click();
+  await expect(card).toHaveAttribute("data-state", "running");
+  await expect(logger(page).getByTestId("set-label")).toHaveText("Set 2 of 3");
+  expect(await top()).toBe(y);
+  expect(await rirTop()).toBe(rir);
+
+  // At "Rest done".
+  await lockFor(page, 60_000);
+  await expect(card).toHaveAttribute("data-state", "done");
+  await expect(card.getByTestId("rest-state")).toHaveText("Rest done");
+  expect(await top()).toBe(y);
+
+  // After the dismiss.
+  await button(page, "Dismiss").click();
+  await expect(card).toHaveAttribute("data-state", "idle");
+  expect(await top()).toBe(y);
+  expect(await rirTop()).toBe(rir);
+
+  // The preview takes the place of the next set logger, so the list
+  // below it does not move at the advance.
+  for (let i = 2; i <= 3; i++) {
+    await expect(logger(page).getByTestId("set-label")).toHaveText(`Set ${i} of 3`);
+    await button(page, "3 in reserve").click();
+  }
+  const preview = page.getByTestId("next-preview");
+  await expect(preview).toBeVisible();
+  const list = page.getByTestId("workout-exercise").first();
+  const listY = await offset(list);
+  expect(await offset(preview)).toBe(y);
+  await button(page, "Go now").click();
+  await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Seated row");
+  expect(await top()).toBe(y);
+  expect(await offset(list)).toBe(listY);
 });
 
 // The first-set calibration with no network (D-297, D-299): the owner
@@ -567,12 +637,18 @@ test("a refused wake lock shows the error name, and a tap gets the lock again", 
   await openWithPlan(page, email);
   await button(page, "Workout").click();
   await button(page, "Start Session 1").click();
-  await expect(page.getByTestId("wake-off")).toContainText("The screen can turn off. Tap the screen to try again.");
-  await expect(page.getByTestId("wake-error")).toHaveText("(NotAllowedError)");
+  // The notice shows in the band at the bottom, so the set logger does
+  // not move when it goes (D-321).
+  const band = page.getByTestId("bottom-band");
+  await expect(band.getByTestId("wake-off")).toContainText("The screen can turn off. Tap the screen to try again.");
+  await expect(band.getByTestId("wake-error")).toHaveText("(NotAllowedError)");
+  const y = (await logger(page).boundingBox())!.y;
 
   await page.evaluate(() => ((window as unknown as { wakeRefuse: boolean }).wakeRefuse = false));
   await page.getByRole("heading", { name: "Session 1", exact: true }).click();
   await expect(page.getByTestId("wake-off")).toHaveCount(0);
+  await expect(band).toBeHidden();
+  expect((await logger(page).boundingBox())!.y).toBe(y);
 });
 
 // D-283: the method "Wake Lock, no tap". The fake lock follows the order

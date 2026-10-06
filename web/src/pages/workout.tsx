@@ -12,6 +12,7 @@ import { NO_CHANGE_TEXT, NONE_TEXT, nextState, WAITING_TEXT, waitsForSync } from
 import { noCopyText } from "../lib/sync";
 import { engine, useSyncStatus, useSyncWhenMissing } from "../lib/sync-engine";
 import type { WakeStatus } from "../lib/wake-lock";
+import { BottomBand } from "../shell";
 import {
   activeWorkout,
   adjustRest,
@@ -271,7 +272,10 @@ function useNow(on: boolean): number {
 // starts the rest timer (D-59). After the last set of an exercise, the
 // screen shows the next machine for PREVIEW_SECONDS, then advances
 // (D-60, D-269). Each cue is visual alone, and the app sends no
-// notification (D-58, D-61).
+// notification (D-58, D-61). The parts that come and go keep the set
+// logger in its place: the rest card always keeps its space (D-318), the
+// preview covers the next set logger (D-319), and the wake notice and
+// the error line show in the band at the bottom (D-321, D-322).
 function ActiveWorkout({
   workout: w,
   wake,
@@ -342,51 +346,67 @@ function ActiveWorkout({
     }
   };
 
+  const previewCard = preview && previewNext && (
+    <NextPreview
+      done={preview.done}
+      next={previewNext}
+      sets={sets}
+      seconds={Math.max(1, Math.ceil((preview.until - now) / 1000))}
+      onGo={() => setPreview(null)}
+    />
+  );
+
   const restAction = (work: () => Promise<void>) => void work().catch(() => setError("The phone did not save the rest timer. Try again."));
 
   return (
     <div className="space-y-6">
       <Title onBack={onBack}>{w.title}</Title>
-      {wake.state === "off" && (
-        <p className="text-sm text-amber-300" data-testid="wake-off">
-          The screen can turn off. Tap the screen to try again.{" "}
-          <span className="text-amber-400/80" data-testid="wake-error">{`(${wake.error})`}</span>
-        </p>
+      {(wake.state === "off" || error) && (
+        <BottomBand>
+          {wake.state === "off" && (
+            <p className="text-sm text-amber-300" data-testid="wake-off">
+              The screen can turn off. Tap the screen to try again.{" "}
+              <span className="text-amber-400/80" data-testid="wake-error">{`(${wake.error})`}</span>
+            </p>
+          )}
+          <ErrorText testId="workout-error">{error}</ErrorText>
+        </BottomBand>
       )}
-      <ErrorText testId="workout-error">{error}</ErrorText>
 
       <button type="button" className={`${danger} w-full`} onClick={() => setDialog({ kind: "symptoms" })}>
         Report a symptom
       </button>
 
-      {rest && (
-        <RestCard
-          left={restLeft(rest, now)}
-          onLess={() => restAction(() => adjustRest(db, w.id, -REST_STEP_SECONDS))}
-          onMore={() => restAction(() => adjustRest(db, w.id, REST_STEP_SECONDS))}
-          onDismiss={() => restAction(() => dismissRest(db))}
-        />
-      )}
+      <RestCard
+        left={rest ? restLeft(rest, now) : null}
+        planned={exercise?.restSeconds ?? null}
+        onLess={() => restAction(() => adjustRest(db, w.id, -REST_STEP_SECONDS))}
+        onMore={() => restAction(() => adjustRest(db, w.id, REST_STEP_SECONDS))}
+        onDismiss={() => restAction(() => dismissRest(db))}
+      />
 
-      {preview && previewNext ? (
-        <NextPreview
-          done={preview.done}
-          next={previewNext}
-          sets={sets}
-          seconds={Math.max(1, Math.ceil((preview.until - now) / 1000))}
-          onGo={() => setPreview(null)}
-        />
-      ) : exercise && next ? (
-        <SetLogger
-          key={`${exercise.exerciseId}-${next.kind}-${next.number}`}
-          workoutId={w.id}
-          exercise={exercise}
-          next={next}
-          onLogged={(s) => onLogged(exercise, s)}
-          onSkip={() => setDialog({ kind: "skip", exercise })}
-          onWarn={(text) => setDialog({ kind: "warning", text })}
-          onError={setError}
-        />
+      {exercise && next ? (
+        // During the preview, the next set logger stays below it with no
+        // visibility, so the preview has the height of that logger, and
+        // nothing moves at the advance (D-319).
+        <div className="relative">
+          <div className={previewCard ? "invisible" : undefined} inert={!!previewCard}>
+            <SetLogger
+              key={`${exercise.exerciseId}-${next.kind}-${next.number}`}
+              testId={previewCard ? "set-logger-space" : "set-logger"}
+              workoutId={w.id}
+              exercise={exercise}
+              next={next}
+              onLogged={(s) => onLogged(exercise, s)}
+              onSkip={() => setDialog({ kind: "skip", exercise })}
+              onWarn={(text) => setDialog({ kind: "warning", text })}
+              onError={setError}
+            />
+          </div>
+          {previewCard && <div className="absolute inset-0">{previewCard}</div>}
+        </div>
+      ) : previewCard ? (
+        previewCard
       ) : (
         <p className="rounded-lg border border-emerald-800 bg-emerald-950 p-3 text-emerald-100" data-testid="sets-done">
           No planned set remains.
@@ -512,32 +532,50 @@ function finishText(open: number, unstarted: number): string {
 // RestCard shows the rest timer (D-59, D-270). It reads the stored end
 // time, so it is correct after a screen lock. At 0 the card changes
 // color and shows "Rest done", with no sound and no vibration (D-58).
-function RestCard({ left, onLess, onMore, onDismiss }: { left: number; onLess: () => void; onMore: () => void; onDismiss: () => void }) {
+// The card always keeps its space, so the set logger below it does not
+// move. With no rest, it shows the planned rest of the next set, and its
+// buttons are off (D-318).
+function RestCard({
+  left,
+  planned,
+  onLess,
+  onMore,
+  onDismiss,
+}: {
+  left: number | null;
+  planned: number | null;
+  onLess: () => void;
+  onMore: () => void;
+  onDismiss: () => void;
+}) {
+  const idle = left === null;
   const done = left === 0;
-  const control = "min-h-14 rounded-lg border text-lg font-semibold active:bg-slate-800";
+  const state = idle ? "idle" : done ? "done" : "running";
+  const control = "min-h-14 rounded-lg border text-lg font-semibold active:bg-slate-800 disabled:opacity-40";
   return (
     <section
-      className={`space-y-3 rounded-lg border p-3 ${done ? "border-emerald-400 bg-emerald-900" : "border-slate-700"}`}
+      className={`space-y-3 rounded-lg border p-3 ${done ? "border-emerald-400 bg-emerald-900" : idle ? "border-slate-800" : "border-slate-700"}`}
       aria-label="Rest timer"
       data-testid="rest-timer"
+      data-state={state}
       data-done={done}
     >
       <div className="flex items-baseline justify-between">
-        <span className={`text-lg font-semibold ${done ? "text-emerald-50" : "text-slate-300"}`} data-testid="rest-state">
-          {done ? "Rest done" : "Rest"}
+        <span className={`text-lg font-semibold ${done ? "text-emerald-50" : idle ? "text-slate-500" : "text-slate-300"}`} data-testid="rest-state">
+          {idle ? "Next rest" : done ? "Rest done" : "Rest"}
         </span>
-        <span role="timer" className="text-5xl font-semibold tabular-nums text-slate-50" data-testid="rest-left">
-          {clockText(left)}
+        <span role="timer" className={`text-5xl font-semibold tabular-nums ${idle ? "text-slate-500" : "text-slate-50"}`} data-testid="rest-left">
+          {idle ? (planned === null ? "–:––" : clockText(planned)) : clockText(left)}
         </span>
       </div>
       <div className="grid grid-cols-3 gap-2">
-        <button type="button" aria-label="15 seconds less rest" className={`${control} border-slate-600 text-slate-100`} onClick={onLess}>
+        <button type="button" aria-label="15 seconds less rest" className={`${control} border-slate-600 text-slate-100`} disabled={idle} onClick={onLess}>
           −15 s
         </button>
-        <button type="button" aria-label="15 seconds more rest" className={`${control} border-slate-600 text-slate-100`} onClick={onMore}>
+        <button type="button" aria-label="15 seconds more rest" className={`${control} border-slate-600 text-slate-100`} disabled={idle} onClick={onMore}>
           +15 s
         </button>
-        <button type="button" className={`${control} border-slate-600 text-slate-100`} onClick={onDismiss}>
+        <button type="button" className={`${control} border-slate-600 text-slate-100`} disabled={idle} onClick={onDismiss}>
           Dismiss
         </button>
       </div>
@@ -546,7 +584,8 @@ function RestCard({ left, onLess, onMore, onDismiss }: { left: number; onLess: (
 }
 
 // NextPreview shows the next machine after the last set of an exercise
-// (D-60, D-269). "Go now" advances at once.
+// (D-60, D-269). "Go now" advances at once. It fills the height of its
+// box, the space of the next set logger (D-319).
 function NextPreview({
   done,
   next,
@@ -562,7 +601,7 @@ function NextPreview({
 }) {
   const first = nextSet(next, sets);
   return (
-    <section className="space-y-3 rounded-lg border border-emerald-700 bg-emerald-950 p-3" aria-label="Next machine" data-testid="next-preview">
+    <section className="h-full space-y-3 rounded-lg border border-emerald-700 bg-emerald-950 p-3" aria-label="Next machine" data-testid="next-preview">
       <p className="font-semibold text-emerald-100" data-testid="preview-done">{`${done} is done.`}</p>
       <div>
         <p className="text-xl font-semibold text-slate-50" data-testid="preview-next">{`Next: ${next.name}`}</p>
@@ -587,8 +626,11 @@ function NextPreview({
 // the calibration table (D-267). With the first-set calibration, the
 // owner changes the weight during the first set, and the later sets get
 // the weight that the owner logged for it (D-297, D-299). Pain and a
-// note are optional, behind one tap (D-57, D-162).
+// note are optional, behind one tap (D-57, D-162). The notes of a set
+// show below the buttons of the reps in reserve, so the buttons keep
+// their place from set to set (D-320).
 function SetLogger({
+  testId,
   workoutId,
   exercise,
   next,
@@ -597,6 +639,7 @@ function SetLogger({
   onWarn,
   onError,
 }: {
+  testId: string;
   workoutId: string;
   exercise: WorkoutExercise;
   next: NextSet;
@@ -613,6 +656,7 @@ function SetLogger({
   const [busy, setBusy] = useState(false);
   const calibration = next.kind === "calibration";
   const tooLong = noteLength(note) > MAX_NOTE_CHARS;
+  const hasNote = (exercise.override && !calibration) || next.calibrates || next.fromCalibration || next.follows;
 
   const log = async (rir: number) => {
     setBusy(true);
@@ -628,7 +672,7 @@ function SetLogger({
   };
 
   return (
-    <section className="space-y-4 rounded-lg border border-sky-800 p-3" aria-label="Log a set" data-testid="set-logger">
+    <section className="space-y-4 rounded-lg border border-sky-800 p-3" aria-label="Log a set" data-testid={testId}>
       <div>
         <h3 className="text-lg font-semibold text-slate-100" data-testid="logger-exercise">
           {exercise.name}
@@ -639,28 +683,6 @@ function SetLogger({
         <p className="text-sm text-slate-400" data-testid="set-target">
           {`Target: ${setText(next.target, calibration)}. Rest ${restText(exercise.restSeconds)}.`}
         </p>
-        {exercise.override && !calibration && (
-          <p className="text-sm text-sky-200" data-testid="override-note">
-            {`Your change. Recommended: ${setText(exercise.override.recommendedWorkingSets[Math.min(next.number, exercise.override.recommendedWorkingSets.length) - 1] ?? next.target, false)}.`}
-          </p>
-        )}
-        {next.calibrates && (
-          <p className="text-sm text-sky-200" data-testid="calibration-note">
-            Change the weight during the first reps when it is too light or too heavy. Log the weight that you used. The other sets use it.
-          </p>
-        )}
-        {next.fromCalibration && (
-          <p className="text-sm text-sky-200" data-testid="calibration-note">
-            {exercise.firstSetCalibration ? "The first set gave this load." : "The calibration set gave this load."}
-          </p>
-        )}
-        {next.follows && (
-          <p className="text-sm text-sky-200" data-testid="follow-note">
-            {next.capped
-              ? "The first set was heavier than the target. This set goes up one weight of the machine, the limit of the policy."
-              : "The first set gave this load."}
-          </p>
-        )}
       </div>
 
       <Stepper
@@ -701,6 +723,33 @@ function SetLogger({
           ))}
         </div>
       </div>
+
+      {hasNote && (
+        <div className="space-y-1" data-testid="set-notes">
+          {exercise.override && !calibration && (
+            <p className="text-sm text-sky-200" data-testid="override-note">
+              {`Your change. Recommended: ${setText(exercise.override.recommendedWorkingSets[Math.min(next.number, exercise.override.recommendedWorkingSets.length) - 1] ?? next.target, false)}.`}
+            </p>
+          )}
+          {next.calibrates && (
+            <p className="text-sm text-sky-200" data-testid="calibration-note">
+              Change the weight during the first reps when it is too light or too heavy. Log the weight that you used. The other sets use it.
+            </p>
+          )}
+          {next.fromCalibration && (
+            <p className="text-sm text-sky-200" data-testid="calibration-note">
+              {exercise.firstSetCalibration ? "The first set gave this load." : "The calibration set gave this load."}
+            </p>
+          )}
+          {next.follows && (
+            <p className="text-sm text-sky-200" data-testid="follow-note">
+              {next.capped
+                ? "The first set was heavier than the target. This set goes up one weight of the machine, the limit of the policy."
+                : "The first set gave this load."}
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-3">
         <button type="button" className={secondary} aria-expanded={more} onClick={() => setMore(!more)}>

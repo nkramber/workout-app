@@ -41,7 +41,7 @@ These decisions remove whole areas of work from the roadmap.
 | 5 | Onboarding and plan generation | 3, 4 | A validated plan from the profile and the confirmed inventory |
 | 6 | Guided workout and offline logging | 5 | A fast, one-handed workout flow that survives a lost connection |
 | 7 | Adaptation loop | 6 | Validated next-session targets with reasons, overrides, and break handling |
-| 8 | Personal-use operations | 7 | Backups, alerts, cost caps, incident steps, and version migration |
+| 8 | Personal-use operations | 7 | Backups, a steady workout screen, cost caps, incident steps, and version migration |
 
 ```text
 0 -> 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
@@ -198,10 +198,10 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 | Work area | Concerns | Exit evidence |
 |---|---|---|
 | 8.1 Backups and recovery | The backups of D-124 from work area 2.3. A restore drill into a new database. A rollback procedure for the API and the web app. | A restore drill report. |
-| 8.2 Alerts and cost caps | Alerts for errors, failed deploys, failed backups, and refusals of the AI caps, to an email channel (D-312, D-313). No new spend cap: D-139, D-141, and D-188 stay. Work area 5.2 holds the lasting cap store (D-189). | A test alert reaches the owner. |
+| 8.2 Steady workout screen and cost caps | The parts of the workout screen that come and go do not move the set logger (D-318 to D-323). The owner dropped the alerts (D-317). No new spend cap: D-139, D-141, and D-188 stay. Work area 5.2 holds the lasting cap store (D-189). | A browser test shows that the set logger keeps its place through a rest. |
 | 8.3 Version migration | Policy and evidence version changes. A model change when `gpt-6-luna` retires. An incident runbook. | A replay of stored sessions under a new policy version gives a diff report. |
 
-**Decisions and questions.** D-25, D-76, D-80, D-124, D-188, D-189, D-311 to D-316, Q-98, Q-99, Q-317 to Q-322.
+**Decisions and questions.** D-25, D-76, D-80, D-124, D-188, D-189, D-311 to D-323, Q-98, Q-99, Q-317 to Q-329.
 
 **Exit for the roadmap.** Four weeks of owner use with no lost set, no refused valid sync, and no policy breach in the decision log.
 
