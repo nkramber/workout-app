@@ -1,4 +1,4 @@
-policy version: 8
+policy version: 9
 rules: progress.load-step
 target: biceps_curl, rest 60 s
   working[0]: 8 reps at 30 lb, 2 RIR

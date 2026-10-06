@@ -49,14 +49,21 @@ func run(ctx context.Context, args []string, getenv func(string) string, stdout 
 	out := fs.String("out", "", "the path of the JSON report (required)")
 	effort := fs.String("effort", "", "the reasoning effort of each call, one of "+strings.Join(ai.Efforts, ", ")+" (default: the effort of the role)")
 	planner := fs.Bool("planner", true, "send the profiles through the planner: false runs the reviser scenarios alone")
+	reviser := fs.Bool("reviser", true, "run the reviser scenarios: false runs the planner alone")
+	sessions := fs.Int("sessions", PlannerSessions, "the sessions of each planner call, 2 to 4 (D-211)")
+	plannerRepeats := fs.Int("planner-repeats", 1, "the planner calls of each profile")
+	groups := fs.Bool("groups", false, "give each profile the template \"General fitness\" with each muscle group, so that each rotation rule applies (D-328)")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
 	if *out == "" || *capUSD == "" {
 		return errors.New("-out and -cap are required")
 	}
-	if *repeats < 1 || *workers < 1 {
-		return errors.New("-repeats and -workers must be 1 or more")
+	if *repeats < 1 || *workers < 1 || *plannerRepeats < 1 {
+		return errors.New("-repeats, -planner-repeats, and -workers must be 1 or more")
+	}
+	if *sessions < 2 || *sessions > 4 {
+		return errors.New("-sessions must be 2 to 4")
 	}
 	if *effort != "" && !ai.ValidEffort(*effort) {
 		return fmt.Errorf("-effort %q: want one of %s", *effort, strings.Join(ai.Efforts, ", "))
@@ -82,7 +89,12 @@ func run(ctx context.Context, args []string, getenv func(string) string, stdout 
 		}
 	}
 	client := &ai.Client{Provider: provider, Cap: ai.NewMemoryCap(caps), Effort: *effort}
-	rep, err := Run(ctx, client, profiles, Scenarios(), *repeats, *workers)
+	var scenarios []Scenario
+	if *reviser {
+		scenarios = Scenarios()
+	}
+	f := Plans{Sessions: *sessions, Repeats: *plannerRepeats, Groups: *groups}
+	rep, err := Run(ctx, client, profiles, f, scenarios, *repeats, *workers)
 	if err != nil {
 		return err
 	}
@@ -114,6 +126,7 @@ func summary(w io.Writer, r Report) {
 		t.Decisions, t.Proposals, t.Accepted, t.Refused, t.NoProposal, t.NotPlanned)
 	fmt.Fprintf(w, "refusals by rule: %v, filtered texts %d, cardio items %d\n", t.ByRule, t.Filtered, t.Cardio)
 	fmt.Fprintf(w, "revisions %d, luna reasons %d, rules reasons by cause %v\n", t.Revisions, t.LunaReasons, t.ReasonCauses)
+	fmt.Fprintf(w, "rotation applies %d, rotation refused %d\n", t.RotationApplies, t.RotationRefused)
 	for _, s := range r.Scenarios {
 		fmt.Fprintf(w, "scenario %s: pass %v, safe %d of %d, reasons accepted %d, refused %d %v, no reason read %d, jumps refused %d of %d, calls %d, cost %s, max %.1f s\n",
 			s.ID, s.Pass(), s.Safe, s.Cases, s.LunaReasons, s.Refused, s.ByCause, s.NoReason, s.JumpsOK, s.Jumps, s.Calls, s.Cost, s.MaxSeconds)

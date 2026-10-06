@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"strconv"
 	"sync"
 	"time"
 
 	"github.com/nkramber/workout-app/go/internal/domain"
+	"github.com/nkramber/workout-app/go/internal/policy"
 )
 
 // Call is one request to a provider: the role, the instructions, the
@@ -84,7 +86,9 @@ func (f *Fake) Calls() []Call {
 
 // EchoReply gives a valid output for a call: each session holds the
 // first MaxSessionExercises exercises of the input at their policy
-// targets, with the default warm-up and cool-down. When the input has a
+// targets, with the default warm-up and cool-down. When the rotation
+// rules apply (D-328), each session holds the exercises of its class of
+// echoSplit alone. When the input has a
 // cardio exercise, each session gets EchoCardioMinutes of the first one.
 // The plan holds the EchoGuidance items, so a test sees each part of a
 // plan (D-44, D-241). The usage counts 4 bytes as one token. It is the
@@ -125,18 +129,86 @@ func EchoReply(c Call) (Reply, error) {
 		Sessions []session    `json:"sessions"`
 		Guidance []GuidanceID `json:"guidance_ids"`
 	}{Summary: "A plan at the targets of the rules.", Guidance: append([]GuidanceID(nil), EchoGuidance...)}
-	for range in.Sessions {
+	split := echoSplit(in)
+	for i := range in.Sessions {
 		s := session{WarmUp: DefaultWarmUp, CoolDown: DefaultCoolDown, Exercises: []exercise{}}
 		if len(in.Cardio) > 0 {
 			s.Cardio = cardio{in.Cardio[0], EchoCardioMinutes}
 		}
-		for _, e := range in.Exercises[:min(len(in.Exercises), MaxSessionExercises)] {
+		for _, e := range split[i] {
 			s.Exercises = append(s.Exercises, exercise{e.ID, e.Target.Rest, e.Target.Calibration, e.Target.Working,
 				"The target follows your last logged sets."})
 		}
 		out.Sessions = append(out.Sessions, s)
 	}
 	return echoText(c, encode(out)), nil
+}
+
+// echoSplit gives the exercises of each session of EchoReply, in the
+// order of the input. With no rotation, each session holds the first
+// MaxSessionExercises exercises. With the rotation, the units of the
+// policy go to the classes of sessions in turn, and an exercise with no
+// group goes to each session. A session first takes each exercise that
+// adds a selected group, so that the cover rule holds.
+func echoSplit(in wireInput) [][]wireExerciseIn {
+	out := make([][]wireExerciseIn, in.Sessions)
+	if in.Rotation == nil || !*in.Rotation {
+		for i := range out {
+			out[i] = in.Exercises[:min(len(in.Exercises), MaxSessionExercises)]
+		}
+		return out
+	}
+	r := policy.Rotation{Sessions: in.Sessions, Groups: map[domain.ExerciseID][]domain.MuscleGroup{}}
+	for _, e := range in.Exercises {
+		id := domain.ExerciseID(e.ID)
+		r.Order = append(r.Order, id)
+		for _, g := range e.Groups {
+			r.Groups[id] = append(r.Groups[id], domain.MuscleGroup(g))
+		}
+	}
+	if in.Profile != nil {
+		for _, g := range in.Profile.MuscleGroups {
+			r.Selected = append(r.Selected, domain.MuscleGroup(g))
+		}
+	}
+	class := map[domain.ExerciseID]int{}
+	for j, u := range r.Units() {
+		for _, id := range u {
+			class[id] = j % r.Classes()
+		}
+	}
+	required := r.Required()
+	for i := range out {
+		var mine []int
+		for k, e := range in.Exercises {
+			if c, ok := class[domain.ExerciseID(e.ID)]; !ok || c == i%r.Classes() {
+				mine = append(mine, k)
+			}
+		}
+		var picked []int
+		covered := map[string]bool{}
+		for _, k := range mine {
+			adds := slices.ContainsFunc(in.Exercises[k].Groups, func(g string) bool {
+				return !covered[g] && slices.Contains(required, domain.MuscleGroup(g))
+			})
+			if adds && len(picked) < MaxSessionExercises {
+				picked = append(picked, k)
+				for _, g := range in.Exercises[k].Groups {
+					covered[g] = true
+				}
+			}
+		}
+		for _, k := range mine {
+			if len(picked) < MaxSessionExercises && !slices.Contains(picked, k) {
+				picked = append(picked, k)
+			}
+		}
+		slices.Sort(picked)
+		for _, k := range picked {
+			out[i] = append(out[i], in.Exercises[k])
+		}
+	}
+	return out
 }
 
 func echoText(c Call, out []byte) Reply {

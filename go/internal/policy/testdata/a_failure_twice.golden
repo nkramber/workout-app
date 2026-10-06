@@ -1,4 +1,4 @@
-policy version: 8
+policy version: 9
 rules: progress.failure-hold
 target: biceps_curl, rest 60 s
   working[0]: 12 reps at 25 lb, 2 RIR

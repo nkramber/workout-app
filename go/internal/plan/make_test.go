@@ -393,6 +393,58 @@ func TestCardioRuleRetry(t *testing.T) {
 	}
 }
 
+// TestRotationRetry: the acceptance story of the rotation (D-328 to
+// D-330). A plan with the same exercises in each session breaks the
+// rotation, so the request calls Luna again with the cause. The saved
+// plan of the 3 training days holds each unit of groups in one session.
+func TestRotationRetry(t *testing.T) {
+	f := coreFixture(t)
+	f.fake.Reply = func(c ai.Call) (ai.Reply, error) {
+		r, err := ai.EchoReply(c)
+		if len(f.fake.Calls()) == 1 {
+			var out map[string]any
+			_ = json.Unmarshal([]byte(r.Text), &out)
+			s := out["sessions"].([]any)
+			for i := range s {
+				s[i].(map[string]any)["exercises"] = s[0].(map[string]any)["exercises"]
+			}
+			b, _ := json.Marshal(out)
+			r.Text = string(b)
+		}
+		return r, err
+	}
+	p, err := f.make(t, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p.Attempts != 2 || p.PolicyVersion != 9 {
+		t.Fatalf("%d attempts, policy version %d: want 2 and 9", p.Attempts, p.PolicyVersion)
+	}
+	prev := input(t, f.fake.Calls()[1])["previous_attempt"].(map[string]any)
+	if !strings.Contains(prev["cause"].(string), "rotation.no-repeat sessions[0] and sessions[1]: group quadriceps in both sessions") {
+		t.Fatalf("cause %q: want the repeat of quadriceps", prev["cause"])
+	}
+	in := input(t, f.fake.Calls()[0])
+	if in["rotation"] != true {
+		t.Fatalf("rotation %v: want true", in["rotation"])
+	}
+	where := map[domain.ExerciseID]int{}
+	for i, s := range p.Sessions {
+		if len(s.Exercises) == 0 {
+			t.Fatalf("session %d has no exercise", i)
+		}
+		for _, e := range s.Exercises {
+			if j, ok := where[e.Target.Exercise]; ok {
+				t.Fatalf("%s in sessions %d and %d", e.Target.Exercise, j, i)
+			}
+			where[e.Target.Exercise] = i
+		}
+	}
+	if where["chest_press"] != where["triceps_pulldown"] || where["leg_press"] != where["leg_extension"] || where["seated_row"] != where["lat_pulldown"] {
+		t.Fatalf("layout %v: want each unit in one session", where)
+	}
+}
+
 // TestFourFailures: after 4 failed calls the request gives
 // ErrNoValidPlan, and nothing changes: not the old plan, and not the
 // exclusions (D-230, D-234).

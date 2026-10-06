@@ -8,7 +8,7 @@ import { makePlanOwner, signIn, syncLine, uniqueEmail } from "./support";
 // sets, the rest, the cardio, the cool-down, and one mobility and one
 // recovery item (D-44). No test calls OpenAI (D-24).
 
-const MACHINES = ["chest_press", "seated_row", "treadmill"];
+const MACHINES = ["chest_press", "shoulder_press", "treadmill"];
 
 const button = (page: Page, name: string) => page.getByRole("button", { name, exact: true });
 const sessions = (page: Page) => page.getByTestId("plan-session");
@@ -38,11 +38,14 @@ test("the owner requests a plan, sees each part, excludes an exercise, and sees 
   await expect(page.getByTestId("plan-summary")).toHaveText("A plan at the targets of the rules.");
   await expect(progress(page)).toHaveCount(0);
   await expect(sessions(page)).toHaveCount(3);
-  for (const s of await sessions(page).all()) {
+  // The rotation of the muscle groups keeps the chest press and the
+  // shoulder press, which share the triceps, in one session. Sessions 2
+  // and 3 hold the cardio alone (D-328, D-330).
+  for (const [i, s] of (await sessions(page).all()).entries()) {
     await expect(s.getByTestId("warm-up")).toContainText("Do 5 minutes of easy cardio.");
     await expect(s.getByTestId("cool-down")).toContainText("Walk at an easy pace for 5 minutes.");
     await expect(s.getByTestId("cardio")).toHaveText("Cardio: Treadmill, 20 min");
-    await expect(s.getByTestId("plan-exercise")).toHaveCount(2);
+    await expect(s.getByTestId("plan-exercise")).toHaveCount(i === 0 ? 2 : 0);
   }
   const press = exercise(page, "chest_press").first();
   await expect(press.getByRole("heading")).toHaveText("Chest press");
@@ -71,12 +74,12 @@ test("the owner requests a plan, sees each part, excludes an exercise, and sees 
   await expect(excluded).toContainText("The seat does not fit.");
   await expect(exercise(page, "chest_press")).toHaveCount(0);
   await expect(sessions(page)).toHaveCount(3);
-  await expect(exercise(page, "seated_row")).toHaveCount(3);
+  await expect(exercise(page, "shoulder_press")).toHaveCount(1);
 
   // The server holds the new plan and the exclusion.
   await page.reload();
   await button(page, "Plan").click();
-  await expect(exercise(page, "seated_row")).toHaveCount(3);
+  await expect(exercise(page, "shoulder_press")).toHaveCount(1);
   await expect(exercise(page, "chest_press")).toHaveCount(0);
   await expect(page.getByTestId("exclusion")).toHaveCount(1);
 });
@@ -169,7 +172,7 @@ test("4 failed calls and the cap give their errors, and the plan does not change
     "The exercise is not excluded. The monthly AI limit is reached. Your plan did not change. The limit resets on the first day of the month (UTC).",
   );
   await expect(planError(page)).toBeInViewport();
-  await expect(exercise(page, "chest_press")).toHaveCount(3);
+  await expect(exercise(page, "chest_press")).toHaveCount(1);
   await expect(page.getByTestId("exclusion")).toHaveCount(0);
 });
 
@@ -198,7 +201,7 @@ test("a plan request waits for the inventory changes that did not sync", async (
   });
 
   await button(page, "Equipment").click();
-  await page.getByTestId("machine-seated_row").click();
+  await page.getByTestId("machine-shoulder_press").click();
   await button(page, "Remove the machine").click();
   await button(page, "Yes, remove").click();
   await expect(syncLine(page)).toHaveText("Sync failed · 1 waiting");
@@ -216,5 +219,5 @@ test("a plan request waits for the inventory changes that did not sync", async (
   await expect(page.getByTestId("plan-summary")).toHaveText("A plan at the targets of the rules.");
   await expect(syncLine(page)).toHaveText("Synced");
   expect(planCalls).toBe(1);
-  await expect(exercise(page, "seated_row")).toHaveCount(0);
+  await expect(exercise(page, "shoulder_press")).toHaveCount(0);
 });

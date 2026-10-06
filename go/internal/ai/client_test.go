@@ -384,8 +384,13 @@ func TestPlanShape(t *testing.T) {
 	if !slices.Equal(p.Guidance, []GuidanceID{"mobility.hips", "recovery.rest_day"}) {
 		t.Fatalf("guidance %v", p.Guidance)
 	}
-	if got := res.Proposal(1, "chest_press"); got.Target == nil {
+	// The rotation of D-328 puts the press in session 0 and the squat
+	// in session 1.
+	if got := res.Proposal(1, "db_goblet_squat"); got.Target == nil {
 		t.Fatal("session 1 gives no proposal")
+	}
+	if got := res.Proposal(1, "chest_press"); got.Target != nil {
+		t.Fatal("session 1 gives a proposal of the press")
 	}
 	for _, s := range []int{-1, 2} {
 		if got := res.Proposal(s, "chest_press"); got.Target != nil {

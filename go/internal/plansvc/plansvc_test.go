@@ -138,9 +138,14 @@ func TestRequestPlan(t *testing.T) {
 	if p == nil || len(p.GetSessions()) != 2 || p.GetAttempts() != 1 || p.GetCreatedAt() != "2026-10-02T15:00:00Z" || p.GetPromptVersion() != ai.PromptVersion {
 		t.Fatalf("plan %v", p)
 	}
+	// The rotation of D-328 puts each of the two exercises in its own
+	// session.
 	s := p.GetSessions()[0]
-	if s.GetWarmUp().GetText() == "" || s.GetCoolDown().GetKind() != "cool_down" || len(s.GetExercises()) != 2 {
+	if s.GetWarmUp().GetText() == "" || s.GetCoolDown().GetKind() != "cool_down" || len(s.GetExercises()) != 1 {
 		t.Fatalf("session %v", s)
+	}
+	if s2 := p.GetSessions()[1].GetExercises(); len(s2) != 1 || s2[0].GetExerciseId() == "chest_press" {
+		t.Fatalf("session 2 exercises %v", s2)
 	}
 	e := s.GetExercises()[0]
 	if e.GetExerciseId() != "chest_press" || e.GetName() != "Chest press" || e.GetSource() != "luna" || e.GetReason() == "" ||

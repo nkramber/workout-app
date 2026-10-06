@@ -56,6 +56,7 @@ This folder holds the API of work area 2.1. The API serves the contract of `prot
 
 - A request plans the confirmed machines alone, with no exercise of an injured area and no excluded exercise (D-49, D-208, D-229).
 - An invalid output gets a retry with its cause and its output, 4 calls at most (D-230, D-231, D-235). A call over the cap ends the request at once.
+- An output that breaks a rotation rule of the policy is invalid (D-329). `ai.RotationOf` gives the rotation input of a request, and the planner input tells Luna if the rotation applies. The rotation does not apply when the allowed exercises can make no split (D-328 to D-331).
 - Each failed attempt adds a document to the top-level collection `aiErrors`. Its field `expire_at` drives the TTL of 90 days (D-236). The document holds the output of Luna, so no log reads it (D-80).
 - The policy decides each exercise of a valid plan, and the plan stores each decision record (D-23, D-176).
 - A target of policy version 7 has no calibration set. The flag `first_set_calibration` tells that its first working set is the calibration (D-297). A plan of policy version 4 to 6 can still hold `calibration_loads` from `policy.CalibrationTable` (D-267).
@@ -84,7 +85,7 @@ After each `SyncOutbox` batch, `go/internal/revise` revises the plan for each fi
 
 - The history of an exercise is each finished workout that logged it, of the newest 100, with its target copy. A workout of an older phone with no copy reads the linked session of a plan with no revision.
 - `policy.Revise` gives the target of the rules and its decision record. Each session of the plan that holds the exercise gets it (D-290). The plan keeps its `created_at`, so each workout keeps its link.
-- One reviser call with `luna-prompt-v6` and the schema `luna_reason_v1` writes each reason (D-288). The call has a time limit of 45 s, and the revision continues when the sync request ends first.
+- One reviser call with `luna-prompt-v7` and the schema `luna_reason_v1` writes each reason (D-288). The call has a time limit of 45 s, and the revision continues when the sync request ends first.
 - `revise.Check` refuses a blocked reason, a reason with no logged set or an unknown set, and a number outside the evidence. The plan then holds the reason of the rules, with the cause in `reason_cause`.
 - A store failure of a revision gives `UNAVAILABLE`. Each applied entry stays applied, so the phone sends the batch again, and the revision runs again. The log line holds ids and counts alone (D-80).
 - Each input holds the start date of each deload, from `policy.Deloads` over the history of each logged exercise (D-295).
@@ -95,7 +96,7 @@ After each `SyncOutbox` batch, `go/internal/revise` revises the plan for each fi
 
 ## The policy replay
 
-`go/cmd/replay` reads the workouts, the inventory, and the active plan of each user, and replays them under the current policy version. It calls no model, and it writes nothing to the store. With no `-live` flag, it needs the emulator:
+`go/cmd/replay` reads the workouts, the inventory, and the active plan of each user, and replays them under the current policy version. It also reads the sessions of each active plan against the rule `rotation.no-repeat` (D-328). It calls no model, and it writes nothing to the store. With no `-live` flag, it needs the emulator:
 
 ```bash
 cd go && go run ./cmd/replay -project demo-workout-app
@@ -118,7 +119,9 @@ OPENAI_API_KEY="$(gcloud secrets versions access latest --secret=openai-api-key 
   go run ./cmd/lunaeval -live -cap 2 -out ../docs/research/phase-3-check/results.json
 ```
 
-The flag `-effort` sets the reasoning effort of each call, so two runs can compare two efforts with the same calls. With no flag, each call uses the effort of its role. `docs/research/luna-effort-check.md` used it for medium and xhigh (D-242).
+The flag `-effort` sets the reasoning effort of each call, so two runs can compare two efforts with the same calls. With no flag, each call uses the effort of its role.
+
+The flags `-sessions`, `-planner-repeats`, and `-groups` set the count of sessions, the calls of each profile, and a profile with each muscle group. The flag `-reviser=false` runs the planner alone. The report counts the planner calls with the rotation, and the outputs that break it (D-328). `docs/research/luna-effort-check.md` used it for medium and xhigh (D-242).
 
 The command writes the report and a summary of ids and numbers. The report holds synthetic data alone.
 

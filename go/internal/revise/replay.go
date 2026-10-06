@@ -68,10 +68,19 @@ type CopyReplayed struct {
 // Replay is the replay of the stored data of one user under the current
 // policy version. HasPlan is false when the user has no plan. The
 // replay calls no model, and it writes nothing.
+//
+// Layout holds each violation of the rule rotation.no-repeat by the
+// sessions of the active plan (D-328). The store keeps no request of a
+// plan, so the replay reads the exercises and the cardio of the plan in
+// place of the request, and selects no group. So it does not read the
+// rule rotation.cover, and LayoutApplies is false when the exercises of
+// the plan can make no split.
 type Replay struct {
-	HasPlan bool
-	Records []Replayed
-	Copies  []CopyReplayed
+	HasPlan       bool
+	Records       []Replayed
+	Copies        []CopyReplayed
+	LayoutApplies bool
+	Layout        []policy.Violation
 }
 
 // Replay reads the finished workouts, their target copies, the
@@ -113,12 +122,35 @@ func (r *Reviser) Replay(ctx context.Context, uid string) (Replay, error) {
 		return out, nil
 	}
 	out.HasPlan = true
+	out.LayoutApplies, out.Layout = layout(p)
 	for i, s := range p.Sessions {
 		for _, e := range s.Exercises {
 			out.Records = append(out.Records, r.replayRecord(uid, p, i, e.Record, history, pi))
 		}
 	}
 	return out, nil
+}
+
+// layout replays the sessions of a plan under the rotation rules of the
+// current policy version.
+func layout(p plan.Plan) (bool, []policy.Violation) {
+	t := domain.DefaultBodyTables()
+	r := policy.Rotation{Sessions: len(p.Sessions), Groups: map[domain.ExerciseID][]domain.MuscleGroup{}}
+	sessions := make([][]domain.ExerciseID, len(p.Sessions))
+	for i, s := range p.Sessions {
+		r.Filler = r.Filler || s.Cardio != nil
+		for _, e := range s.Exercises {
+			id := e.Target.Exercise
+			sessions[i] = append(sessions[i], id)
+			if _, ok := r.Groups[id]; ok {
+				continue
+			}
+			r.Order = append(r.Order, id)
+			r.Groups[id] = t.Groups[id]
+			r.Filler = r.Filler || len(t.Groups[id]) == 0
+		}
+	}
+	return r.Applies(), policy.CheckRotation(r, sessions)
 }
 
 // originOf gives the step that wrote a record. policy.Decide gives a

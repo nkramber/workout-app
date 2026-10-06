@@ -48,9 +48,28 @@ func Profiles() ([]Profile, error) {
 	return doc.Profiles, nil
 }
 
+// Plans gives the form of the planner calls: the count of sessions, the
+// calls of each profile, and when Groups is true, a profile of the
+// template "General fitness" that selects each group of D-210, so that
+// the rule rotation.cover applies (D-328).
+type Plans struct {
+	Sessions int
+	Repeats  int
+	Groups   bool
+}
+
+// DefaultPlans is the form of the planner calls of the Phase 3 check.
+var DefaultPlans = Plans{Sessions: PlannerSessions, Repeats: 1}
+
 // Request gives the planner request of a profile.
-func (p Profile) Request() ai.Request {
-	r := ai.Request{User: "eval", Today: Today, Sessions: PlannerSessions, Cardio: p.Cardio}
+func (p Profile) Request(f Plans) ai.Request {
+	r := ai.Request{User: "eval", Today: Today, Sessions: f.Sessions, Cardio: p.Cardio}
+	if f.Groups {
+		r.Profile = &ai.Profile{Experience: "intermediate", GoalTemplate: string(domain.TemplateGeneralFitness)}
+		for _, g := range domain.MuscleGroups() {
+			r.Profile.MuscleGroups = append(r.Profile.MuscleGroups, string(g))
+		}
+	}
 	for _, x := range p.Exercises {
 		e := catalogExercise(x.ID)
 		r.Exercises = append(r.Exercises, policy.Input{
@@ -90,6 +109,12 @@ type Call struct {
 	Known    bool          `json:"cost_known"`
 	Summary  string        `json:"summary,omitempty"`
 	Filtered []ai.Filtered `json:"filtered,omitempty"`
+	// Cause is the cause of a failed call. It names ids and numbers
+	// alone (D-80).
+	Cause string `json:"cause,omitempty"`
+	// Rotation tells that the rotation rules apply to a planner call
+	// (D-328).
+	Rotation bool `json:"rotation,omitempty"`
 	// Cardio is each cardio item of the plan. The policy has no cardio
 	// rule, so no rule checks it.
 	Cardio     []string   `json:"cardio,omitempty"`
@@ -147,6 +172,11 @@ type Totals struct {
 	InputTokens  int64             `json:"input_tokens"`
 	OutputTokens int64             `json:"output_tokens"`
 	Reasoning    int64             `json:"reasoning_tokens"`
+	// RotationApplies counts the planner calls with the rotation rules,
+	// and RotationRefused counts each of them with an output that breaks
+	// a rotation rule (D-328, D-329).
+	RotationApplies int `json:"rotation_applies"`
+	RotationRefused int `json:"rotation_refused"`
 }
 
 // ScenarioTotal is the grade of one scenario over each repeat.
@@ -194,10 +224,12 @@ type job struct {
 // scenario through the reviser repeats times. No profile gives no
 // planner call. Then the policy decides
 // each exercise (D-23). Workers is the count of calls at the same time.
-func Run(ctx context.Context, c *ai.Client, profiles []Profile, scenarios []Scenario, repeats, workers int) (Report, error) {
+func Run(ctx context.Context, c *ai.Client, profiles []Profile, f Plans, scenarios []Scenario, repeats, workers int) (Report, error) {
 	var jobs []job
 	for _, p := range profiles {
-		jobs = append(jobs, job{role: ai.RolePlanner, item: p.ID, req: p.Request()})
+		for r := range max(f.Repeats, 1) {
+			jobs = append(jobs, job{role: ai.RolePlanner, item: p.ID, repeat: r + 1, req: p.Request(f)})
+		}
 	}
 	for i := range scenarios {
 		for r := range repeats {
@@ -250,9 +282,12 @@ func runJob(ctx context.Context, c *ai.Client, j job) (Call, error) {
 		return Call{}, err
 	}
 	out := Call{
-		Role: j.role, Item: j.item, Repeat: j.repeat, Status: res.Status,
+		Role: j.role, Item: j.item, Repeat: j.repeat, Status: res.Status, Cause: res.Cause,
 		Seconds: time.Since(start).Seconds(), Usage: res.Cost.Usage, Cost: res.Cost.Cost, Known: res.Cost.Known,
 		Decisions: []Decision{},
+	}
+	if j.role == ai.RolePlanner {
+		out.Rotation = ai.RotationOf(j.req).Applies()
 	}
 	if res.Plan != nil {
 		out.Summary, out.Filtered = res.Plan.Summary, res.Plan.Filtered
@@ -418,6 +453,12 @@ func total(calls []Call, scenarios []Scenario) (Totals, []ScenarioTotal) {
 			t.CostUnknown++
 		}
 		t.MaxSeconds = max(t.MaxSeconds, c.Seconds)
+		if c.Rotation {
+			t.RotationApplies++
+			if c.Status == ai.StatusMalformed && strings.Contains(c.Cause, "rotation.") {
+				t.RotationRefused++
+			}
+		}
 		t.InputTokens += c.Usage.InputTokens
 		t.OutputTokens += c.Usage.OutputTokens
 		t.Reasoning += c.Usage.ReasoningTokens

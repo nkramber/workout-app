@@ -9,7 +9,7 @@ import { callApi, controlApi, holdSync, makePlanOwner, reopenOffline, signIn, st
 // OpenAI (D-24). The phone keeps each log. A test that reads the outbox
 // holds the sync, so the entries stay (work area 6.3).
 
-const MACHINES = ["chest_press", "seated_row", "treadmill"];
+const MACHINES = ["chest_press", "shoulder_press", "treadmill"];
 
 const button = (page: Page, name: string) => page.getByRole("button", { name, exact: true });
 const logger = (page: Page) => page.getByTestId("set-logger");
@@ -195,7 +195,7 @@ test("finish now skips the exercises with no set, and the next session comes nex
       skipped: w.skippedExerciseIds,
     })),
   );
-  expect(workouts).toContainEqual({ sessionIndex: 0, finished: true, endedEarly: true, skipped: ["seated_row"] });
+  expect(workouts).toContainEqual({ sessionIndex: 0, finished: true, endedEarly: true, skipped: ["shoulder_press"] });
   expect(workouts).toContainEqual({ sessionIndex: 2, finished: false, endedEarly: false, skipped: [] });
 });
 
@@ -299,7 +299,7 @@ test("the rest timer is correct after a screen lock, and the next machine comes 
   }
   const preview = page.getByTestId("next-preview");
   await expect(preview.getByTestId("preview-done")).toHaveText("Chest press is done.");
-  await expect(preview.getByTestId("preview-next")).toHaveText("Next: Seated row");
+  await expect(preview.getByTestId("preview-next")).toHaveText("Next: Shoulder press");
   await expect(preview.getByTestId("preview-seconds")).toHaveText(/^The next machine shows in (10|9) s\.$/);
   await expect(logger(page)).toHaveCount(0);
   await expect(page.getByTestId("rest-state")).toHaveText("Rest");
@@ -307,7 +307,7 @@ test("the rest timer is correct after a screen lock, and the next machine comes 
   // The automatic advance after 10 s.
   await page.clock.fastForward(10_000);
   await expect(preview).toHaveCount(0);
-  await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Seated row");
+  await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Shoulder press");
   await expect(restLeft(page)).toHaveText(/^0:[45]\d$/);
 });
 
@@ -367,7 +367,7 @@ test("the set logger keeps its place before, during, and after a rest, and at th
   const listY = await offset(list);
   expect(await offset(preview)).toBe(y);
   await button(page, "Go now").click();
-  await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Seated row");
+  await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Shoulder press");
   expect(await top()).toBe(y);
   expect(await offset(list)).toBe(listY);
 });
@@ -398,7 +398,7 @@ test("the first set gives the working load with no network, go now advances, and
   for (let i = 2; i <= 3; i++) await button(page, "3 in reserve").click();
   await expect(page.getByTestId("next-preview")).toBeVisible();
   await button(page, "Go now").click();
-  await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Seated row");
+  await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Shoulder press");
 
   // The edit of the first set keeps its kind and its place (D-63).
   const rows = exercise(page, "chest_press").getByTestId("logged-text");
@@ -444,8 +444,12 @@ test("the later sets follow a heavier first set up to the limit of the policy", 
   await expect(page.getByTestId("follow-limit").first()).toContainText("When you change the weight of set 1, the other sets use it, up to ");
   await button(page, "Back").click();
 
+  // The rotation keeps the chest press in Session 1 alone (D-328), so
+  // the owner starts Session 1 again (D-248).
   await button(page, "Workout").click();
-  await button(page, "Start Session 2").click();
+  await expect(page.getByTestId("next-session")).toContainText("Session 2");
+  await button(page, "Start Session 1").click();
+  await expect(page.getByRole("heading", { name: "Session 1", exact: true })).toBeVisible();
   await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Chest press");
   await expect(logger(page).getByTestId("set-label")).toHaveText("Set 1 of 3");
   const target = Number((await logger(page).getByTestId("set-target").textContent())?.match(/ at (\d+) lb/)?.[1]);
@@ -583,7 +587,7 @@ test("a skip and finish now give the correct session log", async ({ page, reques
   await button(page, "Skip this exercise").click();
   await expect(page.getByRole("alertdialog").getByRole("heading")).toHaveText("Skip Chest press?");
   await page.getByRole("alertdialog").getByRole("button", { name: "Skip", exact: true }).click();
-  await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Seated row");
+  await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Shoulder press");
   await expect(exercise(page, "chest_press").getByTestId("exercise-skipped")).toHaveText("Skipped");
 
   // The other sets use the weight that the owner logged for the first
@@ -610,7 +614,7 @@ test("a skip and finish now give the correct session log", async ({ page, reques
       .map((e) => e.payload as { skippedExerciseIds?: string[]; endedEarly?: boolean; finished?: boolean }),
   }));
   expect(log.workouts).toEqual([{ finished: true, endedEarly: true, skipped: ["chest_press"] }]);
-  expect(log.sets).toEqual([{ exerciseId: "seated_row", kind: "working" }]);
+  expect(log.sets).toEqual([{ exerciseId: "shoulder_press", kind: "working" }]);
   expect(log.headers).toHaveLength(3);
   expect(log.headers[1]).toMatchObject({ skippedExerciseIds: ["chest_press"] });
   expect(log.headers[2]).toMatchObject({ skippedExerciseIds: ["chest_press"], endedEarly: true, finished: true });
@@ -921,7 +925,7 @@ test("the next targets and their reasons show after the end of a workout", async
   const press = page.locator('[data-testid="next-target"][data-exercise-id="chest_press"]');
   await expect(press).toContainText("Chest press");
   await expect(press.getByTestId("next-reason")).toHaveText(/^Set 1: \d+ reps at [\d.]+ lb, 3 in reserve\.$/);
-  const row = page.locator('[data-testid="next-target"][data-exercise-id="seated_row"]');
+  const row = page.locator('[data-testid="next-target"][data-exercise-id="shoulder_press"]');
   await expect(row.getByTestId("next-reason")).toContainText("You skipped this exercise. The target stays the same.");
   const reason = await press.getByTestId("next-reason").textContent();
 
@@ -932,5 +936,5 @@ test("the next targets and their reasons show after the end of a workout", async
 
   // The server holds the target copy of the workout (D-291).
   const { workouts } = await callApi<{ workouts: { targets?: { exerciseId: string }[] }[] }>(request, email, "WorkoutService/ListWorkouts", {});
-  expect(workouts[0].targets?.map((t) => t.exerciseId)).toEqual(["chest_press", "seated_row"]);
+  expect(workouts[0].targets?.map((t) => t.exerciseId)).toEqual(["chest_press", "shoulder_press"]);
 });

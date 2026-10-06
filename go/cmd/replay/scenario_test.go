@@ -179,6 +179,9 @@ func checkV7Report(t *testing.T, rep Report) {
 			ChangedByRule: map[string]int{"follow.first-set": 3}, ChangedFields: map[string]int{"follow_max": 3},
 		},
 		Copies: CopyReport{Total: 2, SameAsRules: 2, ViolationsByRule: map[string]int{}},
+		// The plan of version 7 holds the chest press in both sessions,
+		// so it breaks the rotation of version 9 (D-328).
+		Layouts: LayoutReport{Plans: 1, Applies: 1, Breaks: 1, GroupsInARow: map[string]int{"chest": 1, "triceps": 1}},
 	}
 	if fmt.Sprintf("%+v", rep) != fmt.Sprintf("%+v", want) {
 		t.Fatalf("report:\n got %+v\nwant %+v", rep, want)
