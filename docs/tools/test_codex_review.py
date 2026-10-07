@@ -336,6 +336,21 @@ class Threads(unittest.TestCase):
         self.assertIn("the Gitar dashboard reports an issue", str(caught.exception))
 
 
+class SkipVariable(unittest.TestCase):
+    """D-337: only SKIP_GITAR=1 of make passes the flag. Each other value reads the Gitar pass."""
+
+    def command(self, target, *variables):
+        out = subprocess.run(["make", "-n", "-C", cr.ROOT, target, "PR=1", *variables],
+                             capture_output=True, text=True, check=True, env={**os.environ, "SKIP_GITAR": ""})
+        return [line for line in out.stdout.splitlines() if "codex_review.py" in line][-1]
+
+    def test_only_the_value_1_skips(self):
+        for target in ("codex-review", "claude-review"):
+            self.assertIn("--skip-gitar-review", self.command(target, "SKIP_GITAR=1"), target)
+            for value in ("", "0", "false", "no", "yes"):
+                self.assertNotIn("--skip-gitar-review", self.command(target, f"SKIP_GITAR={value}"), (target, value))
+
+
 class GitarOrder(unittest.TestCase):
     """main reads the Gitar pass, or the threads with the flag, before the provider gate and the CLI update."""
 

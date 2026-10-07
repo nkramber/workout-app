@@ -199,7 +199,8 @@ gitar-wait: ## Wait for a current Gitar review of the head of one pull request: 
 # line: `outcome: <name> (exit <n>)`. Each review target refuses to start
 # before the Gitar pass is complete (D-336). SKIP_GITAR=1 reads no Gitar
 # pass, and only the owner states the pause that permits it (D-337).
-GITAR_FLAG = $(if $(SKIP_GITAR),--skip-gitar-review)
+# Only the exact value 1 skips, so SKIP_GITAR=0 or false reads the pass.
+GITAR_FLAG = $(if $(filter 1,$(SKIP_GITAR)),--skip-gitar-review)
 
 codex-review: ## Start the Codex review of one pull request and read its record: make codex-review PR=<n>. CAUTION: it spends the Codex plan of the owner, never the API (D-8)
 	@[ -n "$(PR)" ] || { echo "codex-review: set PR to the number of the pull request. Usage: make codex-review PR=12"; exit 2; }

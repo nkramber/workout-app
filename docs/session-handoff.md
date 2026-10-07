@@ -14,9 +14,11 @@ The owner approved the milestone "the mandatory Gitar review" (D-12), and answer
 - the wait `docs/tools/gitar_wait.py` and `make gitar-wait` (D-338),
 - the wiring check of `docs/tools/pr_check.py` in place of the ban, and the Gitar steps of `one-pr-one-session`, `pr-review`, and the pull request template.
 
-The owner says that the Gitar app is installed on this repository (Q-342). The first push of PR-43 checks it. The gate applies to PR-43 itself, because `make codex-review` runs from the checkout.
+GitHub pull request 44 holds PR-43. The gate applies to PR-43 itself, because `make codex-review` runs from the checkout. The Gitar app is installed, as the owner said (Q-342). Its review of `679655b` came 125 s after the push, and `make gitar-wait` read it.
 
-Next action: push, do the Gitar pass with `make gitar-wait`, then wait for green CI, and run `make codex-review`.
+Gitar round 1 gave one finding: `SKIP_GITAR=0` also skipped the Gitar pass. The author found full merit. Now only the exact value 1 skips, and a test of `make -n` proves each value.
+
+Next action: do the Gitar pass of the fix, then wait for green CI, and run `make codex-review PR=44`.
 
 ## Facts that expire
 
