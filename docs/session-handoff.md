@@ -18,7 +18,9 @@ GitHub pull request 44 holds PR-43. The gate applies to PR-43 itself, because `m
 
 Gitar round 1 gave one finding: `SKIP_GITAR=0` also skipped the Gitar pass. The author found full merit. Now only the exact value 1 skips, and a test of `make -n` proves each value.
 
-Next action: do the Gitar pass of the fix, then wait for green CI, and run `make codex-review PR=44`.
+Codex reviewed PR-44 at effective head `88b647d`. The verdict is `Ready for owner merge`, with no finding. The record is `docs/reviews/pr-44.md`.
+
+Next action: verify that the pushed review record makes `review-gate` pass, then continue the owner merge steps for PR-43.
 
 ## Facts that expire
 
