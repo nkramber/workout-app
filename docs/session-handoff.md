@@ -18,9 +18,9 @@ GitHub pull request 44 holds PR-43. The gate applies to PR-43 itself, because `m
 
 Gitar round 1 gave one finding: `SKIP_GITAR=0` also skipped the Gitar pass. The author found full merit. Now only the exact value 1 skips, and a test of `make -n` proves each value.
 
-Codex reviewed PR-44 at effective head `88b647d`. The verdict is `Ready for owner merge`, with no finding. The record is `docs/reviews/pr-44.md`.
+Gitar round 2 approved `88b647d` with "1 closed / 1 findings", and Gitar confirmed the fix on the thread. Each check of `88b647d` passed, except `review-gate` before the record. Codex round 1 reviewed effective head `88b647d` and gave "Ready for owner merge", with no finding, in `docs/reviews/pr-44.md`. The Gitar gate let that run start, so the gate passed one live run. The pull request waits for the owner merge.
 
-Next action: continue the owner merge steps for PR-43. The review record is on the branch, and `review-gate` passes.
+Next action: the owner reads the record and the author provider, and confirms the merge.
 
 ## Facts that expire
 
@@ -107,10 +107,11 @@ Completed:
 
 - Read the Gitar parts of Decktome and what-you-carry. The owner approved the milestone and answered Q-341 to Q-343 (D-335 to D-338).
 - Ported the Gitar gate of the review targets, the wait, the skill, and the rules, with their tests.
+- Fixed the Gitar finding of round 1: only `SKIP_GITAR=1` skips the Gitar pass.
 
 Open work:
 
-- The Gitar pass, the Codex review, the owner confirmation, and the merge of PR-43.
+- The owner confirmation and the merge of PR-43. Gitar and Codex approved `88b647d`.
 
 ### Session 43 - 2026-10-06
 
