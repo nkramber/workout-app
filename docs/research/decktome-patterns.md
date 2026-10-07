@@ -60,7 +60,7 @@ Workout App has the same shape: one owner, AI agents, an installable phone-first
 | Review gate from `main`, head read as data only | `decktome:.github/workflows/review-gate.yml`, `decktome:docs/tools/review_gate.py` | Adopt | D-6. |
 | `review-override` label for docs-only pull requests | `decktome:docs/tools/review_gate.py` | Adapt | The label exists. The Codex review applied to docs-only pull requests until the owner ended the roadmap period on 2026-09-29 (D-4, D-125). |
 | Codex review by `make codex-review`, record in the reviews folder, verdict bound to one head | `decktome:docs/tools/codex_review.py`, `decktome:docs/reviews` | Adapt | D-3, D-8. The author session runs it after CI is green. |
-| Gitar third-party review before Codex | `decktome:.claude/skills/gitar-review/SKILL.md` | Decline | Out until the owner approves it (D-3). |
+| Gitar third-party review before Codex | `decktome:.claude/skills/gitar-review/SKILL.md` | Decline, then Adapt | Out until the owner approved it on 2026-10-06 (D-3, D-335). PR-43 ports it with the wait of what-you-carry (D-338). |
 | Branch ruleset in the repository, ruleset-check | `decktome:.github/rulesets/review-gate.json`, `decktome:docs/tools/ruleset_check.py` | Adopt | D-6. |
 | Pre-commit hook: no commit on `main`, STE check of staged docs | `decktome:.githooks/pre-commit` | Adapt | D-6. Add a commit-msg hook for commit format and attribution (D-14). |
 | `make where`, `make hooks` | `decktome:Makefile` | Adopt | D-6. |
@@ -146,7 +146,7 @@ The first pull request ports the process items of D-3 and D-6. The table maps ea
 
 | Pattern | Reason | Governing D- id |
 |---|---|---|
-| Gitar review and the gitar-review skill | The owner did not approve it. Remove the Gitar steps from each ported skill. | D-3, D-6 |
+| Gitar review and the gitar-review skill | The owner did not approve it at the time of this research. Remove the Gitar steps from each ported skill. On 2026-10-06, the owner approved it, and PR-43 ports it. | D-3, D-6, D-335 |
 | Commit-order deploy guard | Two triggers do not race yet. Add it when evidence shows a race. | D-74 |
 | Paid evaluation gates, autotune, and feedback loops | They measure deck quality for Magic: The Gathering. Workout App needs its own policy tests, which cost nothing. | D-23, D-25 |
 | Custom domain and its DNS | The app lives on the default Hosting URL, and the API on the default Cloud Run URL. | D-17, D-81, D-82 |

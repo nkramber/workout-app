@@ -29,6 +29,7 @@ import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 SKILL = ".claude/skills/one-pr-one-session/SKILL.md"
+GITAR_SKILL = ".claude/skills/gitar-review/SKILL.md"
 TEMPLATE = ".github/pull_request_template.md"
 HANDOFF = "docs/session-handoff.md"
 AGENTS = "AGENTS.md"
@@ -403,8 +404,6 @@ def check_skills(read, listdir):
         for key in fields:
             if key not in allowed:
                 errors.append(f"{path}: unknown frontmatter key '{key}'")
-        if re.search(r"gitar", text, flags=re.I):
-            errors.append(f"{path} names Gitar. Gitar stays out until the owner approves it (D-3)")
     skill = read(SKILL) or ""
     for phrase in (BLOCKED, COMPLETE):
         if phrase not in skill:
@@ -412,6 +411,11 @@ def check_skills(read, listdir):
     # D-7: AGENTS.md holds the rules, and CLAUDE.md points to it alone.
     if SKILL not in (read(AGENTS) or ""):
         errors.append(f"{AGENTS} does not require {SKILL}")
+    # D-335: Gitar reviews every pull request, so the skill and its rule must exist.
+    if read(GITAR_SKILL) is None:
+        errors.append(f"{GITAR_SKILL} does not exist (D-335)")
+    if "`gitar-review`" not in (read(AGENTS) or ""):
+        errors.append(f"{AGENTS} does not name the `gitar-review` skill (D-335)")
     if AGENTS not in (read(CLAUDE) or ""):
         errors.append(f"{CLAUDE} does not point to {AGENTS} (D-7)")
     template = read(TEMPLATE) or ""

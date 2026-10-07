@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 """Start the Codex review of one pull request, and read its record (D-8).
 
-  codex_review.py --pr NUMBER [--repo DIR]
+  codex_review.py --pr NUMBER [--repo DIR] [--reviewer codex|claude] [--skip-gitar-review]
 
 `make codex-review PR=<n>` runs this file. The author session runs it after
-CI is green, with no approval for each round (D-8). The file is a port of
-the Decktome tool, with no Gitar step (D-3). The run has three parts:
+the Gitar pass and after CI is green, with no approval for each round (D-8,
+D-335). The file is a port of the Decktome tool. The run has three parts:
 
   1. The refusals. The tool refuses to start when the pull request is
      not open, the checkout is not the head of the pull request, the tree
-     is dirty, or a review thread is open. It then updates the npm CLI to
-     the newest release, and it refuses a CLI below MIN_VERSION, a login
-     that is not ChatGPT, or a model that fails the probe.
+     is dirty, or the Gitar pass of the effective head is not complete,
+     an open review thread included (D-336). With --skip-gitar-review, the
+     tool reads no Gitar pass. It refuses an open review thread, or an
+     issue on the Gitar dashboard, alone (D-337). It then updates the npm
+     CLI to the newest release, and it refuses a CLI below MIN_VERSION, a
+     login that is not ChatGPT, or a model that fails the probe.
   2. The review. Codex runs the `pr-review` skill in a new git worktree
      at the head, with a detached HEAD, so the checkout of the author
      stays unchanged. The skills, `AGENTS.md`, and `CLAUDE.md` come from
@@ -76,6 +79,9 @@ AUTHOR_OF_REVIEWER = {"codex": "Claude Code", "claude": "Codex"}
 HANDOFF = "docs/session-handoff.md"
 PROVIDER = re.compile(r"^\s*[-*]?\s*Author provider:\s*(Claude Code|Codex)\b", re.M)
 REVIEW_TIMEOUT = 4 * 3600
+# The Gitar app: the REST login of its comments, and the slug of its check runs (D-335).
+GITAR = "gitar-bot[bot]"
+GITAR_SLUG = "gitar-bot"
 # A Codex call bills the ChatGPT plan alone, and never the API (D-8).
 API_KEYS = ("OPENAI_API_KEY", "CODEX_API_KEY")
 CHATGPT_LOGIN = "Logged in using ChatGPT"
@@ -89,6 +95,25 @@ FINDING = re.compile(r"^###\s+(P([0-3])-\d+)\s*:")
 STATUS = re.compile(r"^\s*Status:\s*(.+?)\s*$")
 OPEN_AT = re.compile(r"^\s*Open at:\s*(.+?)\s*$")
 HASH = re.compile(r"`([0-9a-fA-F]{7,40})`")
+REQUEST = re.compile(r"^\s*gitar review\s*$", re.IGNORECASE)
+REPLY = re.compile(r"^> gitar review", re.IGNORECASE)
+DASHBOARD = "<b>Code Review</b>"
+# Gitar accepts a request with one of these replies. "On it" comes before
+# the review. The two "Running ..." replies come after the dashboard
+# changed, as Decktome found on 2026-09-29 and 2026-10-04 (decktome:D-992,
+# decktome:D-1114).
+ACK_BEFORE = "on it"
+ACK_AFTER = ("running the review now", "running a review on this pr now")
+# The dashboard shows this spinner image while a review runs. A quoted
+# finding can name the file in prose, so the image tag counts alone.
+SPINNER = re.compile(r"<img\b[^>]*gitar-spin\.svg", re.IGNORECASE)
+# The status line of a review in progress, at the start of a line or of a
+# <kbd> element. A quoted finding does not start the line with it.
+RESPONDING = re.compile(r"(?:^|<kbd>)\s*(?:<img[^>]*>\s*)?responding to your feedback", re.IGNORECASE | re.MULTILINE)
+SUMMARY = re.compile(r"<summary><b>Code Review</b>.*?</summary>")
+KBD = re.compile(r"<kbd>(.*?)</kbd>")
+TALLY = re.compile(r"^(.+) / (\d+) findings$")
+CLEAN_VERDICTS = ("\u2705 Approved", "\u2705 No issues found")
 
 
 class Stop(Exception):
@@ -163,6 +188,104 @@ def check_checkout(run, repo, branch, head):
         raise refuse(f"the tree has {len(dirty)} uncommitted path(s), the first `{dirty[0][3:]}`. Commit and push, or stash.")
 
 
+def push_time(run, slug, shas):
+    """The time GitHub first saw the push that holds shas[0].
+
+    shas lists the effective head and each later commit, oldest first. A
+    push of many commits gets check suites on its tip alone, so the first
+    commit with a suite names the push.
+    """
+    for sha in shas:
+        out = must(run, ["gh", "api", f"repos/{slug}/commits/{sha}/check-suites",
+                         "--jq", "[.check_suites[].created_at] | min"], refuse)
+        if out.strip() and out.strip() != "null":
+            return out.strip()
+    raise refuse(f"GitHub holds no check suite for {shas[0][:7]} or a later commit, so the push time is unknown.")
+
+
+def dashboards(comments):
+    """The Gitar dashboard comments, oldest first."""
+    found = [c for c in comments if c["user"]["login"] == GITAR and DASHBOARD in (c.get("body") or "")]
+    return sorted(found, key=lambda c: c["created_at"])
+
+
+def in_progress(body):
+    """True when the dashboard shows a review that runs now."""
+    return bool(SPINNER.search(body or "") or RESPONDING.search(body or ""))
+
+
+def gitar_problems(pushed, comments, gitar_runs, threads):
+    """Each reason that the Gitar pass is not complete (the `gitar-review` skill, D-336).
+
+    pushed is the push time of the effective head. comments are the issue
+    comments, gitar_runs the Gitar check runs on the tip, and threads the
+    review threads of the pull request.
+    """
+    problems = []
+    running = [r for r in gitar_runs if r.get("status") != "completed"]
+    if running:
+        problems.append("the Gitar check on the tip is not complete.")
+    found = dashboards(comments)
+    if not found:
+        problems.append("the pull request holds no Gitar dashboard comment.")
+        dashboard = None
+    else:
+        newest = found[-1]
+        dashboard = newest["updated_at"]
+        if in_progress(newest.get("body")):
+            problems.append("the Gitar dashboard shows a review in progress. Wait for its end.")
+        if dashboard <= pushed:
+            problems.append(f"the Gitar dashboard changed at {dashboard}, before the push of the effective head at {pushed}. Ask for a review with the `gitar-review` skill.")
+    requests = [c for c in comments if REQUEST.match(c.get("body") or "") and c["created_at"] > pushed]
+    if requests and dashboard:
+        asked = max(c["created_at"] for c in requests)
+        replies = [c for c in comments if c["user"]["login"] == GITAR and REPLY.match(c.get("body") or "") and c["created_at"] > asked]
+        if not replies:
+            problems.append(f"Gitar gave no reply to the request of {asked}.")
+        else:
+            reply = max(replies, key=lambda c: c["created_at"])
+            body = reply["body"].lower()
+            if ACK_BEFORE in body:
+                changed = dashboard > reply["created_at"]
+            elif any(ack in body for ack in ACK_AFTER):
+                changed = dashboard > asked
+            else:
+                problems.append(f"Gitar refused the request of {asked}. Wait, then ask again.")
+                changed = True
+            if not changed:
+                problems.append(f"the manual review of {asked} has not changed the dashboard yet.")
+    problems.extend(thread_problems(threads))
+    return problems
+
+
+def dashboard_issue(comments):
+    """The summary line of the newest Gitar dashboard when it reports an issue, or None (D-337).
+
+    A dashboard is clean when its verdict is in CLEAN_VERDICTS, and each of
+    its findings is resolved or closed. Each other form counts as an issue,
+    so a new form of Gitar stops the work for the owner. A pull request with
+    no dashboard, such as one with the free plan note alone, has no issue.
+    """
+    found = dashboards(comments)
+    if not found:
+        return None
+    body = found[-1]["body"]
+    summary = SUMMARY.search(body)
+    if not summary:
+        return "the dashboard holds no summary line of its Code Review block."
+    line = summary.group(0)
+    kbds = KBD.findall(line)
+    if not kbds or kbds[0] not in CLEAN_VERDICTS:
+        return line
+    if len(kbds) == 1:
+        return None
+    tally = TALLY.match(kbds[1]) if len(kbds) == 2 else None
+    if not tally:
+        return line
+    settled = sum(int(n) for n in re.findall(r"\d+", tally.group(1)))
+    return None if settled == int(tally.group(2)) else line
+
+
 def thread_problems(threads):
     """The open review threads, as one problem, or none."""
     open_threads = [t for t in threads if not t.get("isResolved")]
@@ -186,12 +309,48 @@ def review_threads(run, slug, number):
     return [t for page in pages for t in page["data"]["repository"]["pullRequest"]["reviewThreads"]["nodes"]]
 
 
+def issue_comments(run, slug, number):
+    """Every issue comment of the pull request. A page holds 30 comments, so the read follows each page."""
+    pages = json.loads(must(run, ["gh", "api", "--paginate", "--slurp", f"repos/{slug}/issues/{number}/comments"], refuse))
+    return [c for page in pages for c in page]
+
+
+def later_commits(run, repo, effective, tip):
+    """The effective head and each later commit of the branch, oldest first.
+
+    The walk follows the first parent alone. A merge of `main` as the
+    effective head otherwise brings in old commits of `main`, and their
+    check suites give a push time long before the merge.
+    """
+    return must(run, ["git", "rev-list", "--reverse", "--first-parent", f"{effective}^..{tip}"], refuse, cwd=repo).split()
+
+
+def check_gitar(run, repo, slug, number, effective, tip):
+    """Refuse a review before the Gitar pass of the effective head is complete (D-336)."""
+    shas = later_commits(run, repo, effective, tip)
+    pushed = push_time(run, slug, shas or [effective])
+    comments = issue_comments(run, slug, number)
+    runs = json.loads(must(run, ["gh", "api", f"repos/{slug}/commits/{tip}/check-runs", "--jq",
+                                 f"[.check_runs[] | select(.app.slug == \"{GITAR_SLUG}\") | {{status}}]"], refuse))
+    threads = review_threads(run, slug, number)
+    problems = gitar_problems(pushed, comments, runs, threads)
+    if problems:
+        raise refuse("the Gitar pass is not complete: " + " ".join(problems))
+
+
 def check_threads(run, slug, number):
-    """Refuse an open review thread. The ruleset of `main` refuses a merge with one,
-    so a review of that head spends the plan for nothing."""
+    """The one check of --skip-gitar-review: no open review thread, and no Gitar issue (D-337).
+
+    The flag skips the wait for a Gitar review, and never a finding. The
+    ruleset of `main` refuses a merge with an open thread, so a review of
+    that head spends the plan for nothing.
+    """
     problems = thread_problems(review_threads(run, slug, number))
     if problems:
-        raise refuse(problems[0] + " Answer each one, and resolve it, before the review.")
+        raise refuse(problems[0] + " Answer each one, and resolve it. When Gitar wrote it, stop and tell the owner (D-337).")
+    issue = dashboard_issue(issue_comments(run, slug, number))
+    if issue:
+        raise refuse(f"the Gitar dashboard reports an issue: {issue} Stop, and tell the owner (D-337).")
 
 
 def update_cli(run):
@@ -537,6 +696,8 @@ def main(argv=None, run=sh):
     parser.add_argument("--repo", default=ROOT)
     parser.add_argument("--reviewer", choices=sorted(AUTHOR_OF_REVIEWER), default="codex",
                         help="codex for a pull request that Claude Code writes, claude for one that Codex writes (D-88)")
+    parser.add_argument("--skip-gitar-review", action="store_true",
+                        help="read no Gitar pass, only in a pause of Gitar that the owner states (D-337)")
     try:
         args = parser.parse_args(argv)
     except SystemExit:
@@ -551,7 +712,11 @@ def main(argv=None, run=sh):
         effective = rg.effective_head(commits, args.pr)
         if effective is None:
             raise refuse("every commit changes the metadata set alone, so the pull request has no effective head.")
-        check_threads(run, slug, args.pr)
+        if args.skip_gitar_review:
+            check_threads(run, slug, args.pr)
+            print(f"{name}: --skip-gitar-review: no Gitar pass was read (D-337).")
+        else:
+            check_gitar(run, args.repo, slug, args.pr, effective, head)
         check_provider(run, args.repo, head, branch, args.reviewer)
         if args.reviewer == "codex":
             cli, installed = update_cli(run)

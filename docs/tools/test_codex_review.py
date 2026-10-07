@@ -1,4 +1,4 @@
-"""Tests of codex_review.py (D-3, D-8)."""
+"""Tests of codex_review.py (D-8, D-335 to D-337)."""
 import contextlib
 import importlib.util
 import io
@@ -16,6 +16,8 @@ spec.loader.exec_module(cr)
 
 N = 213
 R1, R2, R3, R4 = "1111111aaaa", "2222222bbbb", "3333333cccc", "4444444dddd"
+GITAR = cr.GITAR
+PUSHED = "2026-10-06T10:00:00Z"
 
 
 def finding(fid, status="open", open_at=()):
@@ -114,12 +116,191 @@ class Outcome(unittest.TestCase):
         self.assertEqual(caught.exception.code, cr.EXIT_FAULT)
 
 
+def comment(login, body, created, updated=None):
+    return {"user": {"login": login}, "body": body, "created_at": created, "updated_at": updated or created}
+
+
+DASH = f"<details><summary>{cr.DASHBOARD}</summary></details>"
+
+
+class GitarPass(unittest.TestCase):
+    """D-336: the review starts after a current Gitar review alone. A port of the Decktome tests."""
+
+    def test_a_dashboard_after_the_push_and_no_open_thread_pass(self):
+        comments = [comment(GITAR, DASH, "2026-10-06T09:00:00Z", "2026-10-06T10:02:00Z")]
+        self.assertEqual(cr.gitar_problems(PUSHED, comments, [{"status": "completed"}], [{"isResolved": True}]), [])
+
+    def test_a_dashboard_older_than_the_push_is_stale(self):
+        comments = [comment(GITAR, DASH, "2026-10-06T09:00:00Z", "2026-10-06T09:30:00Z")]
+        problems = cr.gitar_problems(PUSHED, comments, [], [])
+        self.assertTrue(any("before the push" in p for p in problems))
+
+    def test_the_newest_dashboard_counts(self):
+        comments = [comment(GITAR, DASH, "2026-10-06T08:00:00Z", "2026-10-06T10:05:00Z"),
+                    comment(GITAR, DASH, "2026-10-06T09:00:00Z", "2026-10-06T09:00:00Z")]
+        self.assertTrue(cr.gitar_problems(PUSHED, comments, [], []))
+
+    def test_a_dashboard_of_another_author_does_not_count(self):
+        comments = [comment("nkramber", DASH, "2026-10-06T09:00:00Z", "2026-10-06T10:02:00Z")]
+        self.assertTrue(any("no Gitar dashboard" in p for p in cr.gitar_problems(PUSHED, comments, [], [])))
+
+    def test_no_dashboard_fails(self):
+        self.assertTrue(any("no Gitar dashboard" in p for p in cr.gitar_problems(PUSHED, [], [], [])))
+
+    def test_a_running_check_fails(self):
+        comments = [comment(GITAR, DASH, "2026-10-06T09:00:00Z", "2026-10-06T10:02:00Z")]
+        self.assertTrue(cr.gitar_problems(PUSHED, comments, [{"status": "in_progress"}], []))
+
+    def test_an_open_thread_fails(self):
+        comments = [comment(GITAR, DASH, "2026-10-06T09:00:00Z", "2026-10-06T10:02:00Z")]
+        problems = cr.gitar_problems(PUSHED, comments, [], [{"isResolved": False, "path": "a.py", "line": 3}])
+        self.assertEqual(problems, ["1 review thread(s) are not resolved: a.py:3."])
+
+    def test_a_request_with_no_reply_fails(self):
+        comments = [comment(GITAR, DASH, "2026-10-06T09:00:00Z", "2026-10-06T10:02:00Z"),
+                    comment("nkramber", "Gitar review", "2026-10-06T10:04:00Z")]
+        self.assertTrue(any("no reply" in p for p in cr.gitar_problems(PUSHED, comments, [], [])))
+
+    def test_a_request_before_the_push_does_not_count(self):
+        comments = [comment("nkramber", "Gitar review", "2026-10-06T09:50:00Z"),
+                    comment(GITAR, DASH, "2026-10-06T09:00:00Z", "2026-10-06T10:02:00Z")]
+        self.assertEqual(cr.gitar_problems(PUSHED, comments, [], []), [])
+
+    def test_a_refused_request_fails(self):
+        comments = [comment(GITAR, DASH, "2026-10-06T09:00:00Z", "2026-10-06T10:09:00Z"),
+                    comment("nkramber", "Gitar review", "2026-10-06T10:04:00Z"),
+                    comment(GITAR, "> Gitar review\n\nYou've sent several Gitar comments in a short window", "2026-10-06T10:05:00Z")]
+        self.assertTrue(any("refused" in p for p in cr.gitar_problems(PUSHED, comments, [], [])))
+
+    def test_a_request_needs_a_dashboard_after_the_reply(self):
+        reply = comment(GITAR, "> Gitar review\n\nOn it", "2026-10-06T10:05:00Z")
+        ask = comment("nkramber", "gitar review", "2026-10-06T10:04:00Z")
+        before = comment(GITAR, DASH, "2026-10-06T09:00:00Z", "2026-10-06T10:04:30Z")
+        after = comment(GITAR, DASH, "2026-10-06T09:00:00Z", "2026-10-06T10:08:00Z")
+        self.assertTrue(cr.gitar_problems(PUSHED, [before, ask, reply], [], []))
+        self.assertEqual(cr.gitar_problems(PUSHED, [after, ask, reply], [], []), [])
+
+    def test_each_reply_after_the_review_needs_a_dashboard_after_the_request(self):
+        for text in ("Running the review now \u2014 results will show up in the dashboard comment shortly.",
+                     "Running a review on this PR now \u2014 results will show up in the dashboard comment shortly."):
+            reply = comment(GITAR, "> Gitar review\n\n" + text, "2026-10-06T10:05:00Z")
+            ask = comment("nkramber", "Gitar review", "2026-10-06T10:04:00Z")
+            between = comment(GITAR, DASH, "2026-10-06T09:00:00Z", "2026-10-06T10:04:50Z")
+            stale = comment(GITAR, DASH, "2026-10-06T09:00:00Z", "2026-10-06T10:03:00Z")
+            self.assertEqual(cr.gitar_problems(PUSHED, [between, ask, reply], [], []), [], text)
+            self.assertTrue(any("not changed the dashboard" in p for p in cr.gitar_problems(PUSHED, [stale, ask, reply], [], [])), text)
+
+    def test_a_dashboard_with_the_spinner_fails(self):
+        running = comment(GITAR, '<kbd><img src="https://x/gitar-spin.svg"> Responding to your feedback</kbd>\n' + DASH,
+                          "2026-10-06T09:00:00Z", "2026-10-06T10:02:00Z")
+        self.assertTrue(any("in progress" in p for p in cr.gitar_problems(PUSHED, [running], [], [])))
+
+    def test_the_spinner_fails_with_any_quote_style(self):
+        for tag in ('<img src="https://x/gitar-spin.svg">', "<img src='https://x/gitar-spin.svg'>", "<img src=https://x/gitar-spin.svg>"):
+            running = comment(GITAR, tag + "\n" + DASH, "2026-10-06T09:00:00Z", "2026-10-06T10:02:00Z")
+            self.assertTrue(any("in progress" in p for p in cr.gitar_problems(PUSHED, [running], [], [])), tag)
+
+    def test_a_status_line_with_no_spinner_fails(self):
+        for status in ("Responding to your feedback\n", "<kbd> Responding to your feedback</kbd>\n"):
+            running = comment(GITAR, status + DASH, "2026-10-06T09:00:00Z", "2026-10-06T10:02:00Z")
+            self.assertTrue(any("in progress" in p for p in cr.gitar_problems(PUSHED, [running], [], [])), status)
+
+    def test_a_finding_that_quotes_the_status_line_or_the_spinner_passes(self):
+        for quote in ("> the dashboard said Responding to your feedback.",
+                      "> any in-progress state that does not use `gitar-spin.svg`."):
+            quoted = comment(GITAR, DASH + "\n" + quote, "2026-10-06T09:00:00Z", "2026-10-06T10:02:00Z")
+            self.assertEqual(cr.gitar_problems(PUSHED, [quoted], [], []), [], quote)
+
+
 def thread_page(threads, more):
     return {"data": {"repository": {"pullRequest": {"reviewThreads": {
         "nodes": threads, "pageInfo": {"hasNextPage": more, "endCursor": "c1" if more else None}}}}}}
 
 
+def summary(*kbds):
+    """A Gitar dashboard body with one summary line of the Code Review block."""
+    return "<details>\n<summary><b>Code Review</b> " + " ".join(f"<kbd>{k}</kbd>" for k in kbds) + "</summary>\n</details>"
+
+
+class Dashboard(unittest.TestCase):
+    """dashboard_issue reads the newest Gitar dashboard, and each unknown form is an issue (D-337)."""
+
+    def issue(self, *bodies):
+        return cr.dashboard_issue([comment(GITAR, b, f"2026-10-06T10:0{i}:00Z") for i, b in enumerate(bodies)])
+
+    def test_each_clean_form_passes(self):
+        for kbds in [("\u2705 Approved",), ("\u2705 No issues found",), ("\u2705 Approved", "1 resolved / 1 findings"),
+                     ("\u2705 Approved", "2 closed / 2 findings"), ("\u2705 No issues found", "1 resolved, 1 closed / 2 findings")]:
+            self.assertIsNone(self.issue(summary(*kbds)), kbds)
+
+    def test_an_open_finding_is_an_issue(self):
+        self.assertTrue(self.issue(summary("\u2705 Approved", "1 resolved / 2 findings")))
+
+    def test_an_unknown_verdict_is_an_issue(self):
+        self.assertTrue(self.issue(summary("Changes requested")))
+        self.assertTrue(self.issue(summary("\u2705 Approved with suggestions")))
+
+    def test_an_unknown_tally_is_an_issue(self):
+        self.assertTrue(self.issue(summary("\u2705 Approved", "1 open")))
+        self.assertTrue(self.issue(summary("\u2705 Approved", "1 resolved / 1 findings", "new")))
+
+    def test_a_dashboard_with_no_summary_line_is_an_issue(self):
+        self.assertTrue(self.issue("<b>Code Review</b> in a new shape"))
+
+    def test_the_newest_dashboard_counts(self):
+        self.assertIsNone(self.issue(summary("Changes requested"), summary("\u2705 Approved")))
+        self.assertTrue(self.issue(summary("\u2705 Approved"), summary("Changes requested")))
+
+    def test_the_free_plan_note_alone_is_no_issue(self):
+        self.assertIsNone(self.issue("> [!IMPORTANT]\n> You are using the Gitar free plan."))
+        self.assertIsNone(cr.dashboard_issue([comment("nkramber", summary("Changes requested"), PUSHED)]))
+
+
+class CheckGitar(unittest.TestCase):
+    """check_gitar reads the push time, the comments, the Gitar runs, and the threads from GitHub (D-336)."""
+
+    def run_check(self, dashboard_time, runs, threads, suites=("null", PUSHED)):
+        commits = "\n".join([R1 * 4, R2 * 4]) + "\n"
+        answers = iter(suites)
+        run = Fake([
+            (["git", "rev-list"], (0, commits, "")),
+            (["gh", "api", "repos/o/r/commits/" + R1 * 4 + "/check-suites"], (0, next(answers) + "\n", "")),
+            (["gh", "api", "repos/o/r/commits/" + R2 * 4 + "/check-suites"], (0, next(answers) + "\n", "")),
+            (["gh", "api", "--paginate", "--slurp", f"repos/o/r/issues/{N}/comments"],
+             (0, json.dumps([[comment(GITAR, DASH, "2026-10-06T09:00:00Z", dashboard_time)]]), "")),
+            (["gh", "api", "repos/o/r/commits/" + R2 * 4 + "/check-runs"], (0, json.dumps(runs), "")),
+            (["gh", "api", "graphql"], (0, json.dumps([thread_page(threads, False)]), "")),
+        ])
+        cr.check_gitar(run, "/repo", "o/r", N, R1 * 4, R2 * 4)
+        return run
+
+    def test_a_current_review_passes(self):
+        run = self.run_check("2026-10-06T10:02:00Z", [{"status": "completed"}], [{"isResolved": True}])
+        self.assertIn(["git", "rev-list", "--reverse", "--first-parent", f"{R1 * 4}^..{R2 * 4}"], run.calls)
+
+    def test_the_push_time_comes_from_the_first_commit_with_a_check_suite(self):
+        # R1 has no suite, so the push of R2 names the time. A dashboard before it is stale.
+        with self.assertRaises(cr.Stop) as caught:
+            self.run_check("2026-10-06T09:59:00Z", [{"status": "completed"}], [])
+        self.assertEqual(caught.exception.code, cr.EXIT_REFUSAL)
+        self.assertIn("the Gitar pass is not complete", str(caught.exception))
+        self.assertIn(f"before the push of the effective head at {PUSHED}", str(caught.exception))
+
+    def test_an_open_thread_or_a_running_check_refuses(self):
+        with self.assertRaises(cr.Stop) as caught:
+            self.run_check("2026-10-06T10:02:00Z", [{"status": "in_progress"}], [{"isResolved": False, "path": "a.py", "line": 3}])
+        self.assertIn("the Gitar check on the tip is not complete.", str(caught.exception))
+        self.assertIn("1 review thread(s) are not resolved: a.py:3.", str(caught.exception))
+
+    def test_no_check_suite_refuses(self):
+        with self.assertRaises(cr.Stop) as caught:
+            self.run_check("2026-10-06T10:02:00Z", [], [], suites=("null", ""))
+        self.assertIn("push time is unknown", str(caught.exception))
+
+
 class Threads(unittest.TestCase):
+    """--skip-gitar-review reads no Gitar pass, and still refuses an open thread or a Gitar issue (D-337)."""
+
     def test_an_open_thread_on_a_later_page_refuses(self):
         first = [{"isResolved": True, "path": "a.py", "line": i} for i in range(100)]
         later = [{"isResolved": False, "path": "b.py", "line": 7}]
@@ -130,38 +311,50 @@ class Threads(unittest.TestCase):
         self.assertIn("after: $endCursor", run.calls[0][-1])
         self.assertEqual(cr.thread_problems(threads), ["1 review thread(s) are not resolved: b.py:7."])
 
-    def threads(self, *nodes):
-        return Fake([(["gh", "api", "graphql"], (0, json.dumps([thread_page(list(nodes), False)]), ""))])
+    def threads(self, *nodes, comments=()):
+        return Fake([(["gh", "api", "graphql"], (0, json.dumps([thread_page(list(nodes), False)]), "")),
+                     (["gh", "api", "--paginate"], (0, json.dumps([list(comments)]), ""))])
 
-    def test_an_open_thread_refuses(self):
+    def test_an_open_thread_refuses_and_names_the_owner(self):
         run = self.threads({"isResolved": True, "path": "a.py", "line": 1}, {"isResolved": False, "path": "b.py", "line": 7})
         with self.assertRaises(cr.Stop) as caught:
             cr.check_threads(run, "o/r", N)
         self.assertEqual(caught.exception.code, cr.EXIT_REFUSAL)
         self.assertIn("1 review thread(s) are not resolved: b.py:7.", str(caught.exception))
+        self.assertIn("tell the owner (D-337)", str(caught.exception))
 
-    def test_resolved_threads_pass(self):
-        run = self.threads({"isResolved": True, "path": "a.py", "line": 1})
+    def test_resolved_threads_and_a_clean_dashboard_pass(self):
+        run = self.threads({"isResolved": True, "path": "a.py", "line": 1}, comments=[comment(GITAR, summary("\u2705 Approved"), PUSHED)])
         cr.check_threads(run, "o/r", N)
-        self.assertEqual(len(run.calls), 1)
+        self.assertEqual(len(run.calls), 2)
+
+    def test_a_dashboard_issue_with_no_thread_refuses(self):
+        run = self.threads(comments=[comment(GITAR, summary("\u2705 Approved", "0 resolved / 1 findings"), PUSHED)])
+        with self.assertRaises(cr.Stop) as caught:
+            cr.check_threads(run, "o/r", N)
+        self.assertEqual(caught.exception.code, cr.EXIT_REFUSAL)
+        self.assertIn("the Gitar dashboard reports an issue", str(caught.exception))
 
 
-class NoGitar(unittest.TestCase):
-    """D-3: the port holds no Gitar step, constant, or flag."""
+class SkipVariable(unittest.TestCase):
+    """D-337: only SKIP_GITAR=1 of make passes the flag. Each other value reads the Gitar pass."""
 
-    def test_the_tool_names_no_gitar_step(self):
-        with open(os.path.join(HERE, "codex_review.py"), encoding="utf-8") as handle:
-            text = handle.read()
-        code = text.split('"""', 2)[2]
-        self.assertNotIn("gitar", code.lower())
-        for name in ("GITAR", "check_gitar", "gitar_problems", "dashboard_issue"):
-            self.assertFalse(hasattr(cr, name), name)
+    def command(self, target, *variables):
+        out = subprocess.run(["make", "-n", "-C", cr.ROOT, target, "PR=1", *variables],
+                             capture_output=True, text=True, check=True, env={**os.environ, "SKIP_GITAR": ""})
+        return [line for line in out.stdout.splitlines() if "codex_review.py" in line][-1]
 
-    def test_the_gitar_flag_is_a_usage_error(self):
-        with contextlib.redirect_stderr(io.StringIO()):
-            self.assertEqual(cr.main(["--pr", str(N), "--skip-gitar-review"], run=Fake([])), cr.EXIT_USAGE)
+    def test_only_the_value_1_skips(self):
+        for target in ("codex-review", "claude-review"):
+            self.assertIn("--skip-gitar-review", self.command(target, "SKIP_GITAR=1"), target)
+            for value in ("", "0", "false", "no", "yes"):
+                self.assertNotIn("--skip-gitar-review", self.command(target, f"SKIP_GITAR={value}"), (target, value))
 
-    def test_main_reads_the_threads_before_the_cli_update(self):
+
+class GitarOrder(unittest.TestCase):
+    """main reads the Gitar pass, or the threads with the flag, before the provider gate and the CLI update."""
+
+    def run_main(self, argv):
         order = []
 
         def stop(_):
@@ -173,17 +366,28 @@ class NoGitar(unittest.TestCase):
             unittest.mock.patch.object(cr, "check_checkout"),
             unittest.mock.patch.object(cr.rg, "gather", return_value=(None, [], None, None)),
             unittest.mock.patch.object(cr.rg, "effective_head", return_value=R1 * 4),
+            unittest.mock.patch.object(cr, "check_gitar", side_effect=lambda *_: order.append("gitar")),
             unittest.mock.patch.object(cr, "check_threads", side_effect=lambda *_: order.append("threads")),
-            unittest.mock.patch.object(cr, "check_provider"),
+            unittest.mock.patch.object(cr, "check_provider", side_effect=lambda *_: order.append("provider")),
             unittest.mock.patch.object(cr, "update_cli", side_effect=stop),
+            unittest.mock.patch.object(cr, "claude_cli", side_effect=stop),
         ]
         with contextlib.ExitStack() as stack:
             for patch in patches:
                 stack.enter_context(patch)
             stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
-            code = cr.main(["--pr", str(N)], run=Fake([(["gh", "repo", "view"], (0, "o/r\n", ""))]))
+            code = cr.main(argv, run=Fake([(["gh", "repo", "view"], (0, "o/r\n", ""))]))
         self.assertEqual(code, cr.EXIT_REFUSAL)
-        self.assertEqual(order, ["threads", "update"])
+        return order
+
+    def test_with_no_flag_the_gitar_pass_runs_first(self):
+        self.assertEqual(self.run_main(["--pr", str(N)]), ["gitar", "provider", "update"])
+
+    def test_the_claude_reviewer_waits_for_the_gitar_pass_too(self):
+        self.assertEqual(self.run_main(["--pr", str(N), "--reviewer", "claude"]), ["gitar", "provider", "update"])
+
+    def test_the_flag_skips_the_gitar_pass_and_reads_the_threads(self):
+        self.assertEqual(self.run_main(["--pr", str(N), "--skip-gitar-review"]), ["threads", "provider", "update"])
 
 
 HANDOFF_OF = """# hand-off

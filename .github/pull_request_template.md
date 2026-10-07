@@ -37,4 +37,4 @@ The commands that you ran, and their results. A check that did not run gets its 
 
 ## Review
 
-The state of the Codex review record at `docs/reviews/pr-<n>.md`, and the answer to each finding (D-4, D-8).
+The state of the Gitar pass, and the answer to each Gitar finding (D-335). Then the state of the Codex review record at `docs/reviews/pr-<n>.md`, and the answer to each finding (D-4, D-8).

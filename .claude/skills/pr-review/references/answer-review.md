@@ -4,7 +4,7 @@ Part of the `pr-review` skill. Load this file when you are the author, and you a
 
 ## Start the review of the other provider
 
-Start the review yourself after CI is green (D-8, D-88). The owner approved each round of the loop. The target spends the Codex plan or the Claude plan of the owner.
+Start the review yourself after the Gitar pass and after CI is green (D-8, D-88, D-335). The owner approved each round of the loop. The target spends the Codex plan or the Claude plan of the owner.
 
 | Author provider | Target | Reviewer |
 |---|---|---|
@@ -12,8 +12,8 @@ Start the review yourself after CI is green (D-8, D-88). The owner approved each
 | Codex | `make claude-review PR=<number>` | Claude Code |
 
 1. Write the line `Author provider: <your provider>` in the hand-off record, with the true provider of this session, and push it. The target refuses a record that names the provider of the reviewer.
-2. Wait until each check of the tip completes and passes.
-3. Answer each review thread, and resolve it. The target refuses an open thread.
+2. Complete the Gitar pass with the `gitar-review` skill. The target refuses an incomplete pass (D-336).
+3. Wait until each check of the tip completes and passes.
 4. Run the target of the table in the background, and wait for the notice of its end.
 5. Read the last line of the output: `outcome: <name> (exit <n>)`.
 6. Run `git pull --ff-only`, because the reviewer pushed the record.
@@ -26,7 +26,7 @@ Start the review yourself after CI is green (D-8, D-88). The owner approved each
 | refusal | Correct the condition that the output names, then run the target again. |
 | fault | Read the transcript that the output names. Ask the owner when the cause is not clear. |
 
-A refusal spends nothing. The target refuses a dirty tree, a checkout that differs from origin, and an open review thread.
+A refusal spends nothing. The target refuses a dirty tree, a checkout that differs from origin, an incomplete Gitar pass, and an open review thread. Only in a pause of Gitar that the owner states, add `SKIP_GITAR=1` to the target (D-337).
 
 A reply to a comment names no provider, harness, or model (D-14).
 
@@ -51,6 +51,7 @@ Now a pull request of documents alone can merge with no Codex review (D-15). A c
 - Each changed path is in the documentation set of `docs/tools/review_gate.py`.
 - The change does not change safety behavior (D-15).
 - Each check of the pull request is green, except `review-gate`.
+- The Gitar pass of the head is complete (D-335). No target reads it for a label.
 - The completion gate of the `one-pr-one-session` skill holds.
 
 The documentation set holds `docs/`, `.claude/`, `CLAUDE.md`, `AGENTS.md`, `README.md`, and `.github/pull_request_template.md`. These paths are not in it: `docs/tools/`, `.claude/hooks/`, `.claude/settings.json`, the local settings file of the harness, and each workflow.
