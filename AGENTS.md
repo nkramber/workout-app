@@ -23,14 +23,15 @@ The project `nk-workout-app-prod` holds Firestore, the Cloud Run service `api`, 
 7. **Every change starts on a branch** (D-14). Never commit to `main`, and never push to it. Run `make where` before each commit and push. Run `make hooks` once in each checkout. Use Conventional Commits for commit titles. Name a pull request `<type>: <summary> (PR-<n>)` on the branch `<type>/pr-<n>-<slug>` (D-86).
 8. **Deploy from `main` alone** (D-14). Check the branch and the commit before every deploy.
 9. **Review before merge.**
-   - After CI is green, the author session runs the review of the other provider without a separate approval. A Claude Code author runs `make codex-review PR=<n>` (D-8). A Codex author runs `make claude-review PR=<n>` (D-88).
+   - Gitar reviews every pull request, documents alone included (D-335). After each push, load the `gitar-review` skill, and run `make gitar-wait PR=<n>` in the background (D-338). Answer each Gitar finding, and resolve each thread.
+   - After the Gitar pass and green CI, the author session runs the review of the other provider without a separate approval. A Claude Code author runs `make codex-review PR=<n>` (D-8). A Codex author runs `make claude-review PR=<n>` (D-88).
    - Codex reviews Claude Code work, and Claude Code reviews Codex work (D-15). A review by the same provider never counts.
    - The owner ended the D-4 period on 2026-09-29 (D-125). A pull request of documents alone can pass the gate with the `review-override` label (D-15).
-   - Gitar is not part of this repository until the owner approves it (D-3).
+   - The review targets refuse to start before the Gitar pass is complete (D-336). `SKIP_GITAR=1` skips that check only in a pause of Gitar that the owner states (D-337). The reviewer never replies to Gitar.
    - The third open round of one finding stops the loop, and the owner decides.
    - The gate can not prove the provider of a record or of an author. Before each merge, the owner reads the commit that last changed the record and the author provider (D-87, D-89).
    - A change of code after an approval needs a new review. No author is exempt, Dependabot included (D-90).
-10. **The owner confirms every merge** (D-13). After the Codex approval, ask the owner with a summary in four sections: What, How, CI, and Codex review. Turn on the auto-merge only after the confirmation.
+10. **The owner confirms every merge** (D-13). After the Codex approval, ask the owner with a summary in four sections: What, How, CI, and Codex review. Turn on the auto-merge only after the confirmation. Push no commit after the auto-merge turns on, because GitHub can merge it before Gitar reads it.
 11. **Push back.** When two owner statements conflict, quote both and ask. When a request rests on a wrong premise, say so with the evidence.
 12. **One pull request, one clean session** (D-12). The owner approves the work before it starts. A pull request holds one milestone with one acceptance story, and it can hold two, three, or more concerns (D-10). The session continues until the pull request merges, and a context checkpoint never ends it (D-85). Load `.claude/skills/one-pr-one-session/SKILL.md` for all work on a pull request.
 13. **Keep command output small.** Count or list the matches first. Then read a bounded range. Show the full output of a failed test, build, or gate.
@@ -58,6 +59,7 @@ make test            # the unit tests of docs/tools and of each spike of tools/s
 make ste-check       # the STE check alone, free
 make ref-check       # every cited id and path resolves, free
 make pr-check        # the body and the diff of the pull request, free
+make gitar-wait PR=n # wait for a current Gitar review after a push, free (D-338)
 make where           # the branch, the tree, and the pull request state
 make hooks           # install the Git hooks once in each checkout
 make ruleset-check   # the live ruleset of main against .github/rulesets
@@ -79,6 +81,7 @@ Paid targets: `make codex-review` and `make claude-review`. They spend the owner
 |---|---|
 | `ste-writing` | Before you write or edit any `.md` file. |
 | `one-pr-one-session` | Before any work on a pull request: start, revision, review, merge question, or hand-off. |
+| `gitar-review` | After each push to a pull request, documents alone included (D-335). |
 | `pr-review` | For a cross-provider review, `make codex-review`, `make claude-review`, and each answer to a review finding. |
 
 ## File map

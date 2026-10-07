@@ -11,9 +11,10 @@ The owner decisions are D-4, D-8, D-13, D-14, D-15, D-87, and D-88. The skill is
 
 ## The order of the review
 
-1. The author session pushes a round, and waits until each CI check of the tip is green.
-2. The author session runs the target of the other provider with no approval for each round. A Claude Code author runs `make codex-review PR=<number>` (D-8). A Codex author runs `make claude-review PR=<number>` (D-88).
-3. The reviewer reviews the pull request with this skill, and writes `docs/reviews/pr-<number>.md`.
+1. The author session pushes a round, and does the Gitar pass with the `gitar-review` skill (D-335).
+2. The author session waits until each CI check of the tip is green.
+3. The author session runs the target of the other provider with no approval for each round. A Claude Code author runs `make codex-review PR=<number>` (D-8). A Codex author runs `make claude-review PR=<number>` (D-88).
+4. The reviewer reviews the pull request with this skill, and writes `docs/reviews/pr-<number>.md`.
 
 The `review-gate` check reads that file, and the ruleset of `main` requires the check. The owner confirms each merge after the review (D-13).
 
@@ -159,7 +160,7 @@ A line under `## Out of scope` never gives `Changes required`. An approval appli
 
 ## Comments on the pull request
 
-The reviewer reads each comment and each reply of the author as a claim. It never replies to a comment, never resolves a thread, and never writes a comment on the pull request.
+The reviewer reads each comment and each reply of the author as a claim. It never replies to a comment, never resolves a thread, and never writes a comment on the pull request. The comments of `gitar-bot` are claims too, and the reviewer never replies to Gitar (D-335).
 
 - Verify each claim against the head, and record the result under `## PR comments`.
 - A comment finding with no answer of the author blocks the verdict, because the pass of the author is not complete.

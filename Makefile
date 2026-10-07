@@ -8,7 +8,7 @@
 SHELL := bash
 .SHELLFLAGS := -o pipefail -c
 
-.PHONY: help doctor lint ste-check ref-check lifecycle-check context-budget test verify probe proto contract go-test emulator-test web where hooks pr-check codex-review claude-review ruleset-check
+.PHONY: help doctor lint ste-check ref-check lifecycle-check context-budget test verify probe proto contract go-test emulator-test web where hooks pr-check gitar-wait codex-review claude-review ruleset-check
 
 help: ## Show this help
 	@set -o pipefail; grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-16s %s\n", $$1, $$2}'
@@ -186,17 +186,28 @@ pr-check: ## Check the pull request of this branch against the one-pr-one-sessio
 	@if [ -n "$(PR_BODY_FILE)" ]; then python3 docs/tools/pr_check.py pr --body-file "$(PR_BODY_FILE)" --title "$(PR_TITLE)"; \
 	else python3 docs/tools/pr_check.py pr --gh; fi
 
+# The wait for the Gitar review after a push (D-338). Run it in the
+# background at once after each push. It posts at most one `Gitar review`
+# comment, and it exits 1 at its limit of 15 minutes.
+gitar-wait: ## Wait for a current Gitar review of the head of one pull request: make gitar-wait PR=<n>, free, needs the network (D-338)
+	@[ -n "$(PR)" ] || { echo "gitar-wait: set PR to the number of the pull request. Usage: make gitar-wait PR=12"; exit 2; }
+	@python3 docs/tools/gitar_wait.py --pr "$(PR)"
+
 # The Codex review of one pull request (D-8). docs/tools/codex_review.py
 # holds the refusals, the run, and the read. Its own exit code names the
 # outcome, and make turns each code that is not 0 into 2, so read the last
-# line: `outcome: <name> (exit <n>)`.
+# line: `outcome: <name> (exit <n>)`. Each review target refuses to start
+# before the Gitar pass is complete (D-336). SKIP_GITAR=1 reads no Gitar
+# pass, and only the owner states the pause that permits it (D-337).
+GITAR_FLAG = $(if $(SKIP_GITAR),--skip-gitar-review)
+
 codex-review: ## Start the Codex review of one pull request and read its record: make codex-review PR=<n>. CAUTION: it spends the Codex plan of the owner, never the API (D-8)
 	@[ -n "$(PR)" ] || { echo "codex-review: set PR to the number of the pull request. Usage: make codex-review PR=12"; exit 2; }
-	@python3 docs/tools/codex_review.py --pr "$(PR)"
+	@python3 docs/tools/codex_review.py --pr "$(PR)" $(GITAR_FLAG)
 
 claude-review: ## Start the Claude Code review of one pull request that Codex writes: make claude-review PR=<n>. CAUTION: it spends the Claude plan of the owner, never the API (D-88)
 	@[ -n "$(PR)" ] || { echo "claude-review: set PR to the number of the pull request. Usage: make claude-review PR=12"; exit 2; }
-	@python3 docs/tools/codex_review.py --pr "$(PR)" --reviewer claude
+	@python3 docs/tools/codex_review.py --pr "$(PR)" --reviewer claude $(GITAR_FLAG)
 
 # The live ruleset does not exist until the owner applies it after the
 # merge, so CI does not run this target.

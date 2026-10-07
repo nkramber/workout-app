@@ -238,7 +238,8 @@ def wiring(**override):
     files = {
         pc.SKILL: skill,
         ".claude/skills/ste-writing/SKILL.md": "---\nname: ste-writing\ndescription: STE\n---\nbody\n",
-        pc.AGENTS: f"Load `{pc.SKILL}` first.\n",
+        pc.GITAR_SKILL: "---\nname: gitar-review\ndescription: Gitar\n---\nAsk Gitar for a pass.\n",
+        pc.AGENTS: f"Load `{pc.SKILL}` first. Load `gitar-review` after each push.\n",
         pc.CLAUDE: "Read `AGENTS.md`.\n",
         pc.TEMPLATE: f"## Session\n\n## Milestone\n\n## Documentation impact\n\n| Category | Entry |\n|---|---|\n{rows}\n",
         ".claude/settings.json": json.dumps({"hooks": {"PreToolUse": [{"hooks": [{"command": "session_bind.py"}]}],
@@ -275,10 +276,16 @@ class SkillWiring(unittest.TestCase):
         self.assertTrue(has(errors, "AGENTS.md does not require"), errors)
         self.assertTrue(has(errors, "CLAUDE.md does not point"), errors)
 
-    def test_a_skill_that_names_gitar_fails(self):
+    def test_a_skill_that_names_gitar_passes(self):
         text = "---\nname: ste-writing\ndescription: STE\n---\nAsk Gitar for a pass.\n"
-        errors = pc.check_skills(*wiring(**{".claude/skills/ste-writing/SKILL.md": text}))
-        self.assertTrue(has(errors, "names Gitar"), errors)
+        self.assertEqual(pc.check_skills(*wiring(**{".claude/skills/ste-writing/SKILL.md": text})), [])
+
+    def test_an_absent_gitar_skill_fails(self):
+        self.assertTrue(has(pc.check_skills(*wiring(**{pc.GITAR_SKILL: None})), "gitar-review/SKILL.md does not exist"))
+
+    def test_agents_must_name_the_gitar_skill(self):
+        errors = pc.check_skills(*wiring(**{pc.AGENTS: f"Load `{pc.SKILL}` first.\n"}))
+        self.assertTrue(has(errors, "does not name the `gitar-review` skill"), errors)
 
     def test_a_bad_frontmatter_fails(self):
         text = "---\nname: other\ndescription: <x>\ncolor: red\n---\nbody\n"

@@ -4,28 +4,25 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-06. Author of pull request PR-42 of `docs/roadmaps/phase-8-personal-use-operations.md`, on the branch `feat/pr-42-rotation-and-phase-8-check` from base `efbafe7`.
+Date: 2026-10-06. Author of pull request PR-43, on the branch `ci/pr-43-gitar-review` from base `d9e3590`. PR-43 is a change of the process, outside the focused roadmaps. Phase 8 ended with the merge of PR-42, and the owner gave this work by a new decision (D-335).
 
-The owner reported that the changes of the workout screen worked in a test workout, and asked for a rotation of the muscle groups. The owner dropped the four weeks of the exit (D-327), and put the rotation and the check of Phase 8 in one milestone (D-332). The owner approved the milestone (D-12), the live reads (D-334), and a paid check with a cap of 1 USD (D-25).
+The owner approved the milestone "the mandatory Gitar review" (D-12), and answered Q-341 to Q-343 (D-335 to D-338). The pull request ports the Gitar review of Decktome and what-you-carry:
 
-The pull request holds:
+- the rules of `AGENTS.md` and the decisions that amend D-3 and D-6 (D-335),
+- the skill `.claude/skills/gitar-review/SKILL.md` and its reference `references/traps.md`,
+- the Gitar gate of `docs/tools/codex_review.py`, for `make codex-review` and `make claude-review`, with the flag of D-337 (D-336),
+- the wait `docs/tools/gitar_wait.py` and `make gitar-wait` (D-338),
+- the wiring check of `docs/tools/pr_check.py` in place of the ban, and the Gitar steps of `one-pr-one-session`, `pr-review`, and the pull request template.
 
-- policy version 9 with the rules `rotation.no-repeat` and `rotation.cover` in `go/internal/policy/rotation.go` (D-328 to D-331),
-- the groups of each exercise in the planner input, the prompt `luna-prompt-v7`, and a retry after a plan that breaks the rotation,
-- a valid split in the fake provider, and the browser tests on that layout,
-- the layout check of the replay, and the flags of `go/cmd/lunaeval` for the check of the planner,
-- the report `docs/research/phase-8-check.md`.
+The owner says that the Gitar app is installed on this repository (Q-342). The first push of PR-43 checks it. The gate applies to PR-43 itself, because `make codex-review` runs from the checkout.
 
-The paid check gave 100 plans with the rotation, and the policy refused 1. It cost 0.163 USD. The replay gave 0 changed records. The active plan of version 8 breaks the rotation, so the owner deletes the history and makes a new plan after the deploy (D-333). `make go-test`, `make emulator-test`, `make web`, and `make ste-check` pass.
-
-GitHub pull request 43 holds PR-42. Each product check of `5b6726f` passes. Codex round 1 reviewed effective head `5b6726f` and gave "Ready for owner merge", with no finding. The record `docs/reviews/pr-43.md` names the paid check as evidence that the reviewer did not repeat. The pull request waits for the owner merge.
-
-Next action: the owner reads the record and confirms the merge.
+Next action: push, do the Gitar pass with `make gitar-wait`, then wait for green CI, and run `make codex-review`.
 
 ## Facts that expire
 
 | Fact | Date read | Source |
 |---|---|---|
+| The Gitar app `gitar-bot` gave no check run and no comment on the GitHub pull requests 41 to 43 of this repository. On Decktome and what-you-carry, it gives a check run `Gitar` and one dashboard comment on each pull request. | 2026-10-06 | `gh api` check runs and issue comments |
 | The live `/version` names `efbafe7`, from the build `deploy-api` `7a5d44c3`. The revision `api-00023-7x9` has all traffic. | 2026-10-06 | `curl`, `gcloud builds list`, `gcloud run services describe` |
 | The live store holds 1 user, 1 workout that is not finished, 16 sets, and 17 applied sync entries. The active plan has 16 records of policy version 8, and it breaks the rotation of version 9. | 2026-10-06 | `docs/research/phase-8-check.md` |
 | The paid check of the rotation: 100 planner calls of `luna-prompt-v7` at xhigh, 99 valid plans, 1 refused by `rotation.cover`. Cost 0.163 USD, the longest call 62.6 s. | 2026-10-06 | `docs/research/phase-8-check.md` |
@@ -89,12 +86,27 @@ Next action: the owner reads the record and confirms the merge.
 
 ## Next steps, in order
 
-1. Close PR-42: CI, the Codex review, the owner confirmation, and the merge.
+1. Close PR-43: the Gitar pass, CI, the Codex review, the owner confirmation, and the merge.
 2. Read the API deploy of the merge of PR-42, and check that `/version` names the merge commit.
 3. The owner deletes the history and makes a new plan of policy version 9 (D-333).
 4. Phase 8 ends with the merge of PR-42. No phase comes after it. A new owner decision gives the next work.
 
 ## Session records
+
+### Session 44 - 2026-10-06
+
+Author provider: Claude Code
+
+Branch: `ci/pr-43-gitar-review`. Role: author.
+
+Completed:
+
+- Read the Gitar parts of Decktome and what-you-carry. The owner approved the milestone and answered Q-341 to Q-343 (D-335 to D-338).
+- Ported the Gitar gate of the review targets, the wait, the skill, and the rules, with their tests.
+
+Open work:
+
+- The Gitar pass, the Codex review, the owner confirmation, and the merge of PR-43.
 
 ### Session 43 - 2026-10-06
 
@@ -111,7 +123,7 @@ Completed:
 
 Open work:
 
-- The owner confirmation and the merge of PR-42. Codex gave "Ready for owner merge" on `5b6726f`.
+- None. GitHub PR 43 merged as `d9e3590`.
 
 ### Session 42 - 2026-10-06
 
@@ -130,21 +142,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 42 merged as `efbafe7`.
-
-### Session 41 - 2026-10-05
-
-Author provider: Claude Code
-
-Branch: `fix/pr-40-steady-workout-screen`. Role: author.
-
-Completed:
-
-- The owner dropped the alerts (D-317), approved the milestone (D-12), and answered Q-324 to Q-329 (D-318 to D-323).
-- Read the price of the alerts, the signals of a failed backup, and the log of a failed build.
-- Made the rest card keep its space, and moved the notes of a set, the notices, and the update banner.
-- Added a browser test of the acceptance story, in Chromium and WebKit, and a unit test of the banner.
-- Changed the registers, both roadmaps, the design, and `web/README.md`.
-
-Open work:
-
-- None. GitHub PR 41 merged as `c712f56`.

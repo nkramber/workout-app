@@ -5,7 +5,7 @@ description: Bind a session to one repository, one branch, one pull request, one
 
 # One pull request, one clean session
 
-The owner decisions are D-10, D-12, D-13, and D-14, and D-4, D-8, and D-15 for the review. `AGENTS.md` holds the other rules of this repo, and this skill does not repeat them (D-7). The skill is a port of the Decktome skill.
+The owner decisions are D-10, D-12, D-13, and D-14, and D-4, D-8, D-15, and D-335 to D-338 for the review. `AGENTS.md` holds the other rules of this repo, and this skill does not repeat them (D-7). The skill is a port of the Decktome skill.
 
 ## The rule
 
@@ -69,14 +69,17 @@ Run `make pr-check` before you start the review. For a draft body, set `PR_BODY_
 Do these steps for each round of changes (D-8):
 
 1. Commit the round, and push it one time.
-2. Wait until each CI check of the tip is green. Correct a red check first.
-3. Answer each review thread, and resolve it.
-4. Run the review of the other provider in the background, and wait for the notice of its end. A Claude Code author runs `make codex-review PR=<number>`. A Codex author runs `make claude-review PR=<number>` (D-15, D-88).
-5. Run `git pull --ff-only`, and read the outcome line.
-6. For `changes`, answer each finding with `references/answer-review.md` of the `pr-review` skill.
-7. After the answer, go to step 1.
-8. For `three-strike stop`, stop the loop, and ask the owner.
-9. For `approve`, go to the completion gate below.
+2. Do the Gitar pass with the `gitar-review` skill and `make gitar-wait` (D-335, D-338).
+3. Answer each Gitar finding. Resolve each thread after its answer.
+4. Wait until each CI check of the tip is green. Correct a red check first.
+5. Run the review of the other provider in the background, and wait for the notice of its end. A Claude Code author runs `make codex-review PR=<number>`. A Codex author runs `make claude-review PR=<number>` (D-15, D-88).
+6. Run `git pull --ff-only`, and read the outcome line.
+7. For `changes`, answer each finding with `references/answer-review.md` of the `pr-review` skill.
+8. After the answer, go to step 1.
+9. For `three-strike stop`, stop the loop, and ask the owner.
+10. For `approve`, go to the completion gate below.
+
+Each target refuses to start before the Gitar pass is complete (D-336). A fix of a Gitar finding is a new round, so it starts at step 1.
 
 The author session starts each round itself, with no approval of the owner for each round (D-8, D-88). The target spends the Codex plan or the Claude plan of the owner, and never the API. Each target reads the `Author provider` lines of the branch, and it refuses a review by the provider of the author.
 
@@ -89,6 +92,7 @@ The pull request is complete only when all of these are true:
 - The roadmap and the hand-off read the state of this pull request.
 - `make pr-check` passes, and every category has its row.
 - `make verify` passes.
+- A current Gitar review has no open finding, and each top-level Gitar comment has its answer (D-335).
 - The `review-gate` check passes. A Codex record approves the effective head (D-8), or the `review-override` label covers a pull request of documents alone (D-15).
 - The acceptance story of the milestone holds, with evidence.
 - No work waits for a second pull request.
@@ -99,6 +103,7 @@ The owner confirms every merge (D-13). Turn on the auto-merge only when each of 
 
 - The last metadata commit is on origin. It holds the record and the hand-off.
 - Each review thread is resolved.
+- The Gitar pass of the effective head is complete, and each top-level Gitar comment has its answer (D-335).
 - The record says `Ready for owner merge` for the effective head.
 - The owner confirmed the merge after the summary below.
 
@@ -111,7 +116,7 @@ Write the summary in four sections, with a few sentences in each section:
 
 Write the summary in the question text of `AskUserQuestion`, and ask the owner for the confirmation of the merge in the same text. The owner can see the question alone, so a summary outside it does not reach the owner. Without the confirmation, do not turn on the auto-merge.
 
-After the confirmation, run these commands, in this order:
+After the confirmation, run these commands, in this order. Push no commit after the auto-merge turns on, because GitHub can merge it before Gitar reads it.
 
 ```bash
 gh pr merge <number> --auto --squash
@@ -129,7 +134,7 @@ Do not offer the next pull request.
 
 ## 4. While the pull request waits
 
-The session stays bound to the pull request while it waits for CI, for the Codex review, or for the owner. It answers each finding on the same pull request (D-12).
+The session stays bound to the pull request while it waits for Gitar, for CI, for the Codex review, or for the owner. It answers each finding on the same pull request (D-12).
 
 - Tell the owner that the session is ready for a context compaction while the pull request waits.
 - Read the resume section of `docs/session-handoff.md` again after a context compaction.
@@ -219,6 +224,11 @@ The session ends with this prompt. It makes no branch and no change for the next
 | A merge with no approved record of the other provider | The `review-gate` workflow and the ruleset of `main` (D-4, D-8) |
 | A merge with a red check, or an open review thread | The ruleset of `main`, and `make ruleset-check` for its content (D-14) |
 | A Codex review on a dirty tree, or with an open review thread | `make codex-review` (D-8) |
+| A review of the other provider before the Gitar pass | `make codex-review` and `make claude-review` (D-336) |
+| The skip of the Gitar pass outside a pause that the owner states | The agent. `SKIP_GITAR=1` keeps the thread check (D-337) |
+| The Gitar pass of a pull request with the `review-override` label | The agent. No target runs (D-335) |
+| The answer to a top-level Gitar comment | The agent. No check reads it (D-335) |
+| The `gitar-review` skill and its rule in `AGENTS.md` | `make lifecycle-check` (D-335) |
 | The third open round of one finding | `make codex-review`, exit 4 |
 | An API key in a Codex process | `make codex-review` (D-8) |
 | A second branch in one session | `.claude/hooks/session_bind.py` (D-12) |
