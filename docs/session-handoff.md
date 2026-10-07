@@ -20,7 +20,7 @@ Gitar round 1 gave one finding: `SKIP_GITAR=0` also skipped the Gitar pass. The 
 
 Codex reviewed PR-44 at effective head `88b647d`. The verdict is `Ready for owner merge`, with no finding. The record is `docs/reviews/pr-44.md`.
 
-Next action: verify that the pushed review record makes `review-gate` pass, then continue the owner merge steps for PR-43.
+Next action: continue the owner merge steps for PR-43. The review record is on the branch, and `review-gate` passes.
 
 ## Facts that expire
 
