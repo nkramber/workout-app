@@ -14,11 +14,11 @@ The pull request holds three concerns:
 
 The acceptance story: the target is 10 x 100 lb. A first set of 12 x 105 lb at 2 reps in reserve gives 12 x 105 lb to sets 2 and 3. At 0 reps in reserve, they keep the target. Scenario M of `go/cmd/api/revision_emulator_test.go` and the browser test "a set that goes up gives the later sets its reps and its weight" of `web/e2e/workout.spec.ts` prove it.
 
-`make go-test` and `make emulator-test` passed. The phone unit tests passed.
+GitHub pull request 45 holds PR-44. `make verify`, `make go-test`, `make emulator-test`, `make contract`, and `make web` passed. Gitar approved `1f2469a` with no finding and no thread.
 
 Review state: Codex reviewed effective head `1f2469ad894c6c94959d3af4fb34b80d855f58a6`. Verdict: Ready for owner merge. No open findings. Gitar, review-gate, pr-contract, and all seven verify checks passed at metadata head `6c9c50d1ab0cfb33427332e298c0f8fb56227836`.
 
-Next action: wait for the review-gate result and the owner confirmation before the merge of PR-44.
+Next action: the owner reads the record and the author provider, and confirms the merge. The pull request waits for the owner merge.
 
 ## Facts that expire
 
@@ -106,7 +106,7 @@ Completed:
 
 Open work:
 
-- The checks, the reviews, the owner confirmation, and the merge of PR-44.
+- The owner confirmation and the merge of PR-44. Gitar and Codex approved `1f2469a`.
 
 ### Session 44 - 2026-10-06
 
