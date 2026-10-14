@@ -18,6 +18,19 @@ type Outcome struct {
 	Target     domain.PlannedExercise
 	Log        domain.ExerciseLog
 	EndedEarly bool
+
+	// next is the start of the next session after the mirror of the
+	// later sets, or nil for the working sets of Target (D-345).
+	next []domain.WorkingSet
+}
+
+// base gives the target that the next session starts from (D-345).
+func (o Outcome) base() domain.PlannedExercise {
+	t := o.Target
+	if o.next != nil {
+		t.Working = o.next
+	}
+	return t
 }
 
 // Input is the history of one exercise, oldest first, with the
@@ -225,6 +238,7 @@ func Next(in Input) (Decision, error) {
 	if len(in.History) == 0 {
 		return start(in), nil
 	}
+	best := LastBest(in.History)
 	in.History = in.effective()
 	ps := in.pause()
 	before, wasMissed := in.afterMissed()
@@ -236,7 +250,7 @@ func Next(in Input) (Decision, error) {
 	}
 
 	reps := RepRange(in.Exercise)
-	b := newBuilder(in, last.Target)
+	b := newBuilder(in, last.base())
 	logs := last.working()
 	total, first := last.shortfall()
 
@@ -302,12 +316,14 @@ func Next(in Input) (Decision, error) {
 		b.rule(RuleBreakFirst, "These are your first sessions after a break, so each set stops at 3 reps in reserve.")
 	}
 	if from := in.deloadOf(in.Today); from != "" {
-		b.deload(from, last.Target)
+		b.deload(from, last.base())
 	}
 	if ps.gap >= RecalibrateDays {
 		b.firstSet()
 	}
-	return b.decision(), nil
+	d := b.decision()
+	d.Target.LastBest = best
+	return d, nil
 }
 
 func shortTotal(o Outcome) int {
@@ -512,7 +528,7 @@ func (b *builder) decision() Decision {
 	for i, s := range b.target.Working {
 		loads = append(loads, LoadChange{fmt.Sprintf("working[%d]", i), b.before[i], s.Load})
 	}
-	b.target.FollowMax = Follow(b.target, b.available)
+	Limits(&b.target, b.in.Exercise, b.available)
 	return Decision{
 		Version: Version,
 		Target:  b.target,

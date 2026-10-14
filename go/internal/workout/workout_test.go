@@ -458,11 +458,11 @@ func TestOverrides(t *testing.T) {
 }
 
 // TestTargetDocs: the stored form keeps each field of a target copy,
-// the limit of D-307 too.
+// the limits of D-307 and D-343 too.
 func TestTargetDocs(t *testing.T) {
 	in := []domain.PlannedExercise{{Exercise: "chest_press", RestSeconds: 60,
 		Working:   []domain.WorkingSet{{Reps: 8, Load: domain.Pounds(40), RIR: 3}, {Reps: 8, Load: domain.Pounds(40), RIR: 3}},
-		FollowMax: domain.Pounds(45)}}
+		FollowMax: domain.Pounds(45), FollowMinReps: 8, FollowMaxReps: 12}}
 	got, overrides := decodeTargets(encodeTargets(in, nil))
 	if !reflect.DeepEqual(got, in) || len(overrides) != 0 {
 		t.Fatalf("round trip %+v, %+v, want %+v", got, overrides, in)

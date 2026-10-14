@@ -157,6 +157,11 @@ func TestRequestPlan(t *testing.T) {
 	if !e.GetFirstSetCalibration() || len(e.GetCalibrationLoads()) != 0 || e.GetFollowMaxTenthLb() != 0 {
 		t.Fatalf("first-set calibration %v, calibration loads %v, follow max %d", e.GetFirstSetCalibration(), e.GetCalibrationLoads(), e.GetFollowMaxTenthLb())
 	}
+	// The first-set calibration mirrors the reps inside the rep range of
+	// a machine, and a new exercise has no last best set (D-340, D-344).
+	if e.GetFollowMinReps() != 8 || e.GetFollowMaxReps() != 12 || e.GetLastBest() != nil {
+		t.Fatalf("rep limits %d to %d, last best set %v", e.GetFollowMinReps(), e.GetFollowMaxReps(), e.GetLastBest())
+	}
 
 	if e.GetReasonSource() != "luna" || p.GetLastRevision() != nil {
 		t.Fatalf("reason source %q, last revision %v", e.GetReasonSource(), p.GetLastRevision())

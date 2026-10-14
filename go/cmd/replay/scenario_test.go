@@ -138,8 +138,8 @@ func reviseWorkout(t *testing.T, s stores, wid string) {
 // seedV7 stores the data of a user whose decision records have policy
 // version 7. A plan of policy version 8 gets one workout and its
 // revision. Then each record and each target of the plan loses the
-// limit of D-306 and gets the version 7, as policy version 7 gave
-// them. The plan holds the chest press in sessions 0 and 1, and the
+// limits of D-306 and D-343 and the last best set of D-340, and gets
+// the version 7, as policy version 7 gave them. The plan holds the chest press in sessions 0 and 1, and the
 // seated row and the leg press in session 0. The workout logs the
 // chest press and the seated row at the loads of their targets, so the
 // rules add reps, and the leg press keeps the record of the new plan.
@@ -155,8 +155,9 @@ func seedV7(t *testing.T, s stores) {
 			for j := range q.Sessions[i].Exercises {
 				e := &q.Sessions[i].Exercises[j]
 				e.Record.PolicyVersion = 7
-				e.Record.Target.FollowMax = 0
-				e.Target.FollowMax = 0
+				for _, x := range []*domain.PlannedExercise{&e.Record.Target, &e.Target} {
+					x.FollowMax, x.FollowMinReps, x.FollowMaxReps, x.LastBest = 0, 0, 0, nil
+				}
 			}
 		}
 		return nil
@@ -167,16 +168,18 @@ func seedV7(t *testing.T, s stores) {
 
 // checkV7Report checks the report of the replay of seedV7 under the
 // current policy version: the three records of the revision change
-// their limit under the rule follow.first-set, and the record of the
-// new plan and both target copies stay the same.
+// their limit under the rule follow.first-set and their last best set
+// under follow.last-best. Each of the four records gets the rep limits
+// of follow.mirror (D-343). Both target copies stay the same.
 func checkV7Report(t *testing.T, rep Report) {
 	t.Helper()
 	want := Report{
 		PolicyVersion: policy.Version, Users: 1, UsersWithPlan: 1,
 		Records: RecordReport{
 			Total: 4, ByVersion: map[string]int{"7": 4}, ByOrigin: map[string]int{"plan": 1, "revision": 3},
-			SameInputHash: 4, Unchanged: 1, Changed: 3,
-			ChangedByRule: map[string]int{"follow.first-set": 3}, ChangedFields: map[string]int{"follow_max": 3},
+			SameInputHash: 4, Unchanged: 0, Changed: 4,
+			ChangedByRule: map[string]int{"follow.first-set": 3, "follow.last-best": 3, "follow.mirror": 4},
+			ChangedFields: map[string]int{"follow_max": 3, "follow_reps": 4, "last_best": 3},
 		},
 		Copies: CopyReport{Total: 2, SameAsRules: 2, ViolationsByRule: map[string]int{}},
 		// The plan of version 7 holds the chest press in both sessions,

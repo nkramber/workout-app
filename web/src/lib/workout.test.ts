@@ -29,6 +29,7 @@ import {
   logSet,
   nextSession,
   nextSet,
+  shownTarget,
   noteLength,
   parseLevel,
   parseMiles,
@@ -208,6 +209,19 @@ describe("an override in the next workout (D-293)", () => {
     expect(workoutExercises(limited, 0, () => [])[0].followMaxTenthLb).toBe(1150);
     e.override!.expired = true;
     expect(workoutExercises(limited, 0, () => [])[0].followMaxTenthLb).toBe(1050);
+  });
+
+  it("gives the rep limits of the override and the last best set of the plan (D-340, D-343)", () => {
+    const limited = clone(PlanSchema, overridden);
+    const e = limited.sessions[0].exercises[0];
+    Object.assign(e, { followMinReps: 8, followMaxReps: 12, lastBest: { reps: 12, weightTenthLb: 1050, rir: 2 } });
+    Object.assign(e.override!, { followMinReps: 6, followMaxReps: 15 });
+    expect(workoutExercises(limited, 0, () => [])[0]).toMatchObject({ followMinReps: 6, followMaxReps: 15, lastBest: { reps: 12, weightTenthLb: 1050, rir: 2 } });
+    e.override!.expired = true;
+    expect(workoutExercises(limited, 0, () => [])[0]).toMatchObject({ followMinReps: 8, followMaxReps: 12 });
+    // A target of policy version 9 has no rep limits and no best set.
+    expect(workoutExercises(overridden, 0, () => [])[0].followMaxReps).toBeUndefined();
+    expect(workoutExercises(overridden, 0, () => [])[0].lastBest).toBeUndefined();
   });
 
   it("uses the recommendation for an expired override (D-294, D-295)", () => {
@@ -570,6 +584,63 @@ describe("nextSet and currentExercise", () => {
     const entries = await pendingOutbox(store);
     const t = fromJson(WorkoutHeaderSchema, entries[entries.length - 1].payload as never).targets;
     expect(t.map((x) => x.followMaxTenthLb)).toEqual([0, planned + 50]);
+  });
+
+  // The cases of mirrorCases of `go/internal/policy/mirror_test.go`, in
+  // the same order: a target of 3 x 10 at 100 lb, a limit of 105 lb, and
+  // the rep range 8 to 12 (D-341 to D-346).
+  it("gives the targets of the mirror as the policy does", () => {
+    const t = { reps: 10, loadTenthLb: 1000, rirTarget: 2 };
+    const ws = (reps: number, loadTenthLb: number) => ({ reps, loadTenthLb, rirTarget: 2 });
+    const v10 = { workingSets: [t, t, t], followMaxTenthLb: 1050, followMinReps: 8, followMaxReps: 12 };
+    const log = (reps: number, weightTenthsLb: number, rir: number, pain?: number) => ({ reps, weightTenthsLb, rir, ...(pain !== undefined && { pain }) });
+    const cases: [string, typeof v10 & { firstSetCalibration?: boolean }, ReturnType<typeof log>[], ReturnType<typeof ws>[]][] = [
+      ["the first set goes up", v10, [log(12, 1050, 2), log(12, 1050, 2)], [t, ws(12, 1050), ws(12, 1050)]],
+      ["0 reps in reserve changes nothing", v10, [log(12, 1050, 0)], [t, t, t]],
+      ["a later set goes up", v10, [log(10, 1000, 3), log(11, 1000, 2), log(11, 1000, 2)], [t, t, ws(11, 1000)]],
+      ["heavier with fewer reps gives the whole set", v10, [log(8, 1050, 2)], [t, ws(8, 1050), ws(8, 1050)]],
+      ["the limits apply", v10, [log(5, 1100, 1), log(16, 1050, 2)], [t, ws(8, 1050), ws(12, 1050)]],
+      ["a lighter set at 0 reps in reserve", v10, [log(10, 950, 0)], [t, ws(10, 950), ws(10, 950)]],
+      ["pain blocks the mirror", v10, [log(12, 1050, 2, 3)], [t, t, t]],
+      ["the first-set calibration mirrors the reps alone", { ...v10, firstSetCalibration: true, followMaxTenthLb: 0 }, [log(10, 900, 3), log(12, 1100, 2)], [t, ws(10, 900), ws(12, 900)]],
+      ["version 9 reads the first set alone", { ...v10, followMinReps: 0, followMaxReps: 0 }, [log(10, 1000, 3), log(12, 1050, 2)], [t, t, t]],
+      ["version 9 follows a heavier first set at 0 reps in reserve", { ...v10, followMinReps: 0, followMaxReps: 0 }, [log(10, 1100, 0)], [t, ws(10, 1050), ws(10, 1050)]],
+    ];
+    for (const [name, e, logs, want] of cases) {
+      expect([0, 1, 2].map((n) => shownTarget(e, logs, n).target), name).toEqual(want);
+    }
+  });
+
+  // The header sends the rep limits, so the policy reads the targets
+  // that the sets showed (D-345).
+  it("sends the rep limits in the header", async () => {
+    const limited = clone(PlanSchema, plan);
+    Object.assign(limited.sessions[0].exercises[1], { followMinReps: 8, followMaxReps: 12 });
+    await startWorkout(store, limited, 0, weights, now);
+    const entries = await pendingOutbox(store);
+    const t = fromJson(WorkoutHeaderSchema, entries[entries.length - 1].payload as never).targets;
+    expect(t.map((x) => [x.followMinReps, x.followMaxReps])).toEqual([
+      [0, 0],
+      [8, 12],
+    ]);
+  });
+
+  // The acceptance story of PR-44 on the phone (D-341, D-343): the note
+  // names the set that gave the target, and a limit gives capped.
+  it("tells which set gave the target of a later set", () => {
+    const t = { reps: 10, loadTenthLb: 1000, rirTarget: 2 };
+    const e = { exerciseId: "chest_press", name: "Chest press", restSeconds: 60, calibrationSets: [], weights: [], workingSets: [t, t, t], followMaxTenthLb: 1050, followMinReps: 8, followMaxReps: 12 };
+    const s = (reps: number, weightTenthsLb: number, rir: number) => ({ ...set("chest_press", "working"), reps, weightTenthsLb, rir });
+    expect(nextSet(e, [s(12, 1050, 2)])).toMatchObject({ number: 2, follows: true, from: 1, capped: false, target: { reps: 12, loadTenthLb: 1050 } });
+    expect(nextSet(e, [s(12, 1050, 0)])).toMatchObject({ number: 2, target: { reps: 10, loadTenthLb: 1000 } });
+    expect(nextSet(e, [s(12, 1050, 0)])?.follows).toBeUndefined();
+    expect(nextSet(e, [s(10, 1000, 3), s(14, 1100, 2)])).toMatchObject({ number: 3, follows: true, from: 2, capped: true, target: { reps: 12, loadTenthLb: 1050 } });
+    // In the first-set calibration, set 1 gives the load, and a set with
+    // more reps gives the reps (D-299, D-344).
+    const cal = { ...e, firstSetCalibration: true, followMaxTenthLb: undefined };
+    expect(nextSet(cal, [s(10, 900, 3)])).toMatchObject({ fromCalibration: true, target: { reps: 10, loadTenthLb: 900 } });
+    expect(nextSet(cal, [s(10, 900, 3)])?.follows).toBeUndefined();
+    expect(nextSet(cal, [s(11, 900, 2)])).toMatchObject({ fromCalibration: true, follows: true, from: 1, capped: false, target: { reps: 11, loadTenthLb: 900 } });
   });
 
   it("gives the load of the later sets as the policy does (D-306 to D-308)", () => {

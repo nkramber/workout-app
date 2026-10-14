@@ -61,6 +61,14 @@ func TestPlannedExerciseCheck(t *testing.T) {
 		{"follow limit at the load", PlannedExercise{Exercise: "chest_press", Working: work, FollowMax: Pounds(50)}, true},
 		{"follow limit below the load", PlannedExercise{Exercise: "chest_press", Working: work, FollowMax: Pounds(45)}, false},
 		{"negative follow limit", PlannedExercise{Exercise: "chest_press", Working: work, FollowMax: -1}, false},
+		{"rep limits", PlannedExercise{Exercise: "chest_press", Working: work, FollowMinReps: 8, FollowMaxReps: 12}, true},
+		{"one rep limit", PlannedExercise{Exercise: "chest_press", Working: work, FollowMinReps: 8, FollowMaxReps: 8}, true},
+		{"a minimum alone", PlannedExercise{Exercise: "chest_press", Working: work, FollowMinReps: 8}, false},
+		{"a maximum alone", PlannedExercise{Exercise: "chest_press", Working: work, FollowMaxReps: 12}, false},
+		{"the minimum above the maximum", PlannedExercise{Exercise: "chest_press", Working: work, FollowMinReps: 12, FollowMaxReps: 8}, false},
+		{"last best set", PlannedExercise{Exercise: "chest_press", Working: work, LastBest: &BestSet{Reps: 0, Weight: Pounds(50), RIR: 0}}, true},
+		{"last best set with no weight", PlannedExercise{Exercise: "chest_press", Working: work, LastBest: &BestSet{Reps: 10}}, false},
+		{"last best set with negative reps", PlannedExercise{Exercise: "chest_press", Working: work, LastBest: &BestSet{Reps: -1, Weight: Pounds(50)}}, false},
 	} {
 		err := tc.ex.Check(c)
 		if (err == nil) != tc.ok || (err != nil && !errors.Is(err, ErrInvalid)) {

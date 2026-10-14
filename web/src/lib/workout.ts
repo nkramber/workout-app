@@ -131,6 +131,8 @@ function headerPayload(w: WorkoutRecord): unknown {
         overrideReason: e.override?.reason ?? "",
         firstSetCalibration: e.firstSetCalibration ?? false,
         followMaxTenthLb: e.followMaxTenthLb ?? 0,
+        followMinReps: e.followMinReps ?? 0,
+        followMaxReps: e.followMaxReps ?? 0,
       })),
     }),
   );
@@ -222,9 +224,13 @@ export function workoutExercises(plan: Plan, sessionIndex: number, weights: (exe
     const out: WorkoutExercise = { exerciseId: e.exerciseId, name: e.name, restSeconds: e.restSeconds, calibrationSets, workingSets, weights: list };
     if (o) out.override = { reason: o.reason, recommendedWorkingSets: sets(e.workingSets) };
     if (e.firstSetCalibration) out.firstSetCalibration = true;
-    // The policy gives the limit of the override too (D-306, D-307).
+    // The policy gives the limits of the override too (D-306, D-307,
+    // D-343).
     const followMax = o ? o.followMaxTenthLb : e.followMaxTenthLb;
     if (followMax > 0) out.followMaxTenthLb = followMax;
+    const [minReps, maxReps] = o ? [o.followMinReps, o.followMaxReps] : [e.followMinReps, e.followMaxReps];
+    if (maxReps > 0) Object.assign(out, { followMinReps: minReps, followMaxReps: maxReps });
+    if (e.lastBest) out.lastBest = { reps: e.lastBest.reps, weightTenthLb: e.lastBest.weightTenthLb, rir: e.lastBest.rir };
     if (calibrationSets.length > 0 && e.calibrationLoads.length > 0) {
       out.calibrationLoads = e.calibrationLoads.map((c) => ({
         weight: c.weightTenthLb,
@@ -498,10 +504,10 @@ export function workoutCardio(store: WorkoutAppDB, workoutId: string): Promise<C
 // working sets (D-150). `number` counts from 1 inside its kind.
 // fromCalibration is true when the calibration gave the load of the
 // working set (D-267, D-299). calibrates is true for the first working
-// set of the first-set calibration (D-297). follows is true when the
-// weight of the first set gave the load of the working set, and capped
-// is true when the limit of the policy made it lighter than that weight
-// (D-306, D-307).
+// set of the first-set calibration (D-297). follows is true when an
+// earlier set, the set number `from`, gave the target of the working set
+// (D-306, D-341). capped is true when a limit of the policy made the
+// target differ from that set (D-307, D-343).
 export type NextSet = {
   kind: "working" | "calibration";
   number: number;
@@ -510,8 +516,80 @@ export type NextSet = {
   fromCalibration: boolean;
   calibrates: boolean;
   follows?: boolean;
+  from?: number;
   capped?: boolean;
 };
+
+// A change of the later working sets after a logged set: a load, reps,
+// or both. No value changes nothing.
+export type Change = { load?: number; reps?: number };
+
+type Mirrored = Pick<WorkoutExercise, "workingSets" | "firstSetCalibration" | "followMaxTenthLb" | "followMinReps" | "followMaxReps">;
+type Logged = Pick<SetRecord, "reps" | "weightTenthsLb" | "rir" | "pain">;
+
+// mirror gives the change of the later working sets after the owner
+// logged s against the target shown, from the change c before it. n
+// counts the working sets from 0. From version 10, a set that goes up
+// against its target, with more reps or a heavier weight, at 1 rep in
+// reserve or more and with no pain, gives the later sets its weight up
+// to the limit and its reps inside the rep limits (D-341, D-343, D-346).
+// A lighter set gives its weight at any reps in reserve (D-342). With no
+// weight limit, the first-set calibration included, the reps alone
+// change (D-344). With no rep limits, a target of version 9 or earlier,
+// the first set alone gives the load (D-299, D-306 to D-308). The policy
+// code `Mirror` of `go/internal/policy/calibrate.go` gives the same
+// change.
+export function mirror(e: Mirrored, n: number, shown: TargetSet, s: Logged, c: Change): Change {
+  const max = e.followMaxTenthLb ?? 0;
+  const maxReps = e.followMaxReps ?? 0;
+  if (maxReps <= 0) {
+    if (n !== 0 || e.workingSets.length === 0) return c;
+    if (e.firstSetCalibration) return { ...c, load: s.weightTenthsLb };
+    if (max > 0 && s.weightTenthsLb !== e.workingSets[0].loadTenthLb) return { ...c, load: followedLoad(e, s.weightTenthsLb) };
+    return c;
+  }
+  const up = s.reps > 0 && s.rir >= 1 && (s.pain === undefined || s.pain < 1);
+  const reps = Math.min(Math.max(s.reps, e.followMinReps ?? 0), maxReps);
+  if (e.firstSetCalibration || max <= 0) {
+    let out = c;
+    if (e.firstSetCalibration && n === 0) out = { ...out, load: s.weightTenthsLb };
+    if (up && s.reps > shown.reps) out = { ...out, reps };
+    return out;
+  }
+  if (up && (s.weightTenthsLb > shown.loadTenthLb || s.reps > shown.reps)) return { load: Math.min(s.weightTenthsLb, max), reps };
+  if (s.weightTenthsLb < shown.loadTenthLb) return { ...c, load: s.weightTenthsLb };
+  return c;
+}
+
+function apply(c: Change, s: TargetSet): TargetSet {
+  return { ...s, loadTenthLb: c.load ?? s.loadTenthLb, reps: c.reps ?? s.reps };
+}
+
+// shownTarget gives the target of working set n after the logs of the
+// sets before it (D-341 to D-345), as `Mirrored` of the policy gives it.
+// from is the number of the last set that changed the target, and
+// capped tells that a limit made the target differ from that set.
+export function shownTarget(e: Mirrored, work: readonly Logged[], n: number): { target: TargetSet; from?: number; capped: boolean } {
+  let c: Change = {};
+  let from: number | undefined;
+  let capped = false;
+  for (let j = 0; j < n && j < work.length; j++) {
+    const s = work[j];
+    const next = mirror(e, j, apply(c, e.workingSets[j]), s, c);
+    // In the first-set calibration, the first set gives the load, and
+    // calibration-note tells it. follow-note tells a change of the reps.
+    const reps = next.reps !== c.reps;
+    if (next.load !== c.load || reps) {
+      if (!e.firstSetCalibration || reps) {
+        from = j + 1;
+        capped = (next.load !== undefined && next.load !== s.weightTenthsLb && !e.firstSetCalibration) || (next.reps !== undefined && next.reps !== s.reps);
+      }
+      c = next;
+    }
+  }
+  return { target: apply(c, e.workingSets[n]), from, capped };
+}
+
 
 // followedLoad gives the load of the other working sets after the owner
 // logged the first set at weight (D-306 to D-308): a heavier weight up to
@@ -550,7 +628,8 @@ export function calibrationLoad(e: WorkoutExercise, s: Pick<SetRecord, "weightTe
 // working set gets the weight that the owner logged for the first set
 // (D-299). From version 8, a target with a limit gives each later
 // working set the weight of the first set, inside the limit (D-306 to
-// D-308).
+// D-308). From version 10, shownTarget gives the mirror of a set that
+// went up (D-341 to D-346).
 export function nextSet(e: WorkoutExercise, logged: readonly SetRecord[]): NextSet | null {
   const mine = logged.filter((s) => s.exerciseId === e.exerciseId);
   const cals = mine.filter((s) => s.kind === "calibration");
@@ -564,13 +643,16 @@ export function nextSet(e: WorkoutExercise, logged: readonly SetRecord[]): NextS
     const set = { kind: "working" as const, number: n + 1, of: e.workingSets.length, target: e.workingSets[n] };
     if (e.firstSetCalibration) {
       if (n === 0) return { ...set, fromCalibration: false, calibrates: true };
-      return { ...set, target: { ...set.target, loadTenthLb: work[0].weightTenthsLb }, fromCalibration: true, calibrates: false };
+      const t = shownTarget(e, work, n);
+      const follows = t.from !== undefined && t.target.reps !== set.target.reps;
+      return { ...set, target: t.target, fromCalibration: true, calibrates: false, ...(follows && { follows, from: t.from, capped: t.capped }) };
     }
-    if (n > 0 && cals.length === 0 && (e.followMaxTenthLb ?? 0) > 0) {
-      const first = work[0].weightTenthsLb;
-      const load = followedLoad(e, first);
-      if (load === set.target.loadTenthLb) return { ...set, fromCalibration: false, calibrates: false };
-      return { ...set, target: { ...set.target, loadTenthLb: load }, fromCalibration: false, calibrates: false, follows: true, capped: load < first };
+    if (n > 0 && cals.length === 0 && ((e.followMaxTenthLb ?? 0) > 0 || (e.followMaxReps ?? 0) > 0)) {
+      const t = shownTarget(e, work, n);
+      if (t.from === undefined || (t.target.loadTenthLb === set.target.loadTenthLb && t.target.reps === set.target.reps)) {
+        return { ...set, fromCalibration: false, calibrates: false };
+      }
+      return { ...set, target: t.target, fromCalibration: false, calibrates: false, follows: true, from: t.from, capped: t.capped };
     }
     const load = cals.length > 0 ? calibrationLoad(e, cals[0]) : null;
     if (load === null) return { ...set, fromCalibration: false, calibrates: false };

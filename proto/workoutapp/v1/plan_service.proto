@@ -148,6 +148,24 @@ message PlannedExercise {
   // calibration, and for each target of policy version 7 or earlier. Then
   // the other working sets keep their loads.
   int32 follow_max_tenth_lb = 12;
+  // The limits of the reps that the later working sets can mirror from a
+  // set that went up: the rep range of the exercise (D-341, D-343, D-344).
+  // Both are 0 for a target with a calibration set, and for each target of
+  // policy version 9 or earlier. Then the first set alone changes the
+  // other working sets (D-306).
+  int32 follow_min_reps = 13;
+  int32 follow_max_reps = 14;
+  // The best working set of the last session of the exercise, by the
+  // estimated one-rep maximum of Epley, or none (D-340). The set logger
+  // shows it.
+  BestSet last_best = 15;
+}
+
+// BestSet is one logged working set of an earlier session (D-340).
+message BestSet {
+  int32 reps = 1;
+  int32 weight_tenth_lb = 2;
+  int32 rir = 3;
 }
 
 // TargetOverride is an override of the owner for one exercise (D-69, D-293).
@@ -168,6 +186,10 @@ message TargetOverride {
   // The limit of the working sets of the override, as follow_max_tenth_lb
   // of PlannedExercise gives it (D-306, D-307).
   int32 follow_max_tenth_lb = 7;
+  // The rep limits of the working sets of the override, as follow_min_reps
+  // and follow_max_reps of PlannedExercise give them (D-343).
+  int32 follow_min_reps = 8;
+  int32 follow_max_reps = 9;
 }
 
 // CalibrationLoads holds the load of the working sets for each result of one

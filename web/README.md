@@ -67,7 +67,7 @@ The home screen has a "Plan" button. The plan screen reads `GetPlan` with the lo
 
 - The summary of the plan.
 - For each session: the warm-up, each exercise, the optional cardio, and the cool-down.
-- For each exercise: the working sets, the rest, and the reason. The first set of a new exercise shows as the calibration (D-297). An exercise with a limit tells it: "When you change the weight of set 1, the other sets use it" (D-306, D-307).
+- For each exercise: the working sets, the rest, and the reason. The first set of a new exercise shows as the calibration (D-297). An exercise with a limit tells it with `followText`: from policy version 10, "When a set goes up at 1 or more reps in reserve, the later sets use its reps and its weight" (D-306, D-341).
 - The mobility and recovery items, and the excluded exercises with their reasons.
 
 Each exercise has a "Change target" button. Its form changes the reps and the load of each working set for the next session (D-69, D-293). It needs a reason of 1 to 200 characters, and it calls `OverrideTarget`.
@@ -91,6 +91,8 @@ The start copies the targets of the session and the weights of each machine to t
 - A tap on the reps in reserve logs the set. So the owner logs a set in one tap. A working set offers 0, 1, 2, 3, or 4+, and a calibration set offers 0 to 6+ (D-268).
 - The first set of a new exercise is the calibration (D-297). The owner changes the weight during its first reps, and logs the weight that the owner used. Each later set of the exercise gets that weight, with the note "The first set gave this load" (D-299).
 - From policy version 8, an exercise with history has a limit (D-306, D-307). When the owner logs the first set at another weight, each later set gets that weight. A heavier weight stops at the limit, and a lighter weight has no limit (D-308). The function `followedLoad` gives the load, as `policy.Followed` does on the server.
+- From policy version 10, a working set that goes up gives its reps and its weight to the later sets (D-341 to D-346). The limits of the policy apply. The functions `mirror` and `shownTarget` give the target, as `policy.Mirror` does on the server. The note names the set that gave the target. A unit test holds the same cases as the Go test.
+- The set logger shows the best set of the last session of the exercise from the plan, such as "Last time, best set: 12 reps at 105 lb, 2 in reserve" (D-340).
 - A plan of policy version 4 to 6 can still hold a calibration set. After it, each working set gets the load of the calibration table (D-267).
 - When each exercise is done, the list of the exercises collapses to one line (D-298). So the cardio and the end of the workout show near the top. "Show the exercises" opens the list again.
 - The log of a set starts the rest timer with the rest of the target, 60 seconds since policy version 5 (D-59, D-172, D-279). The timer reads a stored end time in the `meta` table. So it is correct after a screen lock and after a stop of the app. "-15 s", "+15 s", and "Dismiss" change it, and it never goes below 0 (D-270). At 0 it shows "Rest done" in another color, with no sound and no notification (D-58, D-61). The card always keeps its space, so the set logger does not move. With no rest, it shows "Next rest" with the rest of the next set, and its buttons are off (D-318).

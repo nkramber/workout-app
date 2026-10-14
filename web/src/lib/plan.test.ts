@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   CAP_REACHED,
+  followText,
   localDate,
   MAX_REASON_CHARS,
   NO_EXERCISE,
@@ -146,5 +147,18 @@ describe("overrideErrorText (D-293)", () => {
     expect(overrideErrorText(new ConnectError("x", Code.Aborted), true)).toMatch(/new plan replaced/);
     expect(overrideErrorText(new ConnectError("x", Code.Internal), true)).toMatch(/not saved/);
     expect(overrideErrorText(new ConnectError("x", Code.Unknown), false)).toMatch(/^No connection/);
+  });
+});
+
+describe("followText", () => {
+  it("gives the rule of the later sets of each policy version (D-306, D-341, D-344)", () => {
+    expect(followText({ followMaxTenthLb: 1050, followMinReps: 8, followMaxReps: 12 })).toBe(
+      "When a set goes up at 1 or more reps in reserve, the later sets use its reps and its weight: 8 to 12 reps, up to 105 lb.",
+    );
+    expect(followText({ followMaxTenthLb: 0, followMinReps: 8, followMaxReps: 12 })).toBe(
+      "When a set gets more reps at 1 or more reps in reserve, the later sets use them: 8 to 12 reps.",
+    );
+    expect(followText({ followMaxTenthLb: 1050, followMinReps: 0, followMaxReps: 0 })).toBe("When you change the weight of set 1, the other sets use it, up to 105 lb.");
+    expect(followText({ followMaxTenthLb: 0, followMinReps: 0, followMaxReps: 0 })).toBe("");
   });
 });

@@ -194,6 +194,46 @@ func revScenarios() map[string][]revCase {
 			{"f_press", "chest_press", []logged{{0, revTarget("chest_press", 3, 12, 100), allDone(revTarget("chest_press", 3, 12, 100)), false}}, oneStep},
 			{"f_leg_press", "leg_press", []logged{{0, revTarget("leg_press", 3, 12, 200), allDone(revTarget("leg_press", 3, 12, 200)), false}}, oneStep},
 		},
+		// The acceptance story of PR-44 (D-340, D-341, D-345): against a
+		// target of 10 x 100 lb, a first set of 12 x 105 lb at 2 reps in
+		// reserve gives 12 x 105 lb to the later sets, and the next
+		// session starts from it. At 0 reps in reserve, the later sets
+		// keep the target. The plan holds the best set of the session.
+		"M": {
+			{"m_up", "chest_press", []logged{{0, mirrorTarget("chest_press"), []domain.SetLog{revSet(12, 105, 2), revSet(12, 105, 2), revSet(12, 105, 2)}, false}},
+				mirrorWant(12, 105, domain.BestSet{Reps: 12, Weight: pounds(105), RIR: 2})},
+			{"m_zero_rir", "seated_row", []logged{{0, mirrorTarget("seated_row"), []domain.SetLog{revSet(12, 105, 0), revSet(10, 100, 2), revSet(10, 100, 2)}, false}},
+				mirrorWant(10, 100, domain.BestSet{Reps: 12, Weight: pounds(105), RIR: 0})},
+		},
+	}
+}
+
+// mirrorTarget gives a target of policy version 10: 3 x 10 at 100 lb,
+// the next weight of the stack as the limit, and the rep range of a
+// machine (D-307, D-343).
+func mirrorTarget(id domain.ExerciseID) domain.PlannedExercise {
+	p := revTarget(id, 3, 10, 100)
+	p.FollowMax, p.FollowMinReps, p.FollowMaxReps = pounds(105), 8, 12
+	return p
+}
+
+// mirrorWant grades the final target of the acceptance story of PR-44:
+// each set at reps x load, at 3 or fewer reps in reserve, and the best
+// set of the last session.
+func mirrorWant(reps int, load int64, best domain.BestSet) func(f, _ domain.PlannedExercise) string {
+	return func(f, _ domain.PlannedExercise) string {
+		for i, s := range f.Working {
+			if s.Reps != reps || s.Load != pounds(load) {
+				return fmt.Sprintf("working[%d]: %d x %s, want %d x %s", i, s.Reps, s.Load, reps, pounds(load))
+			}
+		}
+		if f.LastBest == nil || *f.LastBest != best {
+			return fmt.Sprintf("last best set %+v, want %+v", f.LastBest, best)
+		}
+		if f.FollowMinReps != 8 || f.FollowMaxReps != 12 {
+			return fmt.Sprintf("rep limits %d to %d, want 8 to 12", f.FollowMinReps, f.FollowMaxReps)
+		}
+		return ""
 	}
 }
 
@@ -275,7 +315,8 @@ func (e *revEnv) entry(entity, id string) *workoutappv1.OutboxEntry {
 }
 
 func seenTarget(p domain.PlannedExercise) *workoutappv1.SeenTarget {
-	out := &workoutappv1.SeenTarget{ExerciseId: string(p.Exercise), RestSeconds: int32(p.RestSeconds), FirstSetCalibration: p.FirstSetCalibration, FollowMaxTenthLb: int32(p.FollowMax)}
+	out := &workoutappv1.SeenTarget{ExerciseId: string(p.Exercise), RestSeconds: int32(p.RestSeconds), FirstSetCalibration: p.FirstSetCalibration, FollowMaxTenthLb: int32(p.FollowMax),
+		FollowMinReps: int32(p.FollowMinReps), FollowMaxReps: int32(p.FollowMaxReps)}
 	for _, s := range p.Working {
 		out.WorkingSets = append(out.WorkingSets, &workoutappv1.PlannedSet{Reps: int32(s.Reps), LoadTenthLb: int32(s.Load), RirTarget: int32(s.RIR)})
 	}
@@ -367,7 +408,11 @@ func (e *revEnv) planned() *workoutappv1.Plan {
 }
 
 func targetOf(p *workoutappv1.PlannedExercise) domain.PlannedExercise {
-	out := domain.PlannedExercise{Exercise: domain.ExerciseID(p.GetExerciseId()), RestSeconds: int(p.GetRestSeconds()), FirstSetCalibration: p.GetFirstSetCalibration(), FollowMax: domain.Load(p.GetFollowMaxTenthLb())}
+	out := domain.PlannedExercise{Exercise: domain.ExerciseID(p.GetExerciseId()), RestSeconds: int(p.GetRestSeconds()), FirstSetCalibration: p.GetFirstSetCalibration(), FollowMax: domain.Load(p.GetFollowMaxTenthLb()),
+		FollowMinReps: int(p.GetFollowMinReps()), FollowMaxReps: int(p.GetFollowMaxReps())}
+	if b := p.GetLastBest(); b != nil {
+		out.LastBest = &domain.BestSet{Reps: int(b.GetReps()), Weight: domain.Load(b.GetWeightTenthLb()), RIR: int(b.GetRir())}
+	}
 	for _, s := range p.GetCalibrationSets() {
 		out.Calibration = append(out.Calibration, domain.CalibrationSet{Reps: int(s.GetReps()), Load: domain.Load(s.GetLoadTenthLb())})
 	}
@@ -388,7 +433,7 @@ func TestRevisionAcceptanceStory(t *testing.T) {
 	scenarios := revScenarios()
 	echo := startAPI(t)
 
-	for _, id := range []string{"A", "B", "C", "D", "E", "F"} {
+	for _, id := range []string{"A", "B", "C", "D", "E", "F", "M"} {
 		t.Run("scenario "+id, func(t *testing.T) {
 			cases := scenarios[id]
 			e := newRevEnv(t, authHost, echo, fs, cases)

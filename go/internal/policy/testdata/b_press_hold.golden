@@ -1,8 +1,10 @@
-policy version: 9
+policy version: 10
 rules: progress.press-hold
 target: db_flat_bench_press, rest 60 s
   working[0]: 10 reps at 30 lb, 2 RIR
   working[1]: 10 reps at 30 lb, 2 RIR
   working[2]: 10 reps at 30 lb, 2 RIR
   the other sets follow working[0], up to 35 lb
+  a set that goes up gives the later sets 8 to 15 reps
+  last best set: 10 reps at 30 lb, 3 RIR
 reason: A set ended at 1 rep in reserve or less. The load stays the same.

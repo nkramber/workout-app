@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file workoutapp/v1/plan_service.proto.
  */
 export const file_workoutapp_v1_plan_service: GenFile = /*@__PURE__*/
-  fileDesc("CiB3b3Jrb3V0YXBwL3YxL3BsYW5fc2VydmljZS5wcm90bxINd29ya291dGFwcC52MSKNAgoEUGxhbhISCgpjcmVhdGVkX2F0GAEgASgJEg0KBXRvZGF5GAIgASgJEg8KB3N1bW1hcnkYAyABKAkSLAoIc2Vzc2lvbnMYBCADKAsyGi53b3Jrb3V0YXBwLnYxLlBsYW5TZXNzaW9uEi0KCGd1aWRhbmNlGAUgAygLMhsud29ya291dGFwcC52MS5HdWlkYW5jZUl0ZW0SFgoOcHJvbXB0X3ZlcnNpb24YBiABKAkSFgoOcG9saWN5X3ZlcnNpb24YByABKAUSEAoIYXR0ZW1wdHMYCCABKAUSMgoNbGFzdF9yZXZpc2lvbhgJIAEoCzIbLndvcmtvdXRhcHAudjEuUGxhblJldmlzaW9uIkwKDFBsYW5SZXZpc2lvbhISCgp3b3Jrb3V0X2lkGAEgASgJEhIKCnJldmlzZWRfYXQYAiABKAkSFAoMZXhlcmNpc2VfaWRzGAMgAygJItsBCgtQbGFuU2Vzc2lvbhINCgV0aXRsZRgBIAEoCRIsCgd3YXJtX3VwGAIgASgLMhsud29ya291dGFwcC52MS5HdWlkYW5jZUl0ZW0SMQoJZXhlcmNpc2VzGAMgAygLMh4ud29ya291dGFwcC52MS5QbGFubmVkRXhlcmNpc2USLAoGY2FyZGlvGAQgASgLMhwud29ya291dGFwcC52MS5QbGFubmVkQ2FyZGlvEi4KCWNvb2xfZG93bhgFIAEoCzIbLndvcmtvdXRhcHAudjEuR3VpZGFuY2VJdGVtIjYKDEd1aWRhbmNlSXRlbRIKCgJpZBgBIAEoCRIMCgRraW5kGAIgASgJEgwKBHRleHQYAyABKAkikAMKD1BsYW5uZWRFeGVyY2lzZRITCgtleGVyY2lzZV9pZBgBIAEoCRIMCgRuYW1lGAIgASgJEhQKDHJlc3Rfc2Vjb25kcxgDIAEoBRIzChBjYWxpYnJhdGlvbl9zZXRzGAQgAygLMhkud29ya291dGFwcC52MS5QbGFubmVkU2V0Ei8KDHdvcmtpbmdfc2V0cxgFIAMoCzIZLndvcmtvdXRhcHAudjEuUGxhbm5lZFNldBIOCgZyZWFzb24YBiABKAkSDgoGc291cmNlGAcgASgJEjoKEWNhbGlicmF0aW9uX2xvYWRzGAggAygLMh8ud29ya291dGFwcC52MS5DYWxpYnJhdGlvbkxvYWRzEhUKDXJlYXNvbl9zb3VyY2UYCSABKAkSLwoIb3ZlcnJpZGUYCiABKAsyHS53b3Jrb3V0YXBwLnYxLlRhcmdldE92ZXJyaWRlEh0KFWZpcnN0X3NldF9jYWxpYnJhdGlvbhgLIAEoCBIbChNmb2xsb3dfbWF4X3RlbnRoX2xiGAwgASgFIoUCCg5UYXJnZXRPdmVycmlkZRIzChBjYWxpYnJhdGlvbl9zZXRzGAEgAygLMhkud29ya291dGFwcC52MS5QbGFubmVkU2V0Ei8KDHdvcmtpbmdfc2V0cxgCIAMoCzIZLndvcmtvdXRhcHAudjEuUGxhbm5lZFNldBIOCgZyZWFzb24YAyABKAkSEgoKY3JlYXRlZF9hdBgEIAEoCRI7ChhyZWNvbW1lbmRlZF93b3JraW5nX3NldHMYBSADKAsyGS53b3Jrb3V0YXBwLnYxLlBsYW5uZWRTZXQSDwoHZXhwaXJlZBgGIAEoCBIbChNmb2xsb3dfbWF4X3RlbnRoX2xiGAcgASgFIosBChBDYWxpYnJhdGlvbkxvYWRzEhcKD3dlaWdodF90ZW50aF9sYhgBIAEoBRIVCg1kb3duX3RlbnRoX2xiGAIgASgFEhUKDWtlZXBfdGVudGhfbGIYAyABKAUSFwoPdXBfb25lX3RlbnRoX2xiGAQgASgFEhcKD3VwX3R3b190ZW50aF9sYhgFIAEoBSJFCgpQbGFubmVkU2V0EgwKBHJlcHMYASABKAUSFQoNbG9hZF90ZW50aF9sYhgCIAEoBRISCgpyaXJfdGFyZ2V0GAMgASgFIkMKDVBsYW5uZWRDYXJkaW8SEwoLZXhlcmNpc2VfaWQYASABKAkSDAoEbmFtZRgCIAEoCRIPCgdtaW51dGVzGAMgASgFIj4KCUV4Y2x1c2lvbhITCgtleGVyY2lzZV9pZBgBIAEoCRIMCgRuYW1lGAIgASgJEg4KBnJlYXNvbhgDIAEoCSJcCgxQbGFuUHJvZ3Jlc3MSDAoEc3RlcBgBIAEoCRIPCgdhdHRlbXB0GAIgASgFEhQKDG1heF9hdHRlbXB0cxgDIAEoBRIXCg9wcmV2aW91c19zdGF0dXMYBCABKAkiHwoOR2V0UGxhblJlcXVlc3QSDQoFdG9kYXkYASABKAkiYgoPR2V0UGxhblJlc3BvbnNlEiEKBHBsYW4YASABKAsyEy53b3Jrb3V0YXBwLnYxLlBsYW4SLAoKZXhjbHVzaW9ucxgCIAMoCzIYLndvcmtvdXRhcHAudjEuRXhjbHVzaW9uInQKE1JlcXVlc3RQbGFuUmVzcG9uc2USLwoIcHJvZ3Jlc3MYASABKAsyGy53b3Jrb3V0YXBwLnYxLlBsYW5Qcm9ncmVzc0gAEiMKBHBsYW4YAiABKAsyEy53b3Jrb3V0YXBwLnYxLlBsYW5IAEIHCgVldmVudCIjChJSZXF1ZXN0UGxhblJlcXVlc3QSDQoFdG9kYXkYASABKAkiTAoWRXhjbHVkZUV4ZXJjaXNlUmVxdWVzdBINCgV0b2RheRgBIAEoCRITCgtleGVyY2lzZV9pZBgCIAEoCRIOCgZyZWFzb24YAyABKAkieAoXRXhjbHVkZUV4ZXJjaXNlUmVzcG9uc2USLwoIcHJvZ3Jlc3MYASABKAsyGy53b3Jrb3V0YXBwLnYxLlBsYW5Qcm9ncmVzc0gAEiMKBHBsYW4YAiABKAsyEy53b3Jrb3V0YXBwLnYxLlBsYW5IAEIHCgVldmVudCJ8ChVPdmVycmlkZVRhcmdldFJlcXVlc3QSDQoFdG9kYXkYASABKAkSEwoLZXhlcmNpc2VfaWQYAiABKAkSLwoMd29ya2luZ19zZXRzGAMgAygLMhkud29ya291dGFwcC52MS5QbGFubmVkU2V0Eg4KBnJlYXNvbhgEIAEoCSI7ChZPdmVycmlkZVRhcmdldFJlc3BvbnNlEiEKBHBsYW4YASABKAsyEy53b3Jrb3V0YXBwLnYxLlBsYW4iOwoVUmVtb3ZlT3ZlcnJpZGVSZXF1ZXN0Eg0KBXRvZGF5GAEgASgJEhMKC2V4ZXJjaXNlX2lkGAIgASgJIjsKFlJlbW92ZU92ZXJyaWRlUmVzcG9uc2USIQoEcGxhbhgBIAEoCzITLndvcmtvdXRhcHAudjEuUGxhbjLbAwoLUGxhblNlcnZpY2USSgoHR2V0UGxhbhIdLndvcmtvdXRhcHAudjEuR2V0UGxhblJlcXVlc3QaHi53b3Jrb3V0YXBwLnYxLkdldFBsYW5SZXNwb25zZSIAEl8KDk92ZXJyaWRlVGFyZ2V0EiQud29ya291dGFwcC52MS5PdmVycmlkZVRhcmdldFJlcXVlc3QaJS53b3Jrb3V0YXBwLnYxLk92ZXJyaWRlVGFyZ2V0UmVzcG9uc2UiABJfCg5SZW1vdmVPdmVycmlkZRIkLndvcmtvdXRhcHAudjEuUmVtb3ZlT3ZlcnJpZGVSZXF1ZXN0GiUud29ya291dGFwcC52MS5SZW1vdmVPdmVycmlkZVJlc3BvbnNlIgASWAoLUmVxdWVzdFBsYW4SIS53b3Jrb3V0YXBwLnYxLlJlcXVlc3RQbGFuUmVxdWVzdBoiLndvcmtvdXRhcHAudjEuUmVxdWVzdFBsYW5SZXNwb25zZSIAMAESZAoPRXhjbHVkZUV4ZXJjaXNlEiUud29ya291dGFwcC52MS5FeGNsdWRlRXhlcmNpc2VSZXF1ZXN0GiYud29ya291dGFwcC52MS5FeGNsdWRlRXhlcmNpc2VSZXNwb25zZSIAMAFCQ1pBZ2l0aHViLmNvbS9ua3JhbWJlci93b3Jrb3V0LWFwcC9nby9nZW4vd29ya291dGFwcC92MTt3b3Jrb3V0YXBwdjFiBnByb3RvMw");
+  fileDesc("CiB3b3Jrb3V0YXBwL3YxL3BsYW5fc2VydmljZS5wcm90bxINd29ya291dGFwcC52MSKNAgoEUGxhbhISCgpjcmVhdGVkX2F0GAEgASgJEg0KBXRvZGF5GAIgASgJEg8KB3N1bW1hcnkYAyABKAkSLAoIc2Vzc2lvbnMYBCADKAsyGi53b3Jrb3V0YXBwLnYxLlBsYW5TZXNzaW9uEi0KCGd1aWRhbmNlGAUgAygLMhsud29ya291dGFwcC52MS5HdWlkYW5jZUl0ZW0SFgoOcHJvbXB0X3ZlcnNpb24YBiABKAkSFgoOcG9saWN5X3ZlcnNpb24YByABKAUSEAoIYXR0ZW1wdHMYCCABKAUSMgoNbGFzdF9yZXZpc2lvbhgJIAEoCzIbLndvcmtvdXRhcHAudjEuUGxhblJldmlzaW9uIkwKDFBsYW5SZXZpc2lvbhISCgp3b3Jrb3V0X2lkGAEgASgJEhIKCnJldmlzZWRfYXQYAiABKAkSFAoMZXhlcmNpc2VfaWRzGAMgAygJItsBCgtQbGFuU2Vzc2lvbhINCgV0aXRsZRgBIAEoCRIsCgd3YXJtX3VwGAIgASgLMhsud29ya291dGFwcC52MS5HdWlkYW5jZUl0ZW0SMQoJZXhlcmNpc2VzGAMgAygLMh4ud29ya291dGFwcC52MS5QbGFubmVkRXhlcmNpc2USLAoGY2FyZGlvGAQgASgLMhwud29ya291dGFwcC52MS5QbGFubmVkQ2FyZGlvEi4KCWNvb2xfZG93bhgFIAEoCzIbLndvcmtvdXRhcHAudjEuR3VpZGFuY2VJdGVtIjYKDEd1aWRhbmNlSXRlbRIKCgJpZBgBIAEoCRIMCgRraW5kGAIgASgJEgwKBHRleHQYAyABKAki7QMKD1BsYW5uZWRFeGVyY2lzZRITCgtleGVyY2lzZV9pZBgBIAEoCRIMCgRuYW1lGAIgASgJEhQKDHJlc3Rfc2Vjb25kcxgDIAEoBRIzChBjYWxpYnJhdGlvbl9zZXRzGAQgAygLMhkud29ya291dGFwcC52MS5QbGFubmVkU2V0Ei8KDHdvcmtpbmdfc2V0cxgFIAMoCzIZLndvcmtvdXRhcHAudjEuUGxhbm5lZFNldBIOCgZyZWFzb24YBiABKAkSDgoGc291cmNlGAcgASgJEjoKEWNhbGlicmF0aW9uX2xvYWRzGAggAygLMh8ud29ya291dGFwcC52MS5DYWxpYnJhdGlvbkxvYWRzEhUKDXJlYXNvbl9zb3VyY2UYCSABKAkSLwoIb3ZlcnJpZGUYCiABKAsyHS53b3Jrb3V0YXBwLnYxLlRhcmdldE92ZXJyaWRlEh0KFWZpcnN0X3NldF9jYWxpYnJhdGlvbhgLIAEoCBIbChNmb2xsb3dfbWF4X3RlbnRoX2xiGAwgASgFEhcKD2ZvbGxvd19taW5fcmVwcxgNIAEoBRIXCg9mb2xsb3dfbWF4X3JlcHMYDiABKAUSKQoJbGFzdF9iZXN0GA8gASgLMhYud29ya291dGFwcC52MS5CZXN0U2V0Ij0KB0Jlc3RTZXQSDAoEcmVwcxgBIAEoBRIXCg93ZWlnaHRfdGVudGhfbGIYAiABKAUSCwoDcmlyGAMgASgFIrcCCg5UYXJnZXRPdmVycmlkZRIzChBjYWxpYnJhdGlvbl9zZXRzGAEgAygLMhkud29ya291dGFwcC52MS5QbGFubmVkU2V0Ei8KDHdvcmtpbmdfc2V0cxgCIAMoCzIZLndvcmtvdXRhcHAudjEuUGxhbm5lZFNldBIOCgZyZWFzb24YAyABKAkSEgoKY3JlYXRlZF9hdBgEIAEoCRI7ChhyZWNvbW1lbmRlZF93b3JraW5nX3NldHMYBSADKAsyGS53b3Jrb3V0YXBwLnYxLlBsYW5uZWRTZXQSDwoHZXhwaXJlZBgGIAEoCBIbChNmb2xsb3dfbWF4X3RlbnRoX2xiGAcgASgFEhcKD2ZvbGxvd19taW5fcmVwcxgIIAEoBRIXCg9mb2xsb3dfbWF4X3JlcHMYCSABKAUiiwEKEENhbGlicmF0aW9uTG9hZHMSFwoPd2VpZ2h0X3RlbnRoX2xiGAEgASgFEhUKDWRvd25fdGVudGhfbGIYAiABKAUSFQoNa2VlcF90ZW50aF9sYhgDIAEoBRIXCg91cF9vbmVfdGVudGhfbGIYBCABKAUSFwoPdXBfdHdvX3RlbnRoX2xiGAUgASgFIkUKClBsYW5uZWRTZXQSDAoEcmVwcxgBIAEoBRIVCg1sb2FkX3RlbnRoX2xiGAIgASgFEhIKCnJpcl90YXJnZXQYAyABKAUiQwoNUGxhbm5lZENhcmRpbxITCgtleGVyY2lzZV9pZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB21pbnV0ZXMYAyABKAUiPgoJRXhjbHVzaW9uEhMKC2V4ZXJjaXNlX2lkGAEgASgJEgwKBG5hbWUYAiABKAkSDgoGcmVhc29uGAMgASgJIlwKDFBsYW5Qcm9ncmVzcxIMCgRzdGVwGAEgASgJEg8KB2F0dGVtcHQYAiABKAUSFAoMbWF4X2F0dGVtcHRzGAMgASgFEhcKD3ByZXZpb3VzX3N0YXR1cxgEIAEoCSIfCg5HZXRQbGFuUmVxdWVzdBINCgV0b2RheRgBIAEoCSJiCg9HZXRQbGFuUmVzcG9uc2USIQoEcGxhbhgBIAEoCzITLndvcmtvdXRhcHAudjEuUGxhbhIsCgpleGNsdXNpb25zGAIgAygLMhgud29ya291dGFwcC52MS5FeGNsdXNpb24idAoTUmVxdWVzdFBsYW5SZXNwb25zZRIvCghwcm9ncmVzcxgBIAEoCzIbLndvcmtvdXRhcHAudjEuUGxhblByb2dyZXNzSAASIwoEcGxhbhgCIAEoCzITLndvcmtvdXRhcHAudjEuUGxhbkgAQgcKBWV2ZW50IiMKElJlcXVlc3RQbGFuUmVxdWVzdBINCgV0b2RheRgBIAEoCSJMChZFeGNsdWRlRXhlcmNpc2VSZXF1ZXN0Eg0KBXRvZGF5GAEgASgJEhMKC2V4ZXJjaXNlX2lkGAIgASgJEg4KBnJlYXNvbhgDIAEoCSJ4ChdFeGNsdWRlRXhlcmNpc2VSZXNwb25zZRIvCghwcm9ncmVzcxgBIAEoCzIbLndvcmtvdXRhcHAudjEuUGxhblByb2dyZXNzSAASIwoEcGxhbhgCIAEoCzITLndvcmtvdXRhcHAudjEuUGxhbkgAQgcKBWV2ZW50InwKFU92ZXJyaWRlVGFyZ2V0UmVxdWVzdBINCgV0b2RheRgBIAEoCRITCgtleGVyY2lzZV9pZBgCIAEoCRIvCgx3b3JraW5nX3NldHMYAyADKAsyGS53b3Jrb3V0YXBwLnYxLlBsYW5uZWRTZXQSDgoGcmVhc29uGAQgASgJIjsKFk92ZXJyaWRlVGFyZ2V0UmVzcG9uc2USIQoEcGxhbhgBIAEoCzITLndvcmtvdXRhcHAudjEuUGxhbiI7ChVSZW1vdmVPdmVycmlkZVJlcXVlc3QSDQoFdG9kYXkYASABKAkSEwoLZXhlcmNpc2VfaWQYAiABKAkiOwoWUmVtb3ZlT3ZlcnJpZGVSZXNwb25zZRIhCgRwbGFuGAEgASgLMhMud29ya291dGFwcC52MS5QbGFuMtsDCgtQbGFuU2VydmljZRJKCgdHZXRQbGFuEh0ud29ya291dGFwcC52MS5HZXRQbGFuUmVxdWVzdBoeLndvcmtvdXRhcHAudjEuR2V0UGxhblJlc3BvbnNlIgASXwoOT3ZlcnJpZGVUYXJnZXQSJC53b3Jrb3V0YXBwLnYxLk92ZXJyaWRlVGFyZ2V0UmVxdWVzdBolLndvcmtvdXRhcHAudjEuT3ZlcnJpZGVUYXJnZXRSZXNwb25zZSIAEl8KDlJlbW92ZU92ZXJyaWRlEiQud29ya291dGFwcC52MS5SZW1vdmVPdmVycmlkZVJlcXVlc3QaJS53b3Jrb3V0YXBwLnYxLlJlbW92ZU92ZXJyaWRlUmVzcG9uc2UiABJYCgtSZXF1ZXN0UGxhbhIhLndvcmtvdXRhcHAudjEuUmVxdWVzdFBsYW5SZXF1ZXN0GiIud29ya291dGFwcC52MS5SZXF1ZXN0UGxhblJlc3BvbnNlIgAwARJkCg9FeGNsdWRlRXhlcmNpc2USJS53b3Jrb3V0YXBwLnYxLkV4Y2x1ZGVFeGVyY2lzZVJlcXVlc3QaJi53b3Jrb3V0YXBwLnYxLkV4Y2x1ZGVFeGVyY2lzZVJlc3BvbnNlIgAwAUJDWkFnaXRodWIuY29tL25rcmFtYmVyL3dvcmtvdXQtYXBwL2dvL2dlbi93b3Jrb3V0YXBwL3YxO3dvcmtvdXRhcHB2MWIGcHJvdG8z");
 
 /**
  * Plan is the plan of one week: one session for each training day of the
@@ -303,6 +303,31 @@ export type PlannedExercise = Message<"workoutapp.v1.PlannedExercise"> & {
    * @generated from field: int32 follow_max_tenth_lb = 12;
    */
   followMaxTenthLb: number;
+
+  /**
+   * The limits of the reps that the later working sets can mirror from a
+   * set that went up: the rep range of the exercise (D-341, D-343, D-344).
+   * Both are 0 for a target with a calibration set, and for each target of
+   * policy version 9 or earlier. Then the first set alone changes the
+   * other working sets (D-306).
+   *
+   * @generated from field: int32 follow_min_reps = 13;
+   */
+  followMinReps: number;
+
+  /**
+   * @generated from field: int32 follow_max_reps = 14;
+   */
+  followMaxReps: number;
+
+  /**
+   * The best working set of the last session of the exercise, by the
+   * estimated one-rep maximum of Epley, or none (D-340). The set logger
+   * shows it.
+   *
+   * @generated from field: workoutapp.v1.BestSet last_best = 15;
+   */
+  lastBest?: BestSet | undefined;
 };
 
 /**
@@ -311,6 +336,35 @@ export type PlannedExercise = Message<"workoutapp.v1.PlannedExercise"> & {
  */
 export const PlannedExerciseSchema: GenMessage<PlannedExercise> = /*@__PURE__*/
   messageDesc(file_workoutapp_v1_plan_service, 4);
+
+/**
+ * BestSet is one logged working set of an earlier session (D-340).
+ *
+ * @generated from message workoutapp.v1.BestSet
+ */
+export type BestSet = Message<"workoutapp.v1.BestSet"> & {
+  /**
+   * @generated from field: int32 reps = 1;
+   */
+  reps: number;
+
+  /**
+   * @generated from field: int32 weight_tenth_lb = 2;
+   */
+  weightTenthLb: number;
+
+  /**
+   * @generated from field: int32 rir = 3;
+   */
+  rir: number;
+};
+
+/**
+ * Describes the message workoutapp.v1.BestSet.
+ * Use `create(BestSetSchema)` to create a new message.
+ */
+export const BestSetSchema: GenMessage<BestSet> = /*@__PURE__*/
+  messageDesc(file_workoutapp_v1_plan_service, 5);
 
 /**
  * TargetOverride is an override of the owner for one exercise (D-69, D-293).
@@ -366,6 +420,19 @@ export type TargetOverride = Message<"workoutapp.v1.TargetOverride"> & {
    * @generated from field: int32 follow_max_tenth_lb = 7;
    */
   followMaxTenthLb: number;
+
+  /**
+   * The rep limits of the working sets of the override, as follow_min_reps
+   * and follow_max_reps of PlannedExercise give them (D-343).
+   *
+   * @generated from field: int32 follow_min_reps = 8;
+   */
+  followMinReps: number;
+
+  /**
+   * @generated from field: int32 follow_max_reps = 9;
+   */
+  followMaxReps: number;
 };
 
 /**
@@ -373,7 +440,7 @@ export type TargetOverride = Message<"workoutapp.v1.TargetOverride"> & {
  * Use `create(TargetOverrideSchema)` to create a new message.
  */
 export const TargetOverrideSchema: GenMessage<TargetOverride> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 5);
+  messageDesc(file_workoutapp_v1_plan_service, 6);
 
 /**
  * CalibrationLoads holds the load of the working sets for each result of one
@@ -423,7 +490,7 @@ export type CalibrationLoads = Message<"workoutapp.v1.CalibrationLoads"> & {
  * Use `create(CalibrationLoadsSchema)` to create a new message.
  */
 export const CalibrationLoadsSchema: GenMessage<CalibrationLoads> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 6);
+  messageDesc(file_workoutapp_v1_plan_service, 7);
 
 /**
  * PlannedSet is one target set. A calibration set has no RIR target, so its
@@ -453,7 +520,7 @@ export type PlannedSet = Message<"workoutapp.v1.PlannedSet"> & {
  * Use `create(PlannedSetSchema)` to create a new message.
  */
 export const PlannedSetSchema: GenMessage<PlannedSet> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 7);
+  messageDesc(file_workoutapp_v1_plan_service, 8);
 
 /**
  * PlannedCardio is the optional cardio of a session, 5 to 30 minutes
@@ -483,7 +550,7 @@ export type PlannedCardio = Message<"workoutapp.v1.PlannedCardio"> & {
  * Use `create(PlannedCardioSchema)` to create a new message.
  */
 export const PlannedCardioSchema: GenMessage<PlannedCardio> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 8);
+  messageDesc(file_workoutapp_v1_plan_service, 9);
 
 /**
  * Exclusion is one excluded exercise (D-48).
@@ -515,7 +582,7 @@ export type Exclusion = Message<"workoutapp.v1.Exclusion"> & {
  * Use `create(ExclusionSchema)` to create a new message.
  */
 export const ExclusionSchema: GenMessage<Exclusion> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 9);
+  messageDesc(file_workoutapp_v1_plan_service, 10);
 
 /**
  * PlanProgress is one step of a request that makes a plan (D-231).
@@ -557,7 +624,7 @@ export type PlanProgress = Message<"workoutapp.v1.PlanProgress"> & {
  * Use `create(PlanProgressSchema)` to create a new message.
  */
 export const PlanProgressSchema: GenMessage<PlanProgress> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 10);
+  messageDesc(file_workoutapp_v1_plan_service, 11);
 
 /**
  * @generated from message workoutapp.v1.GetPlanRequest
@@ -577,7 +644,7 @@ export type GetPlanRequest = Message<"workoutapp.v1.GetPlanRequest"> & {
  * Use `create(GetPlanRequestSchema)` to create a new message.
  */
 export const GetPlanRequestSchema: GenMessage<GetPlanRequest> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 11);
+  messageDesc(file_workoutapp_v1_plan_service, 12);
 
 /**
  * @generated from message workoutapp.v1.GetPlanResponse
@@ -603,7 +670,7 @@ export type GetPlanResponse = Message<"workoutapp.v1.GetPlanResponse"> & {
  * Use `create(GetPlanResponseSchema)` to create a new message.
  */
 export const GetPlanResponseSchema: GenMessage<GetPlanResponse> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 12);
+  messageDesc(file_workoutapp_v1_plan_service, 13);
 
 /**
  * RequestPlanResponse is one event of the stream: a progress event, or the
@@ -635,7 +702,7 @@ export type RequestPlanResponse = Message<"workoutapp.v1.RequestPlanResponse"> &
  * Use `create(RequestPlanResponseSchema)` to create a new message.
  */
 export const RequestPlanResponseSchema: GenMessage<RequestPlanResponse> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 13);
+  messageDesc(file_workoutapp_v1_plan_service, 14);
 
 /**
  * @generated from message workoutapp.v1.RequestPlanRequest
@@ -655,7 +722,7 @@ export type RequestPlanRequest = Message<"workoutapp.v1.RequestPlanRequest"> & {
  * Use `create(RequestPlanRequestSchema)` to create a new message.
  */
 export const RequestPlanRequestSchema: GenMessage<RequestPlanRequest> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 14);
+  messageDesc(file_workoutapp_v1_plan_service, 15);
 
 /**
  * @generated from message workoutapp.v1.ExcludeExerciseRequest
@@ -688,7 +755,7 @@ export type ExcludeExerciseRequest = Message<"workoutapp.v1.ExcludeExerciseReque
  * Use `create(ExcludeExerciseRequestSchema)` to create a new message.
  */
 export const ExcludeExerciseRequestSchema: GenMessage<ExcludeExerciseRequest> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 15);
+  messageDesc(file_workoutapp_v1_plan_service, 16);
 
 /**
  * ExcludeExerciseResponse is one event of the stream, as in
@@ -720,7 +787,7 @@ export type ExcludeExerciseResponse = Message<"workoutapp.v1.ExcludeExerciseResp
  * Use `create(ExcludeExerciseResponseSchema)` to create a new message.
  */
 export const ExcludeExerciseResponseSchema: GenMessage<ExcludeExerciseResponse> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 16);
+  messageDesc(file_workoutapp_v1_plan_service, 17);
 
 /**
  * @generated from message workoutapp.v1.OverrideTargetRequest
@@ -762,7 +829,7 @@ export type OverrideTargetRequest = Message<"workoutapp.v1.OverrideTargetRequest
  * Use `create(OverrideTargetRequestSchema)` to create a new message.
  */
 export const OverrideTargetRequestSchema: GenMessage<OverrideTargetRequest> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 17);
+  messageDesc(file_workoutapp_v1_plan_service, 18);
 
 /**
  * @generated from message workoutapp.v1.OverrideTargetResponse
@@ -781,7 +848,7 @@ export type OverrideTargetResponse = Message<"workoutapp.v1.OverrideTargetRespon
  * Use `create(OverrideTargetResponseSchema)` to create a new message.
  */
 export const OverrideTargetResponseSchema: GenMessage<OverrideTargetResponse> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 18);
+  messageDesc(file_workoutapp_v1_plan_service, 19);
 
 /**
  * @generated from message workoutapp.v1.RemoveOverrideRequest
@@ -807,7 +874,7 @@ export type RemoveOverrideRequest = Message<"workoutapp.v1.RemoveOverrideRequest
  * Use `create(RemoveOverrideRequestSchema)` to create a new message.
  */
 export const RemoveOverrideRequestSchema: GenMessage<RemoveOverrideRequest> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 19);
+  messageDesc(file_workoutapp_v1_plan_service, 20);
 
 /**
  * @generated from message workoutapp.v1.RemoveOverrideResponse
@@ -826,7 +893,7 @@ export type RemoveOverrideResponse = Message<"workoutapp.v1.RemoveOverrideRespon
  * Use `create(RemoveOverrideResponseSchema)` to create a new message.
  */
 export const RemoveOverrideResponseSchema: GenMessage<RemoveOverrideResponse> = /*@__PURE__*/
-  messageDesc(file_workoutapp_v1_plan_service, 20);
+  messageDesc(file_workoutapp_v1_plan_service, 21);
 
 /**
  * PlanService holds the one plan of the caller and the excluded exercises

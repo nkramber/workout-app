@@ -205,6 +205,14 @@ Phase 3 depends on Phase 1 and Phase 2. Phase 1 gives the policy evidence and th
 
 **Exit for the roadmap.** A check of the store, the logs, and a replay under the newest policy version. It shows no lost set, no refused valid sync, and no policy breach in the decision log. The owner dropped the four weeks of use (D-327).
 
+### After Phase 8
+
+Phase 8 is the last phase. The owner gives each later change by a decision, outside the focused roadmaps.
+
+- The mandatory Gitar review of each pull request (D-335 to D-338).
+- The best set of the last session on the set logger (D-339, D-340).
+- The mirror of a set that goes up to the later sets, with policy version 10 (D-341 to D-346). Example: the target is 10 x 100 lb. After a first set of 12 x 105 lb at 2 reps in reserve, sets 2 and 3 show 12 x 105 lb. At 0 reps in reserve, they keep the target.
+
 ### Deferred - Photo recognition
 
 The recognition spike of work area 1.2 gave a no-go under D-107. Luna gave a wrong answer with a high stated confidence for 8.6% of the photos (`docs/research/recognition-spike.md`). So no phase holds photo recognition (D-110, D-111). A later owner decision adds a phase for it. Before that phase starts, a recognition method must pass the bar of D-107 on the recognition test set.

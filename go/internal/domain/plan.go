@@ -48,6 +48,11 @@ func (s CalibrationSet) Check() error {
 // weight that the owner logged for it (D-297, D-299). FollowMax is the
 // heaviest load that the other working sets can use after a heavier
 // first set, and 0 when they keep their loads (D-306, D-307).
+// FollowMinReps and FollowMaxReps are the limits of the reps that the
+// later working sets can mirror from a set that went up, and 0 for a
+// target of policy version 9 or earlier (D-341, D-343, D-344). LastBest
+// is the best working set of the last session of the exercise, or nil
+// (D-340).
 type PlannedExercise struct {
 	Exercise            ExerciseID
 	RestSeconds         int
@@ -55,6 +60,17 @@ type PlannedExercise struct {
 	Working             []WorkingSet
 	FirstSetCalibration bool
 	FollowMax           Load
+	FollowMinReps       int
+	FollowMaxReps       int
+	LastBest            *BestSet
+}
+
+// BestSet is one logged working set: reps, a weight, and reps in
+// reserve (D-340). A set of 0 reps is valid (D-164).
+type BestSet struct {
+	Reps   int
+	Weight Load
+	RIR    int
 }
 
 // Check refuses an exercise that is not in the catalog, a cardio
@@ -87,6 +103,14 @@ func (p PlannedExercise) Check(c Catalog) error {
 	// (D-306, D-307).
 	if p.FollowMax != 0 && p.FollowMax < p.Working[0].Load {
 		return invalid("exercise %q follow max %s: want 0, or %s or more", p.Exercise, p.FollowMax, p.Working[0].Load)
+	}
+	// The rep limits are both 0, or 1 or more with the minimum at the
+	// maximum or below it (D-343).
+	if (p.FollowMinReps == 0) != (p.FollowMaxReps == 0) || p.FollowMinReps < 0 || p.FollowMinReps > p.FollowMaxReps {
+		return invalid("exercise %q follow reps %d to %d: want 0 to 0, or 1 or more with the minimum first", p.Exercise, p.FollowMinReps, p.FollowMaxReps)
+	}
+	if b := p.LastBest; b != nil && (b.Reps < 0 || b.RIR < 0 || b.Weight.Check() != nil) {
+		return invalid("exercise %q last best set: want 0 reps or more, a weight, and 0 reps in reserve or more", p.Exercise)
 	}
 	return nil
 }

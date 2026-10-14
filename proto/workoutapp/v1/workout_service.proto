@@ -176,6 +176,11 @@ message SeenTarget {
   // (D-306, D-307), as the plan gave it. The policy reads the load that
   // the other working sets used as the load of the session (D-309).
   int32 follow_max_tenth_lb = 8;
+  // The rep limits of the mirror (D-341, D-343, D-344), as the plan gave
+  // them. The policy reads the targets that the working sets showed, and it
+  // starts the next session from the last mirrored values (D-345).
+  int32 follow_min_reps = 9;
+  int32 follow_max_reps = 10;
 }
 
 // SetEntry is the state of one logged set (D-57, D-164, D-249). The entity

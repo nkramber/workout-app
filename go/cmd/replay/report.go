@@ -81,6 +81,8 @@ const RuleLuna = "luna"
 // rule id in the record.
 var fieldRules = map[string]policy.RuleID{
 	"follow_max":            policy.RuleFollowFirstSet,
+	"follow_reps":           policy.RuleFollowMirror,
+	"last_best":             policy.RuleLastBest,
 	"first_set_calibration": policy.RuleCalibrationFirstSet,
 }
 
@@ -210,6 +212,8 @@ func changedFields(a, b domain.PlannedExercise) []string {
 	add("rir", rir)
 	add("first_set_calibration", a.FirstSetCalibration != b.FirstSetCalibration)
 	add("follow_max", a.FollowMax != b.FollowMax)
+	add("follow_reps", a.FollowMinReps != b.FollowMinReps || a.FollowMaxReps != b.FollowMaxReps)
+	add("last_best", (a.LastBest == nil) != (b.LastBest == nil) || (a.LastBest != nil && *a.LastBest != *b.LastBest))
 	return out
 }
 

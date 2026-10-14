@@ -216,10 +216,12 @@ func last(in Input) Outcome {
 	return h[len(h)-1]
 }
 
-// lastSet gives the set of the last target at the index of a set of the
-// next target. A next target after a break can have more sets.
+// lastSet gives the set of the target that the next session starts
+// from, at the index of a set of the next target (D-345). A next target
+// after a break can have more sets.
 func lastSet(o Outcome, i int) domain.WorkingSet {
-	return o.Target.Working[min(i, len(o.Target.Working)-1)]
+	w := o.base().Working
+	return w[min(i, len(w)-1)]
 }
 
 func missedReps(o Outcome) bool {
