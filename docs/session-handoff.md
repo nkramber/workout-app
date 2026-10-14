@@ -16,7 +16,7 @@ The acceptance story: the target is 10 x 100 lb. A first set of 12 x 105 lb at 2
 
 `make go-test` and `make emulator-test` passed. The phone unit tests passed.
 
-Review state: Codex reviewed effective head `1f2469ad894c6c94959d3af4fb34b80d855f58a6`. Verdict: Ready for owner merge. No open findings. The review-gate check needs a fresh result after the review record push.
+Review state: Codex reviewed effective head `1f2469ad894c6c94959d3af4fb34b80d855f58a6`. Verdict: Ready for owner merge. No open findings. Gitar, review-gate, pr-contract, and all seven verify checks passed at metadata head `6c9c50d1ab0cfb33427332e298c0f8fb56227836`.
 
 Next action: wait for the review-gate result and the owner confirmation before the merge of PR-44.
 
