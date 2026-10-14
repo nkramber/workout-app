@@ -4,23 +4,21 @@ This file is the resume point of the next session. Read `AGENTS.md` first, then 
 
 ## Resume here
 
-Date: 2026-10-06. Author of pull request PR-43, on the branch `ci/pr-43-gitar-review` from base `d9e3590`. PR-43 is a change of the process, outside the focused roadmaps. Phase 8 ended with the merge of PR-42, and the owner gave this work by a new decision (D-335).
+Date: 2026-10-13. Author of pull request PR-44, on the branch `feat/pr-44-last-best-and-mirror` from base `06cf712`. PR-44 is outside the focused roadmaps, as PR-43 was (D-339). The owner approved the milestone "the best set of the last session and the mirror of a set that goes up" (D-12), and answered Q-344 to Q-357 (D-339 to D-346).
 
-The owner approved the milestone "the mandatory Gitar review" (D-12), and answered Q-341 to Q-343 (D-335 to D-338). The pull request ports the Gitar review of Decktome and what-you-carry:
+The pull request holds three concerns:
 
-- the rules of `AGENTS.md` and the decisions that amend D-3 and D-6 (D-335),
-- the skill `.claude/skills/gitar-review/SKILL.md` and its reference `references/traps.md`,
-- the Gitar gate of `docs/tools/codex_review.py`, for `make codex-review` and `make claude-review`, with the flag of D-337 (D-336),
-- the wait `docs/tools/gitar_wait.py` and `make gitar-wait` (D-338),
-- the wiring check of `docs/tools/pr_check.py` in place of the ban, and the Gitar steps of `one-pr-one-session`, `pr-review`, and the pull request template.
+- the registers, the design, both README files, `AGENTS.md`, and the section "After Phase 8" of the high-level roadmap,
+- the best set of the last session: `policy.LastBest`, the field `last_best` of the plan, and the line "Last time, best set" of the set logger (D-340),
+- policy version 10: the mirror of `policy.Mirror` on the server and `mirror` on the phone (D-341 to D-346). The tests `go/internal/policy/mirror_test.go` and `web/src/lib/workout.test.ts` hold the same cases.
 
-GitHub pull request 44 holds PR-43. The gate applies to PR-43 itself, because `make codex-review` runs from the checkout. The Gitar app is installed, as the owner said (Q-342). Its review of `679655b` came 125 s after the push, and `make gitar-wait` read it.
+The acceptance story: the target is 10 x 100 lb. A first set of 12 x 105 lb at 2 reps in reserve gives 12 x 105 lb to sets 2 and 3. At 0 reps in reserve, they keep the target. Scenario M of `go/cmd/api/revision_emulator_test.go` and the browser test "a set that goes up gives the later sets its reps and its weight" of `web/e2e/workout.spec.ts` prove it.
 
-Gitar round 1 gave one finding: `SKIP_GITAR=0` also skipped the Gitar pass. The author found full merit. Now only the exact value 1 skips, and a test of `make -n` proves each value.
+GitHub pull request 45 holds PR-44. `make verify`, `make go-test`, `make emulator-test`, `make contract`, and `make web` passed. Gitar approved `1f2469a` with no finding and no thread.
 
-Gitar round 2 approved `88b647d` with "1 closed / 1 findings", and Gitar confirmed the fix on the thread. Each check of `88b647d` passed, except `review-gate` before the record. Codex round 1 reviewed effective head `88b647d` and gave "Ready for owner merge", with no finding, in `docs/reviews/pr-44.md`. The Gitar gate let that run start, so the gate passed one live run. The pull request waits for the owner merge.
+Review state: Codex reviewed effective head `1f2469ad894c6c94959d3af4fb34b80d855f58a6`. Verdict: Ready for owner merge. No open findings. Gitar, review-gate, pr-contract, and all seven verify checks passed at metadata head `6c9c50d1ab0cfb33427332e298c0f8fb56227836`.
 
-Next action: the owner reads the record and the author provider, and confirms the merge.
+Next action: the owner reads the record and the author provider, and confirms the merge. The pull request waits for the owner merge.
 
 ## Facts that expire
 
@@ -90,12 +88,25 @@ Next action: the owner reads the record and the author provider, and confirms th
 
 ## Next steps, in order
 
-1. Close PR-43: the Gitar pass, CI, the Codex review, the owner confirmation, and the merge.
-2. Read the API deploy of the merge of PR-42, and check that `/version` names the merge commit.
-3. The owner deletes the history and makes a new plan of policy version 9 (D-333).
-4. Phase 8 ends with the merge of PR-42. No phase comes after it. A new owner decision gives the next work.
+1. Close PR-44: the Gitar pass, CI, the Codex review, the owner confirmation, and the merge.
+2. After the deploy, the owner makes a new plan of policy version 10 (D-340, D-341).
 
 ## Session records
+
+### Session 45 - 2026-10-13
+
+Author provider: Claude Code
+
+Branch: `feat/pr-44-last-best-and-mirror`. Role: author.
+
+Completed:
+
+- Showed the owner that PR-2 merged long ago, so the request needs a new pull request. The owner approved PR-44 and answered Q-344 to Q-357 (D-339 to D-346).
+- Wrote policy version 10, the best set of the last session, the contract fields, the stores, the phone logic, the screens, and their tests.
+
+Open work:
+
+- The owner confirmation and the merge of PR-44. Gitar and Codex approved `1f2469a`.
 
 ### Session 44 - 2026-10-06
 
@@ -129,21 +140,3 @@ Completed:
 Open work:
 
 - None. GitHub PR 43 merged as `d9e3590`.
-
-### Session 42 - 2026-10-06
-
-Author provider: Claude Code
-
-Branch: `feat/pr-41-version-migration`. Role: author.
-
-Completed:
-
-- The owner approved the milestone (D-12), and answered Q-330 to Q-332 (D-324 to D-326).
-- Wrote the replay, the command, its tests, and the emulator test of the acceptance story.
-- Ran the replay on the live store two times with reads alone. Found and fixed a fault of the replay.
-- Read the deprecation page of OpenAI.
-- Wrote `docs/operations.md` and `docs/research/policy-replay.md`, and changed the registers, both roadmaps, `go/README.md`, and `AGENTS.md`.
-
-Open work:
-
-- None. GitHub PR 42 merged as `efbafe7`.

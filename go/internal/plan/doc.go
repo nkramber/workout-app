@@ -142,6 +142,19 @@ type targetDoc struct {
 	// The limit of the other working sets after the first set (D-306,
 	// D-307). A target of policy version 7 or earlier has no such field.
 	FollowMax int64 `firestore:"follow_max_tenth_lb,omitempty"`
+	// The rep limits of the mirror (D-343), and the best set of the last
+	// session (D-340). A target of policy version 9 or earlier has no
+	// such field.
+	FollowMinReps int64    `firestore:"follow_min_reps,omitempty"`
+	FollowMaxReps int64    `firestore:"follow_max_reps,omitempty"`
+	LastBest      *bestDoc `firestore:"last_best,omitempty"`
+}
+
+// bestDoc is the best set of the last session (D-340).
+type bestDoc struct {
+	Reps   int64 `firestore:"reps"`
+	Weight int64 `firestore:"weight_tenth_lb"`
+	RIR    int64 `firestore:"rir"`
 }
 
 // setDoc is a set. A calibration set stores an RIR of 0, which no
@@ -254,7 +267,11 @@ func (d planDoc) plan() Plan {
 }
 
 func encodeTarget(t domain.PlannedExercise) targetDoc {
-	d := targetDoc{Exercise: string(t.Exercise), Rest: int64(t.RestSeconds), Calibration: []setDoc{}, Working: []setDoc{}, FirstSet: t.FirstSetCalibration, FollowMax: int64(t.FollowMax)}
+	d := targetDoc{Exercise: string(t.Exercise), Rest: int64(t.RestSeconds), Calibration: []setDoc{}, Working: []setDoc{}, FirstSet: t.FirstSetCalibration, FollowMax: int64(t.FollowMax),
+		FollowMinReps: int64(t.FollowMinReps), FollowMaxReps: int64(t.FollowMaxReps)}
+	if b := t.LastBest; b != nil {
+		d.LastBest = &bestDoc{int64(b.Reps), int64(b.Weight), int64(b.RIR)}
+	}
 	for _, s := range t.Calibration {
 		d.Calibration = append(d.Calibration, setDoc{Reps: int64(s.Reps), Load: int64(s.Load)})
 	}
@@ -265,7 +282,11 @@ func encodeTarget(t domain.PlannedExercise) targetDoc {
 }
 
 func (d targetDoc) target() domain.PlannedExercise {
-	t := domain.PlannedExercise{Exercise: idOf(d.Exercise), RestSeconds: int(d.Rest), FirstSetCalibration: d.FirstSet, FollowMax: domain.Load(d.FollowMax)}
+	t := domain.PlannedExercise{Exercise: idOf(d.Exercise), RestSeconds: int(d.Rest), FirstSetCalibration: d.FirstSet, FollowMax: domain.Load(d.FollowMax),
+		FollowMinReps: int(d.FollowMinReps), FollowMaxReps: int(d.FollowMaxReps)}
+	if b := d.LastBest; b != nil {
+		t.LastBest = &domain.BestSet{Reps: int(b.Reps), Weight: domain.Load(b.Weight), RIR: int(b.RIR)}
+	}
 	for _, s := range d.Calibration {
 		t.Calibration = append(t.Calibration, domain.CalibrationSet{Reps: int(s.Reps), Load: domain.Load(s.Load)})
 	}

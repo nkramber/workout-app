@@ -53,6 +53,10 @@ export type TargetSet = { reps: number; loadTenthLb: number; rirTarget: number }
 
 // The load of the working sets after a calibration set at `weight`, for
 // each result of the calibration table, in tenths of a pound (D-267).
+// The best working set of an earlier session, in tenths of a pound
+// (D-340).
+export type BestSet = { reps: number; weightTenthLb: number; rir: number };
+
 export type CalibrationLoads = { weight: number; down: number; keep: number; upOne: number; upTwo: number };
 
 // An exercise of a workout: the targets of the plan session, and the
@@ -64,7 +68,10 @@ export type CalibrationLoads = { weight: number; down: number; keep: number; upO
 // owner logged for it (D-297, D-299). From version 8, followMaxTenthLb
 // is the heaviest load that the other working sets can use after a
 // heavier first set, and a lighter first set has no limit (D-306 to
-// D-308). After an override of the owner,
+// D-308). From version 10, followMinReps and followMaxReps are the limits
+// of the reps that the later working sets mirror from a set that went up
+// (D-341 to D-344). lastBest is the best working set of the last session
+// of the exercise, for the set logger (D-340). After an override of the owner,
 // the sets are the sets of the override, and `override` keeps the
 // recommendation and the reason as separate records (D-69, D-293).
 export type WorkoutExercise = {
@@ -75,6 +82,9 @@ export type WorkoutExercise = {
   calibrationLoads?: CalibrationLoads[];
   firstSetCalibration?: boolean;
   followMaxTenthLb?: number;
+  followMinReps?: number;
+  followMaxReps?: number;
+  lastBest?: BestSet;
   workingSets: TargetSet[];
   weights: number[];
   override?: { reason: string; recommendedWorkingSets: TargetSet[] };

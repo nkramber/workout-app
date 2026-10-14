@@ -106,6 +106,21 @@ export function setText(s: Pick<PlannedSet, "reps" | "loadTenthLb" | "rirTarget"
   return `${base}, ${s.rirTarget} ${s.rirTarget === 1 ? "rep" : "reps"} in reserve`;
 }
 
+// followText gives the rule of the later sets of a target on the plan
+// screen, or "" when the later sets keep their targets. From version 10,
+// a set that goes up at 1 or more reps in reserve gives its reps, and its
+// weight up to the limit, to the later sets (D-341, D-343, D-344). A
+// target of version 8 or 9 follows the weight of set 1 (D-306).
+export function followText(t: { followMaxTenthLb: number; followMinReps: number; followMaxReps: number }): string {
+  const reps = `${t.followMinReps} to ${t.followMaxReps} reps`;
+  if (t.followMaxReps > 0 && t.followMaxTenthLb > 0) {
+    return `When a set goes up at 1 or more reps in reserve, the later sets use its reps and its weight: ${reps}, up to ${formatPounds(t.followMaxTenthLb)} lb.`;
+  }
+  if (t.followMaxReps > 0) return `When a set gets more reps at 1 or more reps in reserve, the later sets use them: ${reps}.`;
+  if (t.followMaxTenthLb > 0) return `When you change the weight of set 1, the other sets use it, up to ${formatPounds(t.followMaxTenthLb)} lb.`;
+  return "";
+}
+
 // restText gives the rest between sets, such as "1 min 30 s".
 export function restText(seconds: number): string {
   if (seconds < 60) return `${seconds} s`;

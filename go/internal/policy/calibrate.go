@@ -98,39 +98,151 @@ func Followed(t domain.PlannedExercise, weight domain.Load) domain.Load {
 	return min(weight, t.FollowMax)
 }
 
-// effective gives a copy of the history in which each calibration
-// session has the working load that its calibration gave. In a session
-// of the first-set calibration, the load is the weight that the owner
-// logged for the first working set (D-299). In a session of policy
-// version 6 or earlier, the table applies to the weight of its first
-// calibration set (D-150, D-267). The table applies to the weight that
-// the owner logged, because the owner can change the weight before the
-// log (D-249). The owner logs the working sets at that load, so the
-// rules read the logs against it.
+// FollowReps gives the limits of the reps that the later working sets
+// of a target can mirror from a set that went up: the rep range of the
+// exercise (D-341, D-343, D-344). A target with a calibration set gives
+// none, because the calibration table gives its working sets (D-267).
+func FollowReps(t domain.PlannedExercise, e domain.Exercise) Range {
+	if len(t.Calibration) > 0 || len(t.Working) == 0 {
+		return Range{}
+	}
+	return RepRange(e)
+}
+
+// Limits sets the limits of the later working sets of t: the load of
+// Follow and the reps of FollowReps (D-23, D-306, D-343).
+func Limits(t *domain.PlannedExercise, e domain.Exercise, available []domain.Load) {
+	t.FollowMax = Follow(*t, available)
+	r := FollowReps(*t, e)
+	t.FollowMinReps, t.FollowMaxReps = r.Min, r.Max
+}
+
+// Change is the change of the later working sets of a session after a
+// logged set: a load, reps, or both. A value of 0 changes nothing.
+type Change struct {
+	Load domain.Load
+	Reps int
+}
+
+// Apply gives s with the change.
+func (c Change) Apply(s domain.WorkingSet) domain.WorkingSet {
+	if c.Load > 0 {
+		s.Load = c.Load
+	}
+	if c.Reps > 0 {
+		s.Reps = c.Reps
+	}
+	return s
+}
+
+// Mirror gives the change of the later working sets after the owner
+// logged s against the target shown, from the change c before it. n
+// counts the working sets from 0.
 //
-// From version 8, a session with a limit of Follow and a first set at
-// another weight has the load that the other working sets followed
-// (D-309).
+// From version 10, a set that goes up against the target that it
+// showed, with more reps or a heavier weight, at 1 rep in reserve or
+// more, with no pain rating of 1 or more, gives the later sets its
+// weight up to FollowMax and its reps inside the rep limits (D-341,
+// D-343, D-346). A lighter set gives its weight
+// at any reps in reserve (D-342). A target with no weight limit, the
+// first-set calibration included, mirrors the reps alone (D-344). In
+// the first-set calibration, the first set gives the load (D-299).
+//
+// A target of version 9 or earlier has no rep limits. Then the first
+// set alone gives the load (D-299, D-306 to D-308).
+func Mirror(t domain.PlannedExercise, n int, shown domain.WorkingSet, s domain.SetLog, c Change) Change {
+	if t.FollowMaxReps <= 0 {
+		switch {
+		case n != 0 || len(t.Working) == 0:
+		case t.FirstSetCalibration:
+			c.Load = s.Weight
+		case t.FollowMax > 0 && s.Weight != t.Working[0].Load:
+			c.Load = Followed(t, s.Weight)
+		}
+		return c
+	}
+	up := s.Reps > 0 && s.RIR >= 1 && (s.Pain == nil || *s.Pain < 1)
+	reps := Range{t.FollowMinReps, t.FollowMaxReps}.clamp(s.Reps)
+	switch {
+	case t.FirstSetCalibration || t.FollowMax <= 0:
+		if t.FirstSetCalibration && n == 0 {
+			c.Load = s.Weight
+		}
+		if up && s.Reps > shown.Reps {
+			c.Reps = reps
+		}
+	case up && (s.Weight > shown.Load || s.Reps > shown.Reps):
+		c.Load, c.Reps = min(s.Weight, t.FollowMax), reps
+	case s.Weight < shown.Load:
+		c.Load = s.Weight
+	}
+	return c
+}
+
+// Mirrored gives the targets of the working sets of a session from its
+// logged working sets, in order (D-341 to D-345). shown holds the target
+// that each set showed before its log. read holds the target that the
+// rules read for each logged set: the values that it gave the later
+// sets, or else the target that it showed. next holds the last change,
+// applied to each working set, and it is the start of the next session.
+// The phone gives the same shown targets (`web/src/lib/workout.ts`).
+func Mirrored(t domain.PlannedExercise, logs []domain.SetLog) (shown, read, next []domain.WorkingSet) {
+	shown, read, next = slices.Clone(t.Working), slices.Clone(t.Working), slices.Clone(t.Working)
+	var c Change
+	for j := range shown {
+		shown[j] = c.Apply(t.Working[j])
+		if j < len(logs) {
+			c = Mirror(t, j, shown[j], logs[j], c)
+		}
+		read[j] = c.Apply(t.Working[j])
+	}
+	for j := range next {
+		next[j] = c.Apply(t.Working[j])
+	}
+	return shown, read, next
+}
+
+// effective gives a copy of the history in which each session has the
+// working targets that the rules read. In a session of policy version 6
+// or earlier, the table applies to the weight of its first calibration
+// set (D-150, D-267). The table applies to the weight that the owner
+// logged, because the owner can change the weight before the log
+// (D-249). The owner logs the working sets at that load, so the rules
+// read the logs against it.
+//
+// Each other session has the targets of Mirrored: the first-set
+// calibration (D-299), the load that the later sets followed (D-309),
+// and from version 10 the mirror (D-341 to D-345). Its next targets
+// start the next session. A load that the machine does not have goes to
+// a weight of the machine.
 func (in Input) effective() []Outcome {
 	out := slices.Clone(in.History)
 	available := in.Entry.Available()
 	for i, o := range out {
-		var load domain.Load
-		switch cal, logs := calibrationSets(o.Log), o.working(); {
-		case len(o.Target.Calibration) > 0 && len(cal) > 0:
-			load = calibrationLoads(firstLoad(cal[0].Weight, available), available).For(cal[0])
-		case o.Target.FirstSetCalibration && len(logs) > 0:
-			load = firstLoad(logs[0].Weight, available)
-		case o.Target.FollowMax > 0 && len(logs) > 0 && logs[0].Weight != o.Target.Working[0].Load:
-			load = firstLoad(Followed(o.Target, logs[0].Weight), available)
-		default:
+		cal, logs := calibrationSets(o.Log), o.working()
+		if len(o.Target.Calibration) > 0 {
+			if len(cal) == 0 {
+				continue
+			}
+			load := calibrationLoads(firstLoad(cal[0].Weight, available), available).For(cal[0])
+			w := slices.Clone(o.Target.Working)
+			for j := range w {
+				w[j].Load = load
+			}
+			out[i].Target.Working = w
 			continue
 		}
-		w := slices.Clone(o.Target.Working)
-		for j := range w {
-			w[j].Load = load
+		_, read, next := Mirrored(o.Target, logs)
+		for j, s := range o.Target.Working {
+			if read[j].Load != s.Load {
+				read[j].Load = firstLoad(read[j].Load, available)
+			}
+			if next[j].Load != s.Load {
+				next[j].Load = firstLoad(next[j].Load, available)
+			}
 		}
-		out[i].Target.Working = w
+		out[i].Target.Working = read
+		out[i].next = next
 	}
 	return out
 }

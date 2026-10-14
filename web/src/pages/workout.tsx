@@ -3,7 +3,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { useEffect, useId, useState, type ReactNode } from "react";
 
 import { GetPlanResponseSchema, type Plan } from "../gen/workoutapp/v1/plan_service_pb";
-import { db, withReopen, type CardioRecord, type SetRecord, type WorkoutExercise, type WorkoutRecord } from "../lib/db";
+import { db, withReopen, type BestSet, type CardioRecord, type SetRecord, type WorkoutExercise, type WorkoutRecord } from "../lib/db";
 import { available, formatPounds } from "../lib/inventory";
 import { useOfflineInventory } from "../lib/inventory-api";
 import { restText, setText } from "../lib/plan";
@@ -37,6 +37,7 @@ import {
   restLeft,
   restTimer,
   rirChoices,
+  rirText,
   skipExercise,
   startRest,
   startWorkout,
@@ -629,6 +630,12 @@ function NextPreview({
 // note are optional, behind one tap (D-57, D-162). The notes of a set
 // show below the buttons of the reps in reserve, so the buttons keep
 // their place from set to set (D-320).
+// bestText gives the best set of the last session (D-340), such as "12
+// reps at 105 lb, 2 in reserve".
+function bestText(b: BestSet): string {
+  return `${b.reps} ${b.reps === 1 ? "rep" : "reps"} at ${formatPounds(b.weightTenthLb)} lb, ${rirText("working", b.rir)} in reserve`;
+}
+
 function SetLogger({
   testId,
   workoutId,
@@ -683,6 +690,11 @@ function SetLogger({
         <p className="text-sm text-slate-400" data-testid="set-target">
           {`Target: ${setText(next.target, calibration)}. Rest ${restText(exercise.restSeconds)}.`}
         </p>
+        {exercise.lastBest && !calibration && (
+          <p className="text-sm text-slate-400" data-testid="last-best">
+            {`Last time, best set: ${bestText(exercise.lastBest)}.`}
+          </p>
+        )}
       </div>
 
       <Stepper
@@ -743,9 +755,7 @@ function SetLogger({
           )}
           {next.follows && (
             <p className="text-sm text-sky-200" data-testid="follow-note">
-              {next.capped
-                ? "The first set was heavier than the target. This set goes up one weight of the machine, the limit of the policy."
-                : "The first set gave this load."}
+              {next.capped ? `Set ${next.from} went past a limit of the policy. This set uses the limit.` : `Set ${next.from} gave this target.`}
             </p>
           )}
         </div>

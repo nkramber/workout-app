@@ -119,6 +119,12 @@ func renderTarget(b *strings.Builder, p domain.PlannedExercise, loads []LoadChan
 	if p.FollowMax > 0 {
 		fmt.Fprintf(b, "  the other sets follow working[0], up to %s\n", p.FollowMax)
 	}
+	if p.FollowMaxReps > 0 {
+		fmt.Fprintf(b, "  a set that goes up gives the later sets %d to %d reps\n", p.FollowMinReps, p.FollowMaxReps)
+	}
+	if l := p.LastBest; l != nil {
+		fmt.Fprintf(b, "  last best set: %d reps at %s, %d RIR\n", l.Reps, l.Weight, l.RIR)
+	}
 	for _, l := range loads {
 		if l.Before != l.After {
 			fmt.Fprintf(b, "  load %s: %s before the rounding, %s after\n", l.Where, l.Before, l.After)

@@ -42,6 +42,8 @@ const (
 	RuleCalibrationFirstSet RuleID = "calibration.first-set"
 	RuleCalibrationTable    RuleID = "calibration.table"
 	RuleFollowFirstSet      RuleID = "follow.first-set"
+	RuleFollowMirror        RuleID = "follow.mirror"
+	RuleLastBest            RuleID = "follow.last-best"
 )
 
 // The rules of a return after a break.
@@ -115,6 +117,8 @@ var rules = []Rule{
 	{RuleCalibrationFirstSet, "The first session of an exercise, and the first session after a break of 91 days or more, use the first working set as the calibration. The owner changes the weight during its first reps, and the other working sets use the weight that the owner logged for it. The first set is a working set, and the next session uses the normal rules from that weight. In that session, the reps can go up and the reps in reserve are practice. A proposal has no calibration set.", []string{"D-177", "D-297", "D-299", "D-301", "EV-27", "EV-83"}},
 	{RuleCalibrationTable, "A session of policy version 6 or earlier can have one calibration set before the working sets. After it, 6 or more reps in reserve adds two 5 lb steps, 5 adds one step, 3 or 4 keeps the load, and 2 or less or a pain report removes one step. The rules read the working sets of that session at that load.", []string{"D-149", "D-150", "D-267", "EV-22", "EV-27", "EV-48"}},
 	{RuleFollowFirstSet, "In a session with no calibration, the other working sets use the weight that the owner logged for the first set. A heavier weight goes up to the next heavier weight of the machine above the target, and a lighter weight has no limit. The rules read the load that the other working sets used.", []string{"D-23", "D-186", "D-264", "D-306", "D-307", "D-308", "D-309"}},
+	{RuleFollowMirror, "From version 10, a working set that goes up against the target that it showed, with more reps or a heavier weight, at 1 rep in reserve or more and with no pain, gives each later working set its reps and its weight. The weight goes up to the limit of RuleFollowFirstSet, and the reps stay inside the rep range. A lighter set gives its weight at any reps in reserve. In the first-set calibration, the mirror applies to the reps alone. The rules read each set against the target that it showed, and the next session starts from the last mirrored values.", []string{"D-23", "D-37", "D-167", "D-341", "D-342", "D-343", "D-344", "D-345", "D-346"}},
+	{RuleLastBest, "Each target holds the best working set of the last session of the exercise with a logged working set, for the set logger. The best set has the highest estimated one-rep maximum of Epley, weight x (1 + reps / 30).", []string{"D-340"}},
 	{RuleBreakShort, "After 14 to 27 days with no logged set of the exercise, the load goes down 10 percent and the target has one set fewer, at 3 reps in reserve. A halfway value rounds down.", []string{"D-148", "D-151", "D-179", "EV-43", "EV-46"}},
 	{RuleBreakLong, "After 28 to 90 days with no logged set of the exercise, the load goes down 20 percent and the target has one set fewer, at 3 reps in reserve. A halfway value rounds down.", []string{"D-148", "D-151", "D-179", "EV-43", "EV-44"}},
 	{RuleBreakRecalibrate, "After 91 days or more with no logged set of the exercise, the load goes down to 70 percent of the last load, at 3 reps in reserve, and the first set is the calibration again (RuleCalibrationFirstSet). A halfway value rounds down.", []string{"D-148", "D-150", "D-151", "D-179", "D-301", "EV-43", "EV-44", "EV-47", "EV-53"}},

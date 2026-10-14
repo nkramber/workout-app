@@ -125,6 +125,10 @@ func TestOverrideTarget(t *testing.T) {
 			if m := o.GetFollowMaxTenthLb(); m < o.GetWorkingSets()[0].GetLoadTenthLb() {
 				t.Fatalf("override follow max %d, want the load of the first set %d or more", m, o.GetWorkingSets()[0].GetLoadTenthLb())
 			}
+			// And the rep limits of the override (D-343).
+			if o.GetFollowMinReps() != 8 || o.GetFollowMaxReps() != 12 {
+				t.Fatalf("override rep limits %d to %d, want 8 to 12", o.GetFollowMinReps(), o.GetFollowMaxReps())
+			}
 		}
 	}
 	after, _, _ := f.maker.Plans.Get(ctx, "uid-a")

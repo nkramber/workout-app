@@ -421,27 +421,31 @@ test("the first set gives the working load with no network, go now advances, and
   await context.setOffline(false);
 });
 
-// The acceptance story of PR-38 (D-306 to D-309), from the live check of
-// 4bbf6c8. The first workout calibrates the chest press, so the revision
-// gives it a target with the limit of the policy. In the next session,
-// the owner logs the first set two weights above the target. The next
-// set then gets one weight above the target, the limit, with no network.
-test("the later sets follow a heavier first set up to the limit of the policy", async ({ page, context, request }, info) => {
+// The acceptance story of PR-44 (D-340 to D-345), after the story of
+// PR-38 (D-306 to D-309). The first workout calibrates the chest press,
+// so the revision gives it a target with the limits of the policy and
+// the best set of that workout. In the next session, the owner logs the
+// first set two weights above the target. The next set then gets one
+// weight above the target, the limit, with no network. Set 2 gets 2 more
+// reps at 2 reps in reserve, so set 3 gets those reps. On the next
+// machine, a heavier first set at 0 reps in reserve changes nothing.
+test("a set that goes up gives the later sets its reps and its weight, inside the limits of the policy", async ({ page, context, request }, info) => {
   const email = uniqueEmail("workout-follow", info);
   await makePlanOwner(request, email, MACHINES);
   await openWithPlan(page, email);
   await expect(syncLine(page)).toHaveText("Synced");
   await button(page, "Workout").click();
   await button(page, "Start Session 1").click();
-  expect(await logSets(page, 3)).toBe(3);
-  await button(page, "Finish now").click();
-  await page.getByRole("alertdialog").getByRole("button", { name: "Finish now", exact: true }).click();
+  // Both machines get history, so the shoulder press has no calibration
+  // in the next session.
+  expect(await logSets(page, 6)).toBe(6);
+  await button(page, "Finish workout").click();
   await expect(page.locator('[data-testid="next-target"][data-exercise-id="chest_press"]')).toBeVisible({ timeout: 20_000 });
   await button(page, "Done").click();
 
-  // The plan screen tells the limit.
+  // The plan screen tells the limits.
   await button(page, "Plan").click();
-  await expect(page.getByTestId("follow-limit").first()).toContainText("When you change the weight of set 1, the other sets use it, up to ");
+  await expect(page.getByTestId("follow-limit").first()).toContainText("When a set goes up at 1 or more reps in reserve, the later sets use its reps and its weight: 8 to 12 reps, up to ");
   await button(page, "Back").click();
 
   // The rotation keeps the chest press in Session 1 alone (D-328), so
@@ -452,28 +456,48 @@ test("the later sets follow a heavier first set up to the limit of the policy", 
   await expect(page.getByRole("heading", { name: "Session 1", exact: true })).toBeVisible();
   await expect(logger(page).getByTestId("logger-exercise")).toHaveText("Chest press");
   await expect(logger(page).getByTestId("set-label")).toHaveText("Set 1 of 3");
-  const target = Number((await logger(page).getByTestId("set-target").textContent())?.match(/ at (\d+) lb/)?.[1]);
+  const [, reps, target] = ((await logger(page).getByTestId("set-target").textContent())?.match(/^Target: (\d+) reps at (\d+) lb/) ?? []).map(Number);
   expect(target).toBeGreaterThan(0);
+  // The first workout logged each set at its target, at 3 reps in
+  // reserve, so the best set has the reps of the target before the
+  // revision (D-340).
+  await expect(logger(page).getByTestId("last-best")).toContainText(/^Last time, best set: \d+ reps at \d+ lb, 3 in reserve\.$/);
   await context.setOffline(true);
   await button(page, "Heavier").click();
   await button(page, "Heavier").click();
   await expect(logger(page).getByTestId("weight")).toHaveText(`${target + 20} lb`);
   await button(page, "3 in reserve").click();
   await expect(logger(page).getByTestId("set-label")).toHaveText("Set 2 of 3");
-  await expect(logger(page).getByTestId("set-target")).toContainText(` at ${target + 10} lb`);
+  await expect(logger(page).getByTestId("set-target")).toContainText(`${reps} reps at ${target + 10} lb`);
   await expect(logger(page).getByTestId("weight")).toHaveText(`${target + 10} lb`);
-  await expect(logger(page).getByTestId("follow-note")).toHaveText(
-    "The first set was heavier than the target. This set goes up one weight of the machine, the limit of the policy.",
-  );
+  await expect(logger(page).getByTestId("follow-note")).toHaveText("Set 1 went past a limit of the policy. This set uses the limit.");
+
+  const more = Math.min(reps + 2, 12);
+  for (let i = reps; i < more; i++) await button(page, "More reps").click();
+  await button(page, "2 in reserve").click();
+  await expect(logger(page).getByTestId("set-label")).toHaveText("Set 3 of 3");
+  await expect(logger(page).getByTestId("set-target")).toContainText(`${more} reps at ${target + 10} lb`);
+  await expect(logger(page).getByTestId("reps")).toHaveText(String(more));
+  await expect(logger(page).getByTestId("follow-note")).toHaveText("Set 2 gave this target.");
+  await button(page, "3 in reserve").click();
+
+  // A heavier first set at 0 reps in reserve gives nothing to the later
+  // sets (D-341).
+  await button(page, "Go now").click();
+  await expect(logger(page).getByTestId("set-label")).toHaveText("Set 1 of 3");
+  const before = (await logger(page).getByTestId("set-target").textContent()) ?? "";
+  await button(page, "Heavier").click();
+  await button(page, "0 in reserve").click();
+  await expect(logger(page).getByTestId("set-label")).toHaveText("Set 2 of 3");
+  await expect(logger(page).getByTestId("set-target")).toHaveText(before);
+  await expect(logger(page).getByTestId("follow-note")).toHaveCount(0);
   await context.setOffline(false);
 
-  // The rules read the load that the later sets followed (D-309), so the
-  // next target starts from it.
-  for (let i = 2; i <= 3; i++) await button(page, "3 in reserve").click();
+  // The next session starts from the last mirrored values (D-345).
   await button(page, "Finish now").click();
   await page.getByRole("alertdialog").getByRole("button", { name: "Finish now", exact: true }).click();
   const press = page.locator('[data-testid="next-target"][data-exercise-id="chest_press"]');
-  await expect(press).toContainText(new RegExp(` at (${target + 10}|${target + 20}) lb`), { timeout: 20_000 });
+  await expect(press).toContainText(`${more} reps at ${target + 10} lb`, { timeout: 20_000 });
 });
 
 // The deletion of all data (D-314, D-315). The control is in a closed

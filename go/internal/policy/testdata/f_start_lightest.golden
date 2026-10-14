@@ -1,4 +1,4 @@
-policy version: 9
+policy version: 10
 exercise: chest_press
 model: "", effort: "", prompt hash: ""
 source: rules, cause: "no-proposal"
@@ -8,4 +8,5 @@ target: chest_press, rest 60 s
   working[1]: 8 reps at 10 lb, 3 RIR
   working[2]: 8 reps at 10 lb, 3 RIR
   working[0] is the calibration
+  a set that goes up gives the later sets 8 to 12 reps
 reason: This exercise is new, and it has no load estimate. It starts at the lightest weight, 10 lb. The first set is the calibration. Change the weight during its first reps when it is too light or too heavy. The other sets use the weight of the first set.

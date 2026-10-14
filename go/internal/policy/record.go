@@ -111,9 +111,11 @@ func Decide(in Input, p Proposal) (Record, error) {
 			// The rules decide the calibration, and a proposal can not
 			// change it (D-301).
 			r.Target.FirstSetCalibration = d.Target.FirstSetCalibration
-			// The policy gives the limit of the other working sets too
-			// (D-306).
-			r.Target.FollowMax = Follow(r.Target, in.Entry.Available())
+			// The policy gives the limits of the other working sets too
+			// (D-306, D-343), and the rules give the last best set
+			// (D-340).
+			Limits(&r.Target, in.Exercise, in.Entry.Available())
+			r.Target.LastBest = d.Target.LastBest
 			r.Loads = sameLoads(prop)
 			return r, nil
 		}

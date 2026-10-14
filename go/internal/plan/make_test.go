@@ -417,8 +417,8 @@ func TestRotationRetry(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if p.Attempts != 2 || p.PolicyVersion != 9 {
-		t.Fatalf("%d attempts, policy version %d: want 2 and 9", p.Attempts, p.PolicyVersion)
+	if p.Attempts != 2 || p.PolicyVersion != policy.Version {
+		t.Fatalf("%d attempts, policy version %d: want 2 and %d", p.Attempts, p.PolicyVersion, policy.Version)
 	}
 	prev := input(t, f.fake.Calls()[1])["previous_attempt"].(map[string]any)
 	if !strings.Contains(prev["cause"].(string), "rotation.no-repeat sessions[0] and sessions[1]: group quadriceps in both sessions") {

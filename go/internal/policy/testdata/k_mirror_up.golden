@@ -1,0 +1,10 @@
+policy version: 10
+rules: progress.effort-hold
+target: biceps_curl, rest 60 s
+  working[0]: 12 reps at 105 lb, 2 RIR
+  working[1]: 12 reps at 105 lb, 2 RIR
+  working[2]: 12 reps at 105 lb, 2 RIR
+  the other sets follow working[0], up to 110 lb
+  a set that goes up gives the later sets 8 to 12 reps
+  last best set: 12 reps at 105 lb, 2 RIR
+reason: Not every set had 3 reps in reserve or more. The target stays the same.

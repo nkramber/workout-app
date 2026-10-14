@@ -294,7 +294,8 @@ func targetsFrom(in []*workoutappv1.SeenTarget) ([]domain.PlannedExercise, []wor
 	var out []domain.PlannedExercise
 	var overrides []workout.SeenOverride
 	for _, t := range in {
-		p := domain.PlannedExercise{Exercise: domain.ExerciseID(t.GetExerciseId()), RestSeconds: int(t.GetRestSeconds()), FirstSetCalibration: t.GetFirstSetCalibration(), FollowMax: domain.Load(t.GetFollowMaxTenthLb())}
+		p := domain.PlannedExercise{Exercise: domain.ExerciseID(t.GetExerciseId()), RestSeconds: int(t.GetRestSeconds()), FirstSetCalibration: t.GetFirstSetCalibration(), FollowMax: domain.Load(t.GetFollowMaxTenthLb()),
+			FollowMinReps: int(t.GetFollowMinReps()), FollowMaxReps: int(t.GetFollowMaxReps())}
 		if t.GetOverrideReason() != "" || len(t.GetRecommendedWorkingSets()) > 0 {
 			o := workout.SeenOverride{Exercise: p.Exercise, Reason: t.GetOverrideReason()}
 			for _, w := range t.GetRecommendedWorkingSets() {
@@ -318,7 +319,8 @@ func targetsFrom(in []*workoutappv1.SeenTarget) ([]domain.PlannedExercise, []wor
 func targetsTo(in []domain.PlannedExercise, overrides []workout.SeenOverride) []*workoutappv1.SeenTarget {
 	var out []*workoutappv1.SeenTarget
 	for _, t := range in {
-		p := &workoutappv1.SeenTarget{ExerciseId: string(t.Exercise), RestSeconds: int32(t.RestSeconds), FirstSetCalibration: t.FirstSetCalibration, FollowMaxTenthLb: int32(t.FollowMax)}
+		p := &workoutappv1.SeenTarget{ExerciseId: string(t.Exercise), RestSeconds: int32(t.RestSeconds), FirstSetCalibration: t.FirstSetCalibration, FollowMaxTenthLb: int32(t.FollowMax),
+			FollowMinReps: int32(t.FollowMinReps), FollowMaxReps: int32(t.FollowMaxReps)}
 		for _, o := range overrides {
 			if o.Exercise != t.Exercise {
 				continue

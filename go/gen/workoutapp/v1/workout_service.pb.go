@@ -756,8 +756,13 @@ type SeenTarget struct {
 	// (D-306, D-307), as the plan gave it. The policy reads the load that
 	// the other working sets used as the load of the session (D-309).
 	FollowMaxTenthLb int32 `protobuf:"varint,8,opt,name=follow_max_tenth_lb,json=followMaxTenthLb,proto3" json:"follow_max_tenth_lb,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	// The rep limits of the mirror (D-341, D-343, D-344), as the plan gave
+	// them. The policy reads the targets that the working sets showed, and it
+	// starts the next session from the last mirrored values (D-345).
+	FollowMinReps int32 `protobuf:"varint,9,opt,name=follow_min_reps,json=followMinReps,proto3" json:"follow_min_reps,omitempty"`
+	FollowMaxReps int32 `protobuf:"varint,10,opt,name=follow_max_reps,json=followMaxReps,proto3" json:"follow_max_reps,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SeenTarget) Reset() {
@@ -842,6 +847,20 @@ func (x *SeenTarget) GetFirstSetCalibration() bool {
 func (x *SeenTarget) GetFollowMaxTenthLb() int32 {
 	if x != nil {
 		return x.FollowMaxTenthLb
+	}
+	return 0
+}
+
+func (x *SeenTarget) GetFollowMinReps() int32 {
+	if x != nil {
+		return x.FollowMinReps
+	}
+	return 0
+}
+
+func (x *SeenTarget) GetFollowMaxReps() int32 {
+	if x != nil {
+		return x.FollowMaxReps
 	}
 	return 0
 }
@@ -1753,7 +1772,7 @@ const file_workoutapp_v1_workout_service_proto_rawDesc = "" +
 	"endedEarly\x12\x1a\n" +
 	"\bfinished\x18\x05 \x01(\bR\bfinished\x123\n" +
 	"\atargets\x18\x06 \x03(\v2\x19.workoutapp.v1.SeenTargetR\atargets\x12-\n" +
-	"\x12history_generation\x18\a \x01(\x05R\x11historyGeneration\"\xb5\x03\n" +
+	"\x12history_generation\x18\a \x01(\x05R\x11historyGeneration\"\x85\x04\n" +
 	"\n" +
 	"SeenTarget\x12\x1f\n" +
 	"\vexercise_id\x18\x01 \x01(\tR\n" +
@@ -1764,7 +1783,10 @@ const file_workoutapp_v1_workout_service_proto_rawDesc = "" +
 	"\x18recommended_working_sets\x18\x05 \x03(\v2\x19.workoutapp.v1.PlannedSetR\x16recommendedWorkingSets\x12'\n" +
 	"\x0foverride_reason\x18\x06 \x01(\tR\x0eoverrideReason\x122\n" +
 	"\x15first_set_calibration\x18\a \x01(\bR\x13firstSetCalibration\x12-\n" +
-	"\x13follow_max_tenth_lb\x18\b \x01(\x05R\x10followMaxTenthLb\"\xe4\x01\n" +
+	"\x13follow_max_tenth_lb\x18\b \x01(\x05R\x10followMaxTenthLb\x12&\n" +
+	"\x0ffollow_min_reps\x18\t \x01(\x05R\rfollowMinReps\x12&\n" +
+	"\x0ffollow_max_reps\x18\n" +
+	" \x01(\x05R\rfollowMaxReps\"\xe4\x01\n" +
 	"\bSetEntry\x12\x1d\n" +
 	"\n" +
 	"workout_id\x18\x01 \x01(\tR\tworkoutId\x12\x1f\n" +
