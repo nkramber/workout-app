@@ -16,7 +16,9 @@ The acceptance story: the target is 10 x 100 lb. A first set of 12 x 105 lb at 2
 
 `make go-test` and `make emulator-test` passed. The phone unit tests passed.
 
-Next action: read the result of `make web`, run `make verify` and `make pr-check`, then push and open the pull request.
+Review state: Codex reviewed effective head `1f2469ad894c6c94959d3af4fb34b80d855f58a6`. Verdict: Ready for owner merge. No open findings. The review-gate check needs a fresh result after the review record push.
+
+Next action: wait for the review-gate result and the owner confirmation before the merge of PR-44.
 
 ## Facts that expire
 
